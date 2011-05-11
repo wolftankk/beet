@@ -1,0 +1,61 @@
+/*
+ * beet.css
+ * Author: wolftankk@gmail.com
+ *
+ *
+ */
+
+#loading-mask{
+	background: #fff;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	z-index: 20000;
+}
+
+#loading{
+	height: auto;
+	position: absolute;
+	left: 45%;
+	top:40%;
+	padding: 2px;
+	z-index:20001;
+}
+
+.loading-msg{
+	font-size: 11px;
+	font-weight: normal;
+	display: block;
+}
+
+#loading-indicator{
+
+}
+
+header, #header{
+	border: 1px solid;
+	width: 100%;
+	height: 90px;
+	padding: 5px;
+	margin-bottom: 10px;
+}
+
+aside{
+	position: absolute;
+	width: 360px;
+	border: 1px solid #f00;
+	height: 1000px;
+}
+
+#console-wrapper{
+	position: absolute;
+	border: 1px solid #0f0;
+	background: none repeat scroll 0 0 #FFFFFF;
+	border-radius: 5px 5px 5px 5px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+	left: 365px;
+	width: 890px;
+	height: 1000px;
+}

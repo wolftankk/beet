@@ -2,37 +2,78 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<title></title>
+		<title>Beet</title>
+		<meta name="description" content="" >
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+		<link rel="stylesheet" type="text/css" href="resources/css/ext-all.css" />
+		<link rel="stylesheet" type="text/css" href="resources/css/beet.css" />
+
+		<!-- let the stupid ie suport html5 -->
+		<!--[if lt IE 9]>
+		<script src="js/html5.js"></script>
+		<![endif]-->
+		
 	</head>
 	<body>
+		<header id="header">
+			header	
+		</header>
+		
+		<!-- loading ... -->
 		<div id="loading-mask"></div>
 		<div id="loading">
+			<div class="loading-indicator">
+				LOGO
+			</div>
 			<span id="loading-msg">正在加载中，请稍后⋯⋯⋯⋯</span>
+			<div id="loading-progress">
+
+			</div>
 		</div>
 
 		<div id="viewport">
-			
 			<script type="text/javascript">
-				document.getElementById("loading-msg").innerHTML = "Loading core API...";
+				document.getElementById("loading-msg").innerHTML = "正在加载核心库...";
 			</script>
-			<script type="text/javascript" src="js/ext-all-debug-w-comments.js"></script>
+			<script type="text/javascript" src="js/bootstrap.js"></script>
 			<script type="text/javascript">
-				document.getElementById("loading-msg").innerHTML = "Loading User Interface Components...";
-				document.getElementById("loading-msg").innerHTML = "Initializing...";
+				document.getElementById("loading-msg").innerHTML = "正在加载用户界面素材...";
+				document.getElementById("loading-msg").innerHTML = "正在启动中...";
 			</script>
-
 			<!-- Login interface -->
-			
-			<!-- 主界面 -->
+			<div id="login">
+
+			</div>
+		</div>
+
+		<div id="container">
+			<aside>
+				left side
+			</aside>
+			<article id="console-wrapper">
+				控制区
+			<article>
+		</div>
 
 
-
+		<footer>
 			<script type="text/javascript">
 				Ext.onReady(function(){
-						
+					var hideLoading = function(){
+						Ext.get("loading").remove();
+						Ext.fly("loading-mask").animate({
+							opacity: 0,
+							remove: true,
+						})
+					}	
+					Ext.defer(hideLoading, 250);
+
+					//判断cookie/用户是否记录登陆
+
 				}, 500);
 
 			</script>
-		</div>
+		</footer>
 	</body>
 </html>
