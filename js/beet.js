@@ -18,8 +18,8 @@ Ext.define("Beet.apps.Login.LoginDialog", {
 	plain: true,
 	closable: false,
 	closeAction: 'hide',
-	width : 400,
-	height: 300,
+	width : 300,
+	height: 180,
 	layout: 'fit',
 	border: false,
 	modal: true,
@@ -38,22 +38,59 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 	alias: "widget.LoginFormPanel",
 	labelAlign: "left",
 	buttonAlign: "center",
-	bodyStyle: "padding:5px;margin:10px;",
+	bodyStyle: "padding:5px;margin:5px;",
 	frame: true,
-	labelWidth: 80,
+	defaults: {
+		labelWidth: 50,
+		xtype: "textfield",
+		flex: 1
+	},
 	items : [
-
+		//@TODO: 这里需要加一个logo
+		{
+			xtype : "textfield",
+			name : "username",
+			fieldLabel: "用户名",
+			allowBlank: false,
+			anchor: '90%',
+			enableKeyEvents: true,
+			listen: {
+				keypress: function(field, e){
+					var keyCode = e.getKey();
+					if (keyCode == 13){
+						this.nextSibling().focus();
+					}
+				}
+			}
+		},
+		{
+			xtype: "textfield",
+			inputType: "password",
+			fieldLabel: "密码",
+			allowBlank: false,
+			anchor: '90%',
+			enableKeyEvents: true,
+			listen: {
+				keypress: function(field, e){
+					if (e.getKey() == 13){
+						this.nextSibling().focus()
+					}
+				}
+			}
+		}
 	],
 	buttons: [
 		{
 			text: "重置",		
 			handler: function(){
-				console.log(this.up('form').getForm())
+				console.log(this.up('form').getForm().reset())
 			}
 		},
 		{
 			text: "确定",
 			handler: function(){
+				//提交控制区
+				//登陆成功后 跳转到main.html
 
 			}
 		}
