@@ -30,8 +30,8 @@
 	display: block;
 }
 
-#loading-indicator{
-
+#loading .loading-indicator{
+	padding: 10px;
 }
 
 header, #header{
@@ -46,7 +46,6 @@ aside{
 	position: absolute;
 	width: 360px;
 	border: 1px solid #f00;
-	height: 1000px;
 }
 
 #console-wrapper{
@@ -57,5 +56,4 @@ aside{
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
 	left: 365px;
 	width: 890px;
-	height: 1000px;
 }
