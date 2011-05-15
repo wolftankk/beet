@@ -95,5 +95,40 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 			}
 		}
 	]
-
 });
+
+
+Ext.define("Beet.apps.Menu", {
+	extend: "Ext.tab.Panel",	
+	activeTab: 0,
+	renderTo: "navigation",
+	width: '100%',
+	height: 200,
+	defaults: {
+		bodyPadding: 10,
+		closeTab: false
+	},
+	items: [
+		{
+			title: "库存管理",
+		},
+		{
+			title: "人事管理"
+		},
+		{
+			title: "排班管理"
+		},
+		{
+			title: "客户管理"
+		}
+	],
+
+	//详见tools区
+	tools:{
+		type: "help",
+		qtip: "获得帮助",
+		handler: function(event, toolEl, panel){
+
+		}
+	}
+})

@@ -20,13 +20,19 @@
 	</head>
 	<body>
 		<header>
-			<nav></nav>
+			<!-- 导航层 -->
+			<nav id="navigation"></nav>
 		</header>
 		<section>
 
 		</section>
 		<footer>
-
+			<script type="text/javascript">
+				Ext.onReady(function(){
+					Ext.QuickTips.init();
+					Ext.create("Beet.apps.Menu")
+				});
+			</script>
 		</footer>	
 	</body>
 </html>
