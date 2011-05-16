@@ -28,9 +28,7 @@
 		<script type="text/javascript" src="js/my/xxtea.js"></script>
 	</head>
 	<body>
-		<header>
-			<!-- 导航层 -->
-			<nav id="navigation"></nav>
+		<header id="header">
 		</header>
 		<section id="viewport">
 		</section>
@@ -43,11 +41,13 @@
 					Ext.QuickTips.init();
 					Ext.create("Beet.apps.Menu")
 
+					/*
 					dataview = Ext.create("Beet.apps.Grid.DataView", {
 						store : 'Beet.apps.Grid.Store.CRecord'
 					})
-
-					function Button1_onclick() {
+					*/
+					/*
+					function userLogin() {
 						mls.Login("admin", xxtea_encrypt('admin'), '', '' ,{
 							success: function(res) { 
 								userId = res;
@@ -59,25 +59,22 @@
 					}
 
 					if (!userId){
-						Ext.defer(Button1_onclick, 250)
+						Ext.defer(userLogin, 250)
 					}
 
 					Ext.defer(function(){
-						//console.log(userId);
 						mls.GetSessionID({
 							success: function(res){
 								dataview.storeProxy.on("beforeload", function(store){
-									console.log("Fire beforeload");
 									store.proxy.extraParams = {SessionID : res, Where: '', isClean: false}	
-									console.log(store);
 								})
 								dataview.storeProxy.load({params: { start: 0, limit: 50 }});
 							},
 							failure: function(error){
-								console.log(error);
 							}
 						})
 					}, 2000)
+					*/
 				});
 	
 			</script>
