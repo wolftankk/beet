@@ -96,23 +96,46 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 //导航目录
 //这一部分需要重写 ext自身的始终无法达到我们的需求
 Ext.namespace("Beet.apps.Menu");
+Ext.define("Beet.apps.Menu.Panel", {
+	extend: "Ext.panel.Panel",
+	width: "100%",	
+	layout: "fit",
+	renderTo: "header",
+	initComponent: function(){
+		var that = this;
+		that.configurePanel = new Ext.panel.Panel(that.getCPanelConfig());
+		that.dockedItems = [
+			{
+				xtype: "BeetMenuBar",
+				configurePanel: that.configurePanel,
+				dock: "top"
+			},
+			that.configurePanel
+		]
+		this.callParent(arguments);
+	},
+	getCPanelConfig: function(){
+		return {
+			width: '100%',
+			height: 100,
+			border: 1,
+			layout: "fit",
+			dock: "bottom",
+		}
+	}
+})
 
-Ext.define("Beet.apps.Menu", {
+Ext.define("Beet.apps.MenuToolbar", {
 	extend: "Ext.toolbar.Toolbar",
 	alias: "widget.BeetMenuBar",
 	width: "100%",
-	renderTo: "header",
 	useQuickTips: true,
 	initComponent: function(){
 		var that = this;
 		if (that.useQuickTips){
 			Ext.QuickTips.init();
 		}
-
-		//创建一个panel 依附在toolbar下部
-		that.configurePanel = new Ext.panel.Panel(that.getCPanelConfig());
-		console.log(that)
-
+		console.log(this.configurePanel)
 		//create menu start menu button
 		//that.startMenu 
 
@@ -138,15 +161,6 @@ Ext.define("Beet.apps.Menu", {
 	afterLayout: function(){
 		var that = this;
 		that.callParent();
-	},
-	//获取配置面板配置
-	getCPanelConfig : function(){
-		var that = this;
-		return {
-			width: '100%',
-			height: 100,
-		}
-
 	},
 	//获取导航栏配置
 	getNavitionConfig: function(){
