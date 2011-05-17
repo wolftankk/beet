@@ -95,27 +95,56 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 
 //导航目录
 //这一部分需要重写 ext自身的始终无法达到我们的需求
+Ext.namespace("Beet.apps.Menu");
+
 Ext.define("Beet.apps.Menu", {
-	extend: "Ext.tab.Panel",
-	width: '100%',
-	height: 100,
-	shadow: true,
-	renderTo: 'header',
-	border: false,
-	titleCollapse: true,
-	resizeTabs: true,
-	minTabWidth: 150,
-	items: [
-		{
-			title: '客户管理',
-			html: '123131',
-		},
-		{
-			title: "库存管理"
-		}
-	],
+	extend: "Ext.toolbar.Toolbar",
+	alias: "widget.BeetMenuBar",
+	width: "100%",
+	renderTo: "header",
+	useQuickTips: true,
 	initComponent: function(){
-		this.callParent(arguments);
+		var that = this;
+		if (that.useQuickTips){
+			Ext.QuickTips.init();
+		}
+		that.items = [
+			//about button
+			{
+				xtype: "button",
+				text: "1323"
+			}, "-",
+			{
+				xtype: "tabbar",
+				width: '60%',
+				border: 0,
+				defaults: {
+					closable: false
+				},
+				layout: 'fit',
+				items: [
+					{"text" : "213"},
+					{"text" : "213"},
+					{"text" : "213"}
+				
+				],
+			}
+			
+			//menu category button
+			
+
+			//username
+
+			//help
+
+		]
+
+		that.callParent();
+	},
+	afterLayout: function(){
+		var that = this;
+		that.callParent();
+		
 	}
 	/*
 	tools:{
