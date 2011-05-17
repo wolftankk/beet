@@ -108,30 +108,24 @@ Ext.define("Beet.apps.Menu", {
 		if (that.useQuickTips){
 			Ext.QuickTips.init();
 		}
+
+		//创建一个panel 依附在toolbar下部
+		that.configurePanel = new Ext.panel.Panel(that.getCPanelConfig());
+		console.log(that)
+
+		//create menu start menu button
+		//that.startMenu 
+
+		//tab bar
+		that.navigationTab = new Ext.tab.Bar(that.getNavitionConfig());
 		that.items = [
 			//about button
 			{
 				xtype: "button",
-				text: "1323"
+				text: "start Menu",	
 			}, "-",
-			{
-				xtype: "tabbar",
-				width: '60%',
-				border: 0,
-				defaults: {
-					closable: false
-				},
-				layout: 'fit',
-				items: [
-					{"text" : "213"},
-					{"text" : "213"},
-					{"text" : "213"}
-				
-				],
-			}
-			
 			//menu category button
-			
+			that.navigationTab,	
 
 			//username
 
@@ -144,7 +138,38 @@ Ext.define("Beet.apps.Menu", {
 	afterLayout: function(){
 		var that = this;
 		that.callParent();
-		
+	},
+	//获取配置面板配置
+	getCPanelConfig : function(){
+		var that = this;
+		return {
+			width: '100%',
+			height: 100,
+		}
+
+	},
+	//获取导航栏配置
+	getNavitionConfig: function(){
+		var items = [
+			{
+				text: "客户管理",
+			},
+			{
+				text: "仓库管理",
+			}
+		]
+
+		return {
+			border: false,
+			width: '70%',
+			closable: false,
+			activeItem: 0,
+			defaults: {
+				closable: false
+			},
+			shadow: true,
+			items: items,
+		}
 	}
 	/*
 	tools:{
