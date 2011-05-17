@@ -103,7 +103,7 @@ Ext.define("Beet.apps.Menu.Panel", {
 	renderTo: "header",
 	initComponent: function(){
 		var that = this;
-		that.configurePanel = new Ext.panel.Panel(that.getCPanelConfig());
+		that.configurePanel = new Ext.tab.Panel(that.getCPanelConfig());
 		that.dockedItems = [
 			{
 				xtype: "BeetMenuBar",
@@ -115,92 +115,22 @@ Ext.define("Beet.apps.Menu.Panel", {
 		this.callParent(arguments);
 	},
 	getCPanelConfig: function(){
-		return {
+		var config = {
 			width: '100%',
-			height: 100,
 			border: 1,
+			height: 100,
 			layout: "fit",
+			id: "configurePanel",
 			dock: "bottom",
-		}
-	}
-})
-
-Ext.define("Beet.apps.MenuToolbar", {
-	extend: "Ext.toolbar.Toolbar",
-	alias: "widget.BeetMenuBar",
-	width: "100%",
-	useQuickTips: true,
-	initComponent: function(){
-		var that = this;
-		if (that.useQuickTips){
-			Ext.QuickTips.init();
-		}
-		console.log(this.configurePanel)
-		//create menu start menu button
-		//that.startMenu 
-
-		//tab bar
-		that.navigationTab = new Ext.tab.Bar(that.getNavitionConfig());
-		that.items = [
-			//about button
-			{
-				xtype: "button",
-				text: "start Menu",	
-			}, "-",
-			//menu category button
-			that.navigationTab,	
-
-			//username
-
-			//help
-
-		]
-
-		that.callParent();
-	},
-	afterLayout: function(){
-		var that = this;
-		that.callParent();
-	},
-	//获取导航栏配置
-	getNavitionConfig: function(){
-		var items = [
-			{
-				text: "客户管理",
-			},
-			{
-				text: "仓库管理",
-			}
-		]
-
-		return {
-			border: false,
-			width: '70%',
-			closable: false,
-			activeItem: 0,
-			defaults: {
-				closable: false
-			},
-			shadow: true,
-			items: items,
-		}
-	}
-	/*
-	tools:{
-		type: "help",
-		qtip: "获得帮助",
-		handler: function(event, toolEl, panel){
-
-		}
-	}
-	*/
-	/*
+			floating: true,
 			items: [
 				{
 					title: "库存管理",
+					html : "we1231",
 				},
 				{
-					title: "人事管理"
+					title: "人事管理",
+					html: "23131412412"
 				},
 				{
 					title: "排班管理"
@@ -209,8 +139,69 @@ Ext.define("Beet.apps.MenuToolbar", {
 					title: "客户管理"
 				}
 			]
-	*/
+		}
 
+		return config
+	}
+})
+
+Ext.define("Beet.apps.MenuToolbar", {
+	extend: "Ext.toolbar.Toolbar",
+	alias: "widget.BeetMenuBar",
+	width: "100%",
+	height: 31,
+	useQuickTips: true,
+	initComponent: function(){
+		var that = this;
+		if (that.useQuickTips){
+			Ext.QuickTips.init();
+		}
+		//create menu start menu button
+		//that.startMenu 
+
+		//导航栏toolbar
+		that.navigationToolbar = new Ext.toolbar.Toolbar(that.getNavitionConfig());
+		that.navigationToolbar.parent = that;
+
+		that.items = [
+			//about button
+			{
+				xtype: "button",
+				text: "start Menu",	
+			}, "-",
+			//menu category button
+			that.navigationToolbar,
+			//username
+
+			//help
+
+		]
+		that.callParent();
+	},
+	afterLayout: function(){
+		var that = this;
+		that.callParent();
+	},
+	//获取导航栏配置
+	getNavitionConfig: function(){
+		var that = this, config,
+		configurePanel = that.configurePanel, navigationTab = configurePanel.getTabBar();
+		navigationTab.ownerCt = that.parent;
+		navigationTab.dock = "";
+		navigationTab.width = '60%';
+		navigationTab.height=23;
+		navigationTab.border=0;
+		config = {
+			minWidth: '60%',
+			width: '70%',
+			border: false,
+			items: [
+				navigationTab	
+			],
+			enableOverflow: true
+		}
+		return config
+	},
 })
 
 Ext.define("Beet.apps.StatusBar", {
