@@ -55,3 +55,13 @@ aside{
 	left: 365px;
 	width: 890px;
 }
+
+.beet-navigationbar{
+	padding-left: 5px !important;
+}
+
+.beet-navigationbar .x-toolbar {
+    background: transparent none;
+    border-color: transparent;
+}
+

@@ -123,6 +123,7 @@ Ext.define("Beet.apps.Menu.Panel", {
 			id: "configurePanel",
 			dock: "bottom",
 			floating: true,
+			plain: true,
 			items: [
 				{
 					title: "库存管理",
@@ -150,6 +151,7 @@ Ext.define("Beet.apps.MenuToolbar", {
 	alias: "widget.BeetMenuBar",
 	width: "100%",
 	height: 31,
+	cls: "beet-navigationbar",
 	useQuickTips: true,
 	initComponent: function(){
 		var that = this;
@@ -188,17 +190,16 @@ Ext.define("Beet.apps.MenuToolbar", {
 		configurePanel = that.configurePanel, navigationTab = configurePanel.getTabBar();
 		navigationTab.ownerCt = that.parent;
 		navigationTab.dock = "";
-		navigationTab.width = '60%';
+		navigationTab.width = '70%';
 		navigationTab.height=23;
 		navigationTab.border=0;
 		config = {
 			minWidth: '60%',
 			width: '70%',
-			border: false,
 			items: [
 				navigationTab	
 			],
-			enableOverflow: true
+			enableOverflow: false,
 		}
 		return config
 	},
