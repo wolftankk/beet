@@ -65,3 +65,10 @@ aside{
     border-color: transparent;
 }
 
+.beet-navtoolbar{
+}
+.beet-navtoolbar .x-btn-inner,
+.x-nbr .beet-navtoolbar .x-btn-icon-text-left button {
+    text-align: left !important;
+}
+

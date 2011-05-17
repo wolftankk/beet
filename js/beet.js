@@ -149,7 +149,6 @@ Ext.define("Beet.apps.Menu.Panel", {
 Ext.define("Beet.apps.MenuToolbar", {
 	extend: "Ext.toolbar.Toolbar",
 	alias: "widget.BeetMenuBar",
-	width: "100%",
 	height: 31,
 	cls: "beet-navigationbar",
 	useQuickTips: true,
@@ -165,23 +164,30 @@ Ext.define("Beet.apps.MenuToolbar", {
 		that.navigationToolbar = new Ext.toolbar.Toolbar(that.getNavitionConfig());
 		that.navigationToolbar.parent = that;
 
+		//最右边
+		that.rightArea = new Ext.toolbar.Toolbar(that.getRightAreaConfig());
+
 		that.items = [
 			//about button
 			{
 				xtype: "button",
 				text: "start Menu",	
-			}, "-",
+			}, 
 			//menu category button
 			that.navigationToolbar,
+			
 			//username
-
+			"-",
 			//help
-
+			that.rightArea
 		]
 		that.callParent();
 	},
 	afterLayout: function(){
 		var that = this;
+		//update nav size
+		var offsetWidth = Ext.getBody().dom.offsetWidth;
+		//that.navigationToolbar.setWidth(offsetWidth - 150 - 30);
 		that.callParent();
 	},
 	//获取导航栏配置
@@ -190,19 +196,39 @@ Ext.define("Beet.apps.MenuToolbar", {
 		configurePanel = that.configurePanel, navigationTab = configurePanel.getTabBar();
 		navigationTab.ownerCt = that.parent;
 		navigationTab.dock = "";
-		navigationTab.width = '70%';
+		navigationTab.width = 1050;
 		navigationTab.height=23;
 		navigationTab.border=0;
 		config = {
-			minWidth: '60%',
-			width: '70%',
+			cls: "beet-navtoolbar",
+			width: 1050,
 			items: [
+				"&#160;",
 				navigationTab	
 			],
 			enableOverflow: false,
 		}
 		return config
 	},
+	//右边区域
+	getRightAreaConfig: function(){
+		var that = this, config;
+		config = {
+			width: '100',
+			items: [
+				"&#160;",
+				{
+					text: "xxx",
+					tooltip: "点击退出"
+				},
+				{
+					xtype: "button",
+					text: "help",
+				}
+			]
+		}
+		return config
+	}
 })
 
 Ext.define("Beet.apps.StatusBar", {
