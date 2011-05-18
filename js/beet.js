@@ -94,17 +94,19 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 });
 
 //导航目录
-//这一部分需要重写 ext自身的始终无法达到我们的需求
 Ext.namespace("Beet.apps.Menu");
 Ext.define("Beet.apps.Menu.Panel", {
 	extend: "Ext.panel.Panel",
 	width: "100%",	
 	layout: "fit",
 	renderTo: "header",
+	shadow: true,
 	initComponent: function(){
 		var that = this;
+		//目录设置面板
 		that.configurePanel = new Ext.tab.Panel(that.getCPanelConfig());
 		that.dockedItems = [
+			//顶部导航条
 			{
 				xtype: "BeetMenuBar",
 				configurePanel: that.configurePanel,
@@ -116,8 +118,8 @@ Ext.define("Beet.apps.Menu.Panel", {
 	},
 	getCPanelConfig: function(){
 		var config = {
-			width: '100%',
 			border: 1,
+			width: '100%',
 			height: 100,
 			layout: "fit",
 			id: "configurePanel",
@@ -127,7 +129,7 @@ Ext.define("Beet.apps.Menu.Panel", {
 			items: [
 				{
 					title: "库存管理",
-					html : "we1231",
+					html : "<div style='border: 1px solid #ff0000'>we1231</div>",
 				},
 				{
 					title: "人事管理",
@@ -164,30 +166,30 @@ Ext.define("Beet.apps.MenuToolbar", {
 		that.navigationToolbar = new Ext.toolbar.Toolbar(that.getNavitionConfig());
 		that.navigationToolbar.parent = that;
 
-		//最右边
-		that.rightArea = new Ext.toolbar.Toolbar(that.getRightAreaConfig());
+		//username
+		that.userName = new Ext.toolbar.TextItem({ text: "userName"});
+		that.helpButton = new Ext.toolbar.Toolbar(that.getHelpButtonConfig());
 
 		that.items = [
 			//about button
 			{
 				xtype: "button",
 				text: "start Menu",	
-			}, 
+			}, "-",
 			//menu category button
 			that.navigationToolbar,
 			
 			//username
-			"-",
+			"->",//设定到右边区域
+			'-',
 			//help
-			that.rightArea
+			that.userName, '-',
+			that.helpButton
 		]
 		that.callParent();
 	},
 	afterLayout: function(){
 		var that = this;
-		//update nav size
-		var offsetWidth = Ext.getBody().dom.offsetWidth;
-		//that.navigationToolbar.setWidth(offsetWidth - 150 - 30);
 		that.callParent();
 	},
 	//获取导航栏配置
@@ -196,12 +198,12 @@ Ext.define("Beet.apps.MenuToolbar", {
 		configurePanel = that.configurePanel, navigationTab = configurePanel.getTabBar();
 		navigationTab.ownerCt = that.parent;
 		navigationTab.dock = "";
-		navigationTab.width = 1050;
+		navigationTab.width = 600;
 		navigationTab.height=23;
 		navigationTab.border=0;
 		config = {
 			cls: "beet-navtoolbar",
-			width: 1050,
+			width: 600,
 			items: [
 				"&#160;",
 				navigationTab	
@@ -211,16 +213,11 @@ Ext.define("Beet.apps.MenuToolbar", {
 		return config
 	},
 	//右边区域
-	getRightAreaConfig: function(){
+	getHelpButtonConfig: function(){
 		var that = this, config;
 		config = {
-			width: '100',
+			layout: "fit",
 			items: [
-				"&#160;",
-				{
-					text: "xxx",
-					tooltip: "点击退出"
-				},
 				{
 					xtype: "button",
 					text: "help",
