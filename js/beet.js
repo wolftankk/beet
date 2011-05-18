@@ -305,13 +305,7 @@ Ext.define("Beet.apps.MenuToolbar", {
 				scope: that
 			},
 			duration: Ext.Number.from(true, Ext.fx.Anim.prototype.duration)
-		},
-		reExpander,
-		reExpanderOrientation,
-		
-		getDimension,
-		setDimension,
-		collapseDimension;
+		};
 
 		if (!direction){
 			direction = that.b_collapseDirection;
@@ -325,12 +319,6 @@ Ext.define("Beet.apps.MenuToolbar", {
 
 		if (direction == c.DIRECTION_BOTTOM){
 			that.b_expandedSize = parent.getHeight();
-			reExpanderOrientation = "horizontal";
-			collapseDimension = "height";
-			getDimension = "getHeight";
-			setDimension = "setHeight";
-			
-			//update
 		}
 		
 		//no scrollbars	
@@ -343,8 +331,6 @@ Ext.define("Beet.apps.MenuToolbar", {
 		}
 		that.addClsWithUI(that.b_collapsedCls)
 
-		//工具更新变化
-		
 		//开始动画
 		parent.animate(anim);
 		return that;
