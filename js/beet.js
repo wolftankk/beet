@@ -138,7 +138,22 @@ Ext.define("Beet.apps.Menu.Panel", {
 									xtype: 'fieldset',
 									title: '会员会籍',
 									flex: 1,
-									layout: "anchor"
+									layout: "anchor",
+									items: [
+										{
+											xtype: "menu",
+											plain: true,
+											items: [
+												{text: "23131"},
+												{text: "23131"},
+												{text: "23131"},
+											]
+										},
+										{
+											xtype: "button",
+											text: "增加会员"
+										}
+									]
 								},{
 									xtype: "component",
 									width: 5
