@@ -128,6 +128,9 @@ Ext.define("Beet.apps.Menu.Panel", {
 			plain: true,
 			items: [
 				{
+					title: "客户管理"
+				},
+				{
 					title: "库存管理",
 					html : "<div style='border: 1px solid #ff0000'>we1231</div>",
 				},
@@ -137,9 +140,6 @@ Ext.define("Beet.apps.Menu.Panel", {
 				},
 				{
 					title: "排班管理"
-				},
-				{
-					title: "客户管理"
 				}
 			]
 		}
@@ -154,6 +154,9 @@ Ext.define("Beet.apps.MenuToolbar", {
 	height: 31,
 	cls: "beet-navigationbar",
 	useQuickTips: true,
+	//设置两个私有属性, 为了与ext不冲突 使用 b_xxx 命名
+	b_collapseDirection : 'top',
+	b_collapsed: false,
 	initComponent: function(){
 		var that = this;
 		if (that.useQuickTips){
@@ -169,6 +172,7 @@ Ext.define("Beet.apps.MenuToolbar", {
 		//username
 		that.userName = new Ext.toolbar.TextItem({ text: "userName"});
 		that.helpButton = new Ext.toolbar.Toolbar(that.getHelpButtonConfig());
+		that.toggleButton = new Ext.toolbar.Toolbar(that.getToggleButtonConfig());
 
 		that.items = [
 			//about button
@@ -183,8 +187,9 @@ Ext.define("Beet.apps.MenuToolbar", {
 			"->",//设定到右边区域
 			'-',
 			//help
-			that.userName, '-',
-			that.helpButton
+			that.userName, ' ',
+			that.helpButton, ' ',
+			that.toggleButton
 		]
 		that.callParent();
 	},
@@ -219,12 +224,52 @@ Ext.define("Beet.apps.MenuToolbar", {
 			layout: "fit",
 			items: [
 				{
-					xtype: "button",
-					text: "help",
+					xtype: "tool",
+					type: "help",
+					handler: function(){
+						Ext.Msg.alert("Help", "2313123");//点击按钮后 触发函数
+					}
 				}
 			]
 		}
 		return config
+	},
+	getToggleButtonConfig: function(){
+		var that = this, config;
+		
+		//创建expand/collapse工具
+		that.collapseTool = that.expandTool = that.createComponent({
+			xtype: 'tool',
+			type: 'collapse-' + that.b_collapseDirection,
+			//expandType:
+			handler: Ext.Function.bind(that.toggleCollapse, that, []),
+			scope: that
+		});
+		config = {
+			layout: "fit",
+			items: [
+				that.collapseTool
+			]
+		};
+		return config;
+	},
+	toggleCollapse: function(){
+		var that = this;
+		if (that.b_collapsed){
+			that.expand();
+		}else{
+			that.collapse(that.b_collapseDirection);
+		}
+		return that
+	},
+	expand: function(){
+		if (!this.b_collapsed || this.fireEvent('beforeexpand', this) === false ){
+			return false;
+		}
+		var that = this, direction=that.b_expandDirection;
+	},
+	collapse: function(){
+
 	}
 })
 
