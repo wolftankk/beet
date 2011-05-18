@@ -157,6 +157,7 @@ Ext.define("Beet.apps.MenuToolbar", {
 	//设置两个私有属性, 为了与ext不冲突 使用 b_xxx 命名
 	b_collapseDirection : 'top',
 	b_collapsed: false,
+	b_collapsedCls: 'collapsed',
 	initComponent: function(){
 		var that = this;
 		if (that.useQuickTips){
@@ -190,8 +191,11 @@ Ext.define("Beet.apps.MenuToolbar", {
 			that.userName, ' ',
 			that.helpButton, ' ',
 			that.toggleButton
-		]
+		];
+
 		that.callParent();
+
+		that.b_collapseDirection = that.b_collapseDirection || Ext.Component.DIRECTION_TOP;
 	},
 	afterLayout: function(){
 		var that = this;
@@ -267,9 +271,108 @@ Ext.define("Beet.apps.MenuToolbar", {
 			return false;
 		}
 		var that = this, direction=that.b_expandDirection;
-	},
-	collapse: function(){
+		console.log(23131);
 
+	},
+	afterExpand: function(){
+
+	},
+	getOppositeDirection: function(direction){
+		var c = Ext.Component;
+		switch (direction){
+			case c.DIRECTION_TOP:
+				return c.DIRECTION_BOTTOM;
+			case c.DIRECTION_BOTTOM:
+				return c.DIRECTION_TOP;
+		}
+	},
+	collapse: function(direction){
+		var that = this, parent = that.ownerCt, configurePanel = that.configurePanel, c = Ext.Component, newSize = 0,
+		toolbarHeight = that.getHeight() + 2, toolbarWidth = that.getWidth(),
+		parentHeight = parent.getHeight(), parentWidth= parent.getWidth(), 
+		panelHeight = configurePanel.getHeight(), panelWidth = configurePanel.getWidth(), pos = 0,
+		anim = {
+			from:{
+				height: parentHeight,
+				width: parentWidth
+			},
+			to: {
+				height: toolbarHeight,
+				width: toolbarWidth
+			},
+			listeners: {
+				afteranimate: that.afterCollapse,
+				scope: that
+			},
+			duration: Ext.Number.from(true, Ext.fx.Anim.prototype.duration)
+		},
+		reExpander,
+		reExpanderOrientation,
+		
+		getDimension,
+		setDimension,
+		collapseDimension;
+
+		if (!direction){
+			direction = that.b_collapseDirection;
+		}
+
+		if (that.b_collapsed || that.fireEvent('beforecollapse', that, direction) === false){
+			return false;
+		}
+		reExpanderDock = direction;
+		that.b_expandDirection = that.getOppositeDirection(direction);
+
+		if (direction == c.DIRECTION_BOTTOM){
+			that.b_expandedSize = parent.getHeight();
+			reExpanderOrientation = "horizontal";
+			collapseDimension = "height";
+			getDimension = "getHeight";
+			setDimension = "setHeight";
+			
+			//update
+		}
+		
+		//no scrollbars	
+		parent.setAutoScroll(false);
+		parent.suspendLayout = true;
+		parent.body.setVisibilityMode(Ext.core.Element.DISPLAY);
+
+		if (that.collapseTool){
+			that.collapseTool.disable();
+		}
+		that.addClsWithUI(that.b_collapsedCls)
+
+		//工具更新变化
+		
+		//开始动画
+		parent.animate(anim);
+		return that;
+	},
+	afterCollapse: function(){
+		var that = this, configurePanel = that.configurePanel;
+
+		configurePanel.hide()
+		
+		that.b_collapsed = true;
+		if (that.collapseTool){
+			that.collapseTool.setType("expand-"+that.b_expandDirection);
+		}
+
+		if (that.collapseTool){
+			that.collapseTool.enable();
+		}
+	},
+	onRender: function(ct, position){
+		var that = this;
+		
+		//初始化是否需要collaps.
+		if (that.b_collapsed){
+			that.b_collapsed = false;
+			//TODO:
+		}
+
+		that.callParent(arguments);
 	}
 })
 
