@@ -454,7 +454,17 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 	}
 })
 
+//主观察入口
 Ext.namespace("Beet.apps.Viewport");
+Ext.define("Beet.apps.Viewport.Main", {
+	extend: "Ext.container.Viewport"
+
+});
+
+Ext.define("Beet.apps.Viewport.Statusbar", {
+
+});
+
 
 Ext.namespace("Beet.apps.Grid", "Beet.apps.Grid.Model", "Beet.apps.Grid.Store");
 
