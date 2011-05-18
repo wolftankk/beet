@@ -124,7 +124,6 @@ Ext.define("Beet.apps.Menu.Panel", {
 			layout: "fit",
 			id: "configurePanel",
 			dock: "bottom",
-			floating: true,
 			plain: true,
 			items: [
 				{
@@ -149,7 +148,7 @@ Ext.define("Beet.apps.Menu.Panel", {
 	}
 })
 
-Ext.define("Beet.apps.MenuToolbar", {
+Ext.define("Beet.apps.Menu.Toolbar", {
 	extend: "Ext.toolbar.Toolbar",
 	alias: "widget.BeetMenuBar",
 	height: 31,
@@ -284,7 +283,9 @@ Ext.define("Beet.apps.MenuToolbar", {
 			that.collapseTool.setType("collapse-"+that.b_collapseDirection);
 		}
 		that.b_collapsed = false;
+
 		configurePanel.show();
+
 		that.removeClsWithUI(that.b_collapsedCls);
 		anim = {
 			to: {
@@ -306,9 +307,6 @@ Ext.define("Beet.apps.MenuToolbar", {
 			parent.setCalculatedSize(parent.width, anim.from.height);
 		}
 		
-		/*
-		 * BUG 执行完动画之后 configurePanel位置出现偏移
-		 */
 		parent.animate(anim);
 		return that;
 	},
