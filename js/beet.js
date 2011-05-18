@@ -128,7 +128,8 @@ Ext.define("Beet.apps.Menu.Panel", {
 			plain: true,
 			items: [
 				{
-					title: "客户管理"
+					title: "客户管理",
+					html: "231231"
 				},
 				{
 					title: "库存管理",
@@ -270,12 +271,58 @@ Ext.define("Beet.apps.MenuToolbar", {
 		if (!this.b_collapsed || this.fireEvent('beforeexpand', this) === false ){
 			return false;
 		}
-		var that = this, direction=that.b_expandDirection;
-		console.log(23131);
+		var that = this, parent = that.ownerCt, configurePanel = that.configurePanel, c = Ext.Component,
+		direction=that.b_expandDirection, anim,
+		toolbarHeight = that.getHeight(), toolbarWidth = that.getWidth();
+		
+		if (that.collapseTool){
+			that.collapseTool.disable();
+		}
 
+		//update tool style
+		if (that.collapseTool){
+			that.collapseTool.setType("collapse-"+that.b_collapseDirection);
+		}
+		that.b_collapsed = false;
+		configurePanel.show();
+		that.removeClsWithUI(that.b_collapsedCls);
+		anim = {
+			to: {
+
+			},
+			from: {
+				height: toolbarHeight,
+				width: toolbarWidth
+			},
+			listeners: {
+				afteranimate: that.afterExpand,
+				scope: that
+			}
+		}
+		
+		if (direction == c.DIRECTION_TOP || direction == c.DIRECTION_BOTTOM){
+			parent.setCalculatedSize(parent.width, null);
+			anim.to.height = parent.getHeight();
+			parent.setCalculatedSize(parent.width, anim.from.height);
+		}
+		
+		/*
+		 * BUG 执行完动画之后 configurePanel位置出现偏移
+		 */
+		parent.animate(anim);
+		return that;
 	},
 	afterExpand: function(){
-
+		var that = this, parent = that.ownerCt, configurePanel = that.configurePanel;
+		parent.setAutoScroll(parent.initialConfig.autoScroll);
+		parent.suspendLayout=null;
+		if (parent.ownerCt){
+			parent.ownerCt.doLayout();
+		}
+		that.fireEvent("expand", that);
+		if (that.collapseTool){
+			that.collapseTool.enable();
+		}
 	},
 	getOppositeDirection: function(direction){
 		var c = Ext.Component;
@@ -314,10 +361,9 @@ Ext.define("Beet.apps.MenuToolbar", {
 		if (that.b_collapsed || that.fireEvent('beforecollapse', that, direction) === false){
 			return false;
 		}
-		reExpanderDock = direction;
 		that.b_expandDirection = that.getOppositeDirection(direction);
 
-		if (direction == c.DIRECTION_BOTTOM){
+		if (direction == c.DIRECTION_TOP){
 			that.b_expandedSize = parent.getHeight();
 		}
 		
@@ -332,14 +378,13 @@ Ext.define("Beet.apps.MenuToolbar", {
 		that.addClsWithUI(that.b_collapsedCls)
 
 		//开始动画
+		configurePanel.hide()
 		parent.animate(anim);
 		return that;
 	},
 	afterCollapse: function(){
 		var that = this, configurePanel = that.configurePanel;
 
-		configurePanel.hide()
-		
 		that.b_collapsed = true;
 		if (that.collapseTool){
 			that.collapseTool.setType("expand-"+that.b_expandDirection);
