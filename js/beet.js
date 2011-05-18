@@ -114,6 +114,10 @@ Ext.define("Beet.apps.Menu.Panel", {
 			},
 			that.configurePanel
 		]
+		
+		//当框体变动的时候 进行自动调整大小
+		Ext.EventManager.onWindowResize(that.fireResize, that);
+
 		this.callParent(arguments);
 	},
 	getCPanelConfig: function(){
@@ -193,6 +197,14 @@ Ext.define("Beet.apps.Menu.Panel", {
 		}
 
 		return config
+	},
+	fireResize: function(w, h){
+		console.log(w);
+		if (w < 960){
+			//donothing
+		}else{
+			this.setWidth(w);
+		}
 	}
 })
 
@@ -440,17 +452,6 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 		if (that.collapseTool){
 			that.collapseTool.enable();
 		}
-	},
-	onRender: function(ct, position){
-		var that = this;
-		
-		//初始化是否需要collaps.
-		if (that.b_collapsed){
-			that.b_collapsed = false;
-			//TODO:
-		}
-
-		that.callParent(arguments);
 	}
 })
 
