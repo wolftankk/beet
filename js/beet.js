@@ -125,10 +125,10 @@ Ext.define("Beet.apps.Menu.Panel", {
 			id: "configurePanel",
 			dock: "bottom",
 			plain: true,
+			minTabWidth: 100,
 			items: [
 				{
 					title: "客户管理",
-					html: "231231"
 				},
 				{
 					title: "库存管理",
@@ -151,7 +151,7 @@ Ext.define("Beet.apps.Menu.Panel", {
 Ext.define("Beet.apps.Menu.Toolbar", {
 	extend: "Ext.toolbar.Toolbar",
 	alias: "widget.BeetMenuBar",
-	height: 31,
+	height: 30,
 	cls: "beet-navigationbar",
 	useQuickTips: true,
 	//设置两个私有属性, 为了与ext不冲突 使用 b_xxx 命名
@@ -189,8 +189,8 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 			'-',
 			//help
 			that.userName, ' ',
-			that.helpButton, ' ',
-			that.toggleButton
+			that.toggleButton, ' ',
+			that.helpButton
 		];
 
 		that.callParent();
