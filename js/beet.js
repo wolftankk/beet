@@ -227,7 +227,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 			//about button
 			{
 				xtype: "button",
-				text: "start Menu",	
+				text: "start Menu",
 			}, "-",
 			//menu category button
 			that.navigationToolbar,
@@ -280,7 +280,8 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 					type: "help",
 					handler: function(){
 						Ext.Msg.alert("Help", "2313123");//点击按钮后 触发函数
-					}
+					},
+					tooltip: "点击获得帮助"
 				}
 			]
 		}
