@@ -129,6 +129,39 @@ Ext.define("Beet.apps.Menu.Panel", {
 			items: [
 				{
 					title: "客户管理",
+					items: [
+						{
+							xtype: "container",
+							layout: "hbox",
+							items: [
+								{
+									xtype: 'fieldset',
+									title: '会员会籍',
+									flex: 1,
+									layout: "anchor"
+								},{
+									xtype: "component",
+									width: 5
+								},
+								{
+									xtype: 'fieldset',
+									flex: 1,
+									title: '312313',
+									layout: 'anchor'
+								},
+								{
+									xtype: "component",
+									width: 5	
+								},
+								{
+									xtype: 'fieldset',
+									flex: 1,
+									title: "other",
+									layout: "anchor"
+								}
+							]
+						}
+					]
 				},
 				{
 					title: "库存管理",
