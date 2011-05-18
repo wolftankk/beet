@@ -454,11 +454,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 	}
 })
 
-Ext.define("Beet.apps.StatusBar", {
-
-
-});
-
+Ext.namespace("Beet.apps.Viewport");
 
 Ext.namespace("Beet.apps.Grid", "Beet.apps.Grid.Model", "Beet.apps.Grid.Store");
 
