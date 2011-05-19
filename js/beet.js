@@ -455,17 +455,36 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 	}
 })
 
-//主观察入口
-Ext.namespace("Beet.apps.Viewport");
-Ext.define("Beet.apps.Viewport.Main", {
-	extend: "Ext.container.Viewport"
+Ext.define("Beet.apps.Viewport", {
+	extend: "Ext.container.Container",	
+	renderTo: "viewport",
+	layout: "fit",
+	floatable: false,
+	border: false,
+	height: 400,
+	initComponent: function(){
+		var that=this;
+		Ext.apply(this, {});
 
+		that.items = [
+			that.createMainPanel()
+		];
+
+		that.callParent();	
+	},
+	createMainPanel: function(){
+		var panel = Ext.create("Ext.tab.Panel", {
+			border: false,
+			maxTabWidth: 230,
+			region: "top",
+			items:[
+				{title: "t1"}
+			]
+		})
+
+		return panel
+	}
 });
-
-Ext.define("Beet.apps.Viewport.Statusbar", {
-
-});
-
 
 Ext.namespace("Beet.apps.Grid", "Beet.apps.Grid.Model", "Beet.apps.Grid.Store");
 
