@@ -460,12 +460,13 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 		}
 	},
 	onTabBarClick: function(){
-		//:TODO
-		//这里执行的总有点儿不完美. expand的时候 会出现界面乱掉的bug
 		var that = this;
 		if (that.b_collapsed){
 			//fire expand
-			that.toggleCollapse();
+			//设置延迟执行函数 避免点击的时候界面乱掉
+			Ext.defer(function(){
+				that.toggleCollapse();
+			}, 1);
 		}
 	}
 })
