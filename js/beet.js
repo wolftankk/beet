@@ -254,9 +254,13 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 			that.toggleButton, ' ',
 			that.helpButton
 		];
-
+		
 		that.callParent();
-
+		Ext.defer(function(){
+			Ext.EventManager.on(that.configurePanel.getTabBar().body, "click", that.onTabBarClick, that);
+		}, 1);
+		/*
+		*/
 		that.b_collapseDirection = that.b_collapseDirection || Ext.Component.DIRECTION_TOP;
 	},
 	afterLayout: function(){
@@ -453,6 +457,15 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 
 		if (that.collapseTool){
 			that.collapseTool.enable();
+		}
+	},
+	onTabBarClick: function(){
+		//:TODO
+		//这里执行的总有点儿不完美. expand的时候 会出现界面乱掉的bug
+		var that = this;
+		if (that.b_collapsed){
+			//fire expand
+			that.toggleCollapse();
 		}
 	}
 })
