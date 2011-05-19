@@ -93,8 +93,75 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 	]
 });
 
-//导航目录
+//导航空间
 Ext.namespace("Beet.apps.Menu");
+
+//设定目录菜单
+Beet.apps.Menu.Items = [
+	{
+		title: "客户管理",
+		items: [
+			{
+				xtype: "container",
+				layout: "hbox",
+				items: [
+					{
+						xtype: 'fieldset',
+						title: '会员会籍',
+						flex: 1,
+						layout: "anchor",
+						items: [
+							{
+								xtype: "menu",
+								plain: true,
+								items: [
+									{text: "23131"},
+									{text: "23131"},
+									{text: "23131"},
+								]
+							},
+							{
+								xtype: "button",
+								text: "增加会员"
+							}
+						]
+					},{
+						xtype: "component",
+						width: 5
+					},
+					{
+						xtype: 'fieldset',
+						flex: 1,
+						title: '312313',
+						layout: 'anchor'
+					},
+					{
+						xtype: "component",
+						width: 5	
+					},
+					{
+						xtype: 'fieldset',
+						flex: 1,
+						title: "other",
+						layout: "anchor"
+					}
+				]
+			}
+		]
+	},
+	{
+		title: "库存管理",
+		html : "<div style='border: 1px solid #ff0000'>we1231</div>",
+	},
+	{
+		title: "人事管理",
+		html: "23131412412"
+	},
+	{
+		title: "排班管理"
+	}
+];
+
 Ext.define("Beet.apps.Menu.Panel", {
 	extend: "Ext.panel.Panel",
 	width: "100%",	
@@ -117,7 +184,6 @@ Ext.define("Beet.apps.Menu.Panel", {
 		
 		//当框体变动的时候 进行自动调整大小
 		Ext.EventManager.onWindowResize(that.fireResize, that);
-
 		this.callParent(arguments);
 	},
 	getCPanelConfig: function(){
@@ -130,76 +196,12 @@ Ext.define("Beet.apps.Menu.Panel", {
 			dock: "bottom",
 			plain: true,
 			minTabWidth: 100,
-			items: [
-				{
-					title: "客户管理",
-					items: [
-						{
-							xtype: "container",
-							layout: "hbox",
-							items: [
-								{
-									xtype: 'fieldset',
-									title: '会员会籍',
-									flex: 1,
-									layout: "anchor",
-									items: [
-										{
-											xtype: "menu",
-											plain: true,
-											items: [
-												{text: "23131"},
-												{text: "23131"},
-												{text: "23131"},
-											]
-										},
-										{
-											xtype: "button",
-											text: "增加会员"
-										}
-									]
-								},{
-									xtype: "component",
-									width: 5
-								},
-								{
-									xtype: 'fieldset',
-									flex: 1,
-									title: '312313',
-									layout: 'anchor'
-								},
-								{
-									xtype: "component",
-									width: 5	
-								},
-								{
-									xtype: 'fieldset',
-									flex: 1,
-									title: "other",
-									layout: "anchor"
-								}
-							]
-						}
-					]
-				},
-				{
-					title: "库存管理",
-					html : "<div style='border: 1px solid #ff0000'>we1231</div>",
-				},
-				{
-					title: "人事管理",
-					html: "23131412412"
-				},
-				{
-					title: "排班管理"
-				}
-			]
+			items: Beet.apps.Menu.Items
 		}
 
 		return config
 	},
 	fireResize: function(w, h){
-		console.log(w);
 		if (w < 960){
 			//donothing
 		}else{
