@@ -38,8 +38,8 @@
 				var mls = new MyCRLoginSvc("http://192.168.1.100:6661/MULTI");
 				var mps = new MyCallRecordSvc("http://192.168.1.100:6661/MULTI");
 				Ext.onReady(function(){
-					Ext.create("Beet.apps.Menu.Panel");
-					Ext.create("Beet.apps.Viewport");
+					Beet.navigationbar = Ext.create("Beet.apps.Menu.Panel");
+					Beet.workspace = Ext.create("Beet.apps.Viewport");
 
 					/*
 					dataview = Ext.create("Beet.apps.Grid.DataView", {

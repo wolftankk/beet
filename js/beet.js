@@ -381,6 +381,12 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 		var that = this, parent = that.ownerCt, configurePanel = that.configurePanel;
 		parent.setAutoScroll(parent.initialConfig.autoScroll);
 		parent.suspendLayout=null;
+
+		var h = Ext.core.Element.getViewHeight();
+		if (Beet.workspace){
+			Beet.workspace.setHeight(h - 132)
+		}
+
 		if (parent.ownerCt){
 			parent.ownerCt.doLayout();
 		}
@@ -445,12 +451,19 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 		//开始动画
 		configurePanel.hide()
 		parent.animate(anim);
+
 		return that;
 	},
 	afterCollapse: function(){
 		var that = this, configurePanel = that.configurePanel;
+		var h = Ext.core.Element.getViewHeight();
 
 		that.b_collapsed = true;
+		
+		if (Beet.workspace){
+			Beet.workspace.setHeight(h - 32)
+		}
+
 		if (that.collapseTool){
 			that.collapseTool.setType("expand-"+that.b_expandDirection);
 		}
@@ -503,6 +516,12 @@ Ext.define("Beet.apps.Viewport", {
 			maxTabWidth: 230,
 			region: "top",
 			items:[
+				{title: "t1"},
+				{title: "t1"},
+				{title: "t1"},
+				{title: "t1"},
+				{title: "t1"},
+				{title: "t1"},
 				{title: "t1"}
 			]
 		})
