@@ -477,7 +477,7 @@ Ext.define("Beet.apps.Viewport", {
 	layout: "fit",
 	floatable: false,
 	border: false,
-	height: 400,
+	plain: true,
 	initComponent: function(){
 		var that=this;
 		Ext.apply(this, {});
@@ -486,7 +486,16 @@ Ext.define("Beet.apps.Viewport", {
 			that.createMainPanel()
 		];
 
+		Ext.EventManager.onWindowResize(that.fireResize, that);
+
 		that.callParent();	
+	},
+	onRender: function(){
+		var that = this, h = Ext.core.Element.getViewHeight();
+		
+		//自动计算高度 总高度 - menu高度
+		that.setHeight(h-132);
+		that.callParent(arguments);
 	},
 	createMainPanel: function(){
 		var panel = Ext.create("Ext.tab.Panel", {
@@ -499,6 +508,14 @@ Ext.define("Beet.apps.Viewport", {
 		})
 
 		return panel
+	},
+	fireResize: function(w, h){
+		if (w >= 960){
+			this.setWidth(w);
+		}
+		if (h > 300){
+			this.setHeight(h - 132);
+		}
 	}
 });
 
