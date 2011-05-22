@@ -24,9 +24,7 @@ Beet.apps.Menu.Items = [
 									if (!item){
 										Beet.workspace.addPanel("addUsr", "添加会员", {
 											items: [
-												{
-													html: "21313",
-												}	
+												Ext.create("Beet.apps.Viewport.AddUser")
 											]
 										});	
 									}else{
@@ -442,7 +440,6 @@ Ext.define("Beet.apps.Viewport", {
 	},
 	onRender: function(){
 		var that = this, h = Ext.core.Element.getViewHeight();
-		
 		//自动计算高度 总高度 - menu高度
 		that.setHeight(h-132);
 		that.callParent(arguments);
@@ -453,6 +450,11 @@ Ext.define("Beet.apps.Viewport", {
 			maxTabWidth: 230,
 			region: "top",
 			layout: "fit",
+			defaults: {
+				autoScroll: true,
+				border: false,
+				closable: true
+			},
 			onRemove: function(item){
 				var name = item.b_name;
 				if (Beet.apps.Menu.Tabs[name]){
@@ -476,7 +478,6 @@ Ext.define("Beet.apps.Viewport", {
 		var item = this.workspace.add(Ext.apply({
 			inTab: true, 
 			title: title,
-			closable: true
 		}, config));
 		//设置一个私有的name名称, 为了能直接摧毁
 		item.b_name = name;
@@ -485,8 +486,182 @@ Ext.define("Beet.apps.Viewport", {
 	},
 });
 
-Ext.namespace("Beet.apps.Grid", "Beet.apps.Grid.Model", "Beet.apps.Grid.Store");
+Ext.define("Beet.apps.Viewport.AddUser", {
+	extend: "Ext.panel.Panel",
+	layout: "card",
+	activeItem: 0,
+	defaults: {
+		border: 0	
+	},
+	initComponent: function(){
+		var that = this;
+		Ext.apply(this, {});
 
+		this.setHeight(Beet.workspace.workspace.getHeight() - 30)
+		
+		//base info
+		that.baseInfoPanel = Ext.create("Ext.form.Panel", that.getBaseInfoPanelConfig());
+		console.log(that.baseInfoPanel);
+		that.items = [
+			that.baseInfoPanel
+
+		]
+		
+		that.callParent(arguments);
+	},
+	getBaseInfoPanelConfig: function(){
+		var that = this, config
+
+		config = {
+			frame: true,
+			bodyPadding: 10,
+			fieldDefaults: {
+				msgTarget: 'side',
+				labelAlign: "left",
+				labelWidth: 75
+			},
+			items: [
+				{
+					xtype: "container",
+					layout: "hbox",
+					frame: true,
+					border: false,
+					items: [
+						{
+							title: "基础信息",
+							xtype: "fieldset",
+							flex: 1,
+							defaultType: "textfield",
+							layout: "anchor",
+							fieldDefaults: {
+								msgTarget: 'side',
+								labelAlign: "left",
+								labelWidth: 75
+							},
+							items: [
+								{
+									fieldLabel: "会员姓名",
+									name: "userName",
+									allowBlanks: false
+								},
+								{
+									fieldLabel: "会员编号",
+									name: "userNo"
+								},
+								{
+									fieldLabel: "会员卡号",
+									name: "userCard",
+								},
+								{
+									fieldLabel: "身份证",
+									name: "userIDNo"
+								},
+								{
+									fieldLabel: "出生日期",
+									xtype: "datefield",
+									name: "userBirthDate"
+								},
+								{
+									fieldLabel: "联系方式",
+									name: "userContact"
+								},
+								{
+									fieldLabel: "QQ/MSN",
+									name: "userIMNo"
+								},
+								{
+									fieldLabel: "地址",
+									name: "userAddress"
+								},
+								{
+									fieldLabel: "职业",
+									name: "userJob"
+								}
+							]
+						},
+						{
+							xtype: "component",
+							width: 5
+						},
+						{
+							xtype: "fieldset",
+							title: "其他",
+							flex: 1,
+							layout: "anchor",
+							defaultType: "textfield",
+							fieldDefaults: {
+								msgTarget: 'side',
+								labelAlign: "left",
+								labelWidth: 75
+							},
+							items:[
+								{
+									fieldLabel: "12312"
+								}
+							]
+						}
+					]
+				},
+				{
+					xtype: "component",
+					width: 15,
+				},
+				{
+					xtype: "container",
+					frame: true,
+					border: false,
+					layout: "hbox",
+					items: [
+						{
+							xtype: "container",
+							frame: true,
+							flex: 1,
+							layout: "anchor",
+							items: [
+								{
+									xtype: 'checkboxgroup',
+									fieldLabel: '拥有项目',
+									fieldDefaults: {
+										labelAlign: "left",
+										labelWidth: 75
+									},
+									items: [
+										{boxLabel: 'Item 1', name: 'cb-auto-1'},
+										{boxLabel: 'Item 2', name: 'cb-auto-2'},
+										{boxLabel: 'Item 3', name: 'cb-auto-3'},
+										{boxLabel: 'Item 4', name: 'cb-auto-4'},
+										{boxLabel: 'Item 5', name: 'cb-auto-5'}
+									]
+								}
+							]
+						},
+						{
+							xtype: "container",
+							frame: true,
+							layout: "anchor",
+							flex: 1
+						}
+					]
+				}
+			]
+		}
+
+		return config
+	},
+	bbar: [
+		'->',
+		{
+			id : "move-next",
+			text: "下一步",
+			handler: function(direction){
+
+			}
+		}
+	]
+});
+
+
+Ext.namespace("Beet.apps.Grid", "Beet.apps.Grid.Model", "Beet.apps.Grid.Store");
 Ext.define("Beet.apps.Grid.Model.CRecord", {
 	extend: 'Ext.data.Model',
 	fields: [
