@@ -1,3 +1,4 @@
+Beet.constants.loginServer = new MyLoginSvc("http://"+Beet.config.serverUrl+"/MULTI");
 //register Login
 Ext.namespace("Beet.apps.Login");
 Ext.define("Beet.apps.Login.LoginDialog", {
@@ -84,23 +85,15 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 				if (form.isValid()){
 					var result = form.getValues();
 					var usr = result["username"], passwd = result["password"];	
-					var loginServer = new MyLoginSvc("http://"+Beet.config.serverUrl+"/MULTI");
+					var loginServer = Beet.constants.loginServer;
 					loginServer.Login(usr, xxtea_encrypt(passwd), '', '', {
 						success: function(uid){
 							if (uid && uid != "{00000000-0000-0000-0000-000000000000}"){
-								loginServer.GetSessionID({
-									success: function(sid){
-										Ext.util.Cookies.set("userName", usr);
-										Ext.util.Cookies.set("userId", uid);
-										Ext.util.Cookies.set("sessionId", sid);
-										window.location = "main.html"
-									},
-									failure: function(error){
-										Ext.Msg.alert("警告", "无法链接到服务器!" + error["message"]);
-									}
-								});
+								Ext.util.Cookies.set("userName", usr);
+								Ext.util.Cookies.set("userId", uid);
+								window.location = "main.html"
 							}else{
-								Ext.Msg.alert("警告", "用户名或密码错误, 请重新输入!");
+								Ext.Msg.alert("警告", "用户名或密码错误, 请重新输入! ");
 							}
 						},
 						failure: function(error){
@@ -253,7 +246,8 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 		that.navigationToolbar.parent = that;
 
 		//username
-		that.userName = new Ext.toolbar.TextItem({ text: "userName"});
+		that.userName = new Ext.toolbar.TextItem({ text: Ext.util.Cookies.get("userName")});
+		that.logoutButton = new Ext.toolbar.Toolbar(that.getLogoutButtonConfig());
 		that.helpButton = new Ext.toolbar.Toolbar(that.getHelpButtonConfig());
 		that.toggleButton = new Ext.toolbar.Toolbar(that.getToggleButtonConfig());
 
@@ -270,7 +264,8 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 			"->",//设定到右边区域
 			'-',
 			//help
-			that.userName, ' ',
+			that.userName, ' ', 
+			that.logoutButton, ' ',
 			that.toggleButton, ' ',
 			that.helpButton
 		];
@@ -306,6 +301,31 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 			enableOverflow: false,
 		}
 		return config
+	},
+	getLogoutButtonConfig: function(){
+		var that = this, config;
+		config = {
+			layout: "fit",
+			items: [
+				{
+					xtype: "button",
+					text: "退出",
+					handler: function(){
+						var loginServer = Beet.constants.loginServer;
+						loginServer.Logout({
+							success: function(){
+								Ext.util.Cookies.clear("userName");
+								Ext.util.Cookies.clear("userId");
+								Ext.util.Cookies.clear("sessionId");
+								window.location = "index.html";	
+							},
+							failure: function(){}
+						});	
+					}
+				}
+			]
+		};
+		return config;
 	},
 	//右边区域
 	getHelpButtonConfig: function(){

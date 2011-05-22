@@ -9,17 +9,10 @@
 		<link rel="stylesheet" type="text/css" href="resources/css/ext-all.css" />
 		<link rel="stylesheet" type="text/css" href="resources/css/beet.css" />
 
-		<script type="text/javascript" src="js/bootstrap.js"></script>
-		<script type="text/javascript" src="js/ext-lang-zh_CN.js"></script>
-		<script type="text/javascript" src="js/beet/beet_core.js"></script>
-		<script type="text/javascript" src="js/beet/beet_config.js"></script>
-		<script type="text/javascript" src="js/beet/beet.js"></script>
-
 		<!-- let the stupid ie suport html5 -->
 		<!--[if lt IE 9]>
 		<script src="js/html5.js"></script>
 		<![endif]-->
-
 		<!-- load yahoo and my js -->
 		<script type="text/javascript" src="js/my/yahoo-min.js"></script>
 		<script type="text/javascript" src="js/my/json-min.js"></script>
@@ -28,6 +21,12 @@
 		<script type="text/javascript" src="js/my/utf.js"></script>
 		<script type="text/javascript" src="js/my/MyPrivilegeLib_intf.js"></script>
 		<script type="text/javascript" src="js/my/xxtea.js"></script>
+
+		<script type="text/javascript" src="js/bootstrap.js"></script>
+		<script type="text/javascript" src="js/ext-lang-zh_CN.js"></script>
+		<script type="text/javascript" src="js/beet/beet_core.js"></script>
+		<script type="text/javascript" src="js/beet/beet_config.js"></script>
+		<script type="text/javascript" src="js/beet/beet.js"></script>
 	</head>
 	<body>
 		<header id="header">
@@ -45,6 +44,17 @@
 					if (!userId){
 						window.location = "index.html";
 					}
+					/*
+					loginServer.GetSessionID({
+						success: function(sid){
+							sessionId = sid;
+							Ext.util.Cookies.set("sessionId", sid);
+						},
+						failure: function(error){
+							Ext.Msg.alert("警告", "无法链接到服务器! " + error["message"]);
+						}
+					});
+
 					/*
 					dataview = Ext.create("Beet.apps.Grid.DataView", {
 						store : 'Beet.apps.Grid.Store.CRecord'
