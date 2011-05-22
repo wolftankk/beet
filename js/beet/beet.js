@@ -15,14 +15,17 @@ Beet.apps.Menu.Items = [
 						title: '会员会籍',
 						flex: 1,
 						layout: "anchor",
+						defaults: {
+							margin: "0 5 0 0"
+						},
 						items: [
 							{
 								xtype: "button",
 								text: "增加会员",
 								handler: function(){
-									var item = Beet.apps.Menu.Tabs["addUsr"];
+									var item = Beet.apps.Menu.Tabs["addCustomer"];
 									if (!item){
-										Beet.workspace.addPanel("addUsr", "添加会员", {
+										Beet.workspace.addPanel("addCustomer", "添加会员", {
 											items: [
 												{
 													html: "21313",
@@ -33,6 +36,20 @@ Beet.apps.Menu.Items = [
 										Beet.workspace.workspace.setActiveTab(item);
 									}
 								},
+							},
+							{
+								xtype: "button",
+								text: "删除会员",
+								handler: function(){
+									var item = Beet.apps.Menu.Tabs["DeleteCustomer"];
+									if (!item){
+										Beet.workspace.addPanel("DeleteCustomer", "删除会员", {
+
+										});
+									}else{
+										Beet.workspace.workspace.setActiveTab(item);
+									}
+								}
 							}
 						]
 					},{
@@ -106,6 +123,9 @@ Ext.define("Beet.apps.Menu.Panel", {
 			dock: "bottom",
 			plain: true,
 			minTabWidth: 100,
+			defaults: {
+				padding: 5
+			},
 			items: Beet.apps.Menu.Items
 		}
 
