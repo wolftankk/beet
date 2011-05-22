@@ -25,7 +25,7 @@ DataAbstractService.prototype.GetSchema = function(aFilter, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -67,7 +67,7 @@ DataAbstractService.prototype.GetData = function(aTableNameArray, aTableRequestI
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -108,7 +108,7 @@ DataAbstractService.prototype.UpdateData = function(aDelta, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -150,7 +150,7 @@ DataAbstractService.prototype.ExecuteCommand = function(aCommandName, aParameter
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -192,7 +192,7 @@ DataAbstractService.prototype.ExecuteCommandEx = function(aCommandName, aInputPa
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -233,7 +233,7 @@ DataAbstractService.prototype.GetTableSchema = function(aTableNameArray, __callb
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -274,7 +274,7 @@ DataAbstractService.prototype.GetCommandSchema = function(aCommandNameArray, __c
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -317,7 +317,7 @@ DataAbstractService.prototype.SQLGetData = function(aSQLText, aIncludeSchema, aM
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -361,7 +361,7 @@ DataAbstractService.prototype.SQLGetDataEx = function(aSQLText, aIncludeSchema, 
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -402,7 +402,7 @@ DataAbstractService.prototype.SQLExecuteCommand = function(aSQLText, __callback)
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -444,7 +444,7 @@ DataAbstractService.prototype.SQLExecuteCommandEx = function(aSQLText, aDynamicW
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -485,7 +485,7 @@ DataAbstractService.prototype.GetDatasetScripts = function(DatasetNames, __callb
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -526,7 +526,7 @@ DataAbstractService.prototype.RegisterForDataChangeNotification = function(aTabl
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -567,7 +567,7 @@ DataAbstractService.prototype.UnregisterForDataChangeNotification = function(aTa
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -615,7 +615,7 @@ SimpleLoginService.prototype.Login = function(aUserID, aPassword, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -662,7 +662,7 @@ BaseLoginService.prototype.LoginEx = function(aLoginString, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -702,7 +702,7 @@ BaseLoginService.prototype.Logout = function(__callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -751,7 +751,7 @@ MultiDbLoginService.prototype.Login = function(aUserID, aPassword, aConnectionNa
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -797,7 +797,7 @@ MultiDbLoginServiceV5.prototype.GetConnectionNames = function(__callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -837,7 +837,7 @@ MultiDbLoginServiceV5.prototype.GetDefaultConnectionName = function(__callback) 
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -889,7 +889,7 @@ MyPrivilegeSvc.prototype.AddUser = function(aUserID, APassword, AUserAgent, ADes
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -933,7 +933,7 @@ MyPrivilegeSvc.prototype.AddResources = function(ResourceID, ResourceName, ResTy
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -977,7 +977,7 @@ MyPrivilegeSvc.prototype.AddOperators = function(OperatorID, OperatorName, Paren
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -1018,7 +1018,7 @@ MyPrivilegeSvc.prototype.GetOperatorList = function(AResourceID, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -1060,7 +1060,7 @@ MyPrivilegeSvc.prototype.CheckPrivilege = function(AOperatorID, AResourceID, __c
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -1102,7 +1102,7 @@ MyPrivilegeSvc.prototype.GetGroupListFromOperatorID = function(AOperatorID, IsNa
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -1152,7 +1152,7 @@ MyLoginSvc.prototype.Login = function(UserName, Password, Language, ConnectionNa
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -1192,7 +1192,7 @@ MyLoginSvc.prototype.Logout = function(__callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -1232,7 +1232,7 @@ MyLoginSvc.prototype.GetConnectionNames = function(__callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -1272,7 +1272,7 @@ MyLoginSvc.prototype.GetUserPrivileges = function(__callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -1312,7 +1312,7 @@ MyLoginSvc.prototype.GetSessionID = function(__callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true;
+      xdr : true,
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
