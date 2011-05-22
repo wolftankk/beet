@@ -41,9 +41,23 @@ Beet.apps.Menu.Items = [
 								xtype: "button",
 								text: "删除会员",
 								handler: function(){
-									var item = Beet.apps.Menu.Tabs["DeleteCustomer"];
+									var item = Beet.apps.Menu.Tabs["deleteCustomer"];
 									if (!item){
-										Beet.workspace.addPanel("DeleteCustomer", "删除会员", {
+										Beet.workspace.addPanel("deleteCustomer", "删除会员", {
+
+										});
+									}else{
+										Beet.workspace.workspace.setActiveTab(item);
+									}
+								}
+							},
+							{
+								xtype: "button",
+								text: "编辑会员",
+								handler: function(){
+									var item = Beet.apps.Menu.Tabs["editCustomer"];
+									if (!item){
+										Beet.workspace.addPanel("editCustomer", "编辑会员", {
 
 										});
 									}else{
@@ -123,9 +137,6 @@ Ext.define("Beet.apps.Menu.Panel", {
 			dock: "bottom",
 			plain: true,
 			minTabWidth: 100,
-			defaults: {
-				padding: 5
-			},
 			items: Beet.apps.Menu.Items
 		}
 
@@ -471,6 +482,7 @@ Ext.define("Beet.apps.Viewport", {
 		var panel = Ext.create("Ext.tab.Panel", {
 			border: false,
 			maxTabWidth: 230,
+			minTabWidth: 150,
 			region: "top",
 			layout: "fit",
 			onRemove: function(item){
