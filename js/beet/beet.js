@@ -107,7 +107,7 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 });
 
 //导航空间
-Ext.namespace("Beet.apps.Menu");
+Ext.namespace("Beet.apps.Menu", "Beet.apps.Menu.Tabs");
 
 //设定目录菜单
 Beet.apps.Menu.Items = [
@@ -125,17 +125,16 @@ Beet.apps.Menu.Items = [
 						layout: "anchor",
 						items: [
 							{
-								xtype: "menu",
-								plain: true,
-								items: [
-									{text: "23131"},
-									{text: "23131"},
-									{text: "23131"},
-								]
-							},
-							{
 								xtype: "button",
-								text: "增加会员"
+								text: "增加会员",
+								handler: function(){
+									var item = Beet.apps.Menu.Tabs["addUsr"];
+									if (!item){
+										Beet.workspace.addPanel("addUsr", "添加会员", {});	
+									}else{
+										Beet.workspace.workspace.setActiveTab(item);
+									}
+								},
 							}
 						]
 					},{
@@ -555,17 +554,17 @@ Ext.define("Beet.apps.Viewport", {
 			border: false,
 			maxTabWidth: 230,
 			region: "top",
-			items:[
-				{title: "t1"},
-				{title: "t1"},
-				{title: "t1"},
-				{title: "t1"},
-				{title: "t1"},
-				{title: "t1"},
-				{title: "t1"}
-			]
+			items: [
+				{title: "2131"}
+			],
+			onRemove: function(item){
+				var name = item.b_name;
+				if (Beet.apps.Menu.Tabs[name]){
+					Beet.apps.Menu.Tabs[name] = null;
+				}
+			}
 		})
-
+		this.workspace = panel;
 		return panel
 	},
 	fireResize: function(w, h){
@@ -575,7 +574,19 @@ Ext.define("Beet.apps.Viewport", {
 		if (h > 300){
 			this.setHeight(h - 132);
 		}
-	}
+	},
+	//add panel
+	addPanel: function(name, title, config){
+		var item = this.workspace.add(Ext.apply({
+			inTab: true, 
+			title: title,
+			closable: true	
+		}, config));
+		//设置一个私有的name名称, 为了能直接摧毁
+		item.b_name = name;
+		Beet.apps.Menu.Tabs[name] = item;
+		this.workspace.setActiveTab(item);
+	},
 });
 
 Ext.namespace("Beet.apps.Grid", "Beet.apps.Grid.Model", "Beet.apps.Grid.Store");
