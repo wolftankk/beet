@@ -1,12 +1,3 @@
-//Beet 框架 namespace  所有子元素 继承于此
-//使用namespace 规范代码机制 方便调用
-Ext.namespace("Beet");
-
-//app namespace
-Ext.namespace("Beet.apps");
-//constant namespace
-Ext.namespace("Beet.constants");
-
 //register Login
 Ext.namespace("Beet.apps.Login");
 Ext.define("Beet.apps.Login.LoginDialog", {
@@ -27,7 +18,7 @@ Ext.define("Beet.apps.Login.LoginDialog", {
 });
 
 Ext.define("Beet.apps.Login.LoginFormPanel", {
-	extend: 'Ext.form.FormPanel',
+	extend: 'Ext.form.Panel',
 	initComponent: function(){
 		Ext.apply(this, {});
 		this.callParent();
@@ -80,17 +71,21 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 		{
 			text: "重置",		
 			handler: function(){
-				console.log(this.up('form').getForm().reset())
+				this.up('form').getForm().reset();
 			}
 		},
 		{
 			text: "确定",
+			formBind: true,
+			disabled: true,
 			handler: function(){
-				//提交控制区
-				//登陆成功后 跳转到main.html
+				var form = this.up('form').getForm()	
+				if (form.isValid()){
+					
+				}
 			}
 		}
-	]
+	],
 });
 
 //导航空间
