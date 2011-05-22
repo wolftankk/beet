@@ -1,4 +1,4 @@
-// Javascript JSON-RPC Code Generated for the  MyCallRecord library.
+// Javascript JSON-RPC Code Generated for the  MyPrivilegeLib library.
 
 /* This codegen depends on the Yahoo YUI (http://developer.yahoo.com/yui/) toolkit and requires the 
    following libraries. Note that it's recommended to download yui and place a local copy next to
@@ -24,8 +24,8 @@ DataAbstractService.prototype.GetSchema = function(aFilter, __callback) {
   var __callbacks = null;
   if (__callback) {
     __callbacks = {
-	  xdr: true,
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -48,10 +48,11 @@ DataAbstractService.prototype.GetSchema = function(aFilter, __callback) {
   }
   var uri = this.url
   var mquest = function(){
-	YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
   }
   YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest)
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 DataAbstractService.prototype.GetData = function(aTableNameArray, aTableRequestInfoArray, __callback) {
@@ -66,6 +67,7 @@ DataAbstractService.prototype.GetData = function(aTableNameArray, aTableRequestI
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -86,7 +88,13 @@ DataAbstractService.prototype.GetData = function(aTableNameArray, aTableRequestI
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 DataAbstractService.prototype.UpdateData = function(aDelta, __callback) {
@@ -100,6 +108,7 @@ DataAbstractService.prototype.UpdateData = function(aDelta, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -120,7 +129,13 @@ DataAbstractService.prototype.UpdateData = function(aDelta, __callback) {
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 DataAbstractService.prototype.ExecuteCommand = function(aCommandName, aParameterArray, __callback) {
@@ -135,6 +150,7 @@ DataAbstractService.prototype.ExecuteCommand = function(aCommandName, aParameter
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -155,7 +171,13 @@ DataAbstractService.prototype.ExecuteCommand = function(aCommandName, aParameter
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 DataAbstractService.prototype.ExecuteCommandEx = function(aCommandName, aInputParameters, __callback) {
@@ -170,6 +192,7 @@ DataAbstractService.prototype.ExecuteCommandEx = function(aCommandName, aInputPa
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -190,7 +213,13 @@ DataAbstractService.prototype.ExecuteCommandEx = function(aCommandName, aInputPa
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 DataAbstractService.prototype.GetTableSchema = function(aTableNameArray, __callback) {
@@ -204,6 +233,7 @@ DataAbstractService.prototype.GetTableSchema = function(aTableNameArray, __callb
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -224,7 +254,13 @@ DataAbstractService.prototype.GetTableSchema = function(aTableNameArray, __callb
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 DataAbstractService.prototype.GetCommandSchema = function(aCommandNameArray, __callback) {
@@ -238,6 +274,7 @@ DataAbstractService.prototype.GetCommandSchema = function(aCommandNameArray, __c
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -258,7 +295,13 @@ DataAbstractService.prototype.GetCommandSchema = function(aCommandNameArray, __c
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 DataAbstractService.prototype.SQLGetData = function(aSQLText, aIncludeSchema, aMaxRecords, __callback) {
@@ -274,6 +317,7 @@ DataAbstractService.prototype.SQLGetData = function(aSQLText, aIncludeSchema, aM
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -294,7 +338,13 @@ DataAbstractService.prototype.SQLGetData = function(aSQLText, aIncludeSchema, aM
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 DataAbstractService.prototype.SQLGetDataEx = function(aSQLText, aIncludeSchema, aMaxRecords, aDynamicWhereXML, __callback) {
@@ -311,6 +361,7 @@ DataAbstractService.prototype.SQLGetDataEx = function(aSQLText, aIncludeSchema, 
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -331,7 +382,13 @@ DataAbstractService.prototype.SQLGetDataEx = function(aSQLText, aIncludeSchema, 
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 DataAbstractService.prototype.SQLExecuteCommand = function(aSQLText, __callback) {
@@ -345,6 +402,7 @@ DataAbstractService.prototype.SQLExecuteCommand = function(aSQLText, __callback)
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -365,7 +423,13 @@ DataAbstractService.prototype.SQLExecuteCommand = function(aSQLText, __callback)
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 DataAbstractService.prototype.SQLExecuteCommandEx = function(aSQLText, aDynamicWhereXML, __callback) {
@@ -380,6 +444,7 @@ DataAbstractService.prototype.SQLExecuteCommandEx = function(aSQLText, aDynamicW
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -400,7 +465,13 @@ DataAbstractService.prototype.SQLExecuteCommandEx = function(aSQLText, aDynamicW
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 DataAbstractService.prototype.GetDatasetScripts = function(DatasetNames, __callback) {
@@ -414,6 +485,7 @@ DataAbstractService.prototype.GetDatasetScripts = function(DatasetNames, __callb
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -434,7 +506,13 @@ DataAbstractService.prototype.GetDatasetScripts = function(DatasetNames, __callb
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 DataAbstractService.prototype.RegisterForDataChangeNotification = function(aTableName, __callback) {
@@ -448,6 +526,7 @@ DataAbstractService.prototype.RegisterForDataChangeNotification = function(aTabl
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -468,7 +547,13 @@ DataAbstractService.prototype.RegisterForDataChangeNotification = function(aTabl
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 DataAbstractService.prototype.UnregisterForDataChangeNotification = function(aTableName, __callback) {
@@ -482,6 +567,7 @@ DataAbstractService.prototype.UnregisterForDataChangeNotification = function(aTa
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -502,7 +588,13 @@ DataAbstractService.prototype.UnregisterForDataChangeNotification = function(aTa
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 // End of service: DataAbstractService
@@ -523,6 +615,7 @@ SimpleLoginService.prototype.Login = function(aUserID, aPassword, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -543,7 +636,13 @@ SimpleLoginService.prototype.Login = function(aUserID, aPassword, __callback) {
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 // End of service: SimpleLoginService
@@ -563,6 +662,7 @@ BaseLoginService.prototype.LoginEx = function(aLoginString, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -583,7 +683,13 @@ BaseLoginService.prototype.LoginEx = function(aLoginString, __callback) {
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 BaseLoginService.prototype.Logout = function(__callback) {
@@ -596,6 +702,7 @@ BaseLoginService.prototype.Logout = function(__callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -616,7 +723,13 @@ BaseLoginService.prototype.Logout = function(__callback) {
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 // End of service: BaseLoginService
@@ -638,6 +751,7 @@ MultiDbLoginService.prototype.Login = function(aUserID, aPassword, aConnectionNa
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -658,7 +772,13 @@ MultiDbLoginService.prototype.Login = function(aUserID, aPassword, aConnectionNa
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 // End of service: MultiDbLoginService
@@ -677,6 +797,7 @@ MultiDbLoginServiceV5.prototype.GetConnectionNames = function(__callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -697,7 +818,13 @@ MultiDbLoginServiceV5.prototype.GetConnectionNames = function(__callback) {
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
 MultiDbLoginServiceV5.prototype.GetDefaultConnectionName = function(__callback) {
@@ -710,191 +837,7 @@ MultiDbLoginServiceV5.prototype.GetDefaultConnectionName = function(__callback) 
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
-}
-
-// End of service: MultiDbLoginServiceV5
-// Service: MyCallRecordSvc
-function MyCallRecordSvc(url){
-  this.url = url;
-}
-
-MyCallRecordSvc.prototype.GetOperatorList = function(AResourceID, __callback) {
-  var __message = {
-    "method" : "MyCallRecordSvc.GetOperatorList",
-    "params" : {
-      "AResourceID": AResourceID
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
-}
-
-MyCallRecordSvc.prototype.GetGroupListFromOperatorID = function(AOperatorID, IsName, __callback) {
-  var __message = {
-    "method" : "MyCallRecordSvc.GetGroupListFromOperatorID",
-    "params" : {
-      "AOperatorID": AOperatorID,
-      "IsName": IsName
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
-}
-
-MyCallRecordSvc.prototype.GetRecDataRecordCount = function(AWhere, IsClean, __callback) {
-  var __message = {
-    "method" : "MyCallRecordSvc.GetRecDataRecordCount",
-    "params" : {
-      "AWhere": AWhere,
-      "IsClean": IsClean
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
-}
-
-MyCallRecordSvc.prototype.GetRecDataToBin = function(Start, Limit, AWhere, isClean, __callback) {
-  var __message = {
-    "method" : "MyCallRecordSvc.GetRecDataToBin",
-    "params" : {
-      "Start": Start,
-      "Limit": Limit,
-      "AWhere": AWhere,
-      "isClean": isClean
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
-}
-
-MyCallRecordSvc.prototype.GetRecDataToJSON = function(Start, Limit, AWhere, isClean, __callback) {
-  var __message = {
-    "method" : "MyCallRecordSvc.GetRecDataToJSON",
-    "params" : {
-      "Start": Start,
-      "Limit": Limit,
-      "AWhere": AWhere,
-      "isClean": isClean
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-	  xdr: true,
-      callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -917,22 +860,36 @@ MyCallRecordSvc.prototype.GetRecDataToJSON = function(Start, Limit, AWhere, isCl
   }
   var uri = this.url
   var mquest = function(){
-	YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
   }
   YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest)
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
-MyCallRecordSvc.prototype.GetRecPhoneGroupDataToJson = function(__callback) {
+// End of service: MultiDbLoginServiceV5
+// Service: MyPrivilegeSvc
+function MyPrivilegeSvc(url){
+  this.url = url;
+}
+
+MyPrivilegeSvc.prototype.AddUser = function(aUserID, APassword, AUserAgent, ADescription, AGroupID, bOwnerGUID, __callback) {
   var __message = {
-    "method" : "MyCallRecordSvc.GetRecPhoneGroupDataToJson",
+    "method" : "MyPrivilegeSvc.AddUser",
     "params" : {
+      "aUserID": aUserID,
+      "APassword": APassword,
+      "AUserAgent": AUserAgent,
+      "ADescription": ADescription,
+      "AGroupID": AGroupID,
+      "bOwnerGUID": bOwnerGUID
       }
   }
   var __callbacks = null;
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -953,25 +910,30 @@ MyCallRecordSvc.prototype.GetRecPhoneGroupDataToJson = function(__callback) {
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
-MyCallRecordSvc.prototype.UpdateRecPhoneGroup = function(Extension, GroupID, IPAddress, Policy, WhereHost, WhereChannel, __callback) {
+MyPrivilegeSvc.prototype.AddResources = function(ResourceID, ResourceName, ResTypeID, Descript, __callback) {
   var __message = {
-    "method" : "MyCallRecordSvc.UpdateRecPhoneGroup",
+    "method" : "MyPrivilegeSvc.AddResources",
     "params" : {
-      "Extension": Extension,
-      "GroupID": GroupID,
-      "IPAddress": IPAddress,
-      "Policy": Policy,
-      "WhereHost": WhereHost,
-      "WhereChannel": WhereChannel
+      "ResourceID": ResourceID,
+      "ResourceName": ResourceName,
+      "ResTypeID": ResTypeID,
+      "Descript": Descript
       }
   }
   var __callbacks = null;
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -992,12 +954,103 @@ MyCallRecordSvc.prototype.UpdateRecPhoneGroup = function(Extension, GroupID, IPA
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
-MyCallRecordSvc.prototype.CheckPrivilege = function(AOperatorID, AResourceID, __callback) {
+MyPrivilegeSvc.prototype.AddOperators = function(OperatorID, OperatorName, ParentOperatorID, Descript, __callback) {
   var __message = {
-    "method" : "MyCallRecordSvc.CheckPrivilege",
+    "method" : "MyPrivilegeSvc.AddOperators",
+    "params" : {
+      "OperatorID": OperatorID,
+      "OperatorName": OperatorName,
+      "ParentOperatorID": ParentOperatorID,
+      "Descript": Descript
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      xdr : true;
+      success : function (o) {
+        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
+}
+
+MyPrivilegeSvc.prototype.GetOperatorList = function(AResourceID, __callback) {
+  var __message = {
+    "method" : "MyPrivilegeSvc.GetOperatorList",
+    "params" : {
+      "AResourceID": AResourceID
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      xdr : true;
+      success : function (o) {
+        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
+}
+
+MyPrivilegeSvc.prototype.CheckPrivilege = function(AOperatorID, AResourceID, __callback) {
+  var __message = {
+    "method" : "MyPrivilegeSvc.CheckPrivilege",
     "params" : {
       "AOperatorID": AOperatorID,
       "AResourceID": AResourceID
@@ -1007,6 +1060,7 @@ MyCallRecordSvc.prototype.CheckPrivilege = function(AOperatorID, AResourceID, __
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -1027,19 +1081,28 @@ MyCallRecordSvc.prototype.CheckPrivilege = function(AOperatorID, AResourceID, __
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
-MyCallRecordSvc.prototype.GetDiskSize = function(__callback) {
+MyPrivilegeSvc.prototype.GetGroupListFromOperatorID = function(AOperatorID, IsName, __callback) {
   var __message = {
-    "method" : "MyCallRecordSvc.GetDiskSize",
+    "method" : "MyPrivilegeSvc.GetGroupListFromOperatorID",
     "params" : {
+      "AOperatorID": AOperatorID,
+      "IsName": IsName
       }
   }
   var __callbacks = null;
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -1060,51 +1123,24 @@ MyCallRecordSvc.prototype.GetDiskSize = function(__callback) {
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
-MyCallRecordSvc.prototype.SupportQC = function(__callback) {
-  var __message = {
-    "method" : "MyCallRecordSvc.SupportQC",
-    "params" : {
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
-}
-
-// End of service: MyCallRecordSvc
-// Service: MyCRLoginSvc
-function MyCRLoginSvc(url){
+// End of service: MyPrivilegeSvc
+// Service: MyLoginSvc
+function MyLoginSvc(url){
   this.url = url;
 }
 
-MyCRLoginSvc.prototype.Login = function(UserName, Password, Language, ConnectionName, __callback) {
+MyLoginSvc.prototype.Login = function(UserName, Password, Language, ConnectionName, __callback) {
   var __message = {
-    "method" : "MyCRLoginSvc.Login",
+    "method" : "MyLoginSvc.Login",
     "params" : {
       "UserName": UserName,
       "Password": Password,
@@ -1115,8 +1151,8 @@ MyCRLoginSvc.prototype.Login = function(UserName, Password, Language, Connection
   var __callbacks = null;
   if (__callback) {
     __callbacks = {
-	  xdr: true,
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -1139,17 +1175,16 @@ MyCRLoginSvc.prototype.Login = function(UserName, Password, Language, Connection
   }
   var uri = this.url
   var mquest = function(){
-	YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
   }
   YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
 
-
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest)
 }
 
-MyCRLoginSvc.prototype.Logout = function(__callback) {
+MyLoginSvc.prototype.Logout = function(__callback) {
   var __message = {
-    "method" : "MyCRLoginSvc.Logout",
+    "method" : "MyLoginSvc.Logout",
     "params" : {
       }
   }
@@ -1157,106 +1192,7 @@ MyCRLoginSvc.prototype.Logout = function(__callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
-}
-
-MyCRLoginSvc.prototype.GetConnectionNames = function(__callback) {
-  var __message = {
-    "method" : "MyCRLoginSvc.GetConnectionNames",
-    "params" : {
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
-}
-
-MyCRLoginSvc.prototype.GetUserPrivileges = function(__callback) {
-  var __message = {
-    "method" : "MyCRLoginSvc.GetUserPrivileges",
-    "params" : {
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
-}
-
-MyCRLoginSvc.prototype.GetSessionID = function(__callback) {
-  var __message = {
-    "method" : "MyCRLoginSvc.GetSessionID",
-    "params" : {
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-	  xdr: true,
-      callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -1279,23 +1215,24 @@ MyCRLoginSvc.prototype.GetSessionID = function(__callback) {
   }
   var uri = this.url
   var mquest = function(){
-	YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
   }
   YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest)
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
-MyCRLoginSvc.prototype.GetConnectState = function(AUserID, __callback) {
+MyLoginSvc.prototype.GetConnectionNames = function(__callback) {
   var __message = {
-    "method" : "MyCRLoginSvc.GetConnectState",
+    "method" : "MyLoginSvc.GetConnectionNames",
     "params" : {
-      "AUserID": AUserID
       }
   }
   var __callbacks = null;
   if (__callback) {
     __callbacks = {
       callback : __callback,
+      xdr : true;
       success : function (o) {
         var __result = YAHOO.lang.JSON.parse(o.responseText);
         if (__result.error)
@@ -1316,7 +1253,93 @@ MyCRLoginSvc.prototype.GetConnectState = function(AUserID, __callback) {
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
 }
 
-// End of service: MyCRLoginSvc
+MyLoginSvc.prototype.GetUserPrivileges = function(__callback) {
+  var __message = {
+    "method" : "MyLoginSvc.GetUserPrivileges",
+    "params" : {
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      xdr : true;
+      success : function (o) {
+        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
+}
+
+MyLoginSvc.prototype.GetSessionID = function(__callback) {
+  var __message = {
+    "method" : "MyLoginSvc.GetSessionID",
+    "params" : {
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      xdr : true;
+      success : function (o) {
+        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
+}
+
+// End of service: MyLoginSvc

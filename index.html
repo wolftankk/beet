@@ -11,22 +11,25 @@
 
 		<script type="text/javascript" src="js/bootstrap.js"></script>
 		<script type="text/javascript" src="js/ext-lang-zh_CN.js"></script>
-		<script type="text/javascript" src="js/beet.js"></script>
+		<script type="text/javascript" src="js/beet/beet_core.js"></script>
+		<script type="text/javascript" src="js/beet/beet_config.js"></script>
+		<script type="text/javascript" src="js/beet/beet.js"></script>
 
 		<!-- let the stupid ie suport html5 -->
 		<!--[if lt IE 9]>
 		<script src="js/html5.js"></script>
 		<![endif]-->
-		
+
+		<!-- load yahoo and my js -->
+		<script type="text/javascript" src="js/my/yahoo-min.js"></script>
+		<script type="text/javascript" src="js/my/json-min.js"></script>
+		<script type="text/javascript" src="js/my/event-min.js"></script>
+		<script type="text/javascript" src="js/my/connection-min.js"></script>
+		<script type="text/javascript" src="js/my/utf.js"></script>
+		<script type="text/javascript" src="js/my/MyPrivilegeLib_intf.js"></script>
+		<script type="text/javascript" src="js/my/xxtea.js"></script>
 	</head>
 	<body>
-		<!--
-		<header id="header">
-			header	
-			<nav></nav>
-		</header>
-		-->
-		
 		<!-- loading ... -->
 		<div id="loading-mask"></div>
 		<div id="loading">
@@ -49,18 +52,6 @@
 			</script>
 		</div>
 
-		<!--
-		<div id="container">
-			<aside>
-				left side
-			</aside>
-			<article id="console-wrapper">
-				控制区
-			<article>
-		</div>
-		-->
-
-
 		<footer>
 			<script type="text/javascript">
 				//创建一个自己的namespace object
@@ -82,7 +73,6 @@
 						Ext.defer(hideLoading, 250);
 					},500);
 				});
-
 			</script>
 		</footer>
 	</body>
