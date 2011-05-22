@@ -36,13 +36,15 @@
 		</section>
 		<footer>
 			<script type="text/javascript">
-				var dataview, userId;
-				var mls = new MyCRLoginSvc("http://192.168.1.100:6661/MULTI");
-				var mps = new MyCallRecordSvc("http://192.168.1.100:6661/MULTI");
+				var userId;
 				Ext.onReady(function(){
 					Beet.navigationbar = Ext.create("Beet.apps.Menu.Panel");
 					Beet.workspace = Ext.create("Beet.apps.Viewport");
-
+					
+					userId = Ext.util.Cookies.get("userId");
+					if (!userId){
+						window.location = "index.html";
+					}
 					/*
 					dataview = Ext.create("Beet.apps.Grid.DataView", {
 						store : 'Beet.apps.Grid.Store.CRecord'

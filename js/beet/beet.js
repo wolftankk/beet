@@ -86,11 +86,25 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 					var usr = result["username"], passwd = result["password"];	
 					var loginServer = new MyLoginSvc("http://"+Beet.config.serverUrl+"/MULTI");
 					loginServer.Login(usr, xxtea_encrypt(passwd), '', '', {
-						success: function(res){
-							console.log(res);
+						success: function(uid){
+							if (uid && uid != "{00000000-0000-0000-0000-000000000000}"){
+								loginServer.GetSessionID({
+									success: function(sid){
+										Ext.util.Cookies.set("userName", usr);
+										Ext.util.Cookies.set("userId", uid);
+										Ext.util.Cookies.set("sessionId", sid);
+										window.location = "main.html"
+									},
+									failure: function(error){
+										Ext.Msg.alert("警告", "无法链接到服务器!" + error["message"]);
+									}
+								});
+							}else{
+								Ext.Msg.alert("警告", "用户名或密码错误, 请重新输入!");
+							}
 						},
 						failure: function(error){
-							Ext.Msg.alert("用户名或密码错误, 请重新输入!");
+							Ext.Msg.alert("警告", "无法链接到服务器: " + error["message"]);
 						}
 					});	
 				}
