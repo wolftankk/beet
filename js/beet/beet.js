@@ -53,6 +53,7 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 		},
 		{
 			xtype: "textfield",
+			name: "password",
 			inputType: "password",
 			fieldLabel: "密码",
 			allowBlank: false,
@@ -81,7 +82,17 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 			handler: function(){
 				var form = this.up('form').getForm()	
 				if (form.isValid()){
-					
+					var result = form.getValues();
+					var usr = result["username"], passwd = result["password"];	
+					var loginServer = new MyLoginSvc("http://"+Beet.config.serverUrl+"/MULTI");
+					loginServer.Login(usr, xxtea_encrypt(passwd), '', '', {
+						success: function(res){
+							console.log(res);
+						},
+						failure: function(error){
+							Ext.Msg.alert("用户名或密码错误, 请重新输入!");
+						}
+					});	
 				}
 			}
 		}

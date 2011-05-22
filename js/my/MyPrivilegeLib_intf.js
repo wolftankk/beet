@@ -1173,8 +1173,8 @@ MyLoginSvc.prototype.Login = function(UserName, Password, Language, ConnectionNa
       timeout : 30000
     }
   }
-  var uri = this.url
   var mquest = function(){
+	console.log(uri);
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
   }
   YAHOO.util.Connect.transport("connection.swf");
