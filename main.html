@@ -39,12 +39,8 @@
 				Ext.onReady(function(){
 					Beet.navigationbar = Ext.create("Beet.apps.Menu.Panel");
 					Beet.workspace = Ext.create("Beet.apps.Viewport");
-					
-					userId = Ext.util.Cookies.get("userId");
-					if (!userId){
-						window.location = "index.html";
-					}
-					/*
+
+					var loginServer = Beet.constants.loginServer, sessionId;
 					loginServer.GetSessionID({
 						success: function(sid){
 							sessionId = sid;
@@ -54,6 +50,11 @@
 							Ext.Msg.alert("警告", "无法链接到服务器! " + error["message"]);
 						}
 					});
+					
+					userId = Ext.util.Cookies.get("userId");
+					if (!userId){
+						window.location = "index.html";
+					}
 
 					/*
 					dataview = Ext.create("Beet.apps.Grid.DataView", {
