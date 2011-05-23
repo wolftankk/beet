@@ -529,7 +529,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 		var that = this;
 		Ext.apply(this, {});
 
-		this.setHeight(Beet.workspace.workspace.getHeight() - 30)
+		this.setHeight(Beet.workspace.workspace.getHeight() - 25)
 		
 		//base info
 		that.baseInfoPanel = Ext.create("Ext.form.Panel", that.getBaseInfoPanelConfig());
