@@ -164,9 +164,6 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 		if (that.useQuickTips){
 			Ext.QuickTips.init();
 		}
-		//create menu start menu button
-		//that.startMenu 
-
 		//导航栏toolbar
 		that.navigationToolbar = new Ext.toolbar.Toolbar(that.getNavitionConfig());
 		that.navigationToolbar.parent = that;
@@ -178,10 +175,10 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 		that.toggleButton = new Ext.toolbar.Toolbar(that.getToggleButtonConfig());
 
 		that.items = [
-			//about button
+			//about button / menu
 			{
-				xtype: "button",
-				text: "start Menu",
+				xtype: "splitbutton",
+				text: "ICON",
 			}, "-",
 			//menu category button
 			that.navigationToolbar,
