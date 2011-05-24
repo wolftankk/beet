@@ -486,6 +486,7 @@ Ext.define("Beet.apps.Viewport", {
 				border: false,
 				closable: true
 			},
+			/*
 			plugins: [
 				{
 					ptype: "tabscrollmenu",
@@ -493,29 +494,33 @@ Ext.define("Beet.apps.Viewport", {
 					pageSize: 5,
 					menuPrefixText: ""	
 				}
-			],
+			],*/
 			items: [
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
-				{text: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
+				{title: "测试测试"},
 			],
 			onRemove: function(item){
 				var name = item.b_name;
@@ -729,6 +734,7 @@ Ext.define("Beet.plugins.TabScrollerMenu", {
 	pageSize: 10,
 	maxText: 15,
 	menuPrefixText: "Items",
+	position: "left",
 	constructor: function(config){
 		config = config || {};
 		Ext.apply(this, config);
@@ -752,9 +758,10 @@ Ext.define("Beet.plugins.TabScrollerMenu", {
 		var that = this, 
 			result = Ext.getClass(that.layout.overflowHandler).prototype.handleOverflow.apply(that.layout.overflowHandler, arguments);
 		if (!that.menuButton){
+			//移动到左边
 			that.menuButton = that.tabBar.body.createChild({
-				cls: Ext.baseCSSPrefix + 'tab-tabmenu-right'	
-			}, that.tabBar.body.child("." + Ext.baseCSSPrefix + "box-scroller-right"));
+				cls: Ext.baseCSSPrefix + 'tab-tabmenu-left'	
+			}, that.tabBar.body.child("." + Ext.baseCSSPrefix + "box-scroller-left"));
 			that.menuButton.addClsOnOver(Ext.baseCSSPrefix + "tab-tabmenu-over");
 			that.menuButton.on("click", that.showTabsMenu, that)
 		}
@@ -792,9 +799,9 @@ Ext.define("Beet.plugins.TabScrollerMenu", {
 			that.tabsMenu.removeAll();
 		} else {
 			that.tabsMenu = Ext.create("Ext.menu.Menu");
-			that.tabsMenu.on("destory", that.tabsMenu.destory, that.tabsMenu);
+			that.tabPanel.on("destroy", that.tabsMenu.destroy, that.tabsMenu);
 		}
-
+		
 		that.generateTabMenuItems();
 
 		var target = Ext.get(e.getTarget())
