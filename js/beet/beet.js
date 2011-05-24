@@ -95,6 +95,9 @@ Beet.apps.Menu.Items = [
 	},
 	{
 		title: "排班管理"
+	},
+	{
+		title: "设置"
 	}
 ];
 
@@ -190,7 +193,8 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 			that.userName, ' ', 
 			that.logoutButton, ' ',
 			that.toggleButton, ' ',
-			that.helpButton
+			that.helpButton, '-',
+			//add clock
 		];
 		
 		that.callParent();
@@ -496,31 +500,6 @@ Ext.define("Beet.apps.Viewport", {
 				}
 			],*/
 			items: [
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
-				{title: "测试测试"},
 			],
 			onRemove: function(item){
 				var name = item.b_name;
@@ -870,6 +849,47 @@ Ext.define("Beet.plugins.TabScrollerMenu", {
 	},
 	showTabFromMenu: function(menuItem){
 		this.tabPanel.setActiveTab(menuItem.tabToShow);
+	}
+});
+
+Ext.define("Beet.plugins.TrayClock", {
+	extend: "Ext.toolbar.TextItem",
+	alias: "widget.trayclock",
+	html: "&#160;",
+	timeFormat: "G:i:s",
+	tpl: "{time}",
+	initComponent: function(){
+		var that = this;
+		that.callParent(arguments);
+
+		if (typeof that.tpl == "string"){
+			that.tpl = new Ext.XTemplate(that.tpl)
+		}
+	},
+	afterRender: function(){
+		var that = this;
+		Ext.defer(that.updateTime, 100, that);
+		that.callParent();
+	},
+	onDestroy:function(){
+		var that = this;
+		if (that.timer){
+			clearTimeout(that.timer);
+			that.timer = null;
+		}
+		that.callParent();
+	},
+	updateTime: function(){
+		var that = this,
+			date = Ext.Date.format(new Date(), that.timeFormat),
+			dateStr = that.tpl.apply({
+				time: date
+			})
+		if (that.lastText != dateStr){
+			that.setText(dateStr);
+			that.lastText = dateStr;	
+		}
+		that.timer = Ext.defer(that.updateTime, 1000, that);
 	}
 });
 
