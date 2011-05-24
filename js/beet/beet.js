@@ -9,14 +9,20 @@ Beet.apps.Menu.Items = [
 			{
 				xtype: "container",
 				layout: "hbox",
+				defaults: {
+					height: 100,
+					width: 250
+				},
+				defaultType: "buttongroup",
 				items: [
 					{
-						xtype: 'fieldset',
+						xtype: 'buttongroup',
 						title: '会员会籍',
-						flex: 1,
+						width: 250,
 						layout: "anchor",
 						defaults: {
-							margin: "0 5 0 0"
+							scale: "large",
+							rowspan: 3
 						},
 						items: [
 							{
@@ -64,23 +70,14 @@ Beet.apps.Menu.Items = [
 								}
 							}
 						]
-					},{
-						xtype: "component",
-						width: 5
 					},
 					{
-						xtype: 'fieldset',
-						flex: 1,
+						xtype: 'buttongroup',
 						title: '312313',
 						layout: 'anchor'
 					},
 					{
-						xtype: "component",
-						width: 5	
-					},
-					{
-						xtype: 'fieldset',
-						flex: 1,
+						xtype: 'buttongroup',
 						title: "other",
 						layout: "anchor"
 					}
@@ -481,12 +478,37 @@ Ext.define("Beet.apps.Viewport", {
 			maxTabWidth: 230,
 			minTabWidth: 150,
 			region: "top",
+			shadow: true,
 			layout: "fit",
+			frame: true,
 			defaults: {
 				autoScroll: true,
 				border: false,
 				closable: true
 			},
+			items: [
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+				{text: "测试测试"},
+			],
 			onRemove: function(item){
 				var name = item.b_name;
 				if (Beet.apps.Menu.Tabs[name]){
@@ -520,7 +542,7 @@ Ext.define("Beet.apps.Viewport", {
 
 Ext.define("Beet.apps.Viewport.AddUser", {
 	extend: "Ext.panel.Panel",
-	layout: "card",
+	layout: "anchor",
 	activeItem: 0,
 	defaults: {
 		border: 0	
@@ -529,11 +551,9 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 		var that = this;
 		Ext.apply(this, {});
 
-		this.setHeight(Beet.workspace.workspace.getHeight() - 25)
 		
 		//base info
 		that.baseInfoPanel = Ext.create("Ext.form.Panel", that.getBaseInfoPanelConfig());
-		console.log(that.baseInfoPanel);
 		that.items = [
 			that.baseInfoPanel
 
@@ -679,7 +699,8 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 		}
 
 		return config
-	},
+	}
+	/*
 	bbar: [
 		'->',
 		{
@@ -689,7 +710,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 
 			}
 		}
-	]
+	]*/
 });
 
 
