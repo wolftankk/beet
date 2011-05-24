@@ -193,8 +193,11 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 			that.userName, ' ', 
 			that.logoutButton, ' ',
 			that.toggleButton, ' ',
-			that.helpButton, '-',
+			that.helpButton,
 			//add clock
+			{
+				xtype: "trayclock"
+			}
 		];
 		
 		that.callParent();
