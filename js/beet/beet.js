@@ -486,6 +486,14 @@ Ext.define("Beet.apps.Viewport", {
 				border: false,
 				closable: true
 			},
+			plugins: [
+				{
+					ptype: "tabscrollmenu",
+					maxText: 15,
+					pageSize: 5,
+					menuPrefixText: ""	
+				}
+			],
 			items: [
 				{text: "测试测试"},
 				{text: "测试测试"},
@@ -532,6 +540,7 @@ Ext.define("Beet.apps.Viewport", {
 		var item = this.workspace.add(Ext.apply({
 			inTab: true, 
 			title: title,
+			tabTip: title
 		}, config));
 		//设置一个私有的name名称, 为了能直接摧毁
 		item.b_name = name;
