@@ -714,6 +714,150 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 });
 
 
+Ext.define("Beet.plugins.TabScrollerMenu", {
+	alias: "plugin.tabscrollmenu",
+	uses: ["Ext.menu.Menu"],
+	pageSize: 10,
+	maxText: 15,
+	menuPrefixText: "Items",
+	constructor: function(config){
+		config = config || {};
+		Ext.apply(this, config);
+	},
+	init: function(tabPanel){
+		var that = this;
+		Ext.apply(tabPanel, that.parentOverrides);
+		that.tabPanel = tabPanel;
+
+		tabPanel.on({
+			render: function(){
+				that.tabBar = tabPanel.tabBar;
+				that.layout = that.tabBar.layout;	
+				that.layout.overflowHandler.handleOverflow = Ext.Function.bind(that.showButton, that);
+				that.layout.overflowHandler.clearOverflow = Ext.Function.createSequence(that.layout.overflowHandler.clearOverflow, that.hideButton, that);
+			},
+			single: true
+		})
+	},
+	showButton: function(){
+		var that = this, 
+			result = Ext.getClass(that.layout.overflowHandler).prototype.handleOverflow.apply(that.layout.overflowHandler, arguments);
+		if (!that.menuButton){
+			that.menuButton = that.tabBar.body.createChild({
+				cls: Ext.baseCSSPrefix + 'tab-tabmenu-right'	
+			}, that.tabBar.body.child("." + Ext.baseCSSPrefix + "box-scroller-right"));
+			that.menuButton.addClsOnOver(Ext.baseCSSPrefix + "tab-tabmenu-over");
+			that.menuButton.on("click", that.showTabsMenu, that)
+		}
+		that.menuButton.show();
+		result.targetSize.width -= that.menuButton.getWidth();
+		return result;
+	},
+	hideButton: function(){
+		var that = this;
+		if (that.menuButton){
+			that.menuButton.hide();
+		}
+	},
+	getPageSize:function(){
+		return this.pageSize
+	},
+	setPageSize: function(pageSize){
+		this.pageSize = pageSize
+	},
+	getMaxText: function(){
+		return this.maxText
+	},
+	setMaxText:function(t){
+		this.maxText = t;
+	},
+	getMenuPrefixText: function(){
+		return this.menuPrefixText;
+	},
+	setMenuPrefixText: function(preText){
+		this.menuPrefixText = preText
+	},
+	showTabsMenu: function(e){
+		var that = this;
+		if (that.tabsMenu){
+			that.tabsMenu.removeAll();
+		} else {
+			that.tabsMenu = Ext.create("Ext.menu.Menu");
+			that.tabsMenu.on("destory", that.tabsMenu.destory, that.tabsMenu);
+		}
+
+		that.generateTabMenuItems();
+
+		var target = Ext.get(e.getTarget())
+		var xy = target.getXY();
+
+		xy[1] += 24;
+
+		that.tabsMenu.showAt(xy);
+	},
+	generateTabMenuItems: function(){
+		var that = this, tabPanel = that.tabPanel,
+			currentActive = tabPanel.getActiveTab(), totalItems = tabPanel.items.getCount(),
+			pageSize = that.getPageSize, numSubMenus = Math.floor(totalItems/pageSize),
+			remainder = totalItems % pageSize, currentPage, menuItems, item, start, index,
+			i, x;
+
+		if (totalItems > pageSize){
+			for (i = 0; i < numSubMenus; i++){
+				currentPage = ( i + 1 ) * pageSize;
+				menuItems = []
+				for (x = 0; x < pageSize; x++){
+					index = x + currentPage - pageSize;
+					item = tabPanel.items.get(index);
+					menuItems.push(that.autoGenMenuItem(item))
+				}
+
+				that.tabsMenu.add({
+					text: me.getMenuPrefixText() + ' ' + ( currentPage - pageSize + 1 ) + ' - ' + currentPage,
+					menu: menuItems
+				});
+			}
+
+			if (remainder > 0 ){
+				start = numSubMenus * pageSize;
+				menuItems = [];
+				for (i = start; i < totalItems; i++){
+					item = tabPanel.items.get(i);
+					menuItems.push(that.autoGenMenuItem(item));
+				}
+
+				that.tabsMenu.add({
+					text: me.getMenuPrefixText() + ' ' + ( start + 1 ) + ' - ' + (start + menuItems.length),
+					menu: menuItems
+				});
+			}
+		}else{
+			tabPanel.items.each(function(item){
+				if (item.id != currentActive.id && !item.hidden){
+					that.tabsMenu.add(that.autoGenMenuItem(item));
+				}
+			});
+		}
+	},
+	autoGenMenuItem: function(item){
+		var maxText = this.getMaxText(),
+			text = Ext.util.Format.ellipsis(item.title, maxText);
+
+		return {
+			text: text,
+			handler: this.showTabFromMenu,
+			scope: this,
+			disabled: item.disabled,
+			tabToShow: item,
+			iconCls: item.iconCls
+		}
+	},
+	showTabFromMenu: function(menuItem){
+		this.tabPanel.setActiveTab(menuItem.tabToShow);
+	}
+});
+
+
 Ext.namespace("Beet.apps.Grid", "Beet.apps.Grid.Model", "Beet.apps.Grid.Store");
 Ext.define("Beet.apps.Grid.Model.CRecord", {
 	extend: 'Ext.data.Model',

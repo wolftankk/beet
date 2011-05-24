@@ -5,4 +5,5 @@ Ext.namespace("Beet");
 Ext.namespace("Beet.apps");
 //constant namespace
 Ext.namespace("Beet.constants");
-
+//plugin
+Ext.namespace("Beet.plugins");
