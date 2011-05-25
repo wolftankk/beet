@@ -28,6 +28,7 @@ Beet.apps.Menu.Items = [
 							{
 								xtype: "button",
 								text: "增加会员",
+								tooltip: "点击打开新增会员界面",
 								handler: function(){
 									var item = Beet.apps.Menu.Tabs["addCustomer"];
 									if (!item){
@@ -39,7 +40,7 @@ Beet.apps.Menu.Items = [
 									}else{
 										Beet.workspace.workspace.setActiveTab(item);
 									}
-								},
+								}
 							},
 							{
 								xtype: "button",
@@ -87,7 +88,7 @@ Beet.apps.Menu.Items = [
 	},
 	{
 		title: "库存管理",
-		html : "<div style='border: 1px solid #ff0000'>we1231</div>",
+		html : "<div style='border: 1px solid #ff0000'>we1231</div>"
 	},
 	{
 		title: "人事管理",
@@ -97,7 +98,23 @@ Beet.apps.Menu.Items = [
 		title: "排班管理"
 	},
 	{
-		title: "设置"
+		title: "设置",
+		items: [
+			{
+				xtype: "container",
+				layout: "hbox",
+				defaultType: "buttongroup",
+				defaults: {
+					height: 100,
+					width: 250
+				},
+				items: [
+					{
+						title: '客户管理'
+					}
+				]
+			}
+		]
 	}
 ];
 
@@ -178,7 +195,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 			//about button / menu
 			{
 				xtype: "splitbutton",
-				text: "ICON",
+				text: "ICON"
 			}, "-",
 			//menu category button
 			that.navigationToolbar,
@@ -225,7 +242,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 				"&#160;",
 				navigationTab	
 			],
-			enableOverflow: false,
+			enableOverflow: false
 		}
 		return config
 	},
@@ -530,7 +547,7 @@ Ext.define("Beet.apps.Viewport", {
 		item.b_name = name;
 		Beet.apps.Menu.Tabs[name] = item;
 		this.workspace.setActiveTab(item);
-	},
+	}
 });
 
 Ext.define("Beet.apps.Viewport.AddUser", {
@@ -595,7 +612,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 								},
 								{
 									fieldLabel: "会员卡号",
-									name: "userCard",
+									name: "userCard"
 								},
 								{
 									fieldLabel: "身份证",
@@ -649,7 +666,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 				},
 				{
 					xtype: "component",
-					width: 15,
+					width: 15
 				},
 				{
 					xtype: "container",
@@ -895,6 +912,7 @@ Ext.define("Beet.plugins.TrayClock", {
 
 
 Ext.namespace("Beet.apps.Grid", "Beet.apps.Grid.Model", "Beet.apps.Grid.Store");
+/*
 Ext.define("Beet.apps.Grid.Model.CRecord", {
 	extend: 'Ext.data.Model',
 	fields: [
@@ -1038,3 +1056,4 @@ Ext.define("Beet.apps.Grid.DataView", {
 		this.callParent(arguments);
 	}
 });
+*/

@@ -34,7 +34,6 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 		flex: 1
 	},
 	items : [
-		//@TODO: 这里需要加一个logo
 		{
 			xtype : "textfield",
 			name : "username",
@@ -102,6 +101,6 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 				}
 			}
 		}
-	],
+	]
 });
 
