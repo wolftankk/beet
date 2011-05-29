@@ -4,6 +4,13 @@ Ext.namespace("Beet");
 //app namespace
 Ext.namespace("Beet.apps");
 //constant namespace
-Ext.namespace("Beet.constants");
+Beet.constants = {
+	FAILURE: "{00000000-0000-0000-0000-000000000000}"
+}
+
+//临时数据表
+Ext.namespace("Beet.cache");
+
+
 //plugin
 Ext.namespace("Beet.plugins");

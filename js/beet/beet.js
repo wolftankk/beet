@@ -34,11 +34,11 @@ Beet.apps.Menu.Items = [
 									if (!item){
 										//get serviceItems
 										var timer;
-										Beet.constants.serviceItems = []
-										Beet.apps.Viewport.getServiceItems(Beet.constants.serviceItems);
+										Beet.cache.serviceItems = []
+										Beet.apps.Viewport.getServiceItems(Beet.cache.serviceItems);
 										if (!timer){
 											timer = setInterval(function(){
-												if (Beet.constants.serviceItems.length > 0){
+												if (Beet.cache.serviceItems.length > 0){
 													if (timer){
 														clearInterval(timer);
 														timer = null;
@@ -600,7 +600,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 		Ext.apply(this, {});
 
 		//base info
-		that.serviceItems = Beet.constants.serviceItems;
+		that.serviceItems = Beet.cache.serviceItems;
 		that.baseInfoPanel = Ext.create("Ext.form.Panel", that.getBaseInfoPanelConfig());
 		that.items = [
 			that.baseInfoPanel
