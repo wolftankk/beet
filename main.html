@@ -41,8 +41,8 @@
 					Beet.navigationbar = Ext.create("Beet.apps.Menu.Panel");
 					Beet.workspace = Ext.create("Beet.apps.Viewport");
 					
-					var customerServer = Beet.constants.customerServer, sessionId;
-					customerServer.GetSessionID({
+					var customerLoginServer = Beet.constants.customerLoginServer, sessionId;
+					customerLoginServer.GetSessionID({
 						success: function(sid){
 							sessionId = sid;
 							Ext.util.Cookies.set("sessionId", sid);

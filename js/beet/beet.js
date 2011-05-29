@@ -32,11 +32,26 @@ Beet.apps.Menu.Items = [
 								handler: function(){
 									var item = Beet.apps.Menu.Tabs["addCustomer"];
 									if (!item){
-										Beet.workspace.addPanel("addCustomer", "添加会员", {
-											items: [
-												Ext.create("Beet.apps.Viewport.AddUser")
-											]
-										});	
+										//get serviceItems
+										var timer;
+										Beet.constants.serviceItems = []
+										Beet.apps.Viewport.getServiceItems(Beet.constants.serviceItems);
+										if (!timer){
+											timer = setInterval(function(){
+												if (Beet.constants.serviceItems.length > 0){
+													if (timer){
+														clearInterval(timer);
+														timer = null;
+														Beet.workspace.addPanel("addCustomer", "添加会员", {
+															items: [
+																Ext.create("Beet.apps.Viewport.AddUser")
+															]
+														});	
+													}
+												}
+											}, 250);
+										}
+
 									}else{
 										Beet.workspace.workspace.setActiveTab(item);
 									}
@@ -255,8 +270,8 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 					xtype: "button",
 					text: "退出",
 					handler: function(){
-						var customerServer = Beet.constants.customerServer;
-						customerServer.Logout({
+						var customerLoginServer = Beet.constants.customerLoginServer;
+						customerLoginServer.Logout({
 							success: function(){
 								Ext.util.Cookies.clear("userName");
 								Ext.util.Cookies.clear("userId");
@@ -468,6 +483,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 	}
 })
 
+
 Ext.define("Beet.apps.Viewport", {
 	extend: "Ext.container.Container",	
 	renderTo: "viewport",
@@ -550,6 +566,27 @@ Ext.define("Beet.apps.Viewport", {
 	}
 });
 
+Beet.apps.Viewport.getServiceItems = function(serviceItems){
+	Beet.constants.customerServer.GetServiceItems({
+		success: function(data){
+			data = Ext.JSON.decode(data)
+			if (data["Data"] && Ext.isArray(data["Data"])){
+				var datz = data["Data"];
+				for (var item in datz){
+					var p = datz[item];
+					serviceItems.push({
+						boxLabel: p["ServiceName"],
+						name: p["ServiceType"]
+					})
+				}
+			}
+		},
+		failure: function(){
+			
+		}
+	})
+}
+
 Ext.define("Beet.apps.Viewport.AddUser", {
 	extend: "Ext.panel.Panel",
 	layout: "anchor",
@@ -557,18 +594,17 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 	defaults: {
 		border: 0	
 	},
+	suspendLayout: true,
 	initComponent: function(){
 		var that = this;
 		Ext.apply(this, {});
 
-		
 		//base info
+		that.serviceItems = Beet.constants.serviceItems;
 		that.baseInfoPanel = Ext.create("Ext.form.Panel", that.getBaseInfoPanelConfig());
 		that.items = [
 			that.baseInfoPanel
-
 		]
-		
 		that.callParent(arguments);
 	},
 	getBaseInfoPanelConfig: function(){
@@ -691,13 +727,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 										labelAlign: "left",
 										labelWidth: 75
 									},
-									items: [
-										{boxLabel: 'Item 1', name: 'cb-auto-1'},
-										{boxLabel: 'Item 2', name: 'cb-auto-2'},
-										{boxLabel: 'Item 3', name: 'cb-auto-3'},
-										{boxLabel: 'Item 4', name: 'cb-auto-4'},
-										{boxLabel: 'Item 5', name: 'cb-auto-5'}
-									]
+									items: that.serviceItems
 								}
 							]
 						},
@@ -713,6 +743,12 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 		}
 
 		return config
+	},
+	/*
+	 * 重新触发生产panel
+	 */
+	onRealse: function(){
+
 	}
 	/*
 	bbar: [
