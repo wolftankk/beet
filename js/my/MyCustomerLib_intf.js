@@ -49,6 +49,7 @@ DataAbstractService.prototype.GetSchema = function(aFilter, __callback) {
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -91,6 +92,7 @@ DataAbstractService.prototype.GetData = function(aTableNameArray, aTableRequestI
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -132,6 +134,7 @@ DataAbstractService.prototype.UpdateData = function(aDelta, __callback) {
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -174,6 +177,7 @@ DataAbstractService.prototype.ExecuteCommand = function(aCommandName, aParameter
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -216,6 +220,7 @@ DataAbstractService.prototype.ExecuteCommandEx = function(aCommandName, aInputPa
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -257,6 +262,7 @@ DataAbstractService.prototype.GetTableSchema = function(aTableNameArray, __callb
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -298,6 +304,7 @@ DataAbstractService.prototype.GetCommandSchema = function(aCommandNameArray, __c
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -341,6 +348,7 @@ DataAbstractService.prototype.SQLGetData = function(aSQLText, aIncludeSchema, aM
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -385,6 +393,7 @@ DataAbstractService.prototype.SQLGetDataEx = function(aSQLText, aIncludeSchema, 
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -426,6 +435,7 @@ DataAbstractService.prototype.SQLExecuteCommand = function(aSQLText, __callback)
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -468,6 +478,7 @@ DataAbstractService.prototype.SQLExecuteCommandEx = function(aSQLText, aDynamicW
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -509,6 +520,7 @@ DataAbstractService.prototype.GetDatasetScripts = function(DatasetNames, __callb
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -550,6 +562,7 @@ DataAbstractService.prototype.RegisterForDataChangeNotification = function(aTabl
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -591,6 +604,7 @@ DataAbstractService.prototype.UnregisterForDataChangeNotification = function(aTa
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -639,6 +653,7 @@ SimpleLoginService.prototype.Login = function(aUserID, aPassword, __callback) {
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -686,6 +701,7 @@ BaseLoginService.prototype.LoginEx = function(aLoginString, __callback) {
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -726,6 +742,7 @@ BaseLoginService.prototype.Logout = function(__callback) {
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -775,6 +792,7 @@ MultiDbLoginService.prototype.Login = function(aUserID, aPassword, aConnectionNa
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -821,6 +839,7 @@ MultiDbLoginServiceV5.prototype.GetConnectionNames = function(__callback) {
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -861,6 +880,7 @@ MultiDbLoginServiceV5.prototype.GetDefaultConnectionName = function(__callback) 
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -907,6 +927,7 @@ MyCustomerSvc.prototype.GetServiceItems = function(__callback) {
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -948,6 +969,7 @@ MyCustomerSvc.prototype.GetOperatorList = function(AResourceID, __callback) {
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -990,6 +1012,7 @@ MyCustomerSvc.prototype.CheckPrivilege = function(AOperatorID, AResourceID, __ca
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -1032,6 +1055,7 @@ MyCustomerSvc.prototype.GetGroupListFromOperatorID = function(AOperatorID, IsNam
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -1073,6 +1097,7 @@ MyCustomerSvc.prototype.AddCustomer = function(ACustomerJson, __callback) {
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -1114,6 +1139,7 @@ MyCustomerSvc.prototype.GetCustomerToJSON = function(AWhere, __callback) {
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -1156,6 +1182,7 @@ MyCustomerSvc.prototype.UpdateCustomer = function(ACustomerID, UpdateData, __cal
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -1197,6 +1224,7 @@ MyCustomerSvc.prototype.DeleteCustomer = function(ACustomerID, __callback) {
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -1247,6 +1275,7 @@ CTLoginSvc.prototype.Login = function(UserName, Password, Language, ConnectionNa
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -1287,6 +1316,7 @@ CTLoginSvc.prototype.Logout = function(__callback) {
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -1327,6 +1357,7 @@ CTLoginSvc.prototype.GetConnectionNames = function(__callback) {
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -1367,6 +1398,7 @@ CTLoginSvc.prototype.GetUserPrivileges = function(__callback) {
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
@@ -1407,6 +1439,7 @@ CTLoginSvc.prototype.GetSessionID = function(__callback) {
   var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
   }
   YAHOO.util.Connect.transport("connection.swf");
   YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
