@@ -49,7 +49,7 @@ Beet.apps.Menu.Items = [
 														});	
 													}
 												}
-											}, 250);
+											}, 100);
 										}
 
 									}else{
