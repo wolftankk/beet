@@ -639,68 +639,49 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 							items: [
 								{
 									fieldLabel: "会员姓名",
-									name: "customerName",
+									name: "Name",
 									allowBlanks: false
 								},
 								{
-									fieldLabel: "会员编号",
-									name: "customerNo"
-								},
-								{
 									fieldLabel: "会员卡号",
-									name: "customerCardNo"
+									name: "CardNo"
 								},
 								{
 									fieldLabel: "身份证",
-									name: "customerIDNo"
+									name: "PersonID"
 								},
 								{
 									fieldLabel: "出生日期",
 									xtype: "datefield",
-									name: "customerBirthDate"
+									name: "BirthDay",
+									format: 'Y年m月d日',
 								},
 								{
 									fieldLabel: "手机号码",
-									name: "customerMobileNo"
+									name: "Mobile",
+									allowBlank: false
 								},
 								{
 									fieldLabel: "座机号码",
-									name: "customerPhone"
+									name: "Phone"
 								},
 								{
 									fieldLabel: "QQ/MSN",
-									name: "customerIMNo"
+									name: "IM"
 								},
 								{
 									fieldLabel: "地址",
-									name: "customerAddress"
+									name: "Address"
 								},
 								{
 									fieldLabel: "职业",
-									name: "customerJob"
+									name: "Job"
 								}
 							]
 						},
 						{
 							xtype: "component",
 							width: 5
-						},
-						{
-							xtype: "fieldset",
-							title: "其他",
-							flex: 1,
-							layout: "anchor",
-							defaultType: "textfield",
-							fieldDefaults: {
-								msgTarget: 'side',
-								labelAlign: "left",
-								labelWidth: 75
-							},
-							items:[
-								{
-									fieldLabel: "12312"
-								}
-							]
 						}
 					]
 				},
@@ -736,12 +717,40 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 							frame: true,
 							layout: "anchor",
 							flex: 1
+						},
+						{
+							xtype: "button",
+							id : "move-next",
+							scale: "large",
+							text: "下一步",
+							handler: function(direction){
+								var that = this,
+									form = that.up("form").getForm(),
+									result = form.getValues(), needSubmitData, customerServer = Beet.constants.customerServer;
+								if (result["Name"] != "" && result["Mobile"] != ""){
+									//do
+									if (result["BirthDay"] == ""){
+										result["BirthDay"] = 0;
+									}else{
+										var now = new Date(), timezoneOffset = now.getTimezoneOffset() * 60;
+										result["BirthDay"] = ((+Ext.Date.parse(result["BirthDay"], "Y年m月d日")) / 1000) - timezoneOffset
+									}
+									needSubmitData = Ext.JSON.encode(result);
+									customerServer.AddCustomer(needSubmitData, {
+										success: function(uid){
+											console.log(uid)
+										},
+										failure: function(error){
+											console.log("failure", error)
+										}
+									});
+								}
+							}
 						}
 					]
 				}
 			]
 		}
-
 		return config
 	},
 	/*
@@ -750,17 +759,6 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 	onRealse: function(){
 
 	}
-	/*
-	bbar: [
-		'->',
-		{
-			id : "move-next",
-			text: "下一步",
-			handler: function(direction){
-
-			}
-		}
-	]*/
 });
 
 
