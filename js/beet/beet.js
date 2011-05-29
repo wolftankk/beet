@@ -255,8 +255,8 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 					xtype: "button",
 					text: "退出",
 					handler: function(){
-						var loginServer = Beet.constants.loginServer;
-						loginServer.Logout({
+						var customerServer = Beet.constants.customerServer;
+						customerServer.Logout({
 							success: function(){
 								Ext.util.Cookies.clear("userName");
 								Ext.util.Cookies.clear("userId");
