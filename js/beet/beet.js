@@ -110,7 +110,30 @@ Beet.apps.Menu.Items = [
 				},
 				items: [
 					{
-						title: '客户管理'
+						title: '客户管理',
+						width: 250,
+						layout: "anchor",
+						defaults: {
+							scale: "large",
+							rowspan: 3
+						},
+						items: [
+							{
+								text: "会员级别",
+								handler: function(){
+									var item = Beet.apps.Menu.Tabs["memberLvls"];
+									if (!item){
+										Beet.workspace.addPanel("memberLvls", "会员级别", {
+											items: [
+												Ext.create("Beet.apps.Viewport.memberLvlsList")
+											]
+										});	
+									}else{
+										Beet.workspace.workspace.setActiveTab(item);
+									}
+								}
+							}
+						]
 					}
 				]
 			}
@@ -552,8 +575,6 @@ Ext.define("Beet.apps.Viewport", {
 
 Ext.define("Beet.apps.Viewport.AddUser", {
 	extend: "Ext.panel.Panel",
-	layout: "anchor",
-	activeItem: 0,
 	defaults: {
 		border: 0	
 	},
@@ -711,7 +732,6 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 				}
 			]
 		}
-
 		return config
 	}
 	/*
@@ -727,10 +747,286 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 	]*/
 });
 
+Ext.namespace("Beet.apps.Viewport.memberLvls");
+
+Ext.define("Beet.apps.Viewport.memberLvls.Model", {
+	extend: "Ext.data.Model",
+	fields: [
+		'id',
+		'name',
+		'description',
+		{name:'active', type: 'boolean'}
+	]
+})
+
+Ext.define("Beet.apps.Viewport.memberLvls.Store", {
+	extend: "Ext.data.Store",
+	autoDestroy: true,
+	model: "Beet.apps.Viewport.memberLvls.Model",
+	pageSize: 50,
+	data: [
+		{
+			id: 1,
+			name: "白金",
+			description: "白金会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+	]
+	/*
+	proxy: {
+		type: "jsonp",
+		url: "http://192.168.1.100:6660/GetRecDataToJson",
+		reader: {
+			root: "Data",
+			totalProperty: "TotalCount"
+		}
+	}*/
+});
+
+Ext.define("Beet.apps.Viewport.memberLvlsList", {
+	extend: "Ext.panel.Panel",
+	layout: "anchor",
+	shadow: true,
+	defaults: {
+		border: 0
+	},
+	initComponent: function(){
+		var that = this;
+		Ext.apply(this, {
+			storeProxy: Ext.create("Beet.apps.Viewport.memberLvls.Store")
+		});
+
+		that.callParent(arguments);
+	},
+	afterRender: function(){
+		var that = this;
+		that.createMemberLvlsList();
+		that.callParent(arguments);
+	},
+	createMemberLvlsList: function(){
+		var that = this, store = that.storeProxy
+		that.memberLvlsList = Ext.create("Ext.grid.Panel", {
+			renderTo: that.body,
+			store: store,
+			frame: true,
+			lookMask: true,
+			rorder: true,
+			tbar: [
+				{
+					xtype: "button",
+					text: "增加"	
+				},"-",
+				{
+					xtype: "button",
+					text: '删除'
+				},"-",
+				{
+					xtype: 'button',
+					text: '编辑'
+				}
+			],
+			columns: [
+				{
+					header: "ID",
+					dataIndex: "id",
+					sortable: true
+				},
+				{
+					header: "级别名称",
+					dataIndex: "name",
+					sortable: true
+				},
+				{
+					header: "描述",
+					dataIndex: "description",
+					flex: 1
+				},
+				{
+					header: "启用",
+					dataIndex: "Active",
+					xtype: "checkcolumn"
+				}	
+			]
+		});
+	}
+});
 
 
-
-Ext.namespace("Beet.apps.Grid", "Beet.apps.Grid.Model", "Beet.apps.Grid.Store");
+//Ext.namespace("Beet.apps.Grid", "Beet.apps.Grid.Model", "Beet.apps.Grid.Store");
 /*
 Ext.define("Beet.apps.Grid.Model.CRecord", {
 	extend: 'Ext.data.Model',

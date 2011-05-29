@@ -195,3 +195,49 @@ Ext.define("Beet.plugins.TrayClock", {
 		that.timer = Ext.defer(that.updateTime, 1000, that);
 	}
 });
+
+
+Ext.define("Beet.plugins.CheckColumn", {
+	extend: "Ext.grid.column.Column",
+	alias: "widget.checkcolumn",
+	constructor: function(){
+		this.addEvents(
+			/*
+			 * @event chechchange
+			 * 监控checkbox是否被check/unckeck
+			 * @param {Beet.plugins.CheckColumn} this
+			 * @param {Number} rowIndex
+			 * @param {Boolean} cheched true if the box is cheched 
+			 */
+			'checkchange'
+		);
+		
+		this.callParent(arguments);
+	},
+	/**
+	 *	构建event, 并且触发定制的event
+	 */
+	processEvent: function(type, view, call, recordIndex, cellIndex, e){
+		if (type == "mousedown" || (type == "keydown" && (e.getKey() == e.ENTER || e.getKey() == e.SPACE)) ){
+			var record = view.panel.store.getAt(recordIndex),
+				dataIndex = this.dataIndex,
+				checked = !record.get(dataIndex);
+
+			record.set(dataIndex, checked);
+			this.fireEvent("checkchange", this, recordIndex, cheched);
+			return false;
+		} else {
+			return this.callParent(arguments);
+		}
+	},
+	renderer: function(value){
+		var cssPrefix = Ext.baseCSSPrefix,
+			cls = [cssPrefix + 'grid-checkheader'];
+
+		if (value){
+			css.push(cssPrefix + 'grid-checkheader-checked');
+		}
+		
+		return '<div class="' + cls.join(' ') + '">&#160;</div>';
+	}
+});
