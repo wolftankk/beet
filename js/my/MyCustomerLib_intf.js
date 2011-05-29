@@ -1079,6 +1079,130 @@ MyCustomerSvc.prototype.AddCustomer = function(ACustomerJson, __callback) {
 
 }
 
+MyCustomerSvc.prototype.GetCustomerToJSON = function(AWhere, __callback) {
+  var __message = {
+    "method" : "MyCustomerSvc.GetCustomerToJSON",
+    "params" : {
+      "AWhere": AWhere
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      xdr : true,
+      success : function (o) {
+        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
+}
+
+MyCustomerSvc.prototype.UpdateCustomer = function(ACustomerID, UpdateData, __callback) {
+  var __message = {
+    "method" : "MyCustomerSvc.UpdateCustomer",
+    "params" : {
+      "ACustomerID": ACustomerID,
+      "UpdateData": UpdateData
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      xdr : true,
+      success : function (o) {
+        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
+}
+
+MyCustomerSvc.prototype.DeleteCustomer = function(ACustomerID, __callback) {
+  var __message = {
+    "method" : "MyCustomerSvc.DeleteCustomer",
+    "params" : {
+      "ACustomerID": ACustomerID
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      xdr : true,
+      success : function (o) {
+        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
+}
+
 // End of service: MyCustomerSvc
 // Service: CTLoginSvc
 function CTLoginSvc(url){

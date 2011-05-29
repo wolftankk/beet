@@ -59,12 +59,14 @@ Beet.apps.Menu.Items = [
 							},
 							{
 								xtype: "button",
-								text: "删除会员",
+								text: "编辑会员",
 								handler: function(){
-									var item = Beet.apps.Menu.Tabs["deleteCustomer"];
+									var item = Beet.apps.Menu.Tabs["editCustomer"];
 									if (!item){
-										Beet.workspace.addPanel("deleteCustomer", "删除会员", {
-
+										Beet.workspace.addPanel("editCustomer", "编辑会员", {
+											items: [
+												Ext.create("Beet.apps.Viewport.CustomerList")
+											]	
 										});
 									}else{
 										Beet.workspace.workspace.setActiveTab(item);
@@ -73,11 +75,11 @@ Beet.apps.Menu.Items = [
 							},
 							{
 								xtype: "button",
-								text: "编辑会员",
+								text: "删除会员",
 								handler: function(){
-									var item = Beet.apps.Menu.Tabs["editCustomer"];
+									var item = Beet.apps.Menu.Tabs["deleteCustomer"];
 									if (!item){
-										Beet.workspace.addPanel("editCustomer", "编辑会员", {
+										Beet.workspace.addPanel("deleteCustomer", "删除会员", {
 
 										});
 									}else{
@@ -752,60 +754,221 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 			]
 		}
 		return config
-	},
+	}
 	/*
 	 * 重新触发生产panel
 	 */
-	onRealse: function(){
-
-	}
 });
 
-
-
-
-Ext.namespace("Beet.apps.Grid", "Beet.apps.Grid.Model", "Beet.apps.Grid.Store");
-/*
-Ext.define("Beet.apps.Grid.Model.CRecord", {
-	extend: 'Ext.data.Model',
+Ext.define("Beet.apps.Viewport.CustomerList.Model", {
+	extend: "Ext.data.Model",
 	fields: [
-		{name:'GUIDID'},
-		{name:'HOST',type: 'integer'},
-		{name:'CHANNEL',type: 'integer'},
-		{name:'IPADDRESS',type: 'integer'},
-		{name:'FILENAME'},
-		{name:'CALLID',type: 'integer'},
-		{name:'LOCK',type: 'integer'},
-		{name:'CONNECTEDCOUNT',type: 'integer'},
-		{name:'DIALUP'},
-		{name:'AGENT'},
-		{name:'HOLDSECONDS'},
-		{name:'HOLDCOUNT'},
-		{name:'RINGSECONDS'},
-		{name: 'EXTENSION'},         
-		{name: 'DIRECTION',type: 'integer'},
-		{name: 'CALLER'},
-		{name: 'CALLED'},
-		{name: 'SECONDS',type: 'integer'},
-		{name: 'SYSTEMTIM'}
-	],
-	idProperty: "GUIDID"
+		"CTID",
+		"CTCardNo",
+		"CTName",
+		"CTBirthday",
+		"CTMobile",
+		"CTPhone",
+		"CTJob",
+		"CTIM",
+		"CTAddress"
+	]
 });
 
-Ext.define("Beet.apps.Grid.Store.CRecord", {
+//重写获取数据结构
+Ext.define("Beet.plugins.Ajax", {
+	extend: "Ext.data.proxy.Proxy",
+	alias: "proxy.b_ajax",
+	uses: ['Ext.data.Request'],
+	pageParam: "page",
+	startParam: "start",
+	limitParam: "limit",
+	groupParam: "group",
+	fileParam: "",
+	sortParam: "sort",
+	directionParam: "dir",
+	noCache: false,
+	cacheString: "_dc",
+	
+	constructor: function(config){
+		var that = this;
+		config = config || {}
+		this.addEvents(
+			'exception'
+		);
+	
+		that.callParent([config])
+		
+		if (!config.b_method){
+			//抛出错误
+		}
+
+		that.nocache = that.nocache;
+	},
+	create: function(){
+		return this.doRequest.apply(this, arguments);
+	},
+	read: function(){
+		return this.doRequest.apply(this, arguments);
+	},
+	update: function(){
+		return this.doRequest.apply(this, arguments);
+	},
+	destroy: function(){
+		return this.doRequest.apply(this, arguments);
+	},
+	buildReques: function(){
+
+	},
+	processResponse: function(operation, callback, scope, data){
+		var that = this, reader = that.getReader(),
+			result = reader.read(data);
+		Ext.apply(operation, {
+			resultSet: result
+		});
+
+		operation.setCompleted();
+		operation.setSuccessful();
+		Ext.callback(callback, scope || that, [operation]);
+	},
+	setException: function(){
+
+	},
+	applyEncoding: function(value){
+		return Ext.encode(value)
+	},
+	encodeSorters: function(){
+
+	},
+	encodeFilters: function(){
+
+	},
+	getParams: function(){
+
+	},
+	doRequest: function(operation, callback, scope){
+		var that = this, filter = "", method = that.b_method;
+		if (Ext.isFunction(this.b_method)){
+			method.call(that.b_scope, "", {
+				success: function(data){
+					data = Ext.JSON.decode(data);
+					that.processResponse(operation, callback, scope, data)
+				},
+				failure: function(error){
+				}
+			})
+		}
+	},
+	afterRequest: Ext.emptyFn,
+	onDestroy: function(operation, callback, scope){
+	}
+})
+
+Ext.define("Beet.apps.Viewport.CustomerList.Store", {
 	extend: "Ext.data.Store",
-	pageSize: 50,
-	model: Beet.apps.Grid.Model.CRecord,
+	model: Beet.apps.Viewport.CustomerList.Model,
+	autoLoad: true,
 	proxy: {
-		type: 'jsonp',
-		url: "http://192.168.1.100:6661/GetRecDataToJson",
+		type: "b_ajax",
+		b_method: Beet.constants.customerServer.GetCustomerToJSON,
+		b_scope: Beet.constants.customerServer,
 		reader: {
-			root: "Data",
-			totalProperty: "TotalCount"
+			type: "json",
+			root: "Data"
 		}
 	}
 });
 
+Ext.define("Beet.apps.Viewport.CustomerList", {
+	extend: "Ext.panel.Panel",
+	anchor: "anchor",
+	height: "100%",
+	defaults: {
+		border: 0
+	},
+	initComponent: function(){
+		var that = this
+		Ext.apply(this, {
+			storeProxy: Ext.create("Beet.apps.Viewport.CustomerList.Store"),
+			layout: "fit"
+		});
+		that.callParent(arguments);
+	},
+	afterRender: function(){
+		var that = this;
+		that.createCustomerGrid();
+
+		that.callParent(arguments);
+	},
+	createCustomerGrid: function(){
+		var that = this, grid = that.grid, store = that.storeProxy;
+		that.grid = Ext.create("Ext.grid.Panel", {
+			store: store,
+			lookMask: true,
+			frame: true,
+			collapsible: false,	
+			rorder: false,
+			width: "100%",
+			height: "100%",
+			layout: "anchor",
+			viewConfig: {
+				trackOver: false,
+				stripeRows: false
+			},
+			columns: [
+				/*{
+					dataIndex:'CTGUID',width:20,
+				},*/
+				{
+					header: "会员卡号", dataIndex: 'CTCardNo', sortable: true
+				},
+				{
+					header: "会员名字", dataIndex: "CTName", sortable: true, flex: 1
+				},
+				{
+					header: "生日日期", dataIndex: "CTBirthday", flex: 1
+				},
+				{
+					header: "手机号码", dataIndex: "CTMobile"
+				},
+				{
+					header: "座机号码", dataIndex: "CTPhone"
+				},
+				{
+					header: "地址", dataIndex: "CTAddress", flex: 1
+				},
+				{
+					header: "职业", dataIndex: "CTJob"
+				},
+				{
+					header: "QQ/MSN", dataIndex: "CTIM"
+				}
+			],
+			bbar: Ext.create('Ext.PagingToolbar', {
+				store: this.storeProxy,
+				displayInfo: true,
+				displayMsg: 'Displaying topics {0} - {1} of {2}',
+				emptyMsg: "No topics to display",
+				items: [
+					'-', {
+						text: "Show Preview"
+					}
+				]
+			}),
+			fbar  : ['->', {
+				text:'Clear Grouping',
+				iconCls: 'icon-clear-group',
+				handler : function(){
+					//groupingFeature.disable();
+				}
+			}],
+			renderTo: that.body
+		})
+	}
+})
+
+Ext.namespace("Beet.apps.Grid", "Beet.apps.Grid.Model", "Beet.apps.Grid.Store");
+/*
 Ext.define("Beet.apps.Grid.DataView", {
 	extend: "Ext.panel.Panel",
 	shadow: true,
@@ -819,12 +982,6 @@ Ext.define("Beet.apps.Grid.DataView", {
 		Ext.apply(this, {
 			layout: 'fit',
 			storeProxy : Ext.create(this.store),
-			groupFeature: Ext.create("Ext.grid.feature.Grouping", {
-				groupHeaderTpl: 'HOST: {name} ({rows.length} Item{[values.rows.length > 1 ? "s" : ""]})',
-				groupByText: "按此列分组",
-				showGroupsText: "显示分组",
-				groupField: "HOST"
-			})
 		});
 
 		this.callParent(arguments);
