@@ -592,6 +592,7 @@ Beet.apps.Viewport.getServiceItems = function(serviceItems){
 Ext.define("Beet.apps.Viewport.AddUser", {
 	extend: "Ext.panel.Panel",
 	layout: "anchor",
+	height: "100%",
 	activeItem: 0,
 	defaults: {
 		border: 0	
@@ -615,6 +616,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 		config = {
 			frame: true,
 			bodyPadding: 10,
+			height: "100%",
 			fieldDefaults: {
 				msgTarget: 'side',
 				labelAlign: "left",
@@ -731,8 +733,8 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 									result = form.getValues(), needSubmitData, customerServer = Beet.constants.customerServer;
 								if (result["Name"] != "" && result["Mobile"] != ""){
 									//do
-									if (result["BirthDay"] == ""){
-										result["BirthDay"] = 0;
+									if (result["BirthDay"] != ""){
+										result["BirthDay"] = Beet.constants.GRANDMADATE;
 									}else{
 										var now = new Date(), timezoneOffset = now.getTimezoneOffset() * 60;
 										result["BirthDay"] = ((+Ext.Date.parse(result["BirthDay"], "Y年m月d日")) / 1000) - timezoneOffset

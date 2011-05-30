@@ -5,7 +5,8 @@ Ext.namespace("Beet");
 Ext.namespace("Beet.apps");
 //constant namespace
 Beet.constants = {
-	FAILURE: "{00000000-0000-0000-0000-000000000000}"
+	FAILURE: "{00000000-0000-0000-0000-000000000000}",
+	GRANDMADATE: -2208988800
 }
 
 //临时数据表

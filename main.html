@@ -36,7 +36,7 @@
 		</section>
 		<footer>
 			<script type="text/javascript">
-				var userId;
+				var userId, sessionId;
 				Ext.onReady(function(){
 					Beet.navigationbar = Ext.create("Beet.apps.Menu.Panel");
 					Beet.workspace = Ext.create("Beet.apps.Viewport");
@@ -52,45 +52,10 @@
 						}
 					});
 
-					userId = Ext.util.Cookies.get("userId");
-					if (!userId){
-						//window.location = "index.html";
-					}
-
-					/*
-					dataview = Ext.create("Beet.apps.Grid.DataView", {
-						store : 'Beet.apps.Grid.Store.CRecord'
-					})
-					*/
-					/*
-					function userLogin() {
-						mls.Login("admin", xxtea_encrypt('admin'), '', '' ,{
-							success: function(res) { 
-								userId = res;
-							},
-							failure: function(error) {
-								console.log(error);
-							}
-						})
-					}
-
-					if (!userId){
-						Ext.defer(userLogin, 250)
-					}
-
-					Ext.defer(function(){
-						mls.GetSessionID({
-							success: function(res){
-								dataview.storeProxy.on("beforeload", function(store){
-									store.proxy.extraParams = {SessionID : res, Where: '', isClean: false}	
-								})
-								dataview.storeProxy.load({params: { start: 0, limit: 50 }});
-							},
-							failure: function(error){
-							}
-						})
-					}, 2000)
-					*/
+					//userId = Ext.util.Cookies.get("userId");
+					//if (!userId && !sessionId){
+					//	window.location = "index.html";
+					//}
 				});
 	
 			</script>
