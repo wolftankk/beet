@@ -889,6 +889,109 @@ Ext.define("Beet.plugins.Ajax", {
 	}
 })
 
+Ext.define("Beet.apps.Viewport.CustomerList.Store", {
+	extend: "Ext.data.Store",
+	model: Beet.apps.Viewport.CustomerList.Model,
+	autoLoad: true,
+	proxy: {
+		type: "b_ajax",
+		b_method: Beet.constants.customerServer.GetCustomerToJSON,
+		b_scope: Beet.constants.customerServer,
+		reader: {
+			type: "json",
+			root: "Data"
+		}
+	}
+});
+
+Ext.define("Beet.apps.Viewport.CustomerList", {
+	extend: "Ext.panel.Panel",
+	anchor: "anchor",
+	height: "100%",
+	defaults: {
+		border: 0
+	},
+	initComponent: function(){
+		var that = this
+		Ext.apply(this, {
+			storeProxy: Ext.create("Beet.apps.Viewport.CustomerList.Store"),
+			layout: "fit"
+		});
+		that.callParent(arguments);
+	},
+	afterRender: function(){
+		var that = this;
+		that.createCustomerGrid();
+
+		that.callParent(arguments);
+	},
+	createCustomerGrid: function(){
+		var that = this, grid = that.grid, store = that.storeProxy;
+		that.grid = Ext.create("Ext.grid.Panel", {
+			store: store,
+			lookMask: true,
+			frame: true,
+			collapsible: false,	
+			rorder: false,
+			width: "100%",
+			height: "100%",
+			layout: "anchor",
+			viewConfig: {
+				trackOver: false,
+				stripeRows: false
+			},
+			columns: [
+				/*{
+					dataIndex:'CTGUID',width:20,
+				},*/
+				{
+					header: "会员卡号", dataIndex: 'CTCardNo', sortable: true
+				},
+				{
+					header: "会员名字", dataIndex: "CTName", sortable: true, flex: 1
+				},
+				{
+					header: "生日日期", dataIndex: "CTBirthday", flex: 1
+				},
+				{
+					header: "手机号码", dataIndex: "CTMobile"
+				},
+				{
+					header: "座机号码", dataIndex: "CTPhone"
+				},
+				{
+					header: "地址", dataIndex: "CTAddress", flex: 1
+				},
+				{
+					header: "职业", dataIndex: "CTJob"
+				},
+				{
+					header: "QQ/MSN", dataIndex: "CTIM"
+				}
+			],
+			bbar: Ext.create('Ext.PagingToolbar', {
+				store: this.storeProxy,
+				displayInfo: true,
+				displayMsg: 'Displaying topics {0} - {1} of {2}',
+				emptyMsg: "No topics to display",
+				items: [
+					'-', {
+						text: "Show Preview"
+					}
+				]
+			}),
+			fbar  : ['->', {
+				text:'Clear Grouping',
+				iconCls: 'icon-clear-group',
+				handler : function(){
+					//groupingFeature.disable();
+				}
+			}],
+			renderTo: that.body
+		})
+	}
+})
+
 Ext.namespace("Beet.apps.Viewport.memberLvls");
 Ext.define("Beet.apps.Viewport.memberLvls.Model", {
 	extend: "Ext.data.Model",
