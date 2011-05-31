@@ -127,7 +127,30 @@ Beet.apps.Menu.Items = [
 				},
 				items: [
 					{
-						title: '客户管理'
+						title: '客户管理',
+						width: 250,
+						layout: "anchor",
+						defaults: {
+							scale: "large",
+							rowspan: 3
+						},
+						items: [
+							{
+								text: "会员级别",
+								handler: function(){
+									var item = Beet.apps.Menu.Tabs["memberLvls"];
+									if (!item){
+										Beet.workspace.addPanel("memberLvls", "会员级别", {
+											items: [
+												Ext.create("Beet.apps.Viewport.memberLvlsList")
+											]
+										});	
+									}else{
+										Beet.workspace.workspace.setActiveTab(item);
+									}
+								}
+							}
+						]
 					}
 				]
 			}
@@ -866,206 +889,279 @@ Ext.define("Beet.plugins.Ajax", {
 	}
 })
 
-Ext.define("Beet.apps.Viewport.CustomerList.Store", {
+Ext.namespace("Beet.apps.Viewport.memberLvls");
+Ext.define("Beet.apps.Viewport.memberLvls.Model", {
+	extend: "Ext.data.Model",
+	fields: [
+		'id',
+		'name',
+		'description',
+		{name:'active', type: 'boolean'}
+	]
+})
+
+Ext.define("Beet.apps.Viewport.memberLvls.Store", {
 	extend: "Ext.data.Store",
-	model: Beet.apps.Viewport.CustomerList.Model,
-	autoLoad: true,
+	autoDestroy: true,
+	model: "Beet.apps.Viewport.memberLvls.Model",
+	pageSize: 50,
+	data: [
+		{
+			id: 1,
+			name: "白金",
+			description: "白金会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+		{
+			id: 2,
+			name: "钻石",
+			description: "钻石会员描述",
+			active: true
+		},
+	]
+	/*
 	proxy: {
-		type: "b_ajax",
-		b_method: Beet.constants.customerServer.GetCustomerToJSON,
-		b_scope: Beet.constants.customerServer,
+		type: "jsonp",
+		url: "http://192.168.1.100:6660/GetRecDataToJson",
 		reader: {
-			type: "json",
-			root: "Data"
+			root: "Data",
+			totalProperty: "TotalCount"
 		}
-	}
+	}*/
 });
 
-Ext.define("Beet.apps.Viewport.CustomerList", {
+Ext.define("Beet.apps.Viewport.memberLvlsList", {
 	extend: "Ext.panel.Panel",
-	anchor: "anchor",
-	height: "100%",
+	layout: "anchor",
+	shadow: true,
 	defaults: {
 		border: 0
 	},
 	initComponent: function(){
-		var that = this
+		var that = this;
 		Ext.apply(this, {
-			storeProxy: Ext.create("Beet.apps.Viewport.CustomerList.Store"),
-			layout: "fit"
+			storeProxy: Ext.create("Beet.apps.Viewport.memberLvls.Store")
 		});
+
 		that.callParent(arguments);
 	},
 	afterRender: function(){
 		var that = this;
-		that.createCustomerGrid();
-
+		that.createMemberLvlsList();
 		that.callParent(arguments);
 	},
-	createCustomerGrid: function(){
-		var that = this, grid = that.grid, store = that.storeProxy;
-		that.grid = Ext.create("Ext.grid.Panel", {
+	createMemberLvlsList: function(){
+		var that = this, store = that.storeProxy
+		that.memberLvlsList = Ext.create("Ext.grid.Panel", {
+			renderTo: that.body,
 			store: store,
-			lookMask: true,
 			frame: true,
-			collapsible: false,	
-			rorder: false,
-			width: "100%",
-			height: "100%",
-			layout: "anchor",
-			viewConfig: {
-				trackOver: false,
-				stripeRows: false
-			},
-			columns: [
-				/*{
-					dataIndex:'CTGUID',width:20,
-				},*/
+			lookMask: true,
+			rorder: true,
+			tbar: [
 				{
-					header: "会员卡号", dataIndex: 'CTCardNo', sortable: true
-				},
+					xtype: "button",
+					text: "增加"	
+				},"-",
 				{
-					header: "会员名字", dataIndex: "CTName", sortable: true, flex: 1
-				},
+					xtype: "button",
+					text: '删除'
+				},"-",
 				{
-					header: "生日日期", dataIndex: "CTBirthday", flex: 1
-				},
-				{
-					header: "手机号码", dataIndex: "CTMobile"
-				},
-				{
-					header: "座机号码", dataIndex: "CTPhone"
-				},
-				{
-					header: "地址", dataIndex: "CTAddress", flex: 1
-				},
-				{
-					header: "职业", dataIndex: "CTJob"
-				},
-				{
-					header: "QQ/MSN", dataIndex: "CTIM"
+					xtype: 'button',
+					text: '编辑'
 				}
 			],
-			bbar: Ext.create('Ext.PagingToolbar', {
-				store: this.storeProxy,
-				displayInfo: true,
-				displayMsg: 'Displaying topics {0} - {1} of {2}',
-				emptyMsg: "No topics to display",
-				items: [
-					'-', {
-						text: "Show Preview"
-					}
-				]
-			}),
-			fbar  : ['->', {
-				text:'Clear Grouping',
-				iconCls: 'icon-clear-group',
-				handler : function(){
-					//groupingFeature.disable();
-				}
-			}],
-			renderTo: that.body
-		})
-	}
-})
-
-Ext.namespace("Beet.apps.Grid", "Beet.apps.Grid.Model", "Beet.apps.Grid.Store");
-/*
-Ext.define("Beet.apps.Grid.DataView", {
-	extend: "Ext.panel.Panel",
-	shadow: true,
-	width: '100%',
-	height: 400,
-	renderTo: 'viewport',
-	bodyStyle: {
-		border: 0,
-	},
-	initComponent: function(){
-		Ext.apply(this, {
-			layout: 'fit',
-			storeProxy : Ext.create(this.store),
-		});
-
-		this.callParent(arguments);
-	},
-	createGrid: function(){
-		var that = this, grid = that.grid, store = this.config.store;
-
-		that.grid = Ext.create("Ext.grid.Panel", {
-			store: this.storeProxy,
-			lookMask: true,
-			frame: true,
-			collapsible: false,
-			rorder: false,
-			width: '100%',
-			features: [this.groupFeature],
-			groupField: "HOST",
-			height: 400,
-			viewConfig: {
-				trackOver: false,
-				stripeRows: false,
-			},
 			columns: [
 				{
-					dataIndex:'GUIDID',width:20,
+					header: "ID",
+					dataIndex: "id",
+					sortable: true
 				},
 				{
-					header: "工号", width: 90, dataIndex: 'AGENT', sortable: true
-				},{
-					header: "主机", width: 90, dataIndex: "HOST", sortable: true, flex: 1
+					header: "级别名称",
+					dataIndex: "name",
+					sortable: true
 				},
 				{
-					header: "分机号", width: 90, dataIndex: 'EXTENSION', sortable: true
-				},{
-					header: "呼叫方向", width: 100, dataIndex: 'DIRECTION', sortable: true,renderer:function(value){
-						switch(value){
-							case 0:return '呼入';break;
-							case 1:return '呼出';break;
-							case 2:return '无应答';break;
-							case 3:return '断线';break;
-						}
-					}
-				},{
-					header: "主叫", width: 100, dataIndex: 'CALLER', sortable: true
-				},{
-					header: "被叫", width: 100, dataIndex: 'CALLED', sortable: true
-				},{
-					header: "保留次数", width: 100, dataIndex: 'HOLDCOUNT', sortable: true
-				},{
-					header: "保留时长", width: 100, dataIndex: 'RINGSECONDS', sortable: true
-				},{
-					header: "振铃时长", width: 100, dataIndex: 'RINGSECONDS', sortable: true
-				},{
-					header: "通话时长(秒)", width: 100, dataIndex: 'SECONDS', sortable: true
-				},{
-					header: "通话开始时间", width: 180, dataIndex: 'SYSTEMTIM', sortable: true
-				}
-			
-			],
-			bbar: Ext.create('Ext.PagingToolbar', {
-				store: this.storeProxy,
-				displayInfo: true,
-				displayMsg: 'Displaying topics {0} - {1} of {2}',
-				emptyMsg: "No topics to display",
-				items: [
-					'-', {
-						text: "Show Preview"
-					}
-				]
-			}),
-			fbar  : ['->', {
-				text:'Clear Grouping',
-				iconCls: 'icon-clear-group',
-				handler : function(){
-					//groupingFeature.disable();
-				}
-			}],
-			renderTo: that.body
+					header: "描述",
+					dataIndex: "description",
+					flex: 1
+				},
+				{
+					header: "启用",
+					dataIndex: "Active",
+					xtype: "checkcolumn"
+				}	
+			]
 		});
-	},
-	afterRender: function(){
-		this.createGrid()
-		this.callParent(arguments);
 	}
 });
-*/
