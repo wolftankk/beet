@@ -47,17 +47,19 @@
 					customerLoginServer.GetSessionID({
 						success: function(sid){
 							sessionId = sid;
+							userId = Ext.util.Cookies.get("userId");
 							Ext.util.Cookies.set("sessionId", sid);
+							
+							//判断是否成功申请到sessionId
+							if (!userId && !sessionId){
+								window.location = "index.html";
+							}
 						},
 						failure: function(error){
 							Ext.Msg.alert("警告", "无法链接到服务器! " + error["message"]);
 						}
 					});
 
-					//userId = Ext.util.Cookies.get("userId");
-					//if (!userId && !sessionId){
-					//	window.location = "index.html";
-					//}
 				});
 	
 			</script>

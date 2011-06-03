@@ -241,3 +241,130 @@ Ext.define("Beet.plugins.CheckColumn", {
 		return '<div class="' + cls.join(' ') + '">&#160;</div>';
 	}
 });
+
+//重写获取数据结构
+Ext.define("Beet.plugins.proxyClient", {
+	extend: "Ext.data.proxy.Proxy",
+	alias: "proxy.b_proxy",
+	uses: ['Ext.data.Request'],
+	/*
+	 * @cfg {String} pageParam 请求页数时候的参数名, 默认为page
+	 */
+	//pageParam: "page",
+	/*
+	 * @cfg {String} startParam 请求开始时候的参数名, 默认为start
+	 */
+	//startParam: "start",
+	/*
+	 * @cfg {String} limitParam 请求数据数量的参数名, 默认为limit
+	 */
+	//limitParam: "limit",
+	filterParam: "",
+	//sortParam: "sort",
+	directionParam: "dir",
+	/*
+	 * @cfg {Boolean} noCache (可选) 默认为true, Disable caching by adding a unique parameter name to the request
+	 */
+	noCache: true,
+	cacheString: "_dc",
+	
+	/*
+	 * @cfg {Object} b_scope 设置调用callback函数时候的作用域
+	 */
+	b_scope: undefined,
+
+	/*
+	 * @cfg {Function} b_method callback函数. 如果没用设定将抛出异常
+	 */
+	b_method: undefined,
+	
+	constructor: function(config){
+		var that = this;
+		config = config || {}
+		this.addEvents(
+			'exception'
+		);
+	
+		that.callParent([config])
+		if (!config.b_method){
+			Ext.Error.raise("No process function specified for this proxy");
+		}
+
+		that.nocache = that.nocache;
+	},
+	
+	create: function(){
+		return this.doRequest.apply(this, arguments);
+	},
+	read: function(){
+		return this.doRequest.apply(this, arguments);
+	},
+	update: function(){
+		return this.doRequest.apply(this, arguments);
+	},
+	destroy: function(){
+		return this.doRequest.apply(this, arguments);
+	},
+
+	processResponse: function(operation, callback, scope, data){
+		var that = this, reader = that.getReader(),
+			result = reader.read(data);
+		Ext.apply(operation, {
+			resultSet: result
+		});
+
+		operation.setCompleted();
+		operation.setSuccessful();
+		Ext.callback(callback, scope || that, [operation]);
+	},
+	setException: function(){
+
+	},
+
+	applyEncoding: function(value){
+		return Ext.encode(value)
+	},
+
+	encodeFilters: function(filters){
+		var min = [], length = filters.length, i = 0;
+		for (; i < length; i++){
+			min[i] = {
+				property: filters[i].property,
+				value: filters[i].value
+			}
+		}
+
+		return this.applyEncoding(min)
+	},
+	getParams: function(params, operation){
+		var that = this, filters = operation.filters,
+			filterParam = that.filter
+
+		if (filters && filterParam && filters.length > 0){
+			params[filterParam] = that.encodeFilters(filters);
+		}
+	
+		return params;
+	},
+
+	doRequest: function(operation, callback, scope){
+		var that = this, filter = "", method = that.b_method, writer = that.getWriter();		
+		//TODO: 需要假如filter功能!!
+		if (Ext.isFunction(this.b_method)){
+			//开始调用callback函数.
+			method.call(that.b_scope, "", {
+				success: function(data){
+					data = Ext.JSON.decode(data);
+					that.processResponse(operation, callback, scope, data)
+				},
+				failure: function(error){
+				}
+			})
+		}
+	},
+
+	afterRequest: Ext.emptyFn,
+	onDestroy: function(operation, callback, scope){
+		Ext.destroy(this.reader, this.writer)
+	}
+})

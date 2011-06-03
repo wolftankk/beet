@@ -800,101 +800,12 @@ Ext.define("Beet.apps.Viewport.CustomerList.Model", {
 	]
 });
 
-//重写获取数据结构
-Ext.define("Beet.plugins.Ajax", {
-	extend: "Ext.data.proxy.Proxy",
-	alias: "proxy.b_ajax",
-	uses: ['Ext.data.Request'],
-	pageParam: "page",
-	startParam: "start",
-	limitParam: "limit",
-	groupParam: "group",
-	fileParam: "",
-	sortParam: "sort",
-	directionParam: "dir",
-	noCache: false,
-	cacheString: "_dc",
-	
-	constructor: function(config){
-		var that = this;
-		config = config || {}
-		this.addEvents(
-			'exception'
-		);
-	
-		that.callParent([config])
-		
-		if (!config.b_method){
-			//抛出错误
-		}
-
-		that.nocache = that.nocache;
-	},
-	create: function(){
-		return this.doRequest.apply(this, arguments);
-	},
-	read: function(){
-		return this.doRequest.apply(this, arguments);
-	},
-	update: function(){
-		return this.doRequest.apply(this, arguments);
-	},
-	destroy: function(){
-		return this.doRequest.apply(this, arguments);
-	},
-	buildReques: function(){
-
-	},
-	processResponse: function(operation, callback, scope, data){
-		var that = this, reader = that.getReader(),
-			result = reader.read(data);
-		Ext.apply(operation, {
-			resultSet: result
-		});
-
-		operation.setCompleted();
-		operation.setSuccessful();
-		Ext.callback(callback, scope || that, [operation]);
-	},
-	setException: function(){
-
-	},
-	applyEncoding: function(value){
-		return Ext.encode(value)
-	},
-	encodeSorters: function(){
-
-	},
-	encodeFilters: function(){
-
-	},
-	getParams: function(){
-
-	},
-	doRequest: function(operation, callback, scope){
-		var that = this, filter = "", method = that.b_method;
-		if (Ext.isFunction(this.b_method)){
-			method.call(that.b_scope, "", {
-				success: function(data){
-					data = Ext.JSON.decode(data);
-					that.processResponse(operation, callback, scope, data)
-				},
-				failure: function(error){
-				}
-			})
-		}
-	},
-	afterRequest: Ext.emptyFn,
-	onDestroy: function(operation, callback, scope){
-	}
-})
-
 Ext.define("Beet.apps.Viewport.CustomerList.Store", {
 	extend: "Ext.data.Store",
 	model: Beet.apps.Viewport.CustomerList.Model,
 	autoLoad: true,
 	proxy: {
-		type: "b_ajax",
+		type: "b_proxy",
 		b_method: Beet.constants.customerServer.GetCustomerToJSON,
 		b_scope: Beet.constants.customerServer,
 		reader: {
