@@ -51,7 +51,7 @@
 							Ext.util.Cookies.set("sessionId", sid);
 							
 							//判断是否成功申请到sessionId
-							if (!userId && !sessionId){
+							if (!userId || !sessionId){
 								window.location = "index.html";
 							}
 						},

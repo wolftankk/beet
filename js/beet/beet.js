@@ -601,7 +601,8 @@ Beet.apps.Viewport.getServiceItems = function(serviceItems){
 					var p = datz[item];
 					serviceItems.push({
 						boxLabel: p["ServiceName"],
-						name: p["ServiceType"]
+						name: "serverName",
+						inputValue: p["ServiceType"]
 					})
 				}
 			}
@@ -755,22 +756,32 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 									form = that.up("form").getForm(),
 									result = form.getValues(), needSubmitData, customerServer = Beet.constants.customerServer;
 								if (result["Name"] != "" && result["Mobile"] != ""){
-									//do
 									if (result["BirthDay"] != ""){
 										result["BirthDay"] = Beet.constants.GRANDMADATE;
 									}else{
 										var now = new Date(), timezoneOffset = now.getTimezoneOffset() * 60;
 										result["BirthDay"] = ((+Ext.Date.parse(result["BirthDay"], "Y年m月d日")) / 1000) - timezoneOffset
 									}
+									serverName = result["serverName"];
 									needSubmitData = Ext.JSON.encode(result);
+									/*
 									customerServer.AddCustomer(needSubmitData, {
 										success: function(uid){
-											console.log(uid)
+											//caching
+											Beet.cache.Users[uid] = {
+												serverName : serverName			
+											}
+											if (serverName){
+												//点击注册下一步
+											}else{
+												//直接清空上次填入的数据
+											}
 										},
 										failure: function(error){
-											console.log("failure", error)
+											Ext.Error.railse("创建用户失败")
+											//console.log("failure", error)
 										}
-									});
+									});*/
 								}
 							}
 						}

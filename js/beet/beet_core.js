@@ -11,6 +11,7 @@ Beet.constants = {
 
 //临时数据表
 Ext.namespace("Beet.cache");
+Beet.cache.Users = {};
 
 
 //plugin
