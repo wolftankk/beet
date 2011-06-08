@@ -51,7 +51,6 @@ Beet.apps.Menu.Items = [
 												}
 											}, 100);
 										}
-
 									}else{
 										Beet.workspace.workspace.setActiveTab(item);
 									}
@@ -681,7 +680,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 								{
 									fieldLabel: "出生日期",
 									xtype: "datefield",
-									name: "BirthDay",
+									name: "Birthday",
 									format: 'Y年m月d日',
 								},
 								{
@@ -764,34 +763,56 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 			form = that.up("form").getForm(),
 			result = form.getValues(), needSubmitData, serverItems, customerServer = Beet.constants.customerServer;
 		if (result["Name"] != "" && result["Mobile"] != ""){
-			if (result["BirthDay"] != ""){
-				result["BirthDay"] = Beet.constants.GRANDMADATE;
+			if (result["Birthday"] == ""){
+				result["Birthday"] = Beet.constants.GRANDMADATE;
 			}else{
 				var now = new Date(), timezoneOffset = now.getTimezoneOffset() * 60;
-				result["BirthDay"] = ((+Ext.Date.parse(result["BirthDay"], "Y年m月d日")) / 1000) - timezoneOffset
+				result["Birthday"] = ((+Ext.Date.parse(result["Birthday"], "Y年m月d日")) / 1000) - timezoneOffset
 			}
 			serverItems = result["serverName"];
 			needSubmitData = Ext.JSON.encode(result);
-			/*
-			customerServer.AddCustomer(needSubmitData, {
-				success: function(uid){
-					//caching
-					Beet.cache.Users[uid] = {
-						serverName : serverName			
+			Ext.MessageBox.show({
+				title: "增加用户",
+				msg: "是否向服务器提交用户资料?",
+				buttons: Ext.MessageBox.YESNO,
+				icon: Ext.MessageBox.QUESTION,
+				fn: function(btn){
+					if (btn == "yes") {
+						customerServer.AddCustomer(needSubmitData, {
+							success: function(uid){
+								Beet.cache.Users[uid] = {
+									serverName : serverName			
+								}
+								if (serverName){
+									//点击注册下一步
+									console.log(Beet.cache.Users);
+								}else{
+									//添加成功弹窗
+									//直接清空上次填入的数
+									Ext.MessageBox.show({
+										title: "提示",
+										msg: "是否需要再次增加用户?",
+										buttons: Ext.MessageBox.YESNO,
+										icon: Ext.MessageBox.QUESTION,
+										fn: function(btn){
+											if (btn == "yes"){
+												form.reset();
+											}else{
+												//remove and create new
+												//open
+											}
+										}
+									});
+								}
+							},
+							failure: function(error){
+								Ext.Error.railse("创建用户失败")
+								//console.log("failure", error)
+							}
+						});
 					}
-					if (serverName){
-						//点击注册下一步
-					}else{
-						//添加成功弹窗
-						//直接清空上次填入的数据
-					}
-				},
-				failure: function(error){
-					Ext.Error.railse("创建用户失败")
-					//console.log("failure", error)
 				}
 			});
-			*/
 		}
 	}
 	/*
@@ -842,6 +863,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			storeProxy: Ext.create("Beet.apps.Viewport.CustomerList.Store"),
 			layout: "fit"
 		});
+		
 		that.callParent(arguments);
 	},
 	afterRender: function(){
@@ -861,6 +883,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			width: "100%",
 			height: "100%",
 			layout: "anchor",
+			columnLines: true,
 			viewConfig: {
 				trackOver: false,
 				stripeRows: false
@@ -894,28 +917,134 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 					header: "QQ/MSN", dataIndex: "CTIM"
 				}
 			],
+			plugins: [
+				{
+					ptype: "b_contextmenu",
+					contextMenu: [
+						that.editCustomer(),
+						that.deleteCustomer(),
+						"-",
+						{
+							text: "取消"
+						}
+					]
+				}
+			],
 			bbar: Ext.create('Ext.PagingToolbar', {
 				store: this.storeProxy,
-				displayInfo: true,
-				displayMsg: 'Displaying topics {0} - {1} of {2}',
-				emptyMsg: "No topics to display",
-				items: [
-					'-', {
-						text: "Show Preview"
-					}
-				]
+				displayInfo: false,
+				displayMsg: '当前显示 {0} - {1} 到 {2}',
+				emptyMsg: "没有数据"
 			}),
-			fbar  : ['->', {
-				text:'Clear Grouping',
-				iconCls: 'icon-clear-group',
-				handler : function(){
-					//groupingFeature.disable();
-				}
-			}],
 			renderTo: that.body
 		})
+	},
+	editCustomer: function(){
+		var that = this, item;
+		item = Ext.create("Ext.Action", {
+			text: "编辑",
+			handler: function(widget, e){
+				var parentMenu = widget.parentMenu, rawData = parentMenu.rawData;
+				console.log(rawData);
+			}
+		});
+
+		return item
+	},
+	deleteCustomer: function(){
+		var that = this, item;
+		item = Ext.create("Ext.Action", {
+			text: "删除",
+			handler: function(widget, e){
+				var that = this, parentMenu = widget.parentMenu, rawData = parentMenu.rawData, CTGUID = rawData.CTGUID, CTName = rawData.CTName,
+					customerServer = Beet.constants.customerServer;
+				if (CTGUID){
+					Ext.MessageBox.show({
+						title: "删除用户",
+						msg: "是否要删除 " + CTName + " ?",
+						buttons: Ext.MessageBox.YESNO,
+						fn: function(btn){
+							if (btn == "yes"){
+								customerServer.DeleteCustomer(CTGUID, {
+									success: function(){
+										Ext.MessageBox.show({
+											title: "删除成功",
+											msg: "删除用户: " + CTName + " 成功",
+											buttons: Ext.MessageBox.OK,
+											fn: function(){
+												//refresh
+											}
+										})
+									},
+									failure: function(error){
+										Ext.Error.railse("删除用户失败");
+									}
+								})
+							}
+						}
+					});
+				}else{
+					Ext.Error.railse("删除用户失败")
+				}
+			}
+		});
+
+		return item
 	}
 })
+
+Ext.define("Beet.plugins.contextMenu", {
+	alias: "plugin.b_contextmenu",
+	mixins: {
+		observable: "Ext.util.Observable"
+	},
+	
+	contextMenu: [],
+
+	constructor: function(config){
+		var that = this;
+		Ext.apply(that, config);
+	},
+
+	//private
+	init: function(grid){
+		var that = this;
+		that.grid = grid;
+		that.view = grid.view;
+
+		that.initEvents();
+	},
+
+	initEvents: function(){
+		var that = this;
+		that.initMouseTriggers();
+	},
+	startPopupByClick: function(view, record, item, index, e){
+		this.Popup(record, e);
+	},
+	Popup: function(record, e){
+		//raw 原始数据
+		var that = this, data = record.data, raw = record.raw;
+		e.stopEvent();
+		if (!record.contextMenu){
+			record.contextMenu = new Ext.menu.Menu({
+				plain: true,
+				items: that.contextMenu,
+				rawData: raw
+			})
+		}
+		var xy = e.getXY();
+		record.contextMenu.showAt(xy);
+		return false;
+	},
+	//private
+	initMouseTriggers: function(){
+		var that = this, view = that.view;
+		//开始设定事件
+		//mon addManagedListener
+		that.mon(view, "beforeitemcontextmenu", that.startPopupByClick, that);
+	}
+});
 
 Ext.namespace("Beet.apps.Viewport.memberLvls");
 Ext.define("Beet.apps.Viewport.memberLvls.Model", {
@@ -935,185 +1064,11 @@ Ext.define("Beet.apps.Viewport.memberLvls.Store", {
 	pageSize: 50,
 	data: [
 		{
-			id: 1,
-			name: "白金",
-			description: "白金会员描述",
-			active: true
-		},
-		{
 			id: 2,
 			name: "钻石",
 			description: "钻石会员描述",
 			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		},
+		}
 	]
 	/*
 	proxy: {
