@@ -761,7 +761,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 	addUser: function(direction, e){
 		var that = this,
 			form = that.up("form").getForm(),
-			result = form.getValues(), needSubmitData, serverItems, customerServer = Beet.constants.customerServer;
+			result = form.getValues(), needSubmitData, serverItems = {}, customerServer = Beet.constants.customerServer;
 		if (result["Name"] != "" && result["Mobile"] != ""){
 			if (result["Birthday"] == ""){
 				result["Birthday"] = Beet.constants.GRANDMADATE;
@@ -769,6 +769,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 				var now = new Date(), timezoneOffset = now.getTimezoneOffset() * 60;
 				result["Birthday"] = ((+Ext.Date.parse(result["Birthday"], "Y年m月d日")) / 1000) - timezoneOffset
 			}
+			//服务类型
 			serverItems = result["serverName"];
 			needSubmitData = Ext.JSON.encode(result);
 			Ext.MessageBox.show({
@@ -781,10 +782,9 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 						customerServer.AddCustomer(needSubmitData, {
 							success: function(uid){
 								Beet.cache.Users[uid] = {
-									serverName : serverName			
+									serviceItems: serverItems	
 								}
-								if (serverName){
-									//点击注册下一步
+								if (serverItems && serverItems.length > 0){
 									console.log(Beet.cache.Users);
 								}else{
 									//添加成功弹窗
@@ -798,8 +798,9 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 											if (btn == "yes"){
 												form.reset();
 											}else{
-												//remove and create new
-												//open
+												if (Beet.apps.Menu.Tabs["addCustomer"]){
+													Beet.workspace.workspace.getTabBar().closeTab(Beet.apps.Menu.Tabs["addCustomer"].tab)
+												}
 											}
 										}
 									});
@@ -945,7 +946,14 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			text: "编辑",
 			handler: function(widget, e){
 				var parentMenu = widget.parentMenu, rawData = parentMenu.rawData;
-				console.log(rawData);
+					CTGUID = rawData.CTGUID, CTName = rawData.CTName,
+					customerServer = Beet.constants.customerServer;
+				if (CTGUID){
+					Ext.MessageBox.show({
+						title: "编辑用户",
+						msg: "是否要修改"	
+					})	
+				}
 			}
 		});
 
@@ -956,7 +964,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 		item = Ext.create("Ext.Action", {
 			text: "删除",
 			handler: function(widget, e){
-				var that = this, parentMenu = widget.parentMenu, rawData = parentMenu.rawData, CTGUID = rawData.CTGUID, CTName = rawData.CTName,
+				var parentMenu = widget.parentMenu, rawData = parentMenu.rawData, CTGUID = rawData.CTGUID, CTName = rawData.CTName,
 					customerServer = Beet.constants.customerServer;
 				if (CTGUID){
 					Ext.MessageBox.show({
@@ -972,7 +980,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 											msg: "删除用户: " + CTName + " 成功",
 											buttons: Ext.MessageBox.OK,
 											fn: function(){
-												//refresh
+												that.storeProxy.loadPage(that.storeProxy.currentPage);
 											}
 										})
 									},
