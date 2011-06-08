@@ -751,45 +751,48 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 							id : "move-next",
 							scale: "large",
 							text: "下一步",
-							handler: function(direction){
-								var that = this,
-									form = that.up("form").getForm(),
-									result = form.getValues(), needSubmitData, customerServer = Beet.constants.customerServer;
-								if (result["Name"] != "" && result["Mobile"] != ""){
-									if (result["BirthDay"] != ""){
-										result["BirthDay"] = Beet.constants.GRANDMADATE;
-									}else{
-										var now = new Date(), timezoneOffset = now.getTimezoneOffset() * 60;
-										result["BirthDay"] = ((+Ext.Date.parse(result["BirthDay"], "Y年m月d日")) / 1000) - timezoneOffset
-									}
-									serverName = result["serverName"];
-									needSubmitData = Ext.JSON.encode(result);
-									/*
-									customerServer.AddCustomer(needSubmitData, {
-										success: function(uid){
-											//caching
-											Beet.cache.Users[uid] = {
-												serverName : serverName			
-											}
-											if (serverName){
-												//点击注册下一步
-											}else{
-												//直接清空上次填入的数据
-											}
-										},
-										failure: function(error){
-											Ext.Error.railse("创建用户失败")
-											//console.log("failure", error)
-										}
-									});*/
-								}
-							}
+							handler: that.addUser
 						}
 					]
 				}
 			]
 		}
 		return config
+	},
+	addUser: function(direction, e){
+		var that = this,
+			form = that.up("form").getForm(),
+			result = form.getValues(), needSubmitData, serverItems, customerServer = Beet.constants.customerServer;
+		if (result["Name"] != "" && result["Mobile"] != ""){
+			if (result["BirthDay"] != ""){
+				result["BirthDay"] = Beet.constants.GRANDMADATE;
+			}else{
+				var now = new Date(), timezoneOffset = now.getTimezoneOffset() * 60;
+				result["BirthDay"] = ((+Ext.Date.parse(result["BirthDay"], "Y年m月d日")) / 1000) - timezoneOffset
+			}
+			serverItems = result["serverName"];
+			needSubmitData = Ext.JSON.encode(result);
+			/*
+			customerServer.AddCustomer(needSubmitData, {
+				success: function(uid){
+					//caching
+					Beet.cache.Users[uid] = {
+						serverName : serverName			
+					}
+					if (serverName){
+						//点击注册下一步
+					}else{
+						//添加成功弹窗
+						//直接清空上次填入的数据
+					}
+				},
+				failure: function(error){
+					Ext.Error.railse("创建用户失败")
+					//console.log("failure", error)
+				}
+			});
+			*/
+		}
 	}
 	/*
 	 * 重新触发生产panel
