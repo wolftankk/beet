@@ -828,7 +828,10 @@ Ext.define("Beet.apps.Viewport.CustomerList.Model", {
 		"CTID",
 		"CTCardNo",
 		"CTName",
-		"CTBirthday",
+		{ name: "CTBirthday", convert: function(value, record){
+			var birthday = (value + Beet.constants.timezoneOffset)* 1000;
+			return Ext.Date.format(new Date(birthday), "Y年m月d日");
+		}},
 		"CTMobile",
 		"CTPhone",
 		"CTJob",
@@ -969,7 +972,6 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 	popEditWindow: function(rawData){
 		var that = this, CTGUID = rawData.CTGUID, CTName = rawData.CTName,
 			customerServer = Beet.constants.customerServer, win
-		console.log(rawData)
 		//get serviceItems;
 		var form = Ext.widget("form", {
 			layout: {
@@ -1020,7 +1022,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 							xtype: "datefield",
 							name: "Birthday",
 							format: 'Y年m月d日',
-							value: rawData.CTBirthday,
+							value: new Date(rawData.CTBirthday * 1000),
 							dataIndex: "CTBirthday"
 						},
 						{

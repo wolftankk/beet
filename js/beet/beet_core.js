@@ -4,9 +4,15 @@ Ext.namespace("Beet");
 //app namespace
 Ext.namespace("Beet.apps");
 //constant namespace
+
 Beet.constants = {
 	FAILURE: "{00000000-0000-0000-0000-000000000000}",
 	GRANDMADATE: -2208988800
+}
+if (!Beet.constants.now){
+	now = new Date();
+	Beet.constants.now = +now;	
+	Beet.constants.timezoneOffset = now.getTimezoneOffset() * 60;
 }
 
 //临时数据表
