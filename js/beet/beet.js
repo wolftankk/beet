@@ -779,6 +779,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 				icon: Ext.MessageBox.QUESTION,
 				fn: function(btn){
 					if (btn == "yes") {
+						console.log(result);
 						customerServer.AddCustomer(needSubmitData, {
 							success: function(uid){
 								Beet.cache.Users[uid] = {
@@ -946,18 +947,166 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			text: "编辑",
 			handler: function(widget, e){
 				var parentMenu = widget.parentMenu, rawData = parentMenu.rawData;
-					CTGUID = rawData.CTGUID, CTName = rawData.CTName,
-					customerServer = Beet.constants.customerServer;
+					CTGUID = rawData.CTGUID, CTName = rawData.CTName;
 				if (CTGUID){
 					Ext.MessageBox.show({
 						title: "编辑用户",
-						msg: "是否要修改"	
+						msg: "是否要修改 " + CTName + " 的用户资料",
+						buttons: Ext.MessageBox.YESNO,
+						fn : function(btn){
+							if (btn == "yes"){
+								//popup window
+								that.popEditWindow(rawData)
+							}
+						}
 					})	
 				}
 			}
 		});
 
 		return item
+	},
+	popEditWindow: function(rawData){
+		var that = this, CTGUID = rawData.CTGUID, CTName = rawData.CTName,
+			customerServer = Beet.constants.customerServer, win
+		console.log(rawData)
+		//get serviceItems;
+		var form = Ext.widget("form", {
+			layout: {
+				type: 'vbox',
+				align: "stretch"
+			},
+			frame: true,
+			border: false,
+			bodyPadding: 10,
+			defaults: {
+				margin: "0 0 10 0"
+			},
+			plain: true,
+			items: [
+				{
+					title: "基础信息",
+					xtype: "fieldset",
+					flex: 1,
+					defaultType: "textfield",
+					plain: true,
+					fieldDefaults: {
+						msgTarget: 'side',
+						labelAlign: "left",
+						labelWidth: 75
+					},
+					items: [
+						{
+							fieldLabel: "会员姓名",
+							name: "Name",
+							value: rawData.CTName,
+							allowBlanks: false,
+							dataIndex: "CTName"
+						},
+						{
+							fieldLabel: "会员卡号",
+							name: "CardNo",
+							value: rawData.CTCardNo,
+							dataIndex: "CTCardNo"
+						},
+						{
+							fieldLabel: "身份证",
+							name: "PersonID",
+							value: rawData.CTPersonID,
+							dataIndex: "CTPersonID"
+						},
+						{
+							fieldLabel: "出生日期",
+							xtype: "datefield",
+							name: "Birthday",
+							format: 'Y年m月d日',
+							value: rawData.CTBirthday,
+							dataIndex: "CTBirthday"
+						},
+						{
+							fieldLabel: "手机号码",
+							name: "Mobile",
+							allowBlank: false,
+							value: rawData.CTMobile,
+							dataIndex: "CTMobile"
+						},
+						{
+							fieldLabel: "座机号码",
+							name: "Phone",
+							value: rawData.CTPhone,
+							dataIndex: "CTPhone"
+						},
+						{
+							fieldLabel: "QQ/MSN",
+							name: "IM",
+							value: rawData.CTIM,
+							dataIndex: "CTIM"
+						},
+						{
+							fieldLabel: "地址",
+							name: "Address",
+							value: rawData.CTAddress,
+							dataIndex: "CTAddress"
+						},
+						{
+							fieldLabel: "职业",
+							name: "Job",
+							value: rawData.CTJob,
+							dataIndex: "CTJob"
+						}
+					]
+				}
+			],
+			buttons: [{
+				text: "提交修改",
+				handler: function(direction, e){
+					var me = this, form = me.up("form").getForm(), result = form.getValues();
+					if (result["Name"] != "" && result["Mobile"] != ""){
+						if (result["Birthday"] == "" || result["Birthday"] == "undefined" || !result["Birthday"]){
+							result["Birthday"] = Beet.constants.GRANDMADATE;
+						}else{
+							var now = new Date(), timezoneOffset = now.getTimezoneOffset() * 60;
+							result["Birthday"] = ((+Ext.Date.parse(result["Birthday"], "Y年m月d日")) / 1000) - timezoneOffset;
+							console.log(result["Birthday"])
+						}
+
+						var needSubmitData = Ext.JSON.encode(result);
+						customerServer.UpdateCustomer(CTGUID, needSubmitData, {
+							success: function(){
+								Ext.MessageBox.show({
+									title: "更新成功",
+									msg: "更新 " + CTName + " 用户资料成功!",
+									buttons: Ext.MessageBox.OK,
+									fn: function(btn){
+										that.storeProxy.loadPage(that.storeProxy.currentPage);
+										//close
+										win.close()
+									}
+								});	
+							},
+							failure: function(){
+
+							}
+						});
+					}
+				}
+			}]
+		});
+
+		win = Ext.widget("window", {
+			title: CTName + " 资料",
+			width: 400,
+			height: 400,
+			minHeight: 400,
+			layout: "fit",
+			resizable: true,
+			shadow: true,
+			modal: true,
+			maximizable: true,
+			items: form
+		})
+
+		win.show();
 	},
 	deleteCustomer: function(){
 		var that = this, item;
