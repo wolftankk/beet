@@ -829,7 +829,7 @@ Ext.define("Beet.apps.Viewport.CustomerList.Model", {
 		"CTCardNo",
 		"CTName",
 		{ name: "CTBirthday", convert: function(value, record){
-			var birthday = (value + Beet.constants.timezoneOffset)* 1000;
+			var birthday = (value - Beet.constants.timezoneOffset)* 1000;
 			return Ext.Date.format(new Date(birthday), "Y年m月d日");
 		}},
 		"CTMobile",
@@ -1096,7 +1096,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 		});
 
 		win = Ext.widget("window", {
-			title: CTName + " 资料",
+			title: CTName + " 的资料信息",
 			width: 400,
 			height: 400,
 			minHeight: 400,

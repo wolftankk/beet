@@ -312,6 +312,7 @@ Ext.define("Beet.plugins.proxyClient", {
 		Ext.apply(operation, {
 			resultSet: result
 		});
+		console.log(result)
 
 		operation.setCompleted();
 		operation.setSuccessful();
