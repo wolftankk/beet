@@ -56,7 +56,15 @@
 							}
 						},
 						failure: function(error){
-							Ext.Msg.alert("警告", "无法链接到服务器! " + error["message"]);
+							var message = error["message"].replaceAll("\x0d\x0a", "<br />");
+							Ext.MessageBox.show({
+								title: "警告",
+								msg: message,
+								buttons: Ext.MessageBox.OK,
+								fn: function(btn){
+									window.location = "index.html";
+								}
+							});
 						}
 					});
 
