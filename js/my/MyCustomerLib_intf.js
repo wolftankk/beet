@@ -1104,11 +1104,12 @@ MyCustomerSvc.prototype.AddCustomer = function(ACustomerJson, __callback) {
 
 }
 
-MyCustomerSvc.prototype.GetCustomerToJSON = function(AWhere, __callback) {
+MyCustomerSvc.prototype.GetCustomerToJSON = function(AWhere, bOnlySchema, __callback) {
   var __message = {
     "method" : "MyCustomerSvc.GetCustomerToJSON",
     "params" : {
-      "AWhere": AWhere
+      "AWhere": AWhere,
+      "bOnlySchema": bOnlySchema
       }
   }
   var __callbacks = null;
