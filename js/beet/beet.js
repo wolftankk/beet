@@ -1,3 +1,10 @@
+if (!String.prototype.replaceAll){
+	String.prototype.replaceAll = function(reg, str){
+		return this.replace(new RegExp(reg, "gm"), str);
+	}
+}
+
+
 //导航空间
 Ext.namespace("Beet.apps.Menu", "Beet.apps.Menu.Tabs");
 
@@ -9,6 +16,7 @@ Beet.apps.Menu.Items = [
 			{
 				xtype: "container",
 				layout: "hbox",
+				frame: true,
 				defaults: {
 					height: 100,
 					width: 250
@@ -59,6 +67,7 @@ Beet.apps.Menu.Items = [
 							{
 								xtype: "button",
 								text: "编辑会员",
+								tooltip: "编辑会员个人资料或者删除会员.",
 								handler: function(){
 									var item = Beet.apps.Menu.Tabs["editCustomer"];
 									if (!item){
@@ -66,20 +75,6 @@ Beet.apps.Menu.Items = [
 											items: [
 												Ext.create("Beet.apps.Viewport.CustomerList")
 											]	
-										});
-									}else{
-										Beet.workspace.workspace.setActiveTab(item);
-									}
-								}
-							},
-							{
-								xtype: "button",
-								text: "删除会员",
-								handler: function(){
-									var item = Beet.apps.Menu.Tabs["deleteCustomer"];
-									if (!item){
-										Beet.workspace.addPanel("deleteCustomer", "删除会员", {
-
 										});
 									}else{
 										Beet.workspace.workspace.setActiveTab(item);
@@ -667,11 +662,12 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 								{
 									fieldLabel: "会员姓名",
 									name: "Name",
-									allowBlanks: false
+									allowBlank: false
 								},
 								{
 									fieldLabel: "会员卡号",
-									name: "CardNo"
+									name: "CardNo",
+									allowBlank: false,
 								},
 								{
 									fieldLabel: "身份证",
@@ -703,7 +699,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 								{
 									fieldLabel: "职业",
 									name: "Job"
-								}
+								}//TODO: 专属顾问选择列表
 							]
 						},
 						{
@@ -749,6 +745,8 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 							xtype: "button",
 							id : "move-next",
 							scale: "large",
+							formBind: true,
+							disabled: true,
 							text: "下一步",
 							handler: that.addUser
 						}
@@ -847,6 +845,9 @@ Ext.define("Beet.apps.Viewport.CustomerList.Store", {
 	proxy: {
 		type: "b_proxy",
 		b_method: Beet.constants.customerServer.GetCustomerToJSON,
+		filters: {
+			b_onlySchema: false
+		},
 		b_scope: Beet.constants.customerServer,
 		reader: {
 			type: "json",
@@ -859,6 +860,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 	extend: "Ext.panel.Panel",
 	anchor: "anchor",
 	height: "100%",
+	frame: true,
 	defaults: {
 		border: 0
 	},
@@ -888,6 +890,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			width: "100%",
 			height: "100%",
 			layout: "anchor",
+			border: 0,
 			columnLines: true,
 			viewConfig: {
 				trackOver: false,
@@ -895,7 +898,15 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			},
 			columns: [
 				/*{
-					dataIndex:'CTGUID',width:20,
+					header: "操作",
+					xtype: "operatorColumn",
+					width: 55,
+					items: [
+						{
+							xtype: "button",
+							text: "2313"
+						},
+					]
 				},*/
 				{
 					header: "会员卡号", dataIndex: 'CTCardNo', sortable: true
@@ -1002,12 +1013,13 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 							fieldLabel: "会员姓名",
 							name: "Name",
 							value: rawData.CTName,
-							allowBlanks: false,
+							allowBlank: true,
 							dataIndex: "CTName"
 						},
 						{
 							fieldLabel: "会员卡号",
 							name: "CardNo",
+							allowBlank: true,
 							value: rawData.CTCardNo,
 							dataIndex: "CTCardNo"
 						},
@@ -1028,7 +1040,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 						{
 							fieldLabel: "手机号码",
 							name: "Mobile",
-							allowBlank: false,
+							allowBlank: true,
 							value: rawData.CTMobile,
 							dataIndex: "CTMobile"
 						},
@@ -1069,7 +1081,6 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 						}else{
 							var now = new Date(), timezoneOffset = now.getTimezoneOffset() * 60;
 							result["Birthday"] = ((+Ext.Date.parse(result["Birthday"], "Y年m月d日")) / 1000) - timezoneOffset;
-							console.log(result["Birthday"])
 						}
 
 						var needSubmitData = Ext.JSON.encode(result);

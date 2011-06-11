@@ -1,5 +1,5 @@
 Beet.config = {
-	customerUrl : "172.16.130.166:6661"
+	customerUrl : "192.168.1.100:6661"
 }
 
 Beet.constants.customerLoginServer = new CTLoginSvc("http://"+Beet.config.customerUrl+"/MULTI");
