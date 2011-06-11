@@ -196,6 +196,122 @@ Ext.define("Beet.plugins.TrayClock", {
 	}
 });
 
+Ext.define("Beet.plugins.operatorColumn", {
+	exten: "Ext.util.Observable",
+	alias: "widget.operatorColumn",
+	
+	/**
+	 * @cfg {Array}
+	 *
+	 * {{{
+	 */
+	actionEvent: "click",
+	autoWidth: true,
+	dataIndex: '',
+	editable: false,
+	header: "",
+	isColumn: false,
+	keepSelection: false,
+	menuDisable: false,
+	sortable: false,
+	/*
+	 * @cfg {String} tplGroup Template for group actions
+	 * @private
+	 */
+	tplGroup: '',	
+	/*
+	 * @cfg {String} tplRow Template for row actions
+	 */
+	tplRow: '',
+	hideMode: 'visibility',
+	widthIntercept: 4,
+	widthSlope: 21,
+	// }}}
+	constructor: function(){
+		/*
+		 * @event beforeaction
+		 * 当动作触发前触发
+		 * @param {Ext.grid.Panel} grid
+		 * @param {Ext.data.Record} record  Record corresponing to row clicked
+		 * @param {String} action Identifies the action icon clicked. Equals to icon css class name.
+		 * @param {Integer} rowIndex Index of clicked grid row
+		 * @param {Integer} colIndex Index of clicked grid column that contains all action icons
+		 */
+		'beforeaction',
+
+		'action',
+
+		'beforegroupaction',
+
+		'groupaction'
+
+		this.callParent(arguments);
+	},
+	init: function(grid){
+		var that = this;
+		that.grid = grid;
+		that.id = that.id || Ext.id();
+
+		var lookup = grid.getColumnModel().lookup;
+		delete lookup[undefined]
+		lookup[that.id] = that;
+
+		//setup template
+		if (!that.tpl){
+			that.tpl = that.processActions(that.actions)
+		}
+
+		if (that.autoWidth){
+			that.width = that.widthSlope * that.actions.length + that.widthIntercept;
+			that.fixed = true;
+		}
+
+		/*
+		var view = that.grid.getView();
+		var cfg = {
+			scope : that,
+			that.actionEvent: that.onClick
+		};
+		
+		grid.afterRender = grid.afterRender.createSequence(function(){
+			view.mainBody.on(cfg);
+			//grid.on("destroy", this.purgeListeners, this);
+		});
+		*/
+	},
+	/*
+	 * Returns data to apply to template. Override this if needed.
+	 * @param {Mixed} value
+	 * @param {Object} cell object to set some attributes of the grid cell
+	 * @param {Ext.data.Record} record from which the data is extracted
+	 * @param {Number} row Index of the row
+	 * @param {Number} ccl Index of the cell
+	 * @param {Ext.data.Store} data to apply to template
+	 *
+	 * @return {Object} data to apply to template
+	 */
+	getData: function(value, cell, record, row, col, store){
+		return record.data || {}
+	},
+	/*
+	 * Processes actions configs and returns template
+	 * @param {Array} actions
+	 * @param {String} template(Optional). Template to use for one action item.
+	 *
+	 * @return {String}
+	 * @private
+	 */
+	processActions: function(actions, template){
+		var acts = [];
+	},
+	getAction: function(e){
+
+	},
+	onClick: function(){
+
+	}
+});
+
 
 Ext.define("Beet.plugins.CheckColumn", {
 	extend: "Ext.grid.column.Column",
@@ -260,6 +376,7 @@ Ext.define("Beet.plugins.proxyClient", {
 	 */
 	//limitParam: "limit",
 	filterParam: "",
+	filters: [],
 	//sortParam: "sort",
 	directionParam: "dir",
 	/*
@@ -309,10 +426,10 @@ Ext.define("Beet.plugins.proxyClient", {
 	processResponse: function(operation, callback, scope, data){
 		var that = this, reader = that.getReader(),
 			result = reader.read(data);
+		
 		Ext.apply(operation, {
 			resultSet: result
 		});
-		console.log(result)
 
 		operation.setCompleted();
 		operation.setSuccessful();
@@ -321,7 +438,6 @@ Ext.define("Beet.plugins.proxyClient", {
 	setException: function(){
 
 	},
-
 	applyEncoding: function(value){
 		return Ext.encode(value)
 	},
@@ -347,20 +463,44 @@ Ext.define("Beet.plugins.proxyClient", {
 	
 		return params;
 	},
-
+	/*
+	 *
+	 * @param {}operation
+	 * @param {Function} callback
+	 * @param {}scope 
+	 */
 	doRequest: function(operation, callback, scope){
-		var that = this, filter = "", method = that.b_method, writer = that.getWriter();		
-		//TODO: 需要假如filter功能!!
+		/**
+		 * @param {Function} ajax_callback user custom callback
+		 */
+		var that = this, filter = "", filters = that.filters, method = that.b_method, writer = that.getWriter(), request = [], ajax_callback;
+
+		if (Ext.isDefined(filters["filter"])){
+			filter = that.encodeFilters(filters["filter"]);
+		}
+		
+		//add filter
+		request.push(filter);//filters
+		
+		//add arguments
+		if (Ext.isDefined(filters["b_onlySchema"])){
+			request.push(filters["b_onlySchema"]);	
+		}
+		
+		//ajax callback
+		ajax_callback = {
+			success: function(data){
+				data = Ext.JSON.decode(data);
+				that.processResponse(operation, callback, scope, data)
+			},
+			failure: function(error){
+				console.log(error);
+			}
+		}
+		request.push(ajax_callback);
+
 		if (Ext.isFunction(this.b_method)){
-			//开始调用callback函数.
-			method.call(that.b_scope, "", {
-				success: function(data){
-					data = Ext.JSON.decode(data);
-					that.processResponse(operation, callback, scope, data)
-				},
-				failure: function(error){
-				}
-			})
+			method.apply(that.b_scope, request);
 		}
 	},
 
