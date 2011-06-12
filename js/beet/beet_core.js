@@ -17,11 +17,12 @@ Beet.constants = {
 	ACT_SELECT_IID: '{D61570E6-EB82-4B22-A218-8881C71D692A}',
 
 	privileges: {
-	 '{91677AFA-78C0-4A61-A4C0-C73C9F415819}' : 'customer_addBtn',
-	 '{C8D8D41F-6885-4C66-A25D-58A6E4D4F116}' : "customer_editBtn",
-	 '{593DD697-70AC-44AE-892E-5588041054A1}' : "customer_editBtn",
-	 '{D61570E6-EB82-4B22-A218-8881C71D692A}' : "customer_editBtn"
-
+		customer_addBtn : [
+			'{91677AFA-78C0-4A61-A4C0-C73C9F415819}'
+		],
+		customer_editBtn : [
+			'{D61570E6-EB82-4B22-A218-8881C71D692A}' 
+		]
 	}
 }
 if (!Beet.constants.now){

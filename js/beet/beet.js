@@ -192,11 +192,25 @@ Ext.define("Beet.apps.Menu.Panel", {
 	updatePanelStatus: function(){
 		var that = this;
 		//TODO: 权限判断
-		/*
-		addBtn = that.query("#customer_addBtn")
-		if (Ext.isDefined(addBtn[0])){
-			addBtn[0].hide();
-		}*/
+		
+		for (var k in Beet.constants.privileges){
+			var privilege = Beet.constants.privileges[k], btn = that.query("#"+k), hidden = false, c = 0;
+			while (true){
+				var p = privilege[c];
+				if (p == undefined){
+					break;
+				}
+				if (Beet.cache.Operator.privilege.indexOf(p) > -1){
+					hidden = hidden || false;
+				}else{
+					hidden = hidden || true;
+				}
+				c++;
+			}
+			if (hidden && btn[0]){
+				btn[0].hide();
+			}
+		}
 	},
 	getCPanelConfig: function(){
 		var config = {
@@ -1314,7 +1328,7 @@ Ext.define("Beet.apps.Viewport.memberLvlsList", {
 	},
 	createMemberLvlsList: function(){
 		var that = this, store = that.storeProxy
-		that.memberLvlsList = Ext.create("Ext.grid.Panel", {
+		that.memberLvlsList = Ext.create("Ext.tree.Panel", {
 			renderTo: that.body,
 			store: store,
 			frame: true,
