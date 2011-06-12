@@ -196,9 +196,11 @@ Ext.define("Beet.plugins.TrayClock", {
 	}
 });
 
-Ext.define("Beet.plugins.operatorColumn", {
-	exten: "Ext.util.Observable",
-	alias: "widget.operatorColumn",
+Ext.define("Beet.plugins.rowActions", {
+	alias: "widget.rowactions",
+	mixins: {
+		observable: "Ext.util.Observable"
+	},
 	
 	/**
 	 * @cfg {Array}
@@ -218,16 +220,27 @@ Ext.define("Beet.plugins.operatorColumn", {
 	 * @cfg {String} tplGroup Template for group actions
 	 * @private
 	 */
-	tplGroup: '',	
+	tplGroup: '<tpl for="actions">'
+			 + '<div class="ux-grow-action-item<tpl if="\'right\'===align"> ux-action-right</tpl>'
+			 + '{cls}" style="{style}" qtip="{qtip}">{text}</div>'
+			 + '</tpl>',
 	/*
 	 * @cfg {String} tplRow Template for row actions
 	 */
-	tplRow: '',
+	tplRow:
+		 '<div class="ux-row-action">'
+		+'<tpl for="actions">'
+		+'<div class="ux-row-action-item {cls} <tpl if="text">'
+		+'ux-row-action-text</tpl>" style="{hide}{style}" qtip="{qtip}">'
+		+'<tpl if="text"><span qtip="{qtip}">{text}</span></tpl></div>'
+		+'</tpl>'
+		+'</div>',
+
 	hideMode: 'visibility',
 	widthIntercept: 4,
 	widthSlope: 21,
 	// }}}
-	constructor: function(){
+	constructor: function(config){
 		/*
 		 * @event beforeaction
 		 * 当动作触发前触发
@@ -237,24 +250,29 @@ Ext.define("Beet.plugins.operatorColumn", {
 		 * @param {Integer} rowIndex Index of clicked grid row
 		 * @param {Integer} colIndex Index of clicked grid column that contains all action icons
 		 */
-		'beforeaction',
+		this.addEvents(
+			'beforeaction',
 
-		'action',
+			'action',
 
-		'beforegroupaction',
+			'beforegroupaction',
 
-		'groupaction'
-
-		this.callParent(arguments);
+			'groupaction'
+		);
+		Ext.apply(this, config);
+		this.callParent();
 	},
 	init: function(grid){
 		var that = this;
 		that.grid = grid;
 		that.id = that.id || Ext.id();
-
+		
+		console.log(that)
+		/*
 		var lookup = grid.getColumnModel().lookup;
 		delete lookup[undefined]
 		lookup[that.id] = that;
+		*/
 
 		//setup template
 		if (!that.tpl){
@@ -266,18 +284,21 @@ Ext.define("Beet.plugins.operatorColumn", {
 			that.fixed = true;
 		}
 
-		/*
 		var view = that.grid.getView();
 		var cfg = {
 			scope : that,
-			that.actionEvent: that.onClick
-		};
-		
+		}
+		cfg[that.actionEvent] = that.onClick
+		/*
 		grid.afterRender = grid.afterRender.createSequence(function(){
 			view.mainBody.on(cfg);
-			//grid.on("destroy", this.purgeListeners, this);
-		});
+			grid.on("destroy", this.purgeListeners, this);
+		}, that);
 		*/
+
+		//setup renderer
+		if (!that.renderer){
+		}
 	},
 	/*
 	 * Returns data to apply to template. Override this if needed.

@@ -41,24 +41,14 @@ Beet.apps.Menu.Items = [
 									var item = Beet.apps.Menu.Tabs["addCustomer"];
 									if (!item){
 										//get serviceItems
-										var timer;
-										Beet.cache.serviceItems = []
-										Beet.apps.Viewport.getServiceItems(Beet.cache.serviceItems);
-										if (!timer){
-											timer = setInterval(function(){
-												if (Beet.cache.serviceItems.length > 0){
-													if (timer){
-														clearInterval(timer);
-														timer = null;
-														Beet.workspace.addPanel("addCustomer", "添加会员", {
-															items: [
-																Ext.create("Beet.apps.Viewport.AddUser")
-															]
-														});	
-													}
-												}
-											}, 100);
-										}
+										Beet.apps.Viewport.getServiceItems(
+											function(){
+												Beet.workspace.addPanel("addCustomer", "添加会员", {
+													items: [
+														Ext.create("Beet.apps.Viewport.AddUser")
+													]
+												})
+										})
 									}else{
 										Beet.workspace.workspace.setActiveTab(item);
 									}
@@ -71,11 +61,14 @@ Beet.apps.Menu.Items = [
 								handler: function(){
 									var item = Beet.apps.Menu.Tabs["editCustomer"];
 									if (!item){
-										Beet.workspace.addPanel("editCustomer", "编辑会员", {
-											items: [
-												Ext.create("Beet.apps.Viewport.CustomerList")
-											]	
-										});
+										Beet.apps.Viewport.getColumnsData(function(){
+											Beet.workspace.addPanel("editCustomer", "编辑会员", {
+												items: [
+													Ext.create("Beet.apps.Viewport.CustomerList")
+												]	
+											});
+										})
+
 									}else{
 										Beet.workspace.workspace.setActiveTab(item);
 									}
@@ -585,26 +578,50 @@ Ext.define("Beet.apps.Viewport", {
 	}
 });
 
-Beet.apps.Viewport.getServiceItems = function(serviceItems){
-	Beet.constants.customerServer.GetServiceItems({
-		success: function(data){
-			data = Ext.JSON.decode(data)
-			if (data["Data"] && Ext.isArray(data["Data"])){
-				var datz = data["Data"];
-				for (var item in datz){
-					var p = datz[item];
-					serviceItems.push({
-						boxLabel: p["ServiceName"],
-						name: "serverName",
-						inputValue: p["ServiceType"]
-					})
+Beet.apps.Viewport.getServiceItems = function(__callback){
+	if (Beet.cache.serviceItems == undefined){
+		Beet.cache.serviceItems = [];
+		Beet.constants.customerServer.GetServiceItems({
+			success: function(data){
+				var data = Ext.JSON.decode(data)
+				if (data["Data"] && Ext.isArray(data["Data"])){
+					var datz = data["Data"];
+					for (var item in datz){
+						var p = datz[item];
+						Beet.cache.serviceItems.push({
+							boxLabel: p["ServiceName"],
+							name: "serverName",
+							inputValue: p["ServiceType"]
+						})
+					}
 				}
+				__callback();
+			},
+			failure: function(){
+				console.log(arguments)
 			}
-		},
-		failure: function(){
-			
-		}
-	})
+		})
+	}else{
+		__callback();
+	}
+}
+
+Beet.apps.Viewport.getColumnsData = function(__callback){
+	if (Beet.cache.customerColumns == undefined){
+		Beet.constants.customerServer.GetCustomerToJSON("", true, {
+			success: function(data){
+				var data = Ext.JSON.decode(data);
+				columnsData = data["MetaData"];
+				Beet.cache["customerColumns"] = columnsData;
+				__callback();
+			},
+			failure: {
+
+			}
+		})
+	}else{
+		__callback();
+	}
 }
 
 Ext.define("Beet.apps.Viewport.AddUser", {
@@ -865,7 +882,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 		border: 0
 	},
 	initComponent: function(){
-		var that = this
+		var that = this;
 		Ext.apply(this, {
 			storeProxy: Ext.create("Beet.apps.Viewport.CustomerList.Store"),
 			layout: "fit"
@@ -874,13 +891,40 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 		that.callParent(arguments);
 	},
 	afterRender: function(){
-		var that = this;
+		var that = this, customerServer = Beet.constants.customerServer;
+		//get columns
 		that.createCustomerGrid();
-
 		that.callParent(arguments);
 	},
 	createCustomerGrid: function(){
-		var that = this, grid = that.grid, store = that.storeProxy;
+		var that = this, grid = that.grid, store = that.storeProxy, actions, __columns = [], columnsData = Beet.cache["customerColumns"];
+		actions = Ext.create("Beet.plugins.rowActions", {
+			header: "操作",	
+			autoWidth: true,
+			actions: [
+				{text: "编辑"},
+				{text: "删除"}
+			]
+		});
+
+		for (var columnIndex in columnsData){
+			var columnData = columnsData[columnIndex], column;
+			if (!columnData["FieldHidden"]){
+				var column = {
+					flex: 1	
+				};
+				for (var k in columnData){
+					if (k == "FieldLabel"){
+						column["header"] = columnData[k];
+					}else if(k == "FieldName"){
+						column["dataIndex"] = columnData[k];
+					}
+				}
+				__columns.push(column);
+			}
+		}
+		
+
 		that.grid = Ext.create("Ext.grid.Panel", {
 			store: store,
 			lookMask: true,
@@ -896,44 +940,38 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 				trackOver: false,
 				stripeRows: false
 			},
-			columns: [
-				/*{
-					header: "操作",
-					xtype: "operatorColumn",
-					width: 55,
-					items: [
-						{
-							xtype: "button",
-							text: "2313"
-						},
-					]
-				},*/
-				{
-					header: "会员卡号", dataIndex: 'CTCardNo', sortable: true
-				},
-				{
-					header: "会员名字", dataIndex: "CTName", sortable: true, flex: 1
-				},
-				{
-					header: "生日日期", dataIndex: "CTBirthday", flex: 1
-				},
-				{
-					header: "手机号码", dataIndex: "CTMobile"
-				},
-				{
-					header: "座机号码", dataIndex: "CTPhone"
-				},
-				{
-					header: "地址", dataIndex: "CTAddress", flex: 1
-				},
-				{
-					header: "职业", dataIndex: "CTJob"
-				},
-				{
-					header: "QQ/MSN", dataIndex: "CTIM"
-				}
-			],
+			columns: __columns,
+			/*
+			columns : [
+					//actions,
+					{
+						header: "会员卡号", dataIndex: 'CTCardNo', sortable: true
+					},
+					{
+						header: "会员名字", dataIndex: "CTName", sortable: true, flex: 1
+					},
+					{
+						header: "生日日期", dataIndex: "CTBirthday", flex: 1
+					},
+					{
+						header: "手机号码", dataIndex: "CTMobile"
+					},
+					{
+						header: "座机号码", dataIndex: "CTPhone"
+					},
+					{
+						header: "地址", dataIndex: "CTAddress", flex: 1
+					},
+					{
+						header: "职业", dataIndex: "CTJob"
+					},
+					{
+						header: "QQ/MSN", dataIndex: "CTIM"
+					}
+				],
+			*/
 			plugins: [
+				//actions,
 				{
 					ptype: "b_contextmenu",
 					contextMenu: [
