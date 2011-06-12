@@ -1295,6 +1295,7 @@ Ext.define("Beet.apps.Viewport.memberLvlsList", {
 	extend: "Ext.panel.Panel",
 	layout: "anchor",
 	shadow: true,
+	height: "100%",
 	defaults: {
 		border: 0
 	},

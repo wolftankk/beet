@@ -369,7 +369,7 @@ Ext.define("Beet.plugins.CheckColumn", {
 				checked = !record.get(dataIndex);
 
 			record.set(dataIndex, checked);
-			this.fireEvent("checkchange", this, recordIndex, cheched);
+			this.fireEvent("checkchange", this, recordIndex, checked);
 			return false;
 		} else {
 			return this.callParent(arguments);
@@ -380,7 +380,7 @@ Ext.define("Beet.plugins.CheckColumn", {
 			cls = [cssPrefix + 'grid-checkheader'];
 
 		if (value){
-			css.push(cssPrefix + 'grid-checkheader-checked');
+			cls.push(cssPrefix + 'grid-checkheader-checked');
 		}
 		
 		return '<div class="' + cls.join(' ') + '">&#160;</div>';
