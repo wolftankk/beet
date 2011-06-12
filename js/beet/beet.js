@@ -190,7 +190,7 @@ Ext.define("Beet.apps.Menu.Panel", {
 		});
 	},
 	updatePanelStatus: function(){
-		var that = this, 
+		var that = this;
 		//TODO: 权限判断
 		/*
 		addBtn = that.query("#customer_addBtn")
