@@ -451,10 +451,19 @@ Ext.define("Beet.plugins.proxyClient", {
 	destroy: function(){
 		return this.doRequest.apply(this, arguments);
 	},
+	buildRequest: function(operation){
 
+	},
 	processResponse: function(operation, callback, scope, data){
-		var that = this, reader = that.getReader(),
-			result = reader.read(data);
+		var that = this, reader = that.getReader();
+		
+		if (that.preProcessData && Ext.isFunction(that.preProcessData)){
+			data = that.preProcessData(data);
+		}
+		
+		result = reader.read(data);
+
+		console.log(data,result);
 		
 		Ext.apply(operation, {
 			resultSet: result
@@ -470,7 +479,6 @@ Ext.define("Beet.plugins.proxyClient", {
 	applyEncoding: function(value){
 		return Ext.encode(value)
 	},
-
 	encodeFilters: function(filters){
 		var min = [], length = filters.length, i = 0;
 		for (; i < length; i++){
@@ -528,8 +536,19 @@ Ext.define("Beet.plugins.proxyClient", {
 		}
 		request.push(ajax_callback);
 
-		if (Ext.isFunction(this.b_method)){
+		if (Ext.isFunction(method)){
 			method.apply(that.b_scope, request);
+		}else{
+			//when b_method is array TODO
+			if (Ext.isArray(method)){
+				if (that.cacheName){
+					Beet.cache[that.cacheName] = Beet.cache.cacheName || {};
+				}
+				var methods = method;
+				for (var m in methods){
+					//console.log(methods[m].prototype);
+				}
+			}
 		}
 	},
 

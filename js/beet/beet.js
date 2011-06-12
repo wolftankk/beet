@@ -132,7 +132,7 @@ Beet.apps.Menu.Items = [
 									if (!item){
 										Beet.workspace.addPanel("memberLvls", "会员级别", {
 											items: [
-												Ext.create("Beet.apps.Viewport.memberLvlsList")
+												Ext.create("Beet.apps.Viewport.SettingViewPort")
 											]
 										});	
 									}else{
@@ -545,7 +545,7 @@ Ext.define("Beet.apps.Viewport", {
 	renderTo: "viewport",
 	layout: "fit",
 	floatable: false,
-	border: false,
+	border: 0,
 	plain: true,
 	initComponent: function(){
 		var that=this;
@@ -570,14 +570,14 @@ Ext.define("Beet.apps.Viewport", {
 			border: false,
 			maxTabWidth: 230,
 			minTabWidth: 150,
-			region: "top",
 			shadow: true,
-			layout: "fit",
+			layout: "hbox",
 			frame: true,
 			defaults: {
 				autoScroll: true,
-				border: false,
-				closable: true
+				border: 0,
+				closable: true,
+				plain: true
 			},
 			/*
 			plugins: [
@@ -919,8 +919,9 @@ Ext.define("Beet.apps.Viewport.CustomerList.Store", {
 
 Ext.define("Beet.apps.Viewport.CustomerList", {
 	extend: "Ext.panel.Panel",
-	anchor: "anchor",
-	height: "100%",
+	anchor: "card",
+	height: "400",
+	minWidth: "800",
 	frame: true,
 	defaults: {
 		border: 0
@@ -1270,106 +1271,167 @@ Ext.define("Beet.plugins.contextMenu", {
 	}
 });
 
-Ext.namespace("Beet.apps.Viewport.memberLvls");
-Ext.define("Beet.apps.Viewport.memberLvls.Model", {
-	extend: "Ext.data.Model",
-	fields: [
-		'id',
-		'name',
-		'description',
-		{name:'active', type: 'boolean'}
-	]
-})
+Ext.namespace("Beet.apps.Viewport.customerList");
 
-Ext.define("Beet.apps.Viewport.memberLvls.Store", {
-	extend: "Ext.data.Store",
-	autoDestroy: true,
-	model: "Beet.apps.Viewport.memberLvls.Model",
-	pageSize: 50,
-	data: [
-		{
-			id: 2,
-			name: "钻石",
-			description: "钻石会员描述",
-			active: true
-		}
-	]
-	/*
+Ext.define("Beet.apps.Viewport.customerList.Store", {
+	extend: "Ext.data.TreeStore",
+	root: {
+		text: "客户属性",
+		id: "src",
+		expanded: true
+	},
 	proxy: {
-		type: "jsonp",
-		url: "http://192.168.1.100:6660/GetRecDataToJson",
+		type: "b_proxy",
+		b_method: Beet.constants.customerServer.GetCTCategoryDataTOJSON,
+		filters: {
+			b_onlySchema: false
+		},
+		preProcessData: function(data){
+			if (data["Data"]){
+				data = data["Data"];
+			}
+
+			var parentId = -1, bucket = {}, customerServer = Beet.constants.customerServer;
+
+
+			var __preProcessData = function(data){
+				var t = 0, __temp = {};
+				while (true){
+					if (data[t] == undefined){
+						break;
+					}	
+
+					var id = data[t].CTCategoryID;
+					__temp[id] = data[t];
+					t++;
+				}
+
+				return __temp;
+			}
+
+			//
+			var __processItem = function(o){
+				var pid = o.ParentCategoryID, id = o.CTCategoryID, name = o.CTCategoryName;
+				
+				if (pid == parentId){
+					//插入树形
+					if (bucket[id] == undefined){
+						bucket[id] = {};
+						bucket[id] = {
+							name: name,
+							pid: pid,
+							id : id,
+							children: []	
+						};
+					}
+
+					return id;
+				}else{
+					var _pid = __processItem(data[pid]);
+
+					if (bucket[_pid]["children"][id] == undefined){
+						bucket[_pid]["children"][id] = {
+							name: name,
+							pid: pid,
+							id : id
+						}
+					}
+					return id;
+				}
+			}
+
+			//TODO: 这里的异步处理 有问题 需要解决
+			customerServer.GetCTItemDataToJSON("", false, {
+				success: function(itemsData){
+					data = __preProcessData(data);
+					for (var k in data){
+						var d = data[k];
+						__processItem(d);
+					}
+				},
+				failure: function(error){
+					console.log(error);
+				}
+			});
+
+			return [
+				{ text : "面部皮肤", pid : "-1", id : 1, children : [
+					{ text : "皮肤类型", pid : 1, id : 2, leaf: true}
+				]}
+			]
+		},
+		b_scope: Beet.constants.customerServer,
 		reader: {
-			root: "Data",
-			totalProperty: "TotalCount"
+			type: "json",
 		}
-	}*/
+	},
 });
 
-Ext.define("Beet.apps.Viewport.memberLvlsList", {
+Ext.define("Beet.apps.Viewport.SettingViewPort", {
 	extend: "Ext.panel.Panel",
-	layout: "anchor",
-	shadow: true,
+	layout: {
+		type: "hbox",
+		align: "stretch",
+	},
 	height: "100%",
+	shadow: true,
+	frame: true,
 	defaults: {
 		border: 0
 	},
+	rootVisible: false,
 	initComponent: function(){
-		var that = this;
+		var that = this, customerServer = Beet.constants.customerServer;
 		Ext.apply(this, {
-			storeProxy: Ext.create("Beet.apps.Viewport.memberLvls.Store")
+			storeProxy: Ext.create("Beet.apps.Viewport.customerList.Store")
 		});
-
+		
+		that.items = [
+			that.createTreeList(),
+			{
+				xtype: 'splitter'   // A splitter between the two child items
+			},
+			that.createDetailPanel()
+		];
 		that.callParent(arguments);
 	},
 	afterRender: function(){
 		var that = this;
-		that.createMemberLvlsList();
 		that.callParent(arguments);
 	},
-	createMemberLvlsList: function(){
+	createTreeList: function(){
 		var that = this, store = that.storeProxy
-		that.memberLvlsList = Ext.create("Ext.tree.Panel", {
-			renderTo: that.body,
+		that.treeList = Ext.create("Ext.tree.Panel", {
 			store: store,
 			frame: true,
 			lookMask: true,
-			rorder: true,
-			tbar: [
+			width: 230,
+			height: 500,
+			border: 0,
+			useArrow: true
+		});
+		return that.treeList;
+	},
+	createDetailPanel: function(){
+		var that = this, detailPanel = that.detailPanel, customerServer = Beet.constants.customerServer;
+		detailPanel = Ext.create("Ext.tab.Panel", {
+			minWidth: 800,
+			height: 400,
+			layout: "card",
+			frame: true,
+			border: 0,
+			defaults: {
+				frame: true,
+				border: 0,
+				layout: "card",
+				closable: true
+			},
+			items: [
 				{
-					xtype: "button",
-					text: "增加"	
-				},"-",
-				{
-					xtype: "button",
-					text: '删除'
-				},"-",
-				{
-					xtype: 'button',
-					text: '编辑'
+					title: "添加分类",
 				}
-			],
-			columns: [
-				{
-					header: "ID",
-					dataIndex: "id",
-					sortable: true
-				},
-				{
-					header: "级别名称",
-					dataIndex: "name",
-					sortable: true
-				},
-				{
-					header: "描述",
-					dataIndex: "description",
-					flex: 1
-				},
-				{
-					header: "启用",
-					dataIndex: "Active",
-					xtype: "checkcolumn"
-				}	
 			]
 		});
+		return detailPanel;
 	}
 });
