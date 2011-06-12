@@ -28,6 +28,7 @@ Beet.apps.Menu.Items = [
 						title: '会员会籍',
 						width: 250,
 						layout: "anchor",
+						frame: true,
 						defaults: {
 							scale: "large",
 							rowspan: 3
@@ -36,6 +37,7 @@ Beet.apps.Menu.Items = [
 							{
 								xtype: "button",
 								text: "增加会员",
+								id: "customer_addBtn",
 								tooltip: "点击打开新增会员界面",
 								handler: function(){
 									var item = Beet.apps.Menu.Tabs["addCustomer"];
@@ -57,6 +59,7 @@ Beet.apps.Menu.Items = [
 							{
 								xtype: "button",
 								text: "编辑会员",
+								id: "customer_editBtn",
 								tooltip: "编辑会员个人资料或者删除会员.",
 								handler: function(){
 									var item = Beet.apps.Menu.Tabs["editCustomer"];
@@ -154,6 +157,7 @@ Ext.define("Beet.apps.Menu.Panel", {
 	initComponent: function(){
 		var that = this;
 		//目录设置面板
+		that.getOperatorList();	
 		that.configurePanel = new Ext.tab.Panel(that.getCPanelConfig());
 		that.dockedItems = [
 			//顶部导航条
@@ -168,6 +172,31 @@ Ext.define("Beet.apps.Menu.Panel", {
 		//当框体变动的时候 进行自动调整大小
 		Ext.EventManager.onWindowResize(that.fireResize, that);
 		this.callParent(arguments);
+	},
+	getOperatorList: function(__callback){
+		//获取权限
+		var that = this, customerServer = Beet.constants.customerServer;
+		customerServer.GetOperatorList(Beet.constants.RES_CUSTOMER_IID, {
+			success: function(data){
+				if (Beet.cache.Operator == undefined){
+					Beet.cache.Operator = {};	
+				}
+				Beet.cache.Operator.privilege = data.split(",");
+				that.updatePanelStatus();
+			},
+			failure: function(error){
+				//console.log(error);
+			}
+		});
+	},
+	updatePanelStatus: function(){
+		var that = this, 
+		//TODO: 权限判断
+		/*
+		addBtn = that.query("#customer_addBtn")
+		if (Ext.isDefined(addBtn[0])){
+			addBtn[0].hide();
+		}*/
 	},
 	getCPanelConfig: function(){
 		var config = {
@@ -208,6 +237,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 		if (that.useQuickTips){
 			Ext.QuickTips.init();
 		}
+		
 		//导航栏toolbar
 		that.navigationToolbar = new Ext.toolbar.Toolbar(that.getNavitionConfig());
 		that.navigationToolbar.parent = that;
@@ -906,7 +936,8 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 				{text: "删除"}
 			]
 		});
-
+		
+		//__columns.push(actions);//add rowactions
 		for (var columnIndex in columnsData){
 			var columnData = columnsData[columnIndex], column;
 			if (!columnData["FieldHidden"]){
@@ -941,37 +972,8 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 				stripeRows: false
 			},
 			columns: __columns,
-			/*
-			columns : [
-					//actions,
-					{
-						header: "会员卡号", dataIndex: 'CTCardNo', sortable: true
-					},
-					{
-						header: "会员名字", dataIndex: "CTName", sortable: true, flex: 1
-					},
-					{
-						header: "生日日期", dataIndex: "CTBirthday", flex: 1
-					},
-					{
-						header: "手机号码", dataIndex: "CTMobile"
-					},
-					{
-						header: "座机号码", dataIndex: "CTPhone"
-					},
-					{
-						header: "地址", dataIndex: "CTAddress", flex: 1
-					},
-					{
-						header: "职业", dataIndex: "CTJob"
-					},
-					{
-						header: "QQ/MSN", dataIndex: "CTIM"
-					}
-				],
-			*/
 			plugins: [
-				//actions,
+				actions,
 				{
 					ptype: "b_contextmenu",
 					contextMenu: [

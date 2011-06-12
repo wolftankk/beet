@@ -263,17 +263,11 @@ Ext.define("Beet.plugins.rowActions", {
 		this.callParent();
 	},
 	init: function(grid){
+		//从plugins传过来
 		var that = this;
 		that.grid = grid;
 		that.id = that.id || Ext.id();
 		
-		console.log(that)
-		/*
-		var lookup = grid.getColumnModel().lookup;
-		delete lookup[undefined]
-		lookup[that.id] = that;
-		*/
-
 		//setup template
 		if (!that.tpl){
 			that.tpl = that.processActions(that.actions)
@@ -283,7 +277,8 @@ Ext.define("Beet.plugins.rowActions", {
 			that.width = that.widthSlope * that.actions.length + that.widthIntercept;
 			that.fixed = true;
 		}
-
+		
+		//body click handler
 		var view = that.grid.getView();
 		var cfg = {
 			scope : that,
@@ -295,10 +290,15 @@ Ext.define("Beet.plugins.rowActions", {
 			grid.on("destroy", this.purgeListeners, this);
 		}, that);
 		*/
-
 		//setup renderer
+		/*
 		if (!that.renderer){
+			that.renderer = function(value, cell, record, row, col, store){
+				cell.css += (cell.css ? " " : "") + "ux-row-action-cell";
+				//return that.tpl.apply(that.getData(value, cell, record, row, col, store));
+			}//.createDelegate(that)
 		}
+		*/
 	},
 	/*
 	 * Returns data to apply to template. Override this if needed.
@@ -326,9 +326,17 @@ Ext.define("Beet.plugins.rowActions", {
 		var acts = [];
 	},
 	getAction: function(e){
-
+		var action = false, t = e.getTarget('.ux-row-action-item');
+		if (t){
+			action = t.className.replace('ux-row-action-item ', '');
+			if (action){
+				action = action.replace(' ux-row-action-text', '');
+				action = Ext.String.trim(action)
+			}
+		}
+		return action;
 	},
-	onClick: function(){
+	onClick: function(e, target){
 
 	}
 });
