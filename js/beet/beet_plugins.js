@@ -458,6 +458,7 @@ Ext.define("Beet.plugins.proxyClient", {
 		var that = this, reader = that.getReader();
 		
 		if (that.preProcessData && Ext.isFunction(that.preProcessData)){
+			console.log(data);
 			data = that.preProcessData(data);
 		}
 		
@@ -524,30 +525,43 @@ Ext.define("Beet.plugins.proxyClient", {
 			request.push(filters["b_onlySchema"]);	
 		}
 		
-		//ajax callback
-		ajax_callback = {
-			success: function(data){
-				data = Ext.JSON.decode(data);
-				that.processResponse(operation, callback, scope, data)
-			},
-			failure: function(error){
-				console.log(error);
-			}
-		}
-		request.push(ajax_callback);
 
 		if (Ext.isFunction(method)){
+			//ajax callback
+			ajax_callback = {
+				success: function(data){
+					data = Ext.JSON.decode(data);
+					that.processResponse(operation, callback, scope, data)
+				},
+				failure: function(error){
+					console.log(error);
+				}
+			}
+			request.push(ajax_callback);
 			method.apply(that.b_scope, request);
 		}else{
 			//when b_method is array TODO
 			if (Ext.isArray(method)){
-				if (that.cacheName){
-					Beet.cache[that.cacheName] = Beet.cache.cacheName || {};
+				var _cache = [], methods = method;//cache ajax data
+				var __method = methods.pop();
+				var ajax_callback = {
+					success: function(data){
+						_cache.push(data);
+						if (methods.length == 0){
+							that.processResponse(operation, callback, scope, _cache);
+						}else{
+							var _nextMethod = methods.pop();
+							_nextMethod.apply(that.b_scope, request);
+						}
+					},
+					failure: function(error){
+						console.log(error);
+					}
 				}
-				var methods = method;
-				for (var m in methods){
-					//console.log(methods[m].prototype);
-				}
+				request.push(ajax_callback);
+				//first call
+				//
+				__method.apply(that.b_scope, request);
 			}
 		}
 	},
