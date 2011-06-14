@@ -42,7 +42,6 @@ Beet.apps.Menu.Items = [
 								handler: function(){
 									var item = Beet.apps.Menu.Tabs["addCustomer"];
 									if (!item){
-										//get serviceItems
 										Beet.apps.Viewport.getServiceItems(
 											function(){
 												Beet.workspace.addPanel("addCustomer", "添加会员", {
@@ -571,7 +570,7 @@ Ext.define("Beet.apps.Viewport", {
 			maxTabWidth: 230,
 			minTabWidth: 150,
 			shadow: true,
-			layout: "hbox",
+			layout: "anchor",
 			frame: true,
 			defaults: {
 				autoScroll: true,
@@ -642,7 +641,7 @@ Beet.apps.Viewport.getServiceItems = function(__callback){
 				__callback();
 			},
 			failure: function(){
-				console.log(arguments)
+				Ext.Error.railse("与服务器断开链接");
 			}
 		})
 	}else{
@@ -659,13 +658,28 @@ Beet.apps.Viewport.getColumnsData = function(__callback){
 				Beet.cache["customerColumns"] = columnsData;
 				__callback();
 			},
-			failure: {
+			failure: function(error){
 
 			}
 		})
 	}else{
 		__callback();
 	}
+}
+
+Beet.apps.Viewport.getCTTypeData = function(){
+	var customerServer = Beet.constants.customerServer;
+	customerServer.GetCTTypeDataToJSON("", false, {
+		success: function(data){
+			data = Ext.JSON.decode(data);
+			data = data["Data"];
+			Beet.cache["CTTypeData"] = data;	
+			
+		},
+		failure: function(error){
+			Ext.Error.railse(error);
+		}
+	})
 }
 
 Ext.define("Beet.apps.Viewport.AddUser", {
@@ -684,8 +698,12 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 		//base info
 		that.serviceItems = Beet.cache.serviceItems;
 		that.baseInfoPanel = Ext.create("Ext.form.Panel", that.getBaseInfoPanelConfig());
+
+		that.optionTabs = that.createOptionTabs();
+		that.advancePanel = that.createAdvancePanel();
 		that.items = [
-			that.baseInfoPanel
+			that.baseInfoPanel,
+			that.advancePanel
 		]
 		that.callParent(arguments);
 	},
@@ -695,6 +713,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 		config = {
 			frame: true,
 			bodyPadding: 10,
+			layout: "anchor",
 			height: "100%",
 			fieldDefaults: {
 				msgTarget: 'side',
@@ -838,14 +857,22 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 				icon: Ext.MessageBox.QUESTION,
 				fn: function(btn){
 					if (btn == "yes") {
-						console.log(result);
 						customerServer.AddCustomer(needSubmitData, {
 							success: function(uid){
 								Beet.cache.Users[uid] = {
 									serviceItems: serverItems	
 								}
+								Beet.cache.currentUid = uid;
 								if (serverItems && serverItems.length > 0){
-									console.log(Beet.cache.Users);
+									//if (Beet.cache["CTTypeData"] == undefined){
+									//	Beet.apps.Viewport.getCTTypeData();
+									//}else{
+									//}
+									var formpanel = that.up("form"), parent = formpanel.ownerCt;
+									formpanel.hide();
+									if (parent.advancePanel){
+										parent.updateAdvancePanel(uid);
+									}
 								}else{
 									//添加成功弹窗
 									//直接清空上次填入的数
@@ -868,17 +895,146 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 							},
 							failure: function(error){
 								Ext.Error.railse("创建用户失败")
-								//console.log("failure", error)
 							}
 						});
 					}
 				}
 			});
 		}
+	},
+	createAdvancePanel : function(){
+		var that = this, advancePanel = that.advancePanel;
+		advancePanel = Ext.create("Ext.form.Panel", {
+			frame: true,
+			border: 0,
+			plain: true,
+			layout: "card",
+			height: "100%",
+			items: [
+				that.optionTabs
+			],
+			buttons : [
+				{
+					text: "提交",
+					scale: "large",
+					handler: function(direction, e){
+						var that = this, form = that.up("form").getForm(), result = form.getValues();
+						//这里需要判断所选择的数据类型 多选 单选 => items,  text => Texts
+						var Items = [], Texts = [], needSubmitData;
+						for (var k in result){
+							var r = result[k];
+							//判断是否是数字
+							Items.push(r);
+						}
+						
+						var customerServer = Beet.constants.customerServer;
+						if (Beet.cache.currentUid){
+							needSubmitData = {
+								"CustomerID" : Beet.cache.currentUid	
+							}
+							if (Items.length > 0){
+								needSubmitData["Items"] = Items;
+							}
+							if (Texts.length > 0){
+								needSubmitData["Texts"] = Texts;
+							}
+
+							needSubmitData = Ext.JSON.encode(needSubmitData);
+
+							customerServer.AddCustomerItem(needSubmitData, {
+								success: function(){
+									constants.log(arguments);	
+									Ext.MessageBox.show({
+										title: "提交成功!",
+										buttons: Ext.MessageBox.YESNO	
+									})
+								},
+								failure: function(error){
+									Ext.Error.railse(error)
+								}
+							})
+						}else{
+							//提示没有uid 
+						}
+					}
+				}
+			]
+		});
+		advancePanel.hide();
+		return advancePanel;
+	},
+	updateAdvancePanel : function(uid){
+		var that = this, advancePanel = that.advancePanel, optionTabs = that.optionTabs;
+		optionTabs.removeAll();
+		
+		var userInfo = Beet.cache.Users[uid], serviceItems = userInfo["serviceItems"], title, firstTab;
+
+		for (var s in serviceItems){
+			var service = serviceItems[s];
+			title = Beet.constants.CTServiceType[service];
+			var _t = optionTabs.add({
+				title : title,
+				//TODO 测试数据
+				items: [
+					{
+						xtype: "fieldset",
+						flex: 1,
+						title: "面部皮肤",
+						defaultType: "textfield",
+						layout: "anchor",
+						fieldDefaults: {
+							msgTarget: 'side',
+							labelAlign: "left",
+							labelWidth: 75
+						},
+						items: [
+							{
+								xtype: 'checkboxgroup',
+								fieldLabel: '皮肤类型',
+								fieldDefaults: {
+									labelAlign: "left",
+									labelWidth: 75
+								},
+								items: [
+									{ boxLabel: "干性", inputValue : 1},
+									{ boxLabel: "油性", inputValue : 2},
+									{ boxLabel: "混合性", inputValue : 3},
+									{ boxLabel: "混合偏油", inputValue : 4},
+									{ boxLabel: "敏感性", inputValue : 5},
+									{ boxLabel: "衰老性", inputValue: 6},
+									{ boxLabel: "色斑性", inputValue : 7}
+								]
+							}
+						]
+					}
+				]
+			})
+			if (firstTab == undefined){
+				firstTab = _t;	
+			}
+		}
+		optionTabs.setActiveTab(firstTab);
+
+		that.advancePanel.show();
+	},
+	createOptionTabs : function(){
+		var that = this, me = that.advancePanel;
+		var optionTabs = Ext.create("Ext.tab.Panel", {
+			frame: true,
+			border: 0,
+			plain: true,
+			layout: "card",
+			height: "100%",
+			defaults: {
+				border: 0,
+				frame: true
+			},
+			items: [
+			]
+		});
+		
+		return optionTabs;
 	}
-	/*
-	 * 重新触发生产panel
-	 */
 });
 
 Ext.define("Beet.apps.Viewport.CustomerList.Model", {
@@ -919,9 +1075,11 @@ Ext.define("Beet.apps.Viewport.CustomerList.Store", {
 
 Ext.define("Beet.apps.Viewport.CustomerList", {
 	extend: "Ext.panel.Panel",
-	anchor: "card",
-	height: "400",
-	minWidth: "800",
+	layout: "anchor",
+	width: "100%",
+	height: "100%",
+	minHeight: 400,
+	minWidth: 800,
 	frame: true,
 	defaults: {
 		border: 0
@@ -929,8 +1087,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 	initComponent: function(){
 		var that = this;
 		Ext.apply(this, {
-			storeProxy: Ext.create("Beet.apps.Viewport.CustomerList.Store"),
-			layout: "fit"
+			storeProxy: Ext.create("Beet.apps.Viewport.CustomerList.Store")
 		});
 		
 		that.callParent(arguments);
