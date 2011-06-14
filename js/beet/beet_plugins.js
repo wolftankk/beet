@@ -458,14 +458,11 @@ Ext.define("Beet.plugins.proxyClient", {
 		var that = this, reader = that.getReader();
 		
 		if (that.preProcessData && Ext.isFunction(that.preProcessData)){
-			console.log(data);
 			data = that.preProcessData(data);
 		}
-		
+			
 		result = reader.read(data);
 
-		console.log(data,result);
-		
 		Ext.apply(operation, {
 			resultSet: result
 		});

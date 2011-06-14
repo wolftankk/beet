@@ -1282,83 +1282,128 @@ Ext.define("Beet.apps.Viewport.customerList.Store", {
 	},
 	proxy: {
 		type: "b_proxy",
-		b_method: Beet.constants.customerServer.GetCTCategoryDataTOJSON,
+		b_method: [Beet.constants.customerServer.GetCTCategoryDataTOJSON, Beet.constants.customerServer.GetCTItemDataToJSON],
 		filters: {
 			b_onlySchema: false
 		},
 		preProcessData: function(data){
-			if (data["Data"]){
-				data = data["Data"];
-			}
-
-			var parentId = -1, bucket = {}, customerServer = Beet.constants.customerServer;
-
-
-			var __preProcessData = function(data){
+			//开始做数据处理
+			//0 itemData 1 category 
+			var itemsData = Ext.JSON.decode(data[0]), categoriesData = Ext.JSON.decode(data[1]);
+			
+			var itemsData_Data = itemsData["Data"], itemsData_Meta = itemsData["MetaData"];
+			var categoriesData_Data = categoriesData["Data"], categoriesData_Meta = categoriesData["MetaData"];
+			//add -1
+			//parentId 根父类
+			var bucket = [], parentId = -1;
+			/**
+			 * 预处理数据, 将数据根据_id存储为object
+			 * @param {Object} data 原始数据
+			 * @param {String} _id 需要提取的标签头
+			 *
+			 * @return {Object} __temp 返回处理后的函数
+			 */
+			var __preProcessData = function(data, _id){
 				var t = 0, __temp = {};
 				while (true){
 					if (data[t] == undefined){
 						break;
 					}	
-
-					var id = data[t].CTCategoryID;
+					var id = data[t][_id];
 					__temp[id] = data[t];
 					t++;
 				}
 
 				return __temp;
 			}
+			
+			//预处理
+			itemsData_Data = __preProcessData(itemsData_Data, "CTTypeID");
+			categoriesData_Data = __preProcessData(categoriesData_Data, "CTCategoryID");
+			//end
+			
+			;(function(){
+				for (var k in itemsData_Data){
+					var _o = itemsData_Data[k],
+						cid = _o.CTCategoryID,
+						typeId = _o.CTTypeID,
+						name = _o.CTTypeName,
+						inputmode = _o.InputMode,
+						item = {
+							text : name,
+							leaf : true,
+							categoryId : cid,
+							typeId : typeId,
+							inputmode : inputmode	
+						}
 
-			//
-			var __processItem = function(o){
-				var pid = o.ParentCategoryID, id = o.CTCategoryID, name = o.CTCategoryName;
-				
-				if (pid == parentId){
-					//插入树形
-					if (bucket[id] == undefined){
-						bucket[id] = {};
-						bucket[id] = {
-							name: name,
-							pid: pid,
-							id : id,
-							children: []	
-						};
+					if (cid == parentId){
+						bucket.push(item);
+					}else{
+						var o_data = categoriesData_Data[cid];
+						o_data["children"] = o_data["children"] || {}
+						o_data["children"]["items"] = o_data["children"]["items"] || [];
+						o_data["children"]["items"].push(item);
 					}
+				}
+			})()	
+			
+			var _cache = {};
+			var __process = function(o){
+				var cid = o.CTCategoryID, name = o.CTCategoryName, pid = o.ParentCategoryID, serviceType = o.ServiceType,
+					item = {
+						text : name,
+						cid : cid,
+						pid : pid,
+						serviceType : serviceType,
+						children : o.children || {}
+					};
 
-					return id;
+				if (pid == parentId){
+					if (_cache[cid] == undefined){
+						_cache[cid] = item;
+					}	
+
+					return cid;
 				}else{
-					var _pid = __processItem(data[pid]);
+					var _pid = __process(categoriesData_Data[pid]);
+					if (_cache[_pid]["children"][cid] == undefined){
+						_cache[_pid]["children"][cid] = item;
+					}
+				}
 
-					if (bucket[_pid]["children"][id] == undefined){
-						bucket[_pid]["children"][id] = {
-							name: name,
-							pid: pid,
-							id : id
+			}
+			for (var k in categoriesData_Data){
+				__process(categoriesData_Data[k])
+			}
+
+
+			var _toJson = function(data, target){
+				for (var b in data){
+					var o = data[b];
+					if (o["children"]){
+						var orign = o["children"], items;
+						if (orign["items"]){
+							items = orign["items"];
+							delete orign["items"];
+						}
+
+						o["children"] = [];
+						_toJson(orign, o["children"]);
+						if (items){
+							for (var c in items){
+								o["children"].push(items[c]);	
+							}
 						}
 					}
-					return id;
+
+					target.push(o);
 				}
 			}
 
-			//TODO: 这里的异步处理 有问题 需要解决
-			customerServer.GetCTItemDataToJSON("", false, {
-				success: function(itemsData){
-					data = __preProcessData(data);
-					for (var k in data){
-						var d = data[k];
-						__processItem(d);
-					}
-				},
-				failure: function(error){
-					console.log(error);
-				}
-			});
+			_toJson(_cache, bucket);
 
-			return [
-				{ text : "面部皮肤", pid : "-1", id : 1, children : [
-					{ text : "皮肤类型", pid : 1, id : 2, leaf: true}
-				]}
-			]
+			return bucket;
 		},
 		b_scope: Beet.constants.customerServer,
 		reader: {
@@ -1408,8 +1453,35 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 			width: 230,
 			height: 500,
 			border: 0,
-			useArrow: true
+			useArrow: true,
+			split: true
 		});
+
+		var _click = function(node, e){
+			console.log(node);
+		}	
+
+		var rightMenu = Ext.create("Ext.menu.Menu", {
+			plain: true,
+			items: [
+				{text: "添加"},
+				{text: "编辑"},
+				{text: "删除"}
+			]
+		});
+		var _rightclick = function(view, record, item, index, e, options){
+			e.stopEvent();
+			rightMenu.showAt(e.getXY());
+		}
+
+		that.treeList.on({
+			'itemclick' : _click,
+			"beforeitemcontextmenu" : _rightclick
+		})
+
+
+		console.log(that.treeList);
+
 		return that.treeList;
 	},
 	createDetailPanel: function(){
