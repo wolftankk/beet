@@ -191,20 +191,11 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 			dockedItems: [
 				{
 					ptype: "tooltip",
+					frame: true,
 					items: [
 						{
-							xtype: "button",
-							text: "添加",
-							handler: function(){
-							}
-						},
-						{
-							xtype: "button",
-							text: "编辑"
-						},
-						{
-							xtype: "button",
-							text: "删除"
+							html: "右键打开功能菜单, 进行编辑删除",
+							frame: true,
 						}
 					],
 				}
@@ -218,36 +209,64 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 		}
 
 		var _addItem = function(widget, e){
-			var parentMenu = widget.parentMenu, rawData = parentMenu.raw, leaf = parentMenu.leaf, form;
-			if (leaf){
-				form = Ext.widget("form", {
-					frame: true,
-					border: 0
-				})
-			}else{
-				//增加分类
-			}
-			var item = that.detailPanel.add({
-				title: "添加"
-			});
-
-			that.detailPanel.setActiveTab(item);
-		}
-		var _editItem = function(widget, e){
 			var parentMenu = widget.parentMenu, rawData = parentMenu.raw, leaf = parentMenu.leaf, method,
 				customerServer = Beet.constants.customerServer;
 			method = leaf ? customerServer.UpdateCTItem : customerServer.UpdateCTCategory;
 			var needUpdateId = leaf ? rawData.typeId : rawData.cid;
 			var formItems = [], actionName = leaf ? "customer_item" : "customer_category";
+			var btnHandler;
 			
-			for (var k in Beet.cache.configArgs[actionName]){
-				var row = Beet.cache.configArgs[actionName][k];
-				var hidden = row.FieldHidden, label = row.FieldLabel, name = row.FieldName;
-				if (!hidden){
-					formItems.push({
-						fieldLabel: label,
-						name : name
-					})
+			//项目
+			if (leaf){
+				for (var k in Beet.cache.configArgs[actionName]){
+					var row = Beet.cache.configArgs[actionName][k],
+						hidden = row.FieldHidden, label = row.FieldLabel, name = row.FieldName,
+						item = {
+							fieldLabel : label,
+							name : name
+						}
+					switch (name){
+						case "CTTypeID":
+							break;
+						case "CTTypeName":
+							break;
+						case "CTCategoryID":
+							break;
+						case "InputMode":
+							break;	
+					}
+
+					formItems.push(item);
+				}
+				btnHandler = function(direction, e){
+					var me = this, form = me.up("form").getForm(), result = form.getValues();
+					//TODO
+					console.log(result);
+				}
+			}else{
+				for (var k in Beet.cache.configArgs[actionName]){
+					var row = Beet.cache.configArgs[actionName][k]
+						hidden = row.FieldHidden, label = row.FieldLabel, name = row.FieldName,
+						item = {
+							fieldLabel : label,
+							name : name
+						}
+					switch (name){
+						case "CTCategoryID":
+							break;
+						case "CTCategoryName":
+							break;
+						case "ParentCategoryID":
+							break;
+						case "ServiceType":
+							break;
+					}
+
+					formItems.push(item)
+				}
+
+				btnHandler = function(direction, e){
+
 				}
 			}
 
@@ -257,7 +276,8 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 				border: 0,
 				plain: true,
 				layout: {
-					type: "vbox"
+					type: "vbox",
+					align: "stretch"
 				},
 				width: "100%",
 				defaultType: "textfield",
@@ -266,7 +286,119 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 					labelWidth: 90
 				},
 				items: formItems,
+				buttons: [
+					{
+						text: "提交",
+						handler: btnHandler
+					}
+				]
+			})
+			
 
+			//appendTo detailPanel
+			var item = that.detailPanel.add({
+				title : "添加" + (leaf ? "项目 " : "分类 "),
+				inTab: true,
+				items: [
+					form
+				]
+			})
+
+			that.detailPanel.setActiveTab(item)
+		}
+
+		var _editItem = function(widget, e){
+			var parentMenu = widget.parentMenu, rawData = parentMenu.raw, leaf = parentMenu.leaf, method,
+				customerServer = Beet.constants.customerServer;
+			method = leaf ? customerServer.UpdateCTItem : customerServer.UpdateCTCategory;
+			var needUpdateId = leaf ? rawData.typeId : rawData.cid;
+			var formItems = [], actionName = leaf ? "customer_item" : "customer_category";
+			var btnHandler;
+			
+			//项目
+			if (leaf){
+				for (var k in Beet.cache.configArgs[actionName]){
+					var row = Beet.cache.configArgs[actionName][k],
+						hidden = row.FieldHidden, label = row.FieldLabel, name = row.FieldName,
+						item = {
+							fieldLabel : label,
+							name : name
+						}
+					switch (name){
+						case "CTTypeID":
+							item["value"] = rawData["typeId"]; 
+							break;
+						case "CTTypeName":
+							item["value"] = rawData["text"];
+							break;
+						case "CTCategoryID":
+							item["value"] = rawData["categoryId"];
+							break;
+						case "InputMode":
+							item["value"] = rawData["inputmode"];
+							break;	
+					}
+
+					formItems.push(item);
+				}
+				btnHandler = function(direction, e){
+					var me = this, form = me.up("form").getForm(), result = form.getValues();
+					//TODO
+					console.log(result);
+				}
+			}else{
+				for (var k in Beet.cache.configArgs[actionName]){
+					var row = Beet.cache.configArgs[actionName][k]
+						hidden = row.FieldHidden, label = row.FieldLabel, name = row.FieldName,
+						item = {
+							fieldLabel : label,
+							name : name
+						}
+					switch (name){
+						case "CTCategoryID":
+							item["value"] = rawData["cid"];
+							break;
+						case "CTCategoryName":
+							item["value"] = rawData["text"];
+							break;
+						case "ParentCategoryID":
+							item["value"] = rawData["pid"];
+							break;
+						case "ServiceType":
+							item["value"] = rawData["serviceType"];
+							break;
+					}
+
+					formItems.push(item)
+				}
+
+				btnHandler = function(direction, e){
+
+				}
+			}
+
+			//开始弹出面板
+			var form = new Ext.form.Panel({
+				frame: true,
+				border: 0,
+				plain: true,
+				layout: {
+					type: "vbox",
+					align: "stretch"
+				},
+				width: "100%",
+				defaultType: "textfield",
+				defaults: {
+					labelAlign: "left",
+					labelWidth: 90
+				},
+				items: formItems,
+				buttons: [
+					{
+						text: "提交修改",
+						handler: btnHandler
+					}
+				]
 			})
 			
 
@@ -360,9 +492,6 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 				closable: true
 			},
 			items: [
-				{
-					title: "添加分类",
-				}
 			]
 		});
 		return that.detailPanel;
