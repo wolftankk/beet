@@ -538,7 +538,7 @@ Ext.define("Beet.plugins.proxyClient", {
 			method.apply(that.b_scope, request);
 		}else{
 			//when b_method is array TODO
-			if (Ext.isArray(method)){
+			if (Ext.isArray(method) && method.length > 1){
 				var _cache = [], methods = method;//cache ajax data
 				var __method = methods.pop();
 				var ajax_callback = {
@@ -552,7 +552,7 @@ Ext.define("Beet.plugins.proxyClient", {
 						}
 					},
 					failure: function(error){
-						console.log(error);
+						Ext.Error.railse(error);
 					}
 				}
 				request.push(ajax_callback);

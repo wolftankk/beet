@@ -126,11 +126,11 @@ Beet.apps.Menu.Items = [
 						},
 						items: [
 							{
-								text: "会员级别",
+								text: "会员属性",
 								handler: function(){
 									var item = Beet.apps.Menu.Tabs["customerAttr"];
 									if (!item){
-										Beet.workspace.addPanel("customerAttr", "会员级别", {
+										Beet.workspace.addPanel("customerAttr", "会员属性", {
 											items: [
 												Ext.create("Beet.apps.Viewport.SettingViewPort")
 											]

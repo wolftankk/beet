@@ -1606,6 +1606,134 @@ MyCustomerSvc.prototype.DeleteCTItem = function(ACTItemID, __callback) {
     }
   }
   var uri = this.url
+  console.log(uri);
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
+}
+
+MyCustomerSvc.prototype.GetCustomerItemToJson = function(AWhere, __callback) {
+  var __message = {
+    "method" : "MyCustomerSvc.GetCustomerItemToJson",
+    "params" : {
+      "AWhere": AWhere
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      xdr : true,
+      success : function (o) {
+        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
+}
+
+MyCustomerSvc.prototype.AddCustomerItem = function(CustomerItemJson, __callback) {
+  var __message = {
+    "method" : "MyCustomerSvc.AddCustomerItem",
+    "params" : {
+      "CustomerItemJson": CustomerItemJson
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      xdr : true,
+      success : function (o) {
+        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  var uri = this.url
+  var mquest = function(){
+    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
+    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
+  }
+  YAHOO.util.Connect.transport("connection.swf");
+  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
+
+}
+
+MyCustomerSvc.prototype.UpdateCustomerItem = function(ACustomerID, CustomerItemJson, __callback) {
+  var __message = {
+    "method" : "MyCustomerSvc.UpdateCustomerItem",
+    "params" : {
+      "ACustomerID": ACustomerID,
+      "CustomerItemJson": CustomerItemJson
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      xdr : true,
+      success : function (o) {
+        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  var uri = this.url
   var mquest = function(){
     YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
     YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();

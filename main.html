@@ -29,7 +29,6 @@
 		<script type="text/javascript" src="js/beet/beet_plugins.js"></script>
 		<script type="text/javascript" src="js/beet/beet_setting.js"></script>
 
-
 		<script type="text/javascript" src="js/beet/beet.js"></script>
 	</head>
 	<body>
@@ -51,7 +50,7 @@
 							userId = Ext.util.Cookies.get("userId");
 							Ext.util.Cookies.set("sessionId", sid);
 							
-							//判断是否成功申请到sessionId
+							console.log(sid)
 							if (!userId || !sessionId){
 								window.location = "index.html";
 							}
