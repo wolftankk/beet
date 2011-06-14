@@ -568,3 +568,56 @@ Ext.define("Beet.plugins.proxyClient", {
 		Ext.destroy(this.reader, this.writer)
 	}
 })
+
+Ext.define("Beet.plugins.contextMenu", {
+	alias: "plugin.b_contextmenu",
+	mixins: {
+		observable: "Ext.util.Observable"
+	},
+	
+	contextMenu: [],
+
+	constructor: function(config){
+		var that = this;
+		Ext.apply(that, config);
+	},
+
+	//private
+	init: function(grid){
+		var that = this;
+		that.grid = grid;
+		that.view = grid.view;
+
+		that.initEvents();
+	},
+
+	initEvents: function(){
+		var that = this;
+		that.initMouseTriggers();
+	},
+	startPopupByClick: function(view, record, item, index, e){
+		this.Popup(record, e);
+	},
+	Popup: function(record, e){
+		//raw 原始数据
+		var that = this, data = record.data, raw = record.raw;
+		e.stopEvent();
+		if (!record.contextMenu){
+			record.contextMenu = new Ext.menu.Menu({
+				plain: true,
+				items: that.contextMenu,
+				rawData: raw
+			})
+		}
+		var xy = e.getXY();
+		record.contextMenu.showAt(xy);
+		return false;
+	},
+	//private
+	initMouseTriggers: function(){
+		var that = this, view = that.view;
+		//开始设定事件
+		//mon addManagedListener
+		that.mon(view, "beforeitemcontextmenu", that.startPopupByClick, that);
+	}
+});
