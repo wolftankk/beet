@@ -50,8 +50,10 @@ Ext.define("Beet.apps.Viewport.Setting.Store", {
 			//预处理
 			itemsData_Data = __preProcessData(itemsData_Data, "CTTypeID");
 			categoriesData_Data = __preProcessData(categoriesData_Data, "CTCategoryID");
+			Beet.cache.categoriesData = categoriesData_Data;//放入缓存中
 			//end
 			
+			//TODO 有可能有bug
 			;(function(){
 				for (var k in itemsData_Data){
 					var _o = itemsData_Data[k],
@@ -97,6 +99,7 @@ Ext.define("Beet.apps.Viewport.Setting.Store", {
 
 					return cid;
 				}else{
+					//TODO 第三层有bug
 					var _pid = __process(categoriesData_Data[pid]);
 					if (_cache[_pid]["children"][cid] == undefined){
 						_cache[_pid]["children"][cid] = item;
@@ -107,7 +110,8 @@ Ext.define("Beet.apps.Viewport.Setting.Store", {
 			for (var k in categoriesData_Data){
 				__process(categoriesData_Data[k])
 			}
-
+			
+			//BUG
 			var _toJson = function(data, target){
 				for (var b in data){
 					var o = data[b];
@@ -178,7 +182,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 		that.callParent(arguments);
 	},
 	createTreeList: function(){
-		var that = this, store = that.storeProxy
+		var that = this, store = that.storeProxy;
 		that.treeList = Ext.create("Ext.tree.Panel", {
 			store: store,
 			frame: true,
@@ -201,21 +205,59 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 				}
 			]
 		});
-		//add event
+
+		//serviceType comboBox
+		var st = Ext.create("Ext.data.Store", {
+			fields: ["attr", "name"],
+			data: [
+				{"attr" : "{C3DCAA88-D92F-435F-96B2-50BDC665F407}", "name" : "美容"},
+				{ "attr" : "{BC6B8E96-51A4-40EB-9896-2BC26E97FAE4}", "name" : "美发"},
+				{ "attr" : "{8CB1DD70-0669-4421-B9BF-EB20015FB03D}", "name" : "瑜伽"},
+				{ "attr" : "{BA33BC91-FE7F-44A0-8C9D-D53147992B0E}", "name" : "美甲"}
+			]
+		});
+
+		var inputmodeStore = Ext.create("Ext.data.Store", {
+			fields: ["attr", "name"],
+			data: [
+				{ attr: 0, name : "文本"},
+				{ attr: 1, name : "单选"},
+				{ attr: 2, name: "多选"}
+			]	
+		})
+		
 			
 		//click event
 		var _itemClick = function(view, record, item, index, e, options){
 
 		}
 
-		var _addItem = function(widget, e){
-			var parentMenu = widget.parentMenu, rawData = parentMenu.raw, leaf = parentMenu.leaf, method,
+		var _addItem = function(widget, e, _type){
+			var parentMenu = widget.parentMenu, rawData = parentMenu.raw, leaf = (_type == "category" ? false : true), method,
 				customerServer = Beet.constants.customerServer;
 			method = leaf ? customerServer.UpdateCTItem : customerServer.UpdateCTCategory;
-			var needUpdateId = leaf ? rawData.typeId : rawData.cid;
 			var formItems = [], actionName = leaf ? "customer_item" : "customer_category";
 			var btnHandler;
 			
+			//categoriesData store
+			var categoryStore = (function(){
+				var _data = [];
+				if (!leaf){
+					_data.push({ "attr" : -1, "name" : "客户属性"});
+				}
+				if (Beet.cache.categoriesData){
+					for (var k in Beet.cache.categoriesData){
+						var _d = Beet.cache.categoriesData[k];
+						_data.push({ attr : _d.CTCategoryID, name: _d.CTCategoryName });
+					}
+				}
+
+				return Ext.create("Ext.data.Store", {
+					fields: ["attr", "name"],
+					data : _data
+				});
+			})();
+
 			//项目
 			if (leaf){
 				for (var k in Beet.cache.configArgs[actionName]){
@@ -225,23 +267,61 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 							fieldLabel : label,
 							name : name
 						}
-					switch (name){
-						case "CTTypeID":
-							break;
-						case "CTTypeName":
-							break;
-						case "CTCategoryID":
-							break;
-						case "InputMode":
-							break;	
+					if (name == "CTTypeID"){
+						hidden = true;
 					}
 
-					formItems.push(item);
+					if (!hidden){
+						switch (name){
+							case "CTTypeName":
+								break;
+							case "CTCategoryID":
+								item = Ext.create("Ext.form.ComboBox", {
+									fieldLabel: label,
+									store: categoryStore,
+									name: name,
+									queryMode: "local",
+									displayField: "name",
+									valueField: "attr"	
+								});
+								break;
+							case "InputMode":
+								item = Ext.create("Ext.form.ComboBox", {
+									fieldLabel: label,
+									store: inputmodeStore,
+									name: name,
+									queryMode: "local",
+									displayField: "name",
+									valueField: "attr"	
+								})
+								break;	
+						}
+
+						formItems.push(item);
+					}
 				}
 				btnHandler = function(direction, e){
 					var me = this, form = me.up("form").getForm(), result = form.getValues();
-					//TODO
-					console.log(result);
+
+					var needSubmitData = Ext.JSON.encode(result);
+
+					customerServer.AddCTItem(needSubmitData, {
+						success: function(uid){
+							if (uid > -1){
+								Ext.MessageBox.show({
+									title: "添加项目成功",
+									msg : "添加项目" + result["CTTypeName"] + "成功",
+									buttons: Ext.MessageBox.OK	
+								});
+							}else{
+								form.reset();
+								Ext.MessageBox.alert("添加失败", "添加分类失败");
+							}
+						},
+						failure: function(error){
+							Ext.Error.railse(error);
+						}
+					})
 				}
 			}else{
 				for (var k in Beet.cache.configArgs[actionName]){
@@ -251,22 +331,65 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 							fieldLabel : label,
 							name : name
 						}
-					switch (name){
-						case "CTCategoryID":
-							break;
-						case "CTCategoryName":
-							break;
-						case "ParentCategoryID":
-							break;
-						case "ServiceType":
-							break;
+
+					if (name == "CTCategoryID"){
+						hidden = true;
 					}
 
-					formItems.push(item)
+					if (!hidden){
+						switch (name){
+							case "CTCategoryName":
+								break;
+							case "ParentCategoryID":
+								item = Ext.create("Ext.form.ComboBox", {
+									fieldLabel: label,
+									store: categoryStore,
+									name: name,
+									queryMode: "local",
+									displayField: "name",
+									valueField: "attr"	
+								});
+								break;
+							case "ServiceType":
+								//重置item
+								item = Ext.create("Ext.form.ComboBox", {
+									fieldLabel: label,
+									store: st,
+									name: "ServiceType",
+									queryMode: "local",
+									displayField: "name",
+									valueField: "attr"	
+								})
+								break;
+						}
+
+						formItems.push(item)
+					}
 				}
-
 				btnHandler = function(direction, e){
+					var me = this, form = me.up("form").getForm(), result = form.getValues();
+					if (result["ParentCategoryID"] == ""){
+						result["ParentCategoryID"] = -1;
+					}
+					var needSubmitData = Ext.JSON.encode(result);
 
+					customerServer.AddCTCategory(needSubmitData, {
+						success: function(uid){
+							if (uid > -1){
+								Ext.MessageBox.show({
+									title: "添加属性成功",
+									msg : "添加属性" + result["CTCategoryName"] + "成功",
+									buttons: Ext.MessageBox.OK	
+								});
+								form.reset();
+							}else{
+								Ext.MessageBox.alert("添加失败", "添加属性失败");
+							}
+						},
+						failure: function(error){
+							Ext.Error.railse(error);
+						}
+					})
 				}
 			}
 
@@ -276,8 +399,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 				border: 0,
 				plain: true,
 				layout: {
-					type: "vbox",
-					align: "stretch"
+					type: "vbox"
 				},
 				width: "100%",
 				defaultType: "textfield",
@@ -319,8 +441,14 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 			if (leaf){
 				for (var k in Beet.cache.configArgs[actionName]){
 					var row = Beet.cache.configArgs[actionName][k],
-						hidden = row.FieldHidden, label = row.FieldLabel, name = row.FieldName,
-						item = {
+						hidden = row.FieldHidden, label = row.FieldLabel, name = row.FieldName;
+						
+						//block
+						if (name == ""){
+
+						}
+
+						var item = {
 							fieldLabel : label,
 							name : name
 						}
@@ -349,27 +477,35 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 			}else{
 				for (var k in Beet.cache.configArgs[actionName]){
 					var row = Beet.cache.configArgs[actionName][k]
-						hidden = row.FieldHidden, label = row.FieldLabel, name = row.FieldName,
-						item = {
+						hidden = row.FieldHidden, label = row.FieldLabel, name = row.FieldName;
+						
+					//block
+					if (name == "CTCategoryID"){
+						hidden = true;
+					}
+					
+					if (!hidden){
+						var item = {
 							fieldLabel : label,
 							name : name
 						}
-					switch (name){
-						case "CTCategoryID":
-							item["value"] = rawData["cid"];
-							break;
-						case "CTCategoryName":
-							item["value"] = rawData["text"];
-							break;
-						case "ParentCategoryID":
-							item["value"] = rawData["pid"];
-							break;
-						case "ServiceType":
-							item["value"] = rawData["serviceType"];
-							break;
-					}
+						switch (name){
+							case "CTCategoryID":
+								item["value"] = rawData["cid"];
+								break;
+							case "CTCategoryName":
+								item["value"] = rawData["text"];
+								break;
+							case "ParentCategoryID":
+								item["value"] = rawData["pid"];
+								break;
+							case "ServiceType":
+								item["value"] = rawData["serviceType"];
+								break;
+						}
 
-					formItems.push(item)
+						formItems.push(item)
+					}
 				}
 
 				btnHandler = function(direction, e){
@@ -453,9 +589,21 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 
 			if (!record.contextMenu){
 				record.contextMenu = Ext.create("Ext.menu.Menu", {
-					plain: true,
 					items: [
-						{text: "添加", handler: _addItem},
+						{	
+							text: "添加", 
+							menu: {
+								showSeparator: true,
+								items: [
+									{text: "添加分类", handler: function(direction, e){
+										_addItem(direction, e, "category")	
+									}},
+									{text: "添加项目", handler: function(direction, e){
+										_addItem(direction, e, "type")	
+									}}
+								]
+							}
+						},
 						{text: "编辑", handler: _editItem, disabled: editDisabled},
 						{text: "删除", handler: _delItem, disabled: editDisabled}
 					],

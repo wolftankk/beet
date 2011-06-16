@@ -16,6 +16,13 @@ Beet.constants = {
 		"{BA33BC91-FE7F-44A0-8C9D-D53147992B0E}" : "美甲"
 	},
 
+	CTInputMode : {
+		0 : "textfield",
+		1 : "radio",
+		2 : "checkboxgroup"
+	},
+
+	/*
 	RES_CUSTOMER_IID: '{83456921-B754-4F13-B858-22E59EC1F827}',//客户表
 	RES_CUSTERMTYPE_IID: '{033CB335-645E-485F-AE1E-CB1C241AEB21}',//客户项目		
 	ACT_ALLACT_IID: '{B6CC3DDC-4D92-4792-A667-311568B80AB9}',
@@ -23,6 +30,7 @@ Beet.constants = {
 	ACT_UPDATE_IID: '{C8D8D41F-6885-4C66-A25D-58A6E4D4F116}',
 	ACT_DELETE_IID: '{593DD697-70AC-44AE-892E-5588041054A1}',
 	ACT_SELECT_IID: '{D61570E6-EB82-4B22-A218-8881C71D692A}',
+	*/
 
 	privileges: {
 		customer_addBtn : [
@@ -42,7 +50,6 @@ if (!Beet.constants.now){
 //临时数据表
 Ext.namespace("Beet.cache");
 Beet.cache.Users = {};
-
 
 //plugin
 Ext.namespace("Beet.plugins");
