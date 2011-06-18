@@ -25,9 +25,8 @@ DataAbstractService.prototype.GetSchema = function(aFilter, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -46,14 +45,7 @@ DataAbstractService.prototype.GetSchema = function(aFilter, __callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 DataAbstractService.prototype.GetData = function(aTableNameArray, aTableRequestInfoArray, __callback) {
@@ -68,9 +60,8 @@ DataAbstractService.prototype.GetData = function(aTableNameArray, aTableRequestI
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -89,14 +80,7 @@ DataAbstractService.prototype.GetData = function(aTableNameArray, aTableRequestI
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 DataAbstractService.prototype.UpdateData = function(aDelta, __callback) {
@@ -110,9 +94,8 @@ DataAbstractService.prototype.UpdateData = function(aDelta, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -131,14 +114,7 @@ DataAbstractService.prototype.UpdateData = function(aDelta, __callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 DataAbstractService.prototype.ExecuteCommand = function(aCommandName, aParameterArray, __callback) {
@@ -153,9 +129,8 @@ DataAbstractService.prototype.ExecuteCommand = function(aCommandName, aParameter
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -174,14 +149,7 @@ DataAbstractService.prototype.ExecuteCommand = function(aCommandName, aParameter
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 DataAbstractService.prototype.ExecuteCommandEx = function(aCommandName, aInputParameters, __callback) {
@@ -196,9 +164,8 @@ DataAbstractService.prototype.ExecuteCommandEx = function(aCommandName, aInputPa
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -217,14 +184,7 @@ DataAbstractService.prototype.ExecuteCommandEx = function(aCommandName, aInputPa
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 DataAbstractService.prototype.GetTableSchema = function(aTableNameArray, __callback) {
@@ -238,9 +198,8 @@ DataAbstractService.prototype.GetTableSchema = function(aTableNameArray, __callb
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -259,14 +218,7 @@ DataAbstractService.prototype.GetTableSchema = function(aTableNameArray, __callb
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 DataAbstractService.prototype.GetCommandSchema = function(aCommandNameArray, __callback) {
@@ -280,9 +232,8 @@ DataAbstractService.prototype.GetCommandSchema = function(aCommandNameArray, __c
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -301,14 +252,7 @@ DataAbstractService.prototype.GetCommandSchema = function(aCommandNameArray, __c
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 DataAbstractService.prototype.SQLGetData = function(aSQLText, aIncludeSchema, aMaxRecords, __callback) {
@@ -324,9 +268,8 @@ DataAbstractService.prototype.SQLGetData = function(aSQLText, aIncludeSchema, aM
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -345,14 +288,7 @@ DataAbstractService.prototype.SQLGetData = function(aSQLText, aIncludeSchema, aM
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 DataAbstractService.prototype.SQLGetDataEx = function(aSQLText, aIncludeSchema, aMaxRecords, aDynamicWhereXML, __callback) {
@@ -369,9 +305,8 @@ DataAbstractService.prototype.SQLGetDataEx = function(aSQLText, aIncludeSchema, 
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -390,14 +325,7 @@ DataAbstractService.prototype.SQLGetDataEx = function(aSQLText, aIncludeSchema, 
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 DataAbstractService.prototype.SQLExecuteCommand = function(aSQLText, __callback) {
@@ -411,9 +339,8 @@ DataAbstractService.prototype.SQLExecuteCommand = function(aSQLText, __callback)
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -432,14 +359,7 @@ DataAbstractService.prototype.SQLExecuteCommand = function(aSQLText, __callback)
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 DataAbstractService.prototype.SQLExecuteCommandEx = function(aSQLText, aDynamicWhereXML, __callback) {
@@ -454,9 +374,8 @@ DataAbstractService.prototype.SQLExecuteCommandEx = function(aSQLText, aDynamicW
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -475,14 +394,7 @@ DataAbstractService.prototype.SQLExecuteCommandEx = function(aSQLText, aDynamicW
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 DataAbstractService.prototype.GetDatasetScripts = function(DatasetNames, __callback) {
@@ -496,9 +408,8 @@ DataAbstractService.prototype.GetDatasetScripts = function(DatasetNames, __callb
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -517,14 +428,7 @@ DataAbstractService.prototype.GetDatasetScripts = function(DatasetNames, __callb
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 DataAbstractService.prototype.RegisterForDataChangeNotification = function(aTableName, __callback) {
@@ -538,9 +442,8 @@ DataAbstractService.prototype.RegisterForDataChangeNotification = function(aTabl
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -559,14 +462,7 @@ DataAbstractService.prototype.RegisterForDataChangeNotification = function(aTabl
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 DataAbstractService.prototype.UnregisterForDataChangeNotification = function(aTableName, __callback) {
@@ -580,9 +476,8 @@ DataAbstractService.prototype.UnregisterForDataChangeNotification = function(aTa
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -601,14 +496,7 @@ DataAbstractService.prototype.UnregisterForDataChangeNotification = function(aTa
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 // End of service: DataAbstractService
@@ -629,9 +517,8 @@ SimpleLoginService.prototype.Login = function(aUserID, aPassword, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -650,14 +537,7 @@ SimpleLoginService.prototype.Login = function(aUserID, aPassword, __callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 // End of service: SimpleLoginService
@@ -677,9 +557,8 @@ BaseLoginService.prototype.LoginEx = function(aLoginString, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -698,14 +577,7 @@ BaseLoginService.prototype.LoginEx = function(aLoginString, __callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 BaseLoginService.prototype.Logout = function(__callback) {
@@ -718,9 +590,8 @@ BaseLoginService.prototype.Logout = function(__callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -739,14 +610,7 @@ BaseLoginService.prototype.Logout = function(__callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 // End of service: BaseLoginService
@@ -768,9 +632,8 @@ MultiDbLoginService.prototype.Login = function(aUserID, aPassword, aConnectionNa
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -789,14 +652,7 @@ MultiDbLoginService.prototype.Login = function(aUserID, aPassword, aConnectionNa
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 // End of service: MultiDbLoginService
@@ -815,9 +671,8 @@ MultiDbLoginServiceV5.prototype.GetConnectionNames = function(__callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -836,14 +691,7 @@ MultiDbLoginServiceV5.prototype.GetConnectionNames = function(__callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MultiDbLoginServiceV5.prototype.GetDefaultConnectionName = function(__callback) {
@@ -856,9 +704,8 @@ MultiDbLoginServiceV5.prototype.GetDefaultConnectionName = function(__callback) 
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -877,14 +724,7 @@ MultiDbLoginServiceV5.prototype.GetDefaultConnectionName = function(__callback) 
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 // End of service: MultiDbLoginServiceV5
@@ -903,9 +743,8 @@ MyCustomerSvc.prototype.GetServiceItems = function(__callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -924,14 +763,7 @@ MyCustomerSvc.prototype.GetServiceItems = function(__callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.GetOperatorList = function(AResourceID, __callback) {
@@ -945,9 +777,8 @@ MyCustomerSvc.prototype.GetOperatorList = function(AResourceID, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -966,14 +797,7 @@ MyCustomerSvc.prototype.GetOperatorList = function(AResourceID, __callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.CheckPrivilege = function(AOperatorID, AResourceID, __callback) {
@@ -988,9 +812,8 @@ MyCustomerSvc.prototype.CheckPrivilege = function(AOperatorID, AResourceID, __ca
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1009,14 +832,7 @@ MyCustomerSvc.prototype.CheckPrivilege = function(AOperatorID, AResourceID, __ca
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.GetGroupListFromOperatorID = function(AOperatorID, IsName, __callback) {
@@ -1031,9 +847,8 @@ MyCustomerSvc.prototype.GetGroupListFromOperatorID = function(AOperatorID, IsNam
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1052,14 +867,7 @@ MyCustomerSvc.prototype.GetGroupListFromOperatorID = function(AOperatorID, IsNam
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.AddCustomer = function(ACustomerJson, __callback) {
@@ -1073,9 +881,8 @@ MyCustomerSvc.prototype.AddCustomer = function(ACustomerJson, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1094,14 +901,7 @@ MyCustomerSvc.prototype.AddCustomer = function(ACustomerJson, __callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.GetCustomerToJSON = function(AWhere, bOnlySchema, __callback) {
@@ -1116,9 +916,8 @@ MyCustomerSvc.prototype.GetCustomerToJSON = function(AWhere, bOnlySchema, __call
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1137,14 +936,7 @@ MyCustomerSvc.prototype.GetCustomerToJSON = function(AWhere, bOnlySchema, __call
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.UpdateCustomer = function(ACustomerID, UpdateData, __callback) {
@@ -1159,9 +951,8 @@ MyCustomerSvc.prototype.UpdateCustomer = function(ACustomerID, UpdateData, __cal
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1180,14 +971,7 @@ MyCustomerSvc.prototype.UpdateCustomer = function(ACustomerID, UpdateData, __cal
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.DeleteCustomer = function(ACustomerID, __callback) {
@@ -1201,9 +985,8 @@ MyCustomerSvc.prototype.DeleteCustomer = function(ACustomerID, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1222,14 +1005,7 @@ MyCustomerSvc.prototype.DeleteCustomer = function(ACustomerID, __callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.GetCTTypeDataToJSON = function(AWhere, bOnlySchema, __callback) {
@@ -1244,9 +1020,8 @@ MyCustomerSvc.prototype.GetCTTypeDataToJSON = function(AWhere, bOnlySchema, __ca
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1265,14 +1040,7 @@ MyCustomerSvc.prototype.GetCTTypeDataToJSON = function(AWhere, bOnlySchema, __ca
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.GetCTCategoryDataTOJSON = function(AWhere, bOnlySchema, __callback) {
@@ -1287,9 +1055,8 @@ MyCustomerSvc.prototype.GetCTCategoryDataTOJSON = function(AWhere, bOnlySchema, 
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1308,14 +1075,7 @@ MyCustomerSvc.prototype.GetCTCategoryDataTOJSON = function(AWhere, bOnlySchema, 
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.AddCTCategory = function(ACTCategoryJson, __callback) {
@@ -1329,9 +1089,8 @@ MyCustomerSvc.prototype.AddCTCategory = function(ACTCategoryJson, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1350,14 +1109,7 @@ MyCustomerSvc.prototype.AddCTCategory = function(ACTCategoryJson, __callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.UpdateCTCategory = function(ACategoryID, UpdateJson, __callback) {
@@ -1372,9 +1124,8 @@ MyCustomerSvc.prototype.UpdateCTCategory = function(ACategoryID, UpdateJson, __c
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1393,14 +1144,7 @@ MyCustomerSvc.prototype.UpdateCTCategory = function(ACategoryID, UpdateJson, __c
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.DeleteCTCategory = function(ACategoryID, __callback) {
@@ -1414,9 +1158,8 @@ MyCustomerSvc.prototype.DeleteCTCategory = function(ACategoryID, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1435,14 +1178,7 @@ MyCustomerSvc.prototype.DeleteCTCategory = function(ACategoryID, __callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.GetCTItemDataToJSON = function(AWhere, bOnlySchema, __callback) {
@@ -1457,9 +1193,8 @@ MyCustomerSvc.prototype.GetCTItemDataToJSON = function(AWhere, bOnlySchema, __ca
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1478,14 +1213,7 @@ MyCustomerSvc.prototype.GetCTItemDataToJSON = function(AWhere, bOnlySchema, __ca
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.AddCTItem = function(ACTItemJson, __callback) {
@@ -1499,9 +1227,8 @@ MyCustomerSvc.prototype.AddCTItem = function(ACTItemJson, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1520,14 +1247,7 @@ MyCustomerSvc.prototype.AddCTItem = function(ACTItemJson, __callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.UpdateCTItem = function(ACTItemID, UpdateJson, __callback) {
@@ -1542,9 +1262,8 @@ MyCustomerSvc.prototype.UpdateCTItem = function(ACTItemID, UpdateJson, __callbac
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1563,14 +1282,7 @@ MyCustomerSvc.prototype.UpdateCTItem = function(ACTItemID, UpdateJson, __callbac
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.DeleteCTItem = function(ACTItemID, __callback) {
@@ -1584,9 +1296,8 @@ MyCustomerSvc.prototype.DeleteCTItem = function(ACTItemID, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1605,15 +1316,7 @@ MyCustomerSvc.prototype.DeleteCTItem = function(ACTItemID, __callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  console.log(uri);
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.GetCustomerItemToJson = function(AWhere, __callback) {
@@ -1627,9 +1330,8 @@ MyCustomerSvc.prototype.GetCustomerItemToJson = function(AWhere, __callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1648,14 +1350,7 @@ MyCustomerSvc.prototype.GetCustomerItemToJson = function(AWhere, __callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.AddCustomerItem = function(CustomerItemJson, __callback) {
@@ -1669,9 +1364,8 @@ MyCustomerSvc.prototype.AddCustomerItem = function(CustomerItemJson, __callback)
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1690,14 +1384,7 @@ MyCustomerSvc.prototype.AddCustomerItem = function(CustomerItemJson, __callback)
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCustomerSvc.prototype.UpdateCustomerItem = function(ACustomerID, CustomerItemJson, __callback) {
@@ -1712,9 +1399,8 @@ MyCustomerSvc.prototype.UpdateCustomerItem = function(ACustomerID, CustomerItemJ
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1733,14 +1419,7 @@ MyCustomerSvc.prototype.UpdateCustomerItem = function(ACustomerID, CustomerItemJ
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 // End of service: MyCustomerSvc
@@ -1763,9 +1442,8 @@ CTLoginSvc.prototype.Login = function(UserName, Password, Language, ConnectionNa
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1784,14 +1462,7 @@ CTLoginSvc.prototype.Login = function(UserName, Password, Language, ConnectionNa
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 CTLoginSvc.prototype.Logout = function(__callback) {
@@ -1804,9 +1475,8 @@ CTLoginSvc.prototype.Logout = function(__callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1825,14 +1495,7 @@ CTLoginSvc.prototype.Logout = function(__callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 CTLoginSvc.prototype.GetConnectionNames = function(__callback) {
@@ -1845,9 +1508,8 @@ CTLoginSvc.prototype.GetConnectionNames = function(__callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1866,14 +1528,7 @@ CTLoginSvc.prototype.GetConnectionNames = function(__callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 CTLoginSvc.prototype.GetUserPrivileges = function(__callback) {
@@ -1886,9 +1541,8 @@ CTLoginSvc.prototype.GetUserPrivileges = function(__callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1907,14 +1561,7 @@ CTLoginSvc.prototype.GetUserPrivileges = function(__callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 CTLoginSvc.prototype.GetSessionID = function(__callback) {
@@ -1927,9 +1574,8 @@ CTLoginSvc.prototype.GetSessionID = function(__callback) {
   if (__callback) {
     __callbacks = {
       callback : __callback,
-      xdr : true,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1948,14 +1594,7 @@ CTLoginSvc.prototype.GetSessionID = function(__callback) {
       timeout : 30000
     }
   }
-  var uri = this.url
-  var mquest = function(){
-    YAHOO.util.Connect.asyncRequest("POST", uri, __callbacks,YAHOO.util.Lang.JSON.stringify(__message));
-    YAHOO.util.Connect.xdrReadyEvent.unsubscribeAll();
-  }
-  YAHOO.util.Connect.transport("connection.swf");
-  YAHOO.util.Connect.xdrReadyEvent.subscribe(mquest);
-
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 // End of service: CTLoginSvc
