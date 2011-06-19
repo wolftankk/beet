@@ -988,7 +988,6 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 								}
 							},
 							failure: function(error){
-								console.log(error);
 								Ext.Error.raise("创建用户失败");
 							}
 						});
