@@ -1,6 +1,7 @@
 Ext.namespace("Beet.apps.Viewport.Setting");
 Ext.define("Beet.apps.Viewport.Setting.Store", {
 	extend: "Ext.data.TreeStore",
+	autoLoad: true,
 	root: {
 		text: "客户属性",
 		id: "src",
@@ -55,9 +56,6 @@ Ext.define("Beet.apps.Viewport.Setting.Store", {
 	},
 });
 
-//TODO: 
-// BUG: 关闭tab 再打开 store无法初始化
-//
 Ext.define("Beet.apps.Viewport.SettingViewPort", {
 	extend: "Ext.panel.Panel",
 	layout: {
@@ -89,6 +87,11 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 	afterRender: function(){
 		var that = this;
 		that.callParent(arguments);
+	},
+	
+	refreshTreeList: function(){
+		var that = this;
+		that.storeProxy.load();
 	},
 
 	createTreeList: function(){
@@ -255,6 +258,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 									buttons: Ext.MessageBox.OK	
 								});
 								form.reset();
+								that.refreshTreeList();
 							}else{
 								Ext.MessageBox.alert("添加失败", "添加分类失败");
 							}
@@ -323,6 +327,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 									buttons: Ext.MessageBox.OK	
 								});
 								form.reset();
+								that.refreshTreeList();
 							}else{
 								Ext.MessageBox.alert("添加失败", "添加属性失败");
 							}
@@ -449,7 +454,6 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 				}
 				btnHandler = function(direction, e){
 					var me = this, form = me.up("form").getForm(), result = form.getValues();
-					console.log(result);
 					var needSubmitData = Ext.JSON.encode(result);
 
 					Ext.MessageBox.show({
@@ -465,6 +469,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 										}else{
 											Ext.MessageBox.alert("提示", "编辑项目失败");
 										}
+										that.refreshTreeList();
 									},
 									failure: function(error){
 										Ext.Error.raise(error);
@@ -523,7 +528,6 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 					if (result["ParentCategoryID"] == ""){
 						result["ParentCategoryID"] = -1;
 					}
-					console.log(result);
 					var needSubmitData = Ext.JSON.encode(result);
 					Ext.MessageBox.show({
 						title: "提示",
@@ -538,6 +542,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 										}else{
 											Ext.MessageBox.alert("提示", "编辑分类失败");
 										}
+										that.refreshTreeList();
 									},
 									failure: function(error){
 										Ext.Error.raise(error);
@@ -605,8 +610,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 									msg: "删除" + (leaf ? "项目" : "分类") + ": " + rawData.text + "成功",
 									buttons: Ext.MessageBox.OK,
 									fn: function(btn){
-										//需要刷新页面 TODO
-										//that.storeProxy.loadPage(that.storeProxy.currentPage);
+										that.refreshTreeList();
 									}
 								})	
 							},
