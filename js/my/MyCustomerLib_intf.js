@@ -1008,12 +1008,12 @@ MyCustomerSvc.prototype.DeleteCustomer = function(ACustomerID, __callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyCustomerSvc.prototype.GetCTTypeDataToJSON = function(AWhere, bOnlySchema, __callback) {
+MyCustomerSvc.prototype.GetCTTypeDataToJSON = function(AWhere, WhereIsCategory, __callback) {
   var __message = {
     "method" : "MyCustomerSvc.GetCTTypeDataToJSON",
     "params" : {
       "AWhere": AWhere,
-      "bOnlySchema": bOnlySchema
+      "WhereIsCategory": WhereIsCategory
       }
   }
   var __callbacks = null;
@@ -1452,7 +1452,7 @@ CTLoginSvc.prototype.Login = function(UserName, Password, Language, ConnectionNa
           if ((typeof this.callback == "object") && this.callback.failure)
             this.callback.success(__result.result);
           else
-            this.callback(__result.result);
+            this.callback(__result.result);		    
         }
       },
       failure : function (o) {
@@ -1486,13 +1486,15 @@ CTLoginSvc.prototype.Logout = function(__callback) {
             this.callback.success(__result.result);
           else
             this.callback(__result.result);
-        }
+        };
+		Ext.util.Cookies.clear("_sid");
       },
       failure : function (o) {
         if ((typeof this.callback == "object") && this.callback.failure) 
             this.callback.failure(o);
+		Ext.util.Cookies.clear("_sid");
       },
-      timeout : 30000
+      timeout : 30000,	  
     }
   }
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));

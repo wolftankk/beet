@@ -8,134 +8,135 @@ Ext.define("Beet.apps.Viewport.Setting.Store", {
 	},
 	proxy: {
 		type: "b_proxy",
-		b_method: [Beet.constants.customerServer.GetCTCategoryDataTOJSON, Beet.constants.customerServer.GetCTItemDataToJSON],
+		//b_method: [Beet.constants.customerServer.GetCTCategoryDataTOJSON, Beet.constants.customerServer.GetCTItemDataToJSON],
+		b_method: Beet.constants.customerServer.GetCTTypeDataToJSON,
 		filters: {
 			b_onlySchema: false
 		},
 		preProcessData: function(data){
 			//开始做数据处理
 			//0 itemData 1 category 
-			var itemsData = Ext.JSON.decode(data[0]), categoriesData = Ext.JSON.decode(data[1]);
-			
-			var itemsData_Data = itemsData["Data"], itemsData_Meta = itemsData["MetaData"];
-			var categoriesData_Data = categoriesData["Data"], categoriesData_Meta = categoriesData["MetaData"];
-			Beet.cache["configArgs"] = Beet.cache["configArgs"] || {};
-			Beet.cache["configArgs"]["customer_category"] = categoriesData_Meta;
-			Beet.cache["configArgs"]["customer_item"] = itemsData_Meta;
+		//	var itemsData = Ext.JSON.decode(data[0]), categoriesData = Ext.JSON.decode(data[1]);
+		//	
+		//	var itemsData_Data = itemsData["Data"], itemsData_Meta = itemsData["MetaData"];
+		//	var categoriesData_Data = categoriesData["Data"], categoriesData_Meta = categoriesData["MetaData"];
+		//	Beet.cache["configArgs"] = Beet.cache["configArgs"] || {};
+		//	Beet.cache["configArgs"]["customer_category"] = categoriesData_Meta;
+		//	Beet.cache["configArgs"]["customer_item"] = itemsData_Meta;
 
-			//add -1
-			//parentId 根父类
-			var bucket = [], parentId = -1;
-			/**
-			 * 预处理数据, 将数据根据_id存储为object
-			 * @param {Object} data 原始数据
-			 * @param {String} _id 需要提取的标签头
-			 *
-			 * @return {Object} __temp 返回处理后的函数
-			 */
-			var __preProcessData = function(data, _id){
-				var t = 0, __temp = {};
-				while (true){
-					if (data[t] == undefined){
-						break;
-					}	
-					var id = data[t][_id];
-					__temp[id] = data[t];
-					t++;
-				}
+		//	//add -1
+		//	//parentId 根父类
+		//	var bucket = [], parentId = -1;
+		//	/**
+		//	 * 预处理数据, 将数据根据_id存储为object
+		//	 * @param {Object} data 原始数据
+		//	 * @param {String} _id 需要提取的标签头
+		//	 *
+		//	 * @return {Object} __temp 返回处理后的函数
+		//	 */
+		//	var __preProcessData = function(data, _id){
+		//		var t = 0, __temp = {};
+		//		while (true){
+		//			if (data[t] == undefined){
+		//				break;
+		//			}	
+		//			var id = data[t][_id];
+		//			__temp[id] = data[t];
+		//			t++;
+		//		}
 
-				return __temp;
-			}
-			
-			//预处理
-			itemsData_Data = __preProcessData(itemsData_Data, "CTTypeID");
-			categoriesData_Data = __preProcessData(categoriesData_Data, "CTCategoryID");
-			Beet.cache.categoriesData = categoriesData_Data;//放入缓存中
-			//end
-			
-			//TODO 有可能有bug
-			;(function(){
-				for (var k in itemsData_Data){
-					var _o = itemsData_Data[k],
-						cid = _o.CTCategoryID,
-						typeId = _o.CTTypeID,
-						name = _o.CTTypeName,
-						inputmode = _o.InputMode,
-						item = {
-							text : name,
-							leaf : true,
-							categoryId : cid,
-							typeId : typeId,
-							inputmode : inputmode	
-						}
+		//		return __temp;
+		//	}
+		//	
+		//	//预处理
+		//	itemsData_Data = __preProcessData(itemsData_Data, "CTTypeID");
+		//	categoriesData_Data = __preProcessData(categoriesData_Data, "CTCategoryID");
+		//	Beet.cache.categoriesData = categoriesData_Data;//放入缓存中
+		//	//end
+		//	
+		//	//TODO 有可能有bug
+		//	;(function(){
+		//		for (var k in itemsData_Data){
+		//			var _o = itemsData_Data[k],
+		//				cid = _o.CTCategoryID,
+		//				typeId = _o.CTTypeID,
+		//				name = _o.CTTypeName,
+		//				inputmode = _o.InputMode,
+		//				item = {
+		//					text : name,
+		//					leaf : true,
+		//					categoryId : cid,
+		//					typeId : typeId,
+		//					inputmode : inputmode	
+		//				}
 
-					if (cid == parentId){
-						bucket.push(item);
-					}else{
-						var o_data = categoriesData_Data[cid];
-						o_data["children"] = o_data["children"] || {}
-						o_data["children"]["items"] = o_data["children"]["items"] || [];
-						o_data["children"]["items"].push(item);
-					}
-				}
-			})()	
-			
-			var _cache = {};
-			var __process = function(o){
-				var cid = o.CTCategoryID, name = o.CTCategoryName, pid = o.ParentCategoryID, serviceType = o.ServiceType,
-					item = {
-						text : name,
-						cid : cid,
-						pid : pid,
-						serviceType : serviceType,
-						expanded: true,
-						children : o.children || {}
-					};
+		//			if (cid == parentId){
+		//				bucket.push(item);
+		//			}else{
+		//				var o_data = categoriesData_Data[cid];
+		//				o_data["children"] = o_data["children"] || {}
+		//				o_data["children"]["items"] = o_data["children"]["items"] || [];
+		//				o_data["children"]["items"].push(item);
+		//			}
+		//		}
+		//	})()	
+		//	
+		//	var _cache = {};
+		//	var __process = function(o){
+		//		var cid = o.CTCategoryID, name = o.CTCategoryName, pid = o.ParentCategoryID, serviceType = o.ServiceType,
+		//			item = {
+		//				text : name,
+		//				cid : cid,
+		//				pid : pid,
+		//				serviceType : serviceType,
+		//				expanded: true,
+		//				children : o.children || {}
+		//			};
 
-				if (pid == parentId){
-					if (_cache[cid] == undefined){
-						_cache[cid] = item;
-					}	
+		//		if (pid == parentId){
+		//			if (_cache[cid] == undefined){
+		//				_cache[cid] = item;
+		//			}	
 
-					return cid;
-				}else{
-					//TODO 第三层有bug
-					var _pid = __process(categoriesData_Data[pid]);
-					if (_cache[_pid]["children"][cid] == undefined){
-						_cache[_pid]["children"][cid] = item;
-					}
-				}
+		//			return cid;
+		//		}else{
+		//			//TODO 第三层有bug
+		//			var _pid = __process(categoriesData_Data[pid]);
+		//			if (_cache[_pid]["children"][cid] == undefined){
+		//				_cache[_pid]["children"][cid] = item;
+		//			}
+		//		}
 
-			}
-			for (var k in categoriesData_Data){
-				__process(categoriesData_Data[k])
-			}
-			
-			//BUG
-			var _toJson = function(data, target){
-				for (var b in data){
-					var o = data[b];
-					if (o["children"]){
-						var orign = o["children"], items;
-						if (orign["items"]){
-							items = orign["items"];
-							delete orign["items"];
-						}
+		//	}
+		//	for (var k in categoriesData_Data){
+		//		__process(categoriesData_Data[k])
+		//	}
+		//	
+		//	//BUG
+		//	var _toJson = function(data, target){
+		//		for (var b in data){
+		//			var o = data[b];
+		//			if (o["children"]){
+		//				var orign = o["children"], items;
+		//				if (orign["items"]){
+		//					items = orign["items"];
+		//					delete orign["items"];
+		//				}
 
-						o["children"] = [];
-						_toJson(orign, o["children"]);
-						if (items){
-							for (var c in items){
-								o["children"].push(items[c]);	
-							}
-						}
-					}
+		//				o["children"] = [];
+		//				_toJson(orign, o["children"]);
+		//				if (items){
+		//					for (var c in items){
+		//						o["children"].push(items[c]);	
+		//					}
+		//				}
+		//			}
 
-					target.push(o);
-				}
-			}
+		//			target.push(o);
+		//		}
+		//	}
 
-			_toJson(_cache, bucket);
+		//	_toJson(_cache, bucket);
 
 			return bucket;
 		},

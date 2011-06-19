@@ -72,15 +72,12 @@ Beet_connection = {
 				this.handleReadyState(o, callback);
 				
 				//preprocess
-				if (method.indexOf(".Login") == -1){
-					_sid = Ext.util.Cookies.get("_sid");
-					if (_sid){
-						var postData = Ext.JSON.decode(postData);
-						postData["id"] = _sid;
-						postData = Ext.JSON.encode(postData);
-					}
+				_sid = Ext.util.Cookies.get("_sid");
+				if (_sid || _sid!=""){
+					var postData = Ext.JSON.decode(postData);
+					postData["id"] = _sid;
+					postData = Ext.JSON.encode(postData);
 				}
-
 				o.conn.send(postData);
 
 				return o;
@@ -130,8 +127,9 @@ Beet_connection = {
 			responeObject = this.createResponseObject(o, args);
 			if (callback && callback.success){
 				var resp = Ext.JSON.decode(responeObject.responseText);
-				var _sid = Ext.util.Cookies.get("_sid");
-				if (!_sid || _sid == ""){
+
+				if (Ext.util.Cookies.get("firstRun")==null || Ext.util.Cookies.get("firstRun")){
+					var _sid = Ext.util.Cookies.get("_sid");
 					if (!resp["error"] || resp["error"] != ""){
 						_sid = resp["id"];
 						Ext.util.Cookies.set("_sid", _sid);

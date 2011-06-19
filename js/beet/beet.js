@@ -661,10 +661,12 @@ Beet.apps.Viewport.getColumnsData = function(__callback){
 
 Beet.apps.Viewport.getCTTypeData = function(__callback){
 	var customerServer = Beet.constants.customerServer;
-	customerServer.GetCTTypeDataToJSON("", false, {
+	customerServer.GetCTTypeDataToJSON("", true, {
 		success: function(data){
+			console.log(data);
 			data = Ext.JSON.decode(data);
-			data = data["Data"];
+			console.log(data);
+			/*
 			var list = {};
 			for (var k in data){
 				var _item = data[k],
@@ -691,12 +693,14 @@ Beet.apps.Viewport.getCTTypeData = function(__callback){
 			}
 			Beet.cache["CTTypeData"] = list;
 			__callback();
+			*/
 		},
 		failure: function(error){
-			Ext.Error.railse(error);
+			Ext.Error.raise(error);
 		}
 	})
 }
+
 
 Ext.define("Beet.apps.Viewport.AddUser", {
 	extend: "Ext.panel.Panel",

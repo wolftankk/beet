@@ -41,16 +41,22 @@
 					Beet.workspace = Ext.create("Beet.apps.Viewport");
 					
 					var customerLoginServer = Beet.constants.customerLoginServer, sessionId;
+					var userId = Ext.util.Cookies.get("userId");
+					sessionId = Ext.util.Cookies.get("_sid");
+					if (!userId || !sessionId){
+						window.location = "index.html";
+					}
+					/*
 					customerLoginServer.GetSessionID({
 						success: function(sid){
 							sessionId = sid;
-							userId = Ext.util.Cookies.get("userId");
-							Ext.util.Cookies.set("sessionId", sid);
+							Ext.util.Cookies.set("_sid", sid);
 							
 							console.log(sid)
 							if (!userId || !sessionId){
 								window.location = "index.html";
 							}
+
 						},
 						failure: function(error){
 							var message = error["message"].replaceAll("\x0d\x0a", "<br />");
@@ -64,6 +70,8 @@
 							});
 						}
 					});
+					 */
+					Beet.apps.Viewport.getCTTypeData();
 
 				});
 	

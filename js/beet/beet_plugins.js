@@ -552,7 +552,7 @@ Ext.define("Beet.plugins.proxyClient", {
 						}
 					},
 					failure: function(error){
-						Ext.Error.railse(error);
+						Ext.Error.raise(error);
 					}
 				}
 				request.push(ajax_callback);

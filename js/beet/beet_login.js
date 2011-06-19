@@ -84,6 +84,9 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 					var result = form.getValues();
 					var usr = result["username"], passwd = result["password"];	
 					var loginServer = Beet.constants.customerLoginServer;
+					//firstRun
+					//Ext.util.Cookies.set("firstRun", true);
+
 					loginServer.Login(usr, xxtea_encrypt(passwd), '', '', {
 						success: function(uid){
 							if (uid && uid != Beet.constants.FAILURE){
