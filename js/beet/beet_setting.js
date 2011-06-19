@@ -22,6 +22,7 @@ Ext.define("Beet.apps.Viewport.Setting.Store", {
 					var _item = {
 						text: _tmp["label"],
 						_id: _tmp["id"],
+						_pid: _tmp["pid"]
 					}
 					if (leaf){
 						_item["leaf"] = true;
@@ -175,17 +176,12 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 			});
 		}
 		
-		//click event
-		var _itemClick = function(view, record, item, index, e, options){
-
-		}
 
 		var _addItem = function(widget, e, _type){
 			var parentMenu = widget.parentMenu, rawData = parentMenu.raw, leaf = (_type == "category" ? false : true), method;
 			method = leaf ? customerServer.UpdateCTItem : customerServer.UpdateCTCategory;
 			var formItems = [], actionName = leaf ? "customer_item" : "customer_category";
 			var btnHandler;
-			//categoriesData store
 			var categoryStore = (function(){
 				var _data = [];
 				if (!leaf){
@@ -258,8 +254,8 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 									msg : "添加项目" + result["CTTypeName"] + "成功",
 									buttons: Ext.MessageBox.OK	
 								});
-							}else{
 								form.reset();
+							}else{
 								Ext.MessageBox.alert("添加失败", "添加分类失败");
 							}
 						},
@@ -372,13 +368,21 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 
 			that.detailPanel.setActiveTab(item)
 		}
+		
 
+		//编辑 分类/项目
+		///{{
 		var _editItem = function(widget, e){
 			var parentMenu = widget.parentMenu, rawData = parentMenu.raw, leaf = parentMenu.leaf, method,
 				customerServer = Beet.constants.customerServer;
 			method = leaf ? customerServer.UpdateCTItem : customerServer.UpdateCTCategory;
-			var needUpdateId = leaf ? rawData.typeId : rawData.cid;
+			//需要编辑项目/属性的ID
+			var needUpdateId = rawData._id;
+
 			var formItems = [], actionName = leaf ? "customer_item" : "customer_category";
+			/*
+			 * @description 点击提交按钮 触发的动作
+			 */
 			var btnHandler;
 			var categoryStore = (function(){
 				var _data = [];
@@ -388,17 +392,16 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 				if (Beet.cache.categoriesData){
 					for (var k in Beet.cache.categoriesData){
 						var _d = Beet.cache.categoriesData[k];
-						_data.push({ attr : _d.CTCategoryID, name: _d.CTCategoryName });
+						_data.push({ attr : parseInt(_d.CTCategoryID, 10), name: _d.CTCategoryName });
 					}
 				}
-
+				
 				return Ext.create("Ext.data.Store", {
 					fields: ["attr", "name"],
 					data : _data
 				});
 			})();
 			
-			console.log(rawData);
 			//项目
 			if (leaf){
 				for (var k in Beet.cache.configArgs[actionName]){
@@ -426,7 +429,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 								queryMode: "local",
 								displayField: "name",
 								valueField: "attr",
-								
+								value: rawData["_pid"]	
 							});
 							break;
 						case "InputMode":
@@ -447,6 +450,29 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 				btnHandler = function(direction, e){
 					var me = this, form = me.up("form").getForm(), result = form.getValues();
 					console.log(result);
+					var needSubmitData = Ext.JSON.encode(result);
+
+					Ext.MessageBox.show({
+						title: "提示",
+						msg: "是否需要提交修改?",
+						buttons: Ext.MessageBox.YESNO,
+						fn: function(btn){
+							if (btn == "yes"){
+								customerServer.UpdateCTItem(needUpdateId, needSubmitData, {
+									success: function(isSuccess){
+										if (isSuccess){
+											Ext.MessageBox.alert("提示", "编辑项目成功");
+										}else{
+											Ext.MessageBox.alert("提示", "编辑项目失败");
+										}
+									},
+									failure: function(error){
+										Ext.Error.raise(error);
+									}
+								});			
+							}
+						}
+					});
 				}
 			}else{
 				for (var k in Beet.cache.configArgs[actionName]){
@@ -473,7 +499,8 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 									name: name,
 									queryMode: "local",
 									displayField: "name",
-									valueField: "attr"	
+									valueField: "attr",
+									value: rawData["_pid"]
 								});
 								break;
 							case "ServiceType":
@@ -491,9 +518,34 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 						formItems.push(item)
 					}
 				}
-
 				btnHandler = function(direction, e){
-
+					var me = this, form = me.up("form").getForm(), result = form.getValues();
+					if (result["ParentCategoryID"] == ""){
+						result["ParentCategoryID"] = -1;
+					}
+					console.log(result);
+					var needSubmitData = Ext.JSON.encode(result);
+					Ext.MessageBox.show({
+						title: "提示",
+						msg: "是否需要提交修改?",
+						buttons: Ext.MessageBox.YESNO,
+						fn: function(btn){
+							if (btn == "yes"){
+								customerServer.UpdateCTCategory(needUpdateId, needSubmitData, {
+									success: function(isSuccess){
+										if (isSuccess){
+											Ext.MessageBox.alert("提示", "编辑分类成功");
+										}else{
+											Ext.MessageBox.alert("提示", "编辑分类失败");
+										}
+									},
+									failure: function(error){
+										Ext.Error.raise(error);
+									}
+								});			
+							}
+						}
+					});
 				}
 			}
 
@@ -521,7 +573,6 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 				]
 			})
 			
-
 			//appendTo detailPanel
 			var item = that.detailPanel.add({
 				title : "编辑" + (leaf ? "项目 " : "分类 ") + rawData.text,
@@ -533,6 +584,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 
 			that.detailPanel.setActiveTab(item)
 		}
+		///}}
 
 		var _delItem = function(widget, e){
 			var parentMenu = widget.parentMenu, rawData = parentMenu.raw, leaf = parentMenu.leaf, method,
@@ -608,6 +660,11 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 			record.contextMenu.showAt(e.getXY());
 
 			return false;
+		}
+
+		//click event
+		var _itemClick = function(view, record, item, index, e, options){
+
 		}
 				
 		that.treeList.on({
