@@ -92,6 +92,8 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 	refreshTreeList: function(){
 		var that = this;
 		that.storeProxy.load();
+		//update
+		Beet.apps.Viewport.getCTTypeData(null, true);
 	},
 
 	createTreeList: function(){

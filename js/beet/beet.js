@@ -677,13 +677,19 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 							item["fieldLabel"] = _data["label"];
 							item["pid"] = _data["pid"];
 							item["_id"] = _data["id"];
-							item["xtype"] = Beet.constants.CTInputMode[inputmode];
+							//textfield
+							if (inputmode != 0){
+								item["xtype"] = Beet.constants.CTInputMode[inputmode];
+							}else{
+								item["xtype"] = "fieldset";
+								item["frame"] = true;
+								item["title"] = _data["label"];
+							}
 							item["flex"] = 1;
 							item["items"] = [];
 							_preprocess(_data, item["items"], true);
 							if (isSub){
 								cache.push(item);
-								//reset
 								item = {};
 							}
 						}else{
@@ -704,6 +710,10 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 						item["flex"] = 1;
 						item["items"] = [];
 						_preprocess(_data, item["items"], true);	
+						if (isSub){
+							cache.push(item);
+							item = {};
+						}
 					}
 				}
 			}else if(k == "item"){
@@ -711,7 +721,13 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 					var _data = target[k][iId];
 					var inputmode = _data["inputmode"];
 					if (inputmode == 0){
-						
+						item = {
+							xtype: "textfield",
+							fieldLabel: _data["label"],
+							name: "text_type_" + _data["pid"],
+							pid: _data["pid"],
+							_id: _data["id"]
+						}
 					}else{
 						item = {
 							inputValue : _data["id"],
@@ -751,6 +767,9 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 		})
 	}
 
+	if (__callback && Ext.isFunction(__callback)){
+		__callback();
+	}
 }
 
 
@@ -812,13 +831,11 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 								{
 									fieldLabel: "会员姓名",
 									name: "Name",
-									value: "aadff",
 									allowBlank: false
 								},
 								{
 									fieldLabel: "会员卡号",
 									name: "CardNo",
-									value: "21313",
 									allowBlank: false,
 								},
 								{
@@ -834,7 +851,6 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 								{
 									fieldLabel: "手机号码",
 									name: "Mobile",
-									value: "145415113",
 									allowBlank: false
 								},
 								{
@@ -972,7 +988,8 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 								}
 							},
 							failure: function(error){
-								Ext.Error.railse("创建用户失败");
+								console.log(error);
+								Ext.Error.raise("创建用户失败");
 							}
 						});
 					}else{
@@ -1015,8 +1032,13 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 						var Items = [], Texts = [], needSubmitData;
 						for (var k in result){
 							var r = result[k];
-							//判断是否是数字
-							Items.push(r);
+							if (k.indexOf("text") > -1 && r !== ""){
+								//这里有个bug
+								//TODO
+								Texts.push(r);
+							}else{
+								Items.push(r);
+							}
 						}
 						
 						var customerServer = Beet.constants.customerServer;
@@ -1047,7 +1069,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 									}
 								},
 								failure: function(error){
-									Ext.Error.railse(error)
+									Ext.Error.raise(error)
 								}
 							})
 						}else{
