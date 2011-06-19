@@ -8,135 +8,42 @@ Ext.define("Beet.apps.Viewport.Setting.Store", {
 	},
 	proxy: {
 		type: "b_proxy",
-		//b_method: [Beet.constants.customerServer.GetCTCategoryDataTOJSON, Beet.constants.customerServer.GetCTItemDataToJSON],
 		b_method: Beet.constants.customerServer.GetCTTypeDataToJSON,
 		filters: {
 			b_onlySchema: false
 		},
 		preProcessData: function(data){
-			//开始做数据处理
-			//0 itemData 1 category 
-		//	var itemsData = Ext.JSON.decode(data[0]), categoriesData = Ext.JSON.decode(data[1]);
-		//	
-		//	var itemsData_Data = itemsData["Data"], itemsData_Meta = itemsData["MetaData"];
-		//	var categoriesData_Data = categoriesData["Data"], categoriesData_Meta = categoriesData["MetaData"];
-		//	Beet.cache["configArgs"] = Beet.cache["configArgs"] || {};
-		//	Beet.cache["configArgs"]["customer_category"] = categoriesData_Meta;
-		//	Beet.cache["configArgs"]["customer_item"] = itemsData_Meta;
+			data = data["category"];
+			var bucket = [];
 
-		//	//add -1
-		//	//parentId 根父类
-		//	var bucket = [], parentId = -1;
-		//	/**
-		//	 * 预处理数据, 将数据根据_id存储为object
-		//	 * @param {Object} data 原始数据
-		//	 * @param {String} _id 需要提取的标签头
-		//	 *
-		//	 * @return {Object} __temp 返回处理后的函数
-		//	 */
-		//	var __preProcessData = function(data, _id){
-		//		var t = 0, __temp = {};
-		//		while (true){
-		//			if (data[t] == undefined){
-		//				break;
-		//			}	
-		//			var id = data[t][_id];
-		//			__temp[id] = data[t];
-		//			t++;
-		//		}
+			var processData = function(target, cache, leaf){
+				for (var k in target){
+					var _tmp = target[k];
+					var _item = {
+						text: _tmp["label"],
+						_id: _tmp["id"],
+					}
+					if (leaf){
+						_item["leaf"] = true;
+						_item["name"] = "item_" + _tmp["id"];
+						_item["inputmode"] = _tmp["inputmode"];
+					}else{
+						_item["serviceid"] = _tmp["serviceid"];
+						_item["expanded"] = true;
+						_item["name"] = "category_" + _tmp["id"];
+						_item["children"] = [];
+					}
 
-		//		return __temp;
-		//	}
-		//	
-		//	//预处理
-		//	itemsData_Data = __preProcessData(itemsData_Data, "CTTypeID");
-		//	categoriesData_Data = __preProcessData(categoriesData_Data, "CTCategoryID");
-		//	Beet.cache.categoriesData = categoriesData_Data;//放入缓存中
-		//	//end
-		//	
-		//	//TODO 有可能有bug
-		//	;(function(){
-		//		for (var k in itemsData_Data){
-		//			var _o = itemsData_Data[k],
-		//				cid = _o.CTCategoryID,
-		//				typeId = _o.CTTypeID,
-		//				name = _o.CTTypeName,
-		//				inputmode = _o.InputMode,
-		//				item = {
-		//					text : name,
-		//					leaf : true,
-		//					categoryId : cid,
-		//					typeId : typeId,
-		//					inputmode : inputmode	
-		//				}
-
-		//			if (cid == parentId){
-		//				bucket.push(item);
-		//			}else{
-		//				var o_data = categoriesData_Data[cid];
-		//				o_data["children"] = o_data["children"] || {}
-		//				o_data["children"]["items"] = o_data["children"]["items"] || [];
-		//				o_data["children"]["items"].push(item);
-		//			}
-		//		}
-		//	})()	
-		//	
-		//	var _cache = {};
-		//	var __process = function(o){
-		//		var cid = o.CTCategoryID, name = o.CTCategoryName, pid = o.ParentCategoryID, serviceType = o.ServiceType,
-		//			item = {
-		//				text : name,
-		//				cid : cid,
-		//				pid : pid,
-		//				serviceType : serviceType,
-		//				expanded: true,
-		//				children : o.children || {}
-		//			};
-
-		//		if (pid == parentId){
-		//			if (_cache[cid] == undefined){
-		//				_cache[cid] = item;
-		//			}	
-
-		//			return cid;
-		//		}else{
-		//			//TODO 第三层有bug
-		//			var _pid = __process(categoriesData_Data[pid]);
-		//			if (_cache[_pid]["children"][cid] == undefined){
-		//				_cache[_pid]["children"][cid] = item;
-		//			}
-		//		}
-
-		//	}
-		//	for (var k in categoriesData_Data){
-		//		__process(categoriesData_Data[k])
-		//	}
-		//	
-		//	//BUG
-		//	var _toJson = function(data, target){
-		//		for (var b in data){
-		//			var o = data[b];
-		//			if (o["children"]){
-		//				var orign = o["children"], items;
-		//				if (orign["items"]){
-		//					items = orign["items"];
-		//					delete orign["items"];
-		//				}
-
-		//				o["children"] = [];
-		//				_toJson(orign, o["children"]);
-		//				if (items){
-		//					for (var c in items){
-		//						o["children"].push(items[c]);	
-		//					}
-		//				}
-		//			}
-
-		//			target.push(o);
-		//		}
-		//	}
-
-		//	_toJson(_cache, bucket);
+					if (_tmp["category"] && _tmp["category"].length > 0){
+						processData(_tmp["category"], _item["children"]);
+					}
+					if (_tmp["item"] && _tmp["item"].length > 0){
+						processData(_tmp["item"], _item["children"], true);
+					}
+					cache.push(_item);
+				}
+			}
+			processData(data, bucket);
 
 			return bucket;
 		},
@@ -182,8 +89,9 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 		var that = this;
 		that.callParent(arguments);
 	},
+
 	createTreeList: function(){
-		var that = this, store = that.storeProxy;
+		var that = this, store = that.storeProxy, customerServer = Beet.constants.customerServer;
 		that.treeList = Ext.create("Ext.tree.Panel", {
 			store: store,
 			frame: true,
@@ -226,20 +134,57 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 				{ attr: 2, name: "多选"}
 			]	
 		})
+
+		var __preProcessData = function(data, _id){
+			var t = 0, __temp={};
+			while(true){
+				if (data[t] == undefined){ break;}
+				var id = data[t][_id];
+				__temp[id] = data[t];
+				t++;
+			}
+			return __temp;
+		}
+
+		Beet.cache.configArgs = Beet.cache.configArgs || {};
+		if (!Beet.cache.categoriesData){
+			customerServer.GetCTCategoryDataTOJSON("", false, {
+				success: function(data){
+					data = Ext.JSON.decode(data);
+					var _data = data["Data"], metaData = data["MetaData"];
+
+					Beet.cache.configArgs["customer_category"] = metaData;
+					Beet.cache.categoriesData = __preProcessData(_data, "CTCategoryID");
+				},
+				failure:function(error){
+					Ext.Error.raise(error);
+				}
+			})
+		}
+
+		if (!Beet.cache.configArgs["customer_item"]){
+			customerServer.GetCTItemDataToJSON("", true, {
+				success: function(data){
+					data = Ext.JSON.decode(data);
+					var metaData = data["MetaData"];
+					Beet.cache.configArgs["customer_item"] = metaData;
+				},
+				failure: function(error){
+					Ext.Error.raise(error);
+				}
+			});
+		}
 		
-			
 		//click event
 		var _itemClick = function(view, record, item, index, e, options){
 
 		}
 
 		var _addItem = function(widget, e, _type){
-			var parentMenu = widget.parentMenu, rawData = parentMenu.raw, leaf = (_type == "category" ? false : true), method,
-				customerServer = Beet.constants.customerServer;
+			var parentMenu = widget.parentMenu, rawData = parentMenu.raw, leaf = (_type == "category" ? false : true), method;
 			method = leaf ? customerServer.UpdateCTItem : customerServer.UpdateCTCategory;
 			var formItems = [], actionName = leaf ? "customer_item" : "customer_category";
 			var btnHandler;
-			
 			//categoriesData store
 			var categoryStore = (function(){
 				var _data = [];
@@ -258,7 +203,6 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 					data : _data
 				});
 			})();
-
 			//项目
 			if (leaf){
 				for (var k in Beet.cache.configArgs[actionName]){
@@ -294,7 +238,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 									queryMode: "local",
 									displayField: "name",
 									valueField: "attr"	
-								})
+								});
 								break;	
 						}
 
@@ -416,7 +360,6 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 					}
 				]
 			})
-			
 
 			//appendTo detailPanel
 			var item = that.detailPanel.add({
@@ -437,34 +380,65 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 			var needUpdateId = leaf ? rawData.typeId : rawData.cid;
 			var formItems = [], actionName = leaf ? "customer_item" : "customer_category";
 			var btnHandler;
+			var categoryStore = (function(){
+				var _data = [];
+				if (!leaf){
+					_data.push({ "attr" : -1, "name" : "客户属性"});
+				}
+				if (Beet.cache.categoriesData){
+					for (var k in Beet.cache.categoriesData){
+						var _d = Beet.cache.categoriesData[k];
+						_data.push({ attr : _d.CTCategoryID, name: _d.CTCategoryName });
+					}
+				}
+
+				return Ext.create("Ext.data.Store", {
+					fields: ["attr", "name"],
+					data : _data
+				});
+			})();
 			
+			console.log(rawData);
 			//项目
 			if (leaf){
 				for (var k in Beet.cache.configArgs[actionName]){
 					var row = Beet.cache.configArgs[actionName][k],
 						hidden = row.FieldHidden, label = row.FieldLabel, name = row.FieldName;
-						
-						//block
-						if (name == ""){
 
-						}
+					if (name == "CTTypeID"){
+						hidden = true;
+					}
+					if (hidden){continue;}
 
-						var item = {
-							fieldLabel : label,
-							name : name
-						}
+					var item = {
+						fieldLabel : label,
+						name : name
+					}
 					switch (name){
-						case "CTTypeID":
-							item["value"] = rawData["typeId"]; 
-							break;
 						case "CTTypeName":
 							item["value"] = rawData["text"];
 							break;
 						case "CTCategoryID":
-							item["value"] = rawData["categoryId"];
+							item = Ext.create("Ext.form.ComboBox", {
+								fieldLabel: label,
+								store: categoryStore,
+								name: name,
+								queryMode: "local",
+								displayField: "name",
+								valueField: "attr",
+								
+							});
 							break;
 						case "InputMode":
-							item["value"] = rawData["inputmode"];
+							item = Ext.create("Ext.form.ComboBox", {
+								fieldLabel: label,
+								store: inputmodeStore,
+								name: name,
+								queryMode: "local",
+								displayField: "name",
+								valueField: "attr",
+								value: rawData["inputmode"]
+							});
 							break;	
 					}
 
@@ -472,7 +446,6 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 				}
 				btnHandler = function(direction, e){
 					var me = this, form = me.up("form").getForm(), result = form.getValues();
-					//TODO
 					console.log(result);
 				}
 			}else{
@@ -480,7 +453,6 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 					var row = Beet.cache.configArgs[actionName][k]
 						hidden = row.FieldHidden, label = row.FieldLabel, name = row.FieldName;
 						
-					//block
 					if (name == "CTCategoryID"){
 						hidden = true;
 					}
@@ -491,20 +463,31 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 							name : name
 						}
 						switch (name){
-							case "CTCategoryID":
-								item["value"] = rawData["cid"];
-								break;
 							case "CTCategoryName":
 								item["value"] = rawData["text"];
 								break;
 							case "ParentCategoryID":
-								item["value"] = rawData["pid"];
+								item = Ext.create("Ext.form.ComboBox", {
+									fieldLabel: label,
+									store: categoryStore,
+									name: name,
+									queryMode: "local",
+									displayField: "name",
+									valueField: "attr"	
+								});
 								break;
 							case "ServiceType":
-								item["value"] = rawData["serviceType"];
+								item = Ext.create("Ext.form.ComboBox", {
+									fieldLabel: label,
+									store: st,
+									name: "ServiceType",
+									queryMode: "local",
+									displayField: "name",
+									valueField: "attr",
+									value: rawData["serviceid"]
+								})
 								break;
 						}
-
 						formItems.push(item)
 					}
 				}
@@ -550,11 +533,12 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 
 			that.detailPanel.setActiveTab(item)
 		}
+
 		var _delItem = function(widget, e){
 			var parentMenu = widget.parentMenu, rawData = parentMenu.raw, leaf = parentMenu.leaf, method,
 				customerServer = Beet.constants.customerServer;
 			method = leaf ? customerServer.DeleteCTItem : customerServer.DeleteCTCategory;
-			var needDeleteId = leaf ? rawData.typeId : rawData.cid;
+			var needDeleteId = rawData._id;
 			var msg = "你是否需要删除" + (leaf ? "项目" : "分类") + ": " + rawData.text + " ?";
 			Ext.MessageBox.show({
 				title: "警告",
@@ -575,14 +559,17 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 								})	
 							},
 							failure: function(error){
-								Ext.Error.railse("删除失败" + error)
+								Ext.Error.raise("删除失败" + error)
 							}
 						})
 					}
 				}
 			})
 		}
-
+		
+		/*
+		 * @description 邮件菜单函数
+		 */
 		var _itemRClick = function(view, record, item, index, e, options){
 			var rawData = record.raw, leaf = record.isLeaf();
 			
@@ -590,18 +577,22 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 
 			if (!record.contextMenu){
 				record.contextMenu = Ext.create("Ext.menu.Menu", {
+					style: {
+						overflow: 'visible',
+					},
 					items: [
 						{	
 							text: "添加", 
 							menu: {
-								showSeparator: true,
-								items: [
+								items:[
 									{text: "添加分类", handler: function(direction, e){
 										_addItem(direction, e, "category")	
-									}},
+										}
+									},
 									{text: "添加项目", handler: function(direction, e){
 										_addItem(direction, e, "type")	
-									}}
+										}
+									}
 								]
 							}
 						},

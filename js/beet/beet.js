@@ -663,9 +663,7 @@ Beet.apps.Viewport.getCTTypeData = function(__callback){
 	var customerServer = Beet.constants.customerServer;
 	customerServer.GetCTTypeDataToJSON("", true, {
 		success: function(data){
-			console.log(data);
 			data = Ext.JSON.decode(data);
-			console.log(data);
 			/*
 			var list = {};
 			for (var k in data){
