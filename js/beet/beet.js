@@ -48,7 +48,8 @@ Beet.apps.Menu.Items = [
 													items: [
 														Ext.create("Beet.apps.Viewport.AddUser")
 													]
-												})
+												});
+												Beet.apps.Viewport.getCTTypeData();
 										})
 									}else{
 										Beet.workspace.workspace.setActiveTab(item);
@@ -659,44 +660,97 @@ Beet.apps.Viewport.getColumnsData = function(__callback){
 	}
 }
 
-Beet.apps.Viewport.getCTTypeData = function(__callback){
+Beet.apps.Viewport.getCTTypeData = function(__callback, force){
+	if (Beet.cache["advanceProfile"] && !force){ return;}
 	var customerServer = Beet.constants.customerServer;
-	customerServer.GetCTTypeDataToJSON("", true, {
-		success: function(data){
-			data = Ext.JSON.decode(data);
-			/*
-			var list = {};
-			for (var k in data){
-				var _item = data[k],
-					serviceType = _item.ServiceType, 
-					cid = _item.CTCategoryID,
-					cname = _item.CTCategoryName,
-					typeId = _item.CTTypeID,
-					typeName = _item.CTTypeName,
-					inputmode = _item.InputMode;
+	Beet.cache["advanceProfile"] = {};
 
-				list[serviceType] = list[serviceType] || {};
-				if (list[serviceType][cid] == undefined){
-					list[serviceType][cid] = {
-						name : cname,
-						items: []
+	var _preprocess = function(target, cache, isSub){
+		var item = {};
+		for (var k in target){
+			if (k == "category"){
+				for (citem in target[k]){
+					var _data = target[k][citem];
+					if (_data["category"].length == 0){
+						if (_data["item"].length > 0){
+							var inputmode = _data["item"][0]["inputmode"];
+							item["fieldLabel"] = _data["label"];
+							item["pid"] = _data["pid"];
+							item["_id"] = _data["id"];
+							item["xtype"] = Beet.constants.CTInputMode[inputmode];
+							item["flex"] = 1;
+							item["items"] = [];
+							_preprocess(_data, item["items"], true);
+							if (isSub){
+								cache.push(item);
+								//reset
+								item = {};
+							}
+						}else{
+							//no item
+							item["fieldLabel"] = _data["label"];
+							item["pid"] = _data["pid"];
+							item["_id"] = _data["id"];
+							item["flex"] = 1;
+							item["title"] = _data["label"];
+							item["xtype"] = "fieldset";
+						}
+					}else if(_data["category"].length > 0 || _data["pid"] == -1){
+						item["fieldLabel"] = _data["label"];
+						item["pid"] = _data["pid"];
+						item["_id"] = _data["id"];
+						item["title"] = _data["label"];
+						item["xtype"] = "fieldset";
+						item["flex"] = 1;
+						item["items"] = [];
+						_preprocess(_data, item["items"], true);	
 					}
 				}
+			}else if(k == "item"){
+				for (var iId in target[k]){
+					var _data = target[k][iId];
+					var inputmode = _data["inputmode"];
+					if (inputmode == 0){
+						
+					}else{
+						item = {
+							inputValue : _data["id"],
+							pid: _data["pid"],
+							boxLabel: _data["label"],
+							name: "category_" + _data["pid"]
+						}
+					}
 
-				list[serviceType][cid]["items"].push({
-					name: typeName,
-					typeId: typeId,
-					inputMode : inputmode	
-				})
+					if (isSub){
+						cache.push(item);
+						item = {};
+					}
+				}
+			}else{
+
 			}
-			Beet.cache["CTTypeData"] = list;
-			__callback();
-			*/
-		},
-		failure: function(error){
-			Ext.Error.raise(error);
 		}
-	})
+		if (!isSub){
+			cache.push(item);
+		}
+	}
+
+	//get data
+	for (var st in Beet.constants.CTServiceType){
+		customerServer.GetCTTypeDataToJSON("ServiceType='"+st+"'", true, {
+			success: function(data){
+				data = Ext.JSON.decode(data);	
+				var sid = data["category"][0]["serviceid"], _tmp = [];
+				_preprocess(data, _tmp);
+				//这里直接生产界面
+				Beet.cache["advanceProfile"][sid] = _tmp;
+			},
+			failure: function(error){
+				//Ext.Error.raise(error);
+			}
+		})
+	}
+
 }
 
 
@@ -891,7 +945,8 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 											parent.updateAdvancePanel(uid);
 										}
 									}
-									if (Beet.cache["CTTypeData"] == undefined){
+									//判断是否有数据 如果含有 直接创建
+									if (Beet.cache["advanceProfile"] == undefined){
 										Beet.apps.Viewport.getCTTypeData(__callback);
 									}else{
 										__callback();
@@ -921,6 +976,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 							}
 						});
 					}else{
+						//TEST CODE
 						var __callback = function(){
 							var formpanel = that.up("form"), parent = formpanel.ownerCt;
 							formpanel.hide();
@@ -928,7 +984,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 								parent.updateAdvancePanel();
 							}
 						}
-						if (Beet.cache["CTTypeData"] == undefined){
+						if (Beet.cache["advanceProfile"] == undefined){
 							Beet.apps.Viewport.getCTTypeData(__callback);
 						}else{
 							__callback();
@@ -1011,53 +1067,15 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 		var userInfo = Beet.cache.Users[uid];
 		var serviceItems = userInfo["serviceItems"], title, firstTab;
 		
+		//如果只有一个serviceItem为string	
 		if (typeof serviceItems == "string"){
 			var _s = serviceItems;
 			serviceItems = [_s];
 			delete _s;
 		}
-
-		//TODO 需要做优化
+		
 		for (var s in serviceItems){
-			var service = serviceItems[s], title = Beet.constants.CTServiceType[service], data = Beet.cache.CTTypeData[service], items = [];
-			for (var k in data){
-				if (k == "items"){
-				}else{
-					var categoryName = data[k].name;
-					var _items = data[k]["items"], xtypeId = _items[0]["inputMode"];
-					
-					var item = {
-						fieldLabel: categoryName
-					}	
-					
-					switch (xtypeId){
-						case "0":
-							item["xtype"] = "textfield"
-							break;
-						case "1":
-							item["xtype"] = "radiogroup"
-							break;
-						case "2":
-							item["xtype"] = "checkboxgroup"
-							break;
-					}
-
-					if (item["xtype"] == "textfield"){
-
-					}else{
-						item["items"] = [];
-						for (var b in _items){
-							item["items"].push({
-								name: "categoryId-" + k,
-								boxLabel: _items[b].name,
-								inputValue: _items[b].typeId
-							});
-						}
-					}
-
-					items.push(item);
-				}
-			}
+			var service = serviceItems[s], title = Beet.constants.CTServiceType[service], data = Beet.cache.advanceProfile[service], items = [];
 			var _t = optionTabs.add({
 				title : title,
 				flex: 1,
@@ -1067,12 +1085,13 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 					labelAlign: "left",
 					labelWidth: 75
 				},
-				items: items
+				items: data
 			});
 			if (firstTab == undefined){
 				firstTab = _t;	
 			}
 		}
+
 		optionTabs.setActiveTab(firstTab);
 
 		that.advancePanel.show();
@@ -1255,9 +1274,35 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 	},
 	popEditWindow: function(rawData){
 		var that = this, CTGUID = rawData.CTGUID, CTName = rawData.CTName,
-			customerServer = Beet.constants.customerServer, win
+			customerServer = Beet.constants.customerServer, win;
+		
+		/*
+		customerServer.GetCustomerItemToJson("CTGUID='"+CTGUID+"'", {
+			success: function(data){
+				console.log(data);	
+			},
+			failure: function(error){
+				console.log(error);
+			}
+		})
+		*/
 		//get serviceItems;
-		var form = Ext.widget("form", {
+		//tabPanel
+		var settingTabPanel = Ext.create("Ext.tab.Panel", {
+			frame: true,
+			border: 0,
+			plain: true,
+			layout: "card",
+			height: "100%",
+			defaults: {
+				border: 0,
+				frame: true
+			},
+			items: []
+		});
+
+
+		var basicform = Ext.widget("form", {
 			layout: {
 				type: 'vbox',
 				align: "stretch"
@@ -1269,79 +1314,72 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 				margin: "0 0 10 0"
 			},
 			plain: true,
+			flex: 1,
+			defaultType: "textfield",
+			fieldDefaults: {
+				msgTarget: "side",
+				labelAlign: "left",
+				labelWidth: 75
+			},
 			items: [
 				{
-					title: "基础信息",
-					xtype: "fieldset",
-					flex: 1,
-					defaultType: "textfield",
-					plain: true,
-					fieldDefaults: {
-						msgTarget: 'side',
-						labelAlign: "left",
-						labelWidth: 75
-					},
-					items: [
-						{
-							fieldLabel: "会员姓名",
-							name: "Name",
-							value: rawData.CTName,
-							allowBlank: true,
-							dataIndex: "CTName"
-						},
-						{
-							fieldLabel: "会员卡号",
-							name: "CardNo",
-							allowBlank: true,
-							value: rawData.CTCardNo,
-							dataIndex: "CTCardNo"
-						},
-						{
-							fieldLabel: "身份证",
-							name: "PersonID",
-							value: rawData.CTPersonID,
-							dataIndex: "CTPersonID"
-						},
-						{
-							fieldLabel: "出生日期",
-							xtype: "datefield",
-							name: "Birthday",
-							format: 'Y年m月d日',
-							value: new Date(rawData.CTBirthday * 1000),
-							dataIndex: "CTBirthday"
-						},
-						{
-							fieldLabel: "手机号码",
-							name: "Mobile",
-							allowBlank: true,
-							value: rawData.CTMobile,
-							dataIndex: "CTMobile"
-						},
-						{
-							fieldLabel: "座机号码",
-							name: "Phone",
-							value: rawData.CTPhone,
-							dataIndex: "CTPhone"
-						},
-						{
-							fieldLabel: "QQ/MSN",
-							name: "IM",
-							value: rawData.CTIM,
-							dataIndex: "CTIM"
-						},
-						{
-							fieldLabel: "地址",
-							name: "Address",
-							value: rawData.CTAddress,
-							dataIndex: "CTAddress"
-						},
-						{
-							fieldLabel: "职业",
-							name: "Job",
-							value: rawData.CTJob,
-							dataIndex: "CTJob"
-						}
-					]
+					fieldLabel: "会员姓名",
+					name: "Name",
+					value: rawData.CTName,
+					allowBlank: true,
+					dataIndex: "CTName"
+				},
+				{
+					fieldLabel: "会员卡号",
+					name: "CardNo",
+					allowBlank: true,
+					value: rawData.CTCardNo,
+					dataIndex: "CTCardNo"
+				},
+				{
+					fieldLabel: "身份证",
+					name: "PersonID",
+					value: rawData.CTPersonID,
+					dataIndex: "CTPersonID"
+				},
+				{
+					fieldLabel: "出生日期",
+					xtype: "datefield",
+					name: "Birthday",
+					format: 'Y年m月d日',
+					value: new Date(rawData.CTBirthday * 1000),
+					dataIndex: "CTBirthday"
+				},
+				{
+					fieldLabel: "手机号码",
+					name: "Mobile",
+					allowBlank: true,
+					value: rawData.CTMobile,
+					dataIndex: "CTMobile"
+				},
+				{
+					fieldLabel: "座机号码",
+					name: "Phone",
+					value: rawData.CTPhone,
+					dataIndex: "CTPhone"
+				},
+				{
+					fieldLabel: "QQ/MSN",
+					name: "IM",
+					value: rawData.CTIM,
+					dataIndex: "CTIM"
+				},
+				{
+					fieldLabel: "地址",
+					name: "Address",
+					value: rawData.CTAddress,
+					dataIndex: "CTAddress"
+				},
+				{
+					fieldLabel: "职业",
+					name: "Job",
+					value: rawData.CTJob,
+					dataIndex: "CTJob"
 				}
 			],
 			buttons: [{
@@ -1378,17 +1416,28 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			}]
 		});
 
+		var _basic = settingTabPanel.add({
+				title : "基础信息",
+				layout: "fit",
+				border: 0,
+				items: [
+					basicform
+				]
+			});
+		settingTabPanel.setActiveTab(_basic);
+
+		
 		win = Ext.widget("window", {
 			title: CTName + " 的资料信息",
 			width: 400,
-			height: 400,
+			height: 500,
 			minHeight: 400,
 			layout: "fit",
 			resizable: true,
 			shadow: true,
 			modal: true,
 			maximizable: true,
-			items: form
+			items: settingTabPanel
 		})
 
 		win.show();

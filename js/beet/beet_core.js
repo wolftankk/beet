@@ -18,7 +18,7 @@ Beet.constants = {
 
 	CTInputMode : {
 		0 : "textfield",
-		1 : "radio",
+		1 : "radiogroup",
 		2 : "checkboxgroup"
 	},
 
