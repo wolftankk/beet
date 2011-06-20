@@ -721,14 +721,16 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 					var _data = target[k][iId];
 					var inputmode = _data["inputmode"];
 					if (inputmode == 0){
+						//textfield
 						item = {
 							xtype: "textfield",
 							fieldLabel: _data["label"],
-							name: "text_type_" + _data["pid"],
+							name: "text_type_" + _data["id"],
 							pid: _data["pid"],
 							_id: _data["id"]
 						}
 					}else{
+						//radio checkbox
 						item = {
 							inputValue : _data["id"],
 							pid: _data["pid"],
