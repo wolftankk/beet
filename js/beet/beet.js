@@ -1033,9 +1033,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 							var r = result[k];
 							if (k.indexOf("text") > -1 && r !== ""){
 								var id = k.split("_")[2];
-								if (Ext.String.trim(r) != ""){
-									Texts.push({ID: id, Text: r});
-								}
+								Texts.push({ID: id, Text: r});
 							}else{
 								Items.push(r);
 							}
@@ -1284,7 +1282,15 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 						fn : function(btn){
 							if (btn == "yes"){
 								//popup window
-								that.popEditWindow(rawData)
+								var customerServer = Beet.constants.customerServer;
+								customerServer.GetCustomerItemToJson("CTGUID='"+CTGUID+"'", {
+									success: function(data){
+										data = Ext.JSON.decode(data);
+										that.popEditWindow(rawData, data["Data"]);
+									},
+									failure: function(error){
+									}
+								})
 							}
 						}
 					})	
@@ -1294,20 +1300,10 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 
 		return item
 	},
-	popEditWindow: function(rawData){
+	popEditWindow: function(rawData, customerData){
 		var that = this, CTGUID = rawData.CTGUID, CTName = rawData.CTName,
 			customerServer = Beet.constants.customerServer, win;
 		
-		/*
-		customerServer.GetCustomerItemToJson("CTGUID='"+CTGUID+"'", {
-			success: function(data){
-				console.log(data);	
-			},
-			failure: function(error){
-				console.log(error);
-			}
-		})
-		*/
 		//get serviceItems;
 		//tabPanel
 		var settingTabPanel = Ext.create("Ext.tab.Panel", {
@@ -1448,7 +1444,53 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			});
 		settingTabPanel.setActiveTab(_basic);
 
-		
+		//高级面板选项
+		var _replace = function(target, needId, typeText){
+			for (var k in target){
+				var _data = target[k];
+				if (_data["items"] && _data["items"].length > 0){
+					_replace(_data["items"], needId, typeText);
+				}
+				if (_data["inputValue"] == needId){
+					_data["checked"] = true;
+				}
+				if (_data["_id"] == needId && _data["xtype"] == "textfield"){
+					_data["value"] = typeText;
+				}
+			}
+		}
+
+
+		var serviceItems = Beet.constants.CTServiceType;
+		//复制一个 不影响原有的
+		var advanceProfile = [];
+		advanceProfile = Ext.clone(Beet.cache.advanceProfile);
+		if (customerData.length > 0){
+			for (var k in customerData){
+				var _data = customerData[k];
+				var st = _data["ServiceType"], typeId = _data["CTTypeID"], typeText = _data["TypeText"];
+				if (advanceProfile[st] && advanceProfile[st].length > 0){
+					_replace(advanceProfile[st], typeId, typeText);
+				}
+			}
+		}
+
+		for (var service in serviceItems){
+			var title = serviceItems[service], data = advanceProfile[service], items = [];
+			if (!data || data.length < 0){continue;}
+			var _t = settingTabPanel.add({
+				title : title,
+				flex: 1,
+				layout: "anchor",
+				fieldDefaults: {
+					msgTarget : "side",
+					labelAlign: "left",
+					labelWidth: 75
+				},
+				items: data
+			});
+		}
+
 		win = Ext.widget("window", {
 			title: CTName + " 的资料信息",
 			width: 400,
@@ -1457,9 +1499,18 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			layout: "fit",
 			resizable: true,
 			shadow: true,
+			border: false,
 			modal: true,
 			maximizable: true,
 			items: settingTabPanel
+			/*
+			这里改为提交按钮
+			buttons: [
+				{
+					text: "关闭"
+				}
+			]
+			*/
 		})
 
 		win.show();
