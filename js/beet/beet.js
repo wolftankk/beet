@@ -1033,7 +1033,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 							var r = result[k];
 							if (k.indexOf("text") > -1 && r !== ""){
 								var id = k.split("_")[2];
-								if (Ext.trim(r) != ""){
+								if (Ext.String.trim(r) != ""){
 									Texts.push({ID: id, Text: r});
 								}
 							}else{
