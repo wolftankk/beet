@@ -1032,9 +1032,10 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 						for (var k in result){
 							var r = result[k];
 							if (k.indexOf("text") > -1 && r !== ""){
-								//这里有个bug
-								//TODO
-								Texts.push(r);
+								var id = k.split("_")[2];
+								if (Ext.trim(r) != ""){
+									Texts.push({ID: id, Text: r});
+								}
 							}else{
 								Items.push(r);
 							}
