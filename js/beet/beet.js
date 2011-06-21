@@ -1419,7 +1419,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 							success: function(){
 								Ext.MessageBox.show({
 									title: "更新成功",
-									msg: "更新 " + CTName + " 用户资料成功!",
+									msg: "更新 " + CTName + " 用户基础资料成功!",
 									buttons: Ext.MessageBox.OK,
 									fn: function(btn){
 										that.storeProxy.loadPage(that.storeProxy.currentPage);
@@ -1446,6 +1446,101 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			});
 		settingTabPanel.setActiveTab(_basic);
 
+		var advancegTab = Ext.create("Ext.tab.Panel", {
+			frame: true,
+			border: 0,
+			plain: true,
+			layout: "card",
+			defaults: {
+				border: 0,
+				frame: true
+			},
+			items: []
+		});
+
+		var advanceform = Ext.create("Ext.form.Panel", {
+			layout: {
+				type: 'vbox',
+				align: "stretch"
+			},
+			frame: true,
+			border: false,
+			defaults: {
+				margin: "0 0 10 0"
+			},
+			plain: true,
+			flex: 1,
+			height: "100%",
+			fieldDefaults: {
+				msgTarget: "side",
+				labelAlign: "left",
+				labelWidth: 75
+			},
+			items:[
+				advancegTab
+			],
+			buttons: [
+				{
+					text: "更新",
+					handler: function(widget, e){
+						var me = this, form = me.up("form").getForm(), result = form.getValues();
+
+						var Items = [], Texts = [], needSubmitData;
+						for (var k in result){
+							var r = result[k];
+							if (k.indexOf("text") > -1 && r !== ""){
+								var id = k.split("_")[2];
+								Texts.push({ID: id, Text: r});
+							}else{
+								if (r !== ""){
+									Items.push(r);
+								}
+							}
+						}
+						
+						needSubmitData = {
+							"CustomerID" : CTGUID
+						}
+						if (Items.length > 0){
+							needSubmitData["Items"] = Items;
+						}
+						if (Texts.length > 0){
+							needSubmitData["Texts"] = Texts;
+						}
+
+						needSubmitData = Ext.JSON.encode(needSubmitData);
+						console.log(needSubmitData);
+						customerServer.UpdateCustomerItem(CTGUID, needSubmitData, {
+							success: function(isSuccess){
+								if (isSuccess){
+									Ext.MessageBox.show({
+										title: "更新成功!",
+										msg: "更新成功!",
+										buttons: Ext.MessageBox.OK,
+										handler: function(btn){
+											win.close();
+										}
+									})
+								}
+							},
+							failure: function(error){
+								Ext.Error.raise(error)
+							}
+						})
+					}
+				}
+			]
+		});
+
+		settingTabPanel.add({
+			title: "高级资料",
+			layout: "fit",
+			border: 0,
+			items: [
+				advanceform
+			]	
+		})
+
 		//高级面板选项
 		var _replace = function(target, needId, typeText){
 			for (var k in target){
@@ -1465,7 +1560,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 
 		var serviceItems = Beet.constants.CTServiceType;
 		//复制一个 不影响原有的
-		var advanceProfile = [];
+		var advanceProfile = [], _firsttab;
 		advanceProfile = Ext.clone(Beet.cache.advanceProfile);
 		if (customerData.length > 0){
 			for (var k in customerData){
@@ -1480,10 +1575,12 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 		for (var service in serviceItems){
 			var title = serviceItems[service], data = advanceProfile[service], items = [];
 			if (!data || data.length < 0){continue;}
-			var _t = settingTabPanel.add({
+			var _t = advancegTab.add({
 				title : title,
 				flex: 1,
+				border: 0,
 				layout: "anchor",
+				height: "100%",
 				fieldDefaults: {
 					msgTarget : "side",
 					labelAlign: "left",
@@ -1491,7 +1588,11 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 				},
 				items: data
 			});
+			if (_firsttab == undefined){
+				_firsttab = _t;
+			}
 		}
+		advancegTab.setActiveTab(_firsttab);
 
 		win = Ext.widget("window", {
 			title: CTName + " 的资料信息",
@@ -1504,6 +1605,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			border: false,
 			modal: true,
 			maximizable: true,
+			border: 0,
 			items: settingTabPanel
 			/*
 			这里改为提交按钮
