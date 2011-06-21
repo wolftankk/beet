@@ -4,6 +4,63 @@ if (!String.prototype.replaceAll){
 	}
 }
 
+var monthesList= Ext.create("Ext.data.Store", {
+	fields: ["attr", "name"],
+	data: [
+		{ attr: 1, name: "01"},
+		{ attr: 2, name: "02"},
+		{ attr: 3, name: "03"},
+		{ attr: 4, name: "04"},
+		{ attr: 5, name: "05"},
+		{ attr: 6, name: "06"},
+		{ attr: 7, name: "07"},
+		{ attr: 8, name: "08"},
+		{ attr: 9, name: "09"},
+		{ attr: 10, name: "10"},
+		{ attr: 11, name: "11"},
+		{ attr: 12, name: "12"}
+	]	
+})
+
+
+var daysList = Ext.create("Ext.data.Store", {
+	fields: ["attr", "name"],
+	data: [
+		{ attr: 1, name: "01"},
+		{ attr: 2, name: "02"},
+		{ attr: 3, name: "03"},
+		{ attr: 4, name: "04"},
+		{ attr: 5, name: "05"},
+		{ attr: 6, name: "06"},
+		{ attr: 7, name: "07"},
+		{ attr: 8, name: "08"},
+		{ attr: 9, name: "09"},
+		{ attr: 10, name: "10"},
+		{ attr: 11, name: "11"},
+		{ attr: 12, name: "12"},
+		{ attr: 13, name: "13"},
+		{ attr: 14, name: "14"},
+		{ attr: 15, name: "15"},
+		{ attr: 16, name: "16"},
+		{ attr: 17, name: "17"},
+		{ attr: 18, name: "18"},
+		{ attr: 19, name: "19"},
+		{ attr: 20, name: "20"},
+		{ attr: 21, name: "21"},
+		{ attr: 22, name: "22"},
+		{ attr: 23, name: "23"},
+		{ attr: 24, name: "24"},
+		{ attr: 25, name: "25"},
+		{ attr: 26, name: "26"},
+		{ attr: 27, name: "27"},
+		{ attr: 28, name: "28"},
+		{ attr: 29, name: "29"},
+		{ attr: 30, name: "30"},
+		{ attr: 31, name: "31"}
+	]	
+})
+
+
 
 //导航空间
 Ext.namespace("Beet.apps.Menu", "Beet.apps.Menu.Tabs");
@@ -838,17 +895,31 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 								{
 									fieldLabel: "会员卡号",
 									name: "CardNo",
-									allowBlank: false,
+									allowBlank: false
 								},
 								{
 									fieldLabel: "身份证",
 									name: "PersonID"
 								},
 								{
+									xtype: "combobox",
+									fieldLabel: "出生月份",
+									store: monthesList,
+									name: "Month",
+									queryMode: "local",
+									displayField: "name",
+									valueField: "attr",
+									allowBlank: false
+								},
+								{
+									xtype: "combobox",
 									fieldLabel: "出生日期",
-									xtype: "datefield",
-									name: "Birthday",
-									format: 'Y年m月d日',
+									store: daysList,
+									name: "Day",
+									queryMode: "local",
+									displayField: "name",
+									valueField: "attr",
+									allowBlank: false
 								},
 								{
 									fieldLabel: "手机号码",
@@ -933,12 +1004,6 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 			result = form.getValues(), needSubmitData, serverItems = {}, customerServer = Beet.constants.customerServer;
 
 		if (result["Name"] != "" && result["Mobile"] != ""){
-			if (result["Birthday"] == ""){
-				result["Birthday"] = Beet.constants.GRANDMADATE;
-			}else{
-				var now = new Date(), timezoneOffset = now.getTimezoneOffset() * 60;
-				result["Birthday"] = ((+Ext.Date.parse(result["Birthday"], "Y年m月d日")) / 1000) - timezoneOffset;
-			}
 			//取得已勾选的服务项目
 			serverItems = result["serverName"];
 			needSubmitData = Ext.JSON.encode(result);
@@ -1037,7 +1102,9 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 								var id = k.split("_")[2];
 								Texts.push({ID: id, Text: r});
 							}else{
-								Items.push(r);
+								if (r !== ""){
+									Items.push(r);
+								}
 							}
 						}
 						
@@ -1145,10 +1212,8 @@ Ext.define("Beet.apps.Viewport.CustomerList.Model", {
 		"CTID",
 		"CTCardNo",
 		"CTName",
-		{ name: "CTBirthday", convert: function(value, record){
-			var birthday = (value - Beet.constants.timezoneOffset)* 1000;
-			return Ext.Date.format(new Date(birthday), "Y年m月d日");
-		}},
+		"CTBirthdayMonth",
+		"CTBirthdayDay",
 		"CTMobile",
 		"CTPhone",
 		"CTJob",
@@ -1305,7 +1370,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 	popEditWindow: function(rawData, customerData){
 		var that = this, CTGUID = rawData.CTGUID, CTName = rawData.CTName,
 			customerServer = Beet.constants.customerServer, win;
-		
+
 		//get serviceItems;
 		//tabPanel
 		var settingTabPanel = Ext.create("Ext.tab.Panel", {
@@ -1363,12 +1428,26 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 					dataIndex: "CTPersonID"
 				},
 				{
+					xtype: "combobox",
+					fieldLabel: "出生月份",
+					store: monthesList,
+					name: "Month",
+					queryMode: "local",
+					displayField: "name",
+					valueField: "attr",
+					allowBlank: false,
+					value: parseInt(rawData.CTBirthdayMonth, 10)
+				},
+				{
+					xtype: "combobox",
 					fieldLabel: "出生日期",
-					xtype: "datefield",
-					name: "Birthday",
-					format: 'Y年m月d日',
-					value: new Date(rawData.CTBirthday * 1000),
-					dataIndex: "CTBirthday"
+					store: daysList,
+					name: "Day",
+					queryMode: "local",
+					displayField: "name",
+					valueField: "attr",
+					allowBlank: false,
+					value: parseInt(rawData.CTBirthdayDay, 10)
 				},
 				{
 					fieldLabel: "手机号码",
@@ -1407,13 +1486,6 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 				handler: function(direction, e){
 					var me = this, form = me.up("form").getForm(), result = form.getValues();
 					if (result["Name"] != "" && result["Mobile"] != ""){
-						if (result["Birthday"] == "" || result["Birthday"] == "undefined" || !result["Birthday"]){
-							result["Birthday"] = Beet.constants.GRANDMADATE;
-						}else{
-							var now = new Date(), timezoneOffset = now.getTimezoneOffset() * 60;
-							result["Birthday"] = ((+Ext.Date.parse(result["Birthday"], "Y年m月d日")) / 1000) - timezoneOffset;
-						}
-
 						var needSubmitData = Ext.JSON.encode(result);
 						customerServer.UpdateCustomer(CTGUID, needSubmitData, {
 							success: function(){
@@ -1509,7 +1581,6 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 						}
 
 						needSubmitData = Ext.JSON.encode(needSubmitData);
-						console.log(needSubmitData);
 						customerServer.UpdateCustomerItem(CTGUID, needSubmitData, {
 							success: function(isSuccess){
 								if (isSuccess){
