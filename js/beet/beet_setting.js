@@ -89,11 +89,11 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 		that.callParent(arguments);
 	},
 	
-	refreshTreeList: function(){
+	refreshTreeList: function(callback){
 		var that = this;
 		that.storeProxy.load();
 		//update
-		Beet.apps.Viewport.getCTTypeData(null, true);
+		Beet.apps.Viewport.getCTTypeData(callback, true);
 	},
 
 	createTreeList: function(){
@@ -141,19 +141,21 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 			]	
 		})
 
-		var __preProcessData = function(data, _id){
-			var t = 0, __temp={};
-			while(true){
-				if (data[t] == undefined){ break;}
-				var id = data[t][_id];
-				__temp[id] = data[t];
-				t++;
-			}
-			return __temp;
-		}
 
-		Beet.cache.configArgs = Beet.cache.configArgs || {};
-		if (!Beet.cache.categoriesData){
+		var updateCategoryData = function(){
+			var customerServer = Beet.constants.customerServer;
+			var __preProcessData = function(data, _id){
+				var t = 0, __temp={};
+				while(true){
+					if (data[t] == undefined){ break;}
+					var id = data[t][_id];
+					__temp[id] = data[t];
+					t++;
+				}
+				return __temp;
+			}
+
+			Beet.cache.configArgs = Beet.cache.configArgs || {};
 			customerServer.GetCTCategoryDataTOJSON("", false, {
 				success: function(data){
 					data = Ext.JSON.decode(data);
@@ -166,9 +168,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 					Ext.Error.raise(error);
 				}
 			})
-		}
 
-		if (!Beet.cache.configArgs["customer_item"]){
 			customerServer.GetCTItemDataToJSON("", true, {
 				success: function(data){
 					data = Ext.JSON.decode(data);
@@ -180,7 +180,8 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 				}
 			});
 		}
-		
+
+		updateCategoryData();
 
 		var _addItem = function(widget, e, _type){
 			var parentMenu = widget.parentMenu, rawData = parentMenu.raw, leaf = (_type == "category" ? false : true), method;
@@ -262,7 +263,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 								form.reset();
 								that.refreshTreeList();
 							}else{
-								Ext.MessageBox.alert("添加失败", "添加分类失败");
+								Ext.MessageBox.alert("添加失败", "添加项目失败");
 							}
 						},
 						failure: function(error){
@@ -329,7 +330,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 									buttons: Ext.MessageBox.OK	
 								});
 								form.reset();
-								that.refreshTreeList();
+								that.refreshTreeList(updateCategoryData);
 							}else{
 								Ext.MessageBox.alert("添加失败", "添加属性失败");
 							}
@@ -471,7 +472,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 										}else{
 											Ext.MessageBox.alert("提示", "编辑项目失败");
 										}
-										that.refreshTreeList();
+										that.refreshTreeList(updateCategoryData);
 									},
 									failure: function(error){
 										Ext.Error.raise(error);
@@ -544,7 +545,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 										}else{
 											Ext.MessageBox.alert("提示", "编辑分类失败");
 										}
-										that.refreshTreeList();
+										that.refreshTreeList(updateCategoryData);
 									},
 									failure: function(error){
 										Ext.Error.raise(error);
@@ -612,7 +613,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 									msg: "删除" + (leaf ? "项目" : "分类") + ": " + rawData.text + "成功",
 									buttons: Ext.MessageBox.OK,
 									fn: function(btn){
-										that.refreshTreeList();
+										that.refreshTreeList(updateCategoryData);
 									}
 								})	
 							},
