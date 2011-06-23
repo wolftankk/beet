@@ -759,6 +759,8 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 							item["xtype"] = "fieldset";
 						}
 					}else if(_data["category"].length > 0 || _data["pid"] == -1){
+						//need reset
+						item = {};
 						item["fieldLabel"] = _data["label"];
 						item["pid"] = _data["pid"];
 						item["_id"] = _data["id"];
@@ -766,10 +768,14 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 						item["xtype"] = "fieldset";
 						item["flex"] = 1;
 						item["items"] = [];
+						
 						_preprocess(_data, item["items"], true);	
 						if (isSub){
 							cache.push(item);
 							item = {};
+						}else{
+							cache.push(item);
+							continue;
 						}
 					}
 				}
@@ -794,6 +800,9 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 							boxLabel: _data["label"],
 							name: "category_" + _data["pid"]
 						}
+						if (target["pid"] == -1){
+							item["xtype"] = inputmode == 1 ? "radio" : "checkbox";
+						}
 					}
 
 					if (isSub){
@@ -804,9 +813,6 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 			}else{
 
 			}
-		}
-		if (!isSub){
-			cache.push(item);
 		}
 	}
 
