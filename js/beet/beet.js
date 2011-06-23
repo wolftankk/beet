@@ -800,6 +800,7 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 							boxLabel: _data["label"],
 							name: "category_" + _data["pid"]
 						}
+						//主层父类pid
 						if (target["pid"] == -1){
 							item["xtype"] = inputmode == 1 ? "radio" : "checkbox";
 						}
@@ -1108,7 +1109,11 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 								var id = k.split("_")[2];
 								Texts.push({ID: id, Text: r});
 							}else{
-								if (r !== ""){
+								if (Ext.isArray(r)){
+									for (var _c in r){
+										Items.push(r[_c]);
+									}	
+								}else{
 									Items.push(r);
 								}
 							}
@@ -1571,7 +1576,13 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 								Texts.push({ID: id, Text: r});
 							}else{
 								if (r !== ""){
-									Items.push(r);
+									if (Ext.isArray(r)){
+										for (var _c in r){
+											Items.push(r[_c]);
+										}	
+									}else{
+										Items.push(r);
+									}
 								}
 							}
 						}
@@ -1585,7 +1596,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 						if (Texts.length > 0){
 							needSubmitData["Texts"] = Texts;
 						}
-
+						
 						needSubmitData = Ext.JSON.encode(needSubmitData);
 						customerServer.UpdateCustomerItem(CTGUID, needSubmitData, {
 							success: function(isSuccess){
