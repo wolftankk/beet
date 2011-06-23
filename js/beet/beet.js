@@ -83,7 +83,7 @@ Beet.apps.Menu.Items = [
 					{
 						xtype: 'buttongroup',
 						title: '会员会籍',
-						width: 250,
+						width: '100%',
 						layout: "anchor",
 						frame: true,
 						defaults: {
@@ -135,16 +135,6 @@ Beet.apps.Menu.Items = [
 								}
 							}
 						]
-					},
-					{
-						xtype: 'buttongroup',
-						title: '312313',
-						layout: 'anchor'
-					},
-					{
-						xtype: 'buttongroup',
-						title: "other",
-						layout: "anchor"
 					}
 				]
 			}
@@ -168,12 +158,11 @@ Beet.apps.Menu.Items = [
 				defaultType: "buttongroup",
 				defaults: {
 					height: 100,
-					width: 250
+					width: '100%'
 				},
 				items: [
 					{
 						title: '客户管理',
-						width: 250,
 						layout: "anchor",
 						defaults: {
 							scale: "large",
