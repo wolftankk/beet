@@ -718,7 +718,7 @@ Beet.apps.Viewport.getColumnsData = function(__callback){
 }
 
 Beet.apps.Viewport.getCTTypeData = function(__callback, force){
-	if (Beet.cache["advanceProfile"] || !force){ return;}
+	//if (Beet.cache["advanceProfile"] || !force){ return;}
 	var customerServer = Beet.constants.customerServer;
 	Beet.cache["advanceProfile"] = {};
 
