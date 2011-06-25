@@ -44,7 +44,7 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 			listen: {
 				keypress: function(field, e){
 					var keyCode = e.getKey();
-					if (keyCode == 13){
+					if (keyCode == e.ENTER){
 						this.nextSibling().focus();
 					}
 				}
@@ -60,7 +60,7 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 			enableKeyEvents: true,
 			listen: {
 				keypress: function(field, e){
-					if (e.getKey() == 13){
+					if (e.getKey() == e.ENTER){
 						this.nextSibling().focus()
 					}
 				}
@@ -68,12 +68,6 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 		}
 	],
 	buttons: [
-		{
-			text: "重置",		
-			handler: function(){
-				this.up('form').getForm().reset();
-			}
-		},
 		{
 			text: "确定",
 			formBind: true,
@@ -102,6 +96,12 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 						}
 					});	
 				}
+			}
+		},
+		{
+			text: "重置",		
+			handler: function(){
+				this.up('form').getForm().reset();
 			}
 		}
 	]

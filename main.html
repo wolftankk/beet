@@ -13,7 +13,6 @@
 		<!--[if lt IE 9]>
 		<script src="js/html5.js"></script>
 		<![endif]-->
-		<!-- load yahoo and my js -->
 		<script type="text/javascript" src="js/bootstrap.js"></script>
 		<script type="text/javascript" src="js/ext-lang-zh_CN.js"></script>
 		<script type="text/javascript" src="js/beet/beet_connection.js"></script>
@@ -26,6 +25,7 @@
 		<script type="text/javascript" src="js/beet/beet_plugins.js"></script>
 		<script type="text/javascript" src="js/beet/beet_setting.js"></script>
 
+		<script type="text/javascript" src="js/beet/beet_customer.js"></script>
 		<script type="text/javascript" src="js/beet/beet.js"></script>
 	</head>
 	<body>
@@ -46,33 +46,8 @@
 					if (!userId || !sessionId){
 						window.location = "index.html";
 					}
-					/*
-					customerLoginServer.GetSessionID({
-						success: function(sid){
-							sessionId = sid;
-							Ext.util.Cookies.set("_sid", sid);
-							
-							console.log(sid)
-							if (!userId || !sessionId){
-								window.location = "index.html";
-							}
 
-						},
-						failure: function(error){
-							var message = error["message"].replaceAll("\x0d\x0a", "<br />");
-							Ext.MessageBox.show({
-								title: "警告",
-								msg: message,
-								buttons: Ext.MessageBox.OK,
-								fn: function(btn){
-									window.location = "index.html";
-								}
-							});
-						}
-					});
-					 */
 					Beet.apps.Viewport.getCTTypeData();
-
 				});
 	
 			</script>
