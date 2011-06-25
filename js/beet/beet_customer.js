@@ -412,9 +412,10 @@ Ext.define("Beet.apps.Viewport.CustomerList.Store", {
 
 Ext.define("Beet.apps.Viewport.CustomerList", {
 	extend: "Ext.panel.Panel",
-	layout: "anchor",
+	layout: "fit",
 	width: "100%",
 	height: "100%",
+	autoHeight: true,
 	minHeight: 400,
 	minWidth: 800,
 	frame: true,
@@ -426,13 +427,16 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 		Ext.apply(this, {
 			storeProxy: Ext.create("Beet.apps.Viewport.CustomerList.Store")
 		});
+		that.createCustomerGrid();
+
+		that.items = [
+			that.grid	
+		];
 		
 		that.callParent(arguments);
 	},
 	afterRender: function(){
-		var that = this, customerServer = Beet.constants.customerServer;
-		//get columns
-		that.createCustomerGrid();
+		var that = this;
 		that.callParent(arguments);
 	},
 	createCustomerGrid: function(){
@@ -471,9 +475,9 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			frame: true,
 			collapsible: false,	
 			rorder: false,
-			width: "100%",
-			height: "100%",
-			layout: "anchor",
+			bodyBorder: false,
+			autoScroll: true,
+			autoHeight: true,
 			border: 0,
 			columnLines: true,
 			viewConfig: {
@@ -500,8 +504,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 				displayInfo: false,
 				displayMsg: '当前显示 {0} - {1} 到 {2}',
 				emptyMsg: "没有数据"
-			}),
-			renderTo: that.body
+			})
 		})
 	},
 	editCustomer: function(){
