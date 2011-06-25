@@ -415,6 +415,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 	layout: "fit",
 	width: "100%",
 	height: "100%",
+	bodyBorder: false,
 	autoHeight: true,
 	minHeight: 400,
 	minWidth: 800,
@@ -548,25 +549,22 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 		//tabPanel
 		var settingTabPanel = Ext.create("Ext.tab.Panel", {
 			border: false,
-			plain: true,
-			layout: "card",
 			bodyBorder: false,
+			autoHeight: true,
 			autoScroll: true,
 			plain: true,
 			defaults: {
 				border: false,
-				frame: true
+				frame: true,
+				autoScroll: true
 			},
 			items: []
 		});
 
 
 		var basicform = Ext.widget("form", {
-			layout: {
-				type: 'vbox',
-				align: "stretch"
-			},
 			frame: true,
+			autoHeight: true,
 			autoScroll: true,
 			border: false,
 			bodyBorder: false,
@@ -697,24 +695,19 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 		var advancegTab = Ext.create("Ext.tab.Panel", {
 			border: false,
 			plain: true,
-			layout: "card",
 			height: "100%",
-			autoScroll: true,
 			bodyBorder: false,
 			defaults: {
 				border: 0,
-				frame: true
+				frame: true,
+				autoScroll: true,
+				autoHeight: true
 			},
 			items: []
 		});
 
 		var advanceform = Ext.create("Ext.form.Panel", {
-			layout: {
-				type: 'vbox',
-				align: "stretch"
-			},
 			frame: true,
-			autoScroll: true,
 			border: false,
 			defaults: {
 				margin: "0 0 10 0"
@@ -836,6 +829,9 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 				border: 0,
 				layout: "anchor",
 				height: "100%",
+				defaults: {
+					margin: "0 0 10 0"
+				},
 				fieldDefaults: {
 					msgTarget : "side",
 					labelAlign: "left",
@@ -851,9 +847,10 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 
 		win = Ext.widget("window", {
 			title: CTName + " 的资料信息",
-			width: 600,
+			width: 650,
 			height: 500,
 			minHeight: 400,
+			autoHeight: true,
 			autoScroll: true,
 			layout: "fit",
 			resizable: true,
@@ -900,14 +897,14 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 										})
 									},
 									failure: function(error){
-										Ext.Error.railse("删除用户失败");
+										Ext.Error.raise("删除用户失败");
 									}
 								})
 							}
 						}
 					});
 				}else{
-					Ext.Error.railse("删除用户失败")
+					Ext.Error.raise("删除用户失败");
 				}
 			}
 		});

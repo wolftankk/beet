@@ -649,7 +649,6 @@ Beet.apps.Viewport.getColumnsData = function(__callback){
 }
 
 Beet.apps.Viewport.getCTTypeData = function(__callback, force){
-	//if (Beet.cache["advanceProfile"] || !force){ return;}
 	var customerServer = Beet.constants.customerServer;
 	Beet.cache["advanceProfile"] = {};
 
@@ -661,16 +660,23 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 					var _data = target[k][citem];
 					if (_data["category"].length == 0){
 						if (_data["item"].length > 0){
-							var inputmode = _data["item"][0]["inputmode"];
+							var inputmode = _data["item"][0]["inputmode"], isSame = true;
+							for (var _p in _data["item"]){
+								if (_data["item"][_p]["inputmode"] == inputmode){
+									isSame = true;
+								}else{
+									isSame = false;
+								}
+							}
 							item["fieldLabel"] = _data["label"];
 							item["pid"] = _data["pid"];
 							item["_id"] = _data["id"];
-							//textfield
-							if (inputmode != 0){
+							item["collapsible"] = true;
+							if (isSame && inputmode != 0){
 								item["xtype"] = Beet.constants.CTInputMode[inputmode];
 							}else{
+								_data["_xtype"] = "fieldset";
 								item["xtype"] = "fieldset";
-								//item["frame"] = true;
 								item["title"] = _data["label"];
 							}
 							item["flex"] = 1;
@@ -687,12 +693,14 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 							item["_id"] = _data["id"];
 							item["flex"] = 1;
 							item["title"] = _data["label"];
+							item["collapsible"] = true;
 							item["xtype"] = "fieldset";
 						}
 					}else if(_data["category"].length > 0 || _data["pid"] == -1){
 						//need reset
 						item = {};
 						item["fieldLabel"] = _data["label"];
+						item["collapsible"] = true;
 						item["pid"] = _data["pid"];
 						item["_id"] = _data["id"];
 						item["title"] = _data["label"];
@@ -715,13 +723,12 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 					var _data = target[k][iId];
 					var inputmode = _data["inputmode"];
 					if (inputmode == 0){
-						//textfield
 						item = {
 							xtype: "textfield",
 							fieldLabel: _data["label"],
 							name: "text_type_" + _data["id"],
 							pid: _data["pid"],
-							_id: _data["id"]
+							_id: _data["id"],
 						}
 					}else{
 						//radio checkbox
@@ -732,7 +739,7 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 							name: "category_" + _data["pid"]
 						}
 						//主层父类pid
-						if (target["pid"] == -1){
+						if (target["pid"] == -1 || (target["_xtype"] && target["_xtype"] == "fieldset")){
 							item["xtype"] = inputmode == 1 ? "radio" : "checkbox";
 						}
 					}
