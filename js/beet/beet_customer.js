@@ -442,16 +442,31 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 	},
 	createCustomerGrid: function(){
 		var that = this, grid = that.grid, store = that.storeProxy, actions, __columns = [], columnsData = Beet.cache["customerColumns"];
-		actions = Ext.create("Beet.plugins.rowActions", {
-			header: "操作",	
-			autoWidth: true,
-			actions: [
-				{text: "编辑"},
-				{text: "删除"}
-			]
-		});
 		
-		//__columns.push(actions);//add rowactions
+		__columns.push(
+		{
+			xtype: 'actioncolumn',
+			width: 50,
+			items: [
+				{
+					icon: './resources/themes/images/fam/user_edit.png',
+					tooltip: "编辑用户",
+					handler:function(grid, rowIndex, colIndex){
+						var d = that.storeProxy.getAt(rowIndex)
+						that.editCustomerFn(d);
+					}
+				},"-",
+				{
+					icon: "./resources/themes/images/fam/user_delete.png",
+					tooltip: "删除用户",
+					handler: function(grid, rowIndex, colIndex){
+						var d = that.storeProxy.getAt(rowIndex)
+						that.deleteCustomerFn(d);
+					}
+				}
+			]
+		})
+		
 		for (var columnIndex in columnsData){
 			var columnData = columnsData[columnIndex], column;
 			if (!columnData["FieldHidden"]){
@@ -507,34 +522,36 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			})
 		})
 	},
+	editCustomerFn: function(parentMenu){
+		var that = this, rawData = parentMenu.rawData || parentMenu.raw, CTGUID = rawData.CTGUID, CTName = rawData.CTName;
+		if (CTGUID){
+			Ext.MessageBox.show({
+				title: "编辑用户",
+				msg: "是否要修改 " + CTName + " 的用户资料",
+				buttons: Ext.MessageBox.YESNO,
+				fn : function(btn){
+					if (btn == "yes"){
+						//popup window
+						var customerServer = Beet.constants.customerServer;
+						customerServer.GetCustomerItemToJson("CTGUID='"+CTGUID+"'", {
+							success: function(data){
+								data = Ext.JSON.decode(data);
+								that.popEditWindow(rawData, data["Data"]);
+							},
+							failure: function(error){
+							}
+						})
+					}
+				}
+			})	
+		}
+	},
 	editCustomer: function(){
 		var that = this, item;
 		item = Ext.create("Ext.Action", {
 			text: "编辑",
 			handler: function(widget, e){
-				var parentMenu = widget.parentMenu, rawData = parentMenu.rawData;
-					CTGUID = rawData.CTGUID, CTName = rawData.CTName;
-				if (CTGUID){
-					Ext.MessageBox.show({
-						title: "编辑用户",
-						msg: "是否要修改 " + CTName + " 的用户资料",
-						buttons: Ext.MessageBox.YESNO,
-						fn : function(btn){
-							if (btn == "yes"){
-								//popup window
-								var customerServer = Beet.constants.customerServer;
-								customerServer.GetCustomerItemToJson("CTGUID='"+CTGUID+"'", {
-									success: function(data){
-										data = Ext.JSON.decode(data);
-										that.popEditWindow(rawData, data["Data"]);
-									},
-									failure: function(error){
-									}
-								})
-							}
-						}
-					})	
-				}
+				that.editCustomerFn(widget.parentMenu)
 			}
 		});
 
@@ -870,41 +887,44 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 		})
 		win.show();
 	},
+	deleteCustomerFn: function(parentMenu){
+		var that = this, rawData = parentMenu.rawData || parentMenu.raw, CTGUID = rawData.CTGUID, CTName = rawData.CTName, customerServer = Beet.constants.customerServer;
+		if (CTGUID){
+			Ext.MessageBox.show({
+				title: "删除用户",
+				msg: "是否要删除 " + CTName + " ?",
+				buttons: Ext.MessageBox.YESNO,
+				fn: function(btn){
+					if (btn == "yes"){
+						customerServer.DeleteCustomer(CTGUID, {
+							success: function(){
+								Ext.MessageBox.show({
+									title: "删除成功",
+									msg: "删除用户: " + CTName + " 成功",
+									buttons: Ext.MessageBox.OK,
+									fn: function(){
+										that.storeProxy.loadPage(that.storeProxy.currentPage);
+									}
+								})
+							},
+							failure: function(error){
+								Ext.Error.raise("删除用户失败");
+							}
+						})
+					}
+				}
+			});
+		}else{
+			Ext.Error.raise("删除用户失败");
+		}
+	},
 	deleteCustomer: function(){
 		var that = this, item;
 		item = Ext.create("Ext.Action", {
 			text: "删除",
 			handler: function(widget, e){
-				var parentMenu = widget.parentMenu, rawData = parentMenu.rawData, CTGUID = rawData.CTGUID, CTName = rawData.CTName,
-					customerServer = Beet.constants.customerServer;
-				if (CTGUID){
-					Ext.MessageBox.show({
-						title: "删除用户",
-						msg: "是否要删除 " + CTName + " ?",
-						buttons: Ext.MessageBox.YESNO,
-						fn: function(btn){
-							if (btn == "yes"){
-								customerServer.DeleteCustomer(CTGUID, {
-									success: function(){
-										Ext.MessageBox.show({
-											title: "删除成功",
-											msg: "删除用户: " + CTName + " 成功",
-											buttons: Ext.MessageBox.OK,
-											fn: function(){
-												that.storeProxy.loadPage(that.storeProxy.currentPage);
-											}
-										})
-									},
-									failure: function(error){
-										Ext.Error.raise("删除用户失败");
-									}
-								})
-							}
-						}
-					});
-				}else{
-					Ext.Error.raise("删除用户失败");
-				}
+				var parentMenu = widget.parentMenu;
+				that.deleteCustomerFn(parentMenu);
 			}
 		});
 		return item
