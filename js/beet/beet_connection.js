@@ -135,7 +135,31 @@ Beet_connection = {
 						Ext.util.Cookies.set("_sid", _sid);
 					}
 				}
-
+				
+				if (resp.error){
+					if (resp.error.name == "JsonRPCError"){
+						Ext.MessageBox.show({
+							title: "错误",
+							msg: "因较长时间未操作, 用户已被注销, 请重新登陆!",
+							buttons: Ext.MessageBox.OK,
+							fn: function(btn){
+								Ext.util.Cookies.clear();
+								window.location = "index.html";
+							}
+						})
+					}else{
+						Ext.MessageBox.show({
+							title: "错误",
+							msg: resp.error.message,
+							buttons: Ext.Message.OK,
+							fn: function(btn){
+								//Ext.util.Cookies.clear();
+								//window.location = "index.html";
+							}
+						})
+					}
+				}
+								
 				if (!callback.scope){
 					callback.success(responeObject);
 				}else{

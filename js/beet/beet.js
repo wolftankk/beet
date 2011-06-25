@@ -767,9 +767,10 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 
 	//get data
 	for (var st in Beet.constants.CTServiceType){
+		//debugger;
 		customerServer.GetCTTypeDataToJSON("ServiceType='"+st+"'", true, {
 			success: function(data){
-				data = Ext.JSON.decode(data);	
+				data = Ext.JSON.decode(data);
 				var sid = data["category"][0]["serviceid"], _tmp = [];
 				_preprocess(data, _tmp);
 				//这里直接生产界面

@@ -640,21 +640,15 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 						overflow: 'visible',
 					},
 					items: [
-						{	
-							text: "添加", 
-							menu: {
-								items:[
-									{text: "添加分类", handler: function(direction, e){
-										_addItem(direction, e, "category")	
-										}
-									},
-									{text: "添加项目", handler: function(direction, e){
-										_addItem(direction, e, "type")	
-										}
-									}
-								]
+						{text: "添加分类", handler: function(direction, e){
+								_addItem(direction, e, "category")	
 							}
 						},
+						{text: "添加项目", handler: function(direction, e){
+								_addItem(direction, e, "type")
+							}
+						},
+						"-",
 						{text: "编辑", handler: _editItem, disabled: editDisabled},
 						{text: "删除", handler: _delItem, disabled: editDisabled}
 					],
