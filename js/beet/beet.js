@@ -685,6 +685,10 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 							if (isSub){
 								cache.push(item);
 								item = {};
+							}else{
+								cache.push(item);
+								item = {};
+								continue;
 							}
 						}else{
 							//no item
@@ -705,15 +709,17 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 						item["_id"] = _data["id"];
 						item["title"] = _data["label"];
 						item["xtype"] = "fieldset";
+						_data["_xtype"] = "fieldset";
 						item["flex"] = 1;
 						item["items"] = [];
 						
-						_preprocess(_data, item["items"], true);	
+						_preprocess(_data, item["items"], true);
 						if (isSub){
 							cache.push(item);
 							item = {};
 						}else{
 							cache.push(item);
+							item = {};
 							continue;
 						}
 					}
@@ -747,6 +753,10 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 					if (isSub){
 						cache.push(item);
 						item = {};
+					}else{
+						cache.push(item);
+						item = {};
+						continue;
 					}
 				}
 			}else{
