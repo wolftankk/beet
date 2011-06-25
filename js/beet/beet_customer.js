@@ -483,11 +483,10 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			columnLines: true,
 			viewConfig: {
 				trackOver: false,
-				stripeRows: false
+				stripeRows: true
 			},
 			columns: __columns,
 			plugins: [
-				actions,
 				{
 					ptype: "b_contextmenu",
 					contextMenu: [

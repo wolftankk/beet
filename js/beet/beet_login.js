@@ -92,7 +92,15 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 							}
 						},
 						failure: function(error){
-							Ext.Msg.alert("警告", "无法链接到服务器: " + error);
+							if (Ext.isObject(error)){
+								if (error['statusText']=='communications failure'){
+									Ext.Msg.alert("警告", "无法链接到服务器: 网络通讯错误!");
+								}else {
+									Ext.Msg.alert("警告", "无法链接到服务器: "+error['statusText']);
+								}										
+							}else {
+								Ext.Msg.alert("警告", "无法链接到服务器: "+error);
+							}
 						}
 					});	
 				}
