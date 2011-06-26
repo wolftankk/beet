@@ -52,6 +52,18 @@ Beet.cache.Users = {};
 //plugin
 Ext.namespace("Beet.plugins");
 
+Beet.constants.OperatorsList = Ext.create("Ext.data.Store", {
+	fields: ["attr", "name"],
+	data: [
+		{ attr: ">", name: "大于"},
+		{ attr: ">=", name: "大于等于"},
+		{ attr: "<", name: "小于"},
+		{ attr: "<=", name: "小于等于"},
+		{ attr: "=", name: "等于"},
+		{ attr: "!=", name: "不等于"}	
+	]
+});
+
 Beet.constants.monthesList = Ext.create("Ext.data.Store", {
 	fields: ["attr", "name"],
 	data: [

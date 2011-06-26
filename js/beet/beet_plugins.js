@@ -362,7 +362,8 @@ Ext.define("Beet.plugins.proxyClient", {
 		var that = this, filter = "", filters = that.filters, method = that.b_method, writer = that.getWriter(), request = [], ajax_callback;
 
 		if (Ext.isDefined(filters["filter"])){
-			filter = that.encodeFilters(filters["filter"]);
+			//filter = that.encodeFilters(filters["filter"]);
+			filter = filters["filter"];
 		}
 		
 		//add filter
