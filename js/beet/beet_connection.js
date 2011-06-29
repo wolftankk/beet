@@ -137,7 +137,8 @@ Beet_connection = {
 				}
 				
 				if (resp.error){
-					if (resp.error.name == "JsonRPCError"){
+					var checkSession = new RegExp(/Session (.+)? could not be found/g);
+					if (checkSession.test(resp.error.message)){
 						Ext.MessageBox.show({
 							title: "错误",
 							msg: "因较长时间未操作, 用户已被注销, 请重新登陆!",
@@ -151,7 +152,7 @@ Beet_connection = {
 						Ext.MessageBox.show({
 							title: "错误",
 							msg: resp.error.message,
-							buttons: Ext.Message.OK,
+							buttons: Ext.MessageBox.OK,
 							fn: function(btn){
 								//Ext.util.Cookies.clear();
 								//window.location = "index.html";

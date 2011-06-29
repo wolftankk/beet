@@ -336,7 +336,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 							}
 						},
 						failure: function(error){
-							Ext.Error.railse(error);
+							Ext.Error.raise(error);
 						}
 					})
 				}
