@@ -69,8 +69,7 @@ Beet.apps.Menu.Items = [
 													Ext.create("Beet.apps.Viewport.CustomerList")
 												]	
 											});
-										})
-
+										});
 									}else{
 										Beet.workspace.workspace.setActiveTab(item);
 									}
@@ -500,7 +499,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 		that.addClsWithUI(that.b_collapsedCls);
 
 		//开始动画
-		configurePanel.hide()
+		configurePanel.hide();
 		parent.animate(anim);
 
 		return that;

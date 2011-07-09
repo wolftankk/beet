@@ -77,6 +77,14 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 									queryMode: "local",
 									displayField: "name",
 									valueField: "attr",
+									validator: function(value){
+										if (value > 12){
+											return "输入的月份值太大";
+										}else if (value < 1){
+											return "输入的月份值太小";
+										}
+										return true;
+									},
 									allowBlank: false
 								},
 								{
@@ -87,11 +95,26 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 									queryMode: "local",
 									displayField: "name",
 									valueField: "attr",
+									validator: function(value){
+										if (value > 31){
+											return "输入的日期太大";
+										}else if (value < 1){
+											return "输入的日期太小";
+										}
+										return true;
+									},
 									allowBlank: false
 								},
 								{
 									fieldLabel: "手机号码",
 									name: "Mobile",
+									validator: function(value){
+										var check = new RegExp(/\d+/g);
+										if (value.length == 11 && check.test(value)){
+											return true;
+										}
+										return "手机号码输入有误";
+									},
 									allowBlank: false
 								},
 								{
@@ -803,6 +826,14 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 					displayField: "name",
 					valueField: "attr",
 					allowBlank: false,
+					validator: function(value){
+						if (value > 12){
+							return "输入的月份值太大";
+						}else if (value < 1){
+							return "输入的月份值太小";
+						}
+						return true;
+					},
 					value: parseInt(rawData.CTBirthdayMonth, 10)
 				},
 				{
@@ -814,12 +845,27 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 					displayField: "name",
 					valueField: "attr",
 					allowBlank: false,
+					validator: function(value){
+						if (value > 31){
+							return "输入的日期太大";
+						}else if (value < 1){
+							return "输入的日期太小";
+						}
+						return true;
+					},
 					value: parseInt(rawData.CTBirthdayDay, 10)
 				},
 				{
 					fieldLabel: "手机号码",
 					name: "Mobile",
 					allowBlank: true,
+					validator: function(value){
+						var check = new RegExp(/\d+/g);
+						if (value.length == 11 && check.test(value)){
+							return true;
+						}
+						return "手机号码输入有误";
+					},
 					value: rawData.CTMobile,
 					dataIndex: "CTMobile"
 				},
@@ -920,7 +966,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 					text: "更新",
 					handler: function(widget, e){
 						var me = this, form = me.up("form").getForm(), result = form.getValues();
-
+						//if (!form.isValid()){}
 						var Items = [], Texts = [], needSubmitData;
 						for (var k in result){
 							var r = result[k];
