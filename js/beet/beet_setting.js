@@ -141,7 +141,6 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 			]	
 		})
 
-
 		var updateCategoryData = function(){
 			var customerServer = Beet.constants.customerServer;
 			var __preProcessData = function(data, _id){
@@ -306,8 +305,8 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 									name: "ServiceType",
 									queryMode: "local",
 									displayField: "name",
-									valueField: "attr"	
-								})
+									valueField: "attr"
+								});
 								break;
 						}
 
@@ -639,6 +638,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 					style: {
 						overflow: 'visible',
 					},
+					plain: true,
 					items: [
 						{text: "添加分类", handler: function(direction, e){
 								_addItem(direction, e, "category")	
@@ -654,7 +654,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 					],
 					raw : rawData,
 					leaf: leaf
-				})
+				});
 			}
 
 			e.stopEvent();

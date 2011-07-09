@@ -1422,11 +1422,12 @@ MyCustomerSvc.prototype.UpdateCustomerItem = function(ACustomerID, CustomerItemJ
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyCustomerSvc.prototype.GetCustomerAdvanceToJSON = function(AWhere, __callback) {
+MyCustomerSvc.prototype.GetCustomerAdvanceToJSON = function(AWhere, OnlySchema, __callback) {
   var __message = {
     "method" : "MyCustomerSvc.GetCustomerAdvanceToJSON",
     "params" : {
-      "AWhere": AWhere
+      "AWhere": AWhere,
+	  "OnlySchema": OnlySchema
       }
   }
   var __callbacks = null;

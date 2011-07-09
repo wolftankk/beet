@@ -41,8 +41,8 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 		
 		me._colunms = [];
 		me._modelFields = [];
-		Beet.cache.CustomerFilters = [];
-		customerServer.GetCustomerToJSON("", true, {
+		Beet.cache.AdvanceCustomerFilters = [];
+		customerServer.GetCustomerAdvanceToJSON("", true, {
 			success: function(data){
 				var data = Ext.JSON.decode(data);
 				var metaData = data["MetaData"];
@@ -51,7 +51,7 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 					var item = metaData[k];
 					if (!item.FieldHidden){
 						//下拉菜单
-						Beet.cache.CustomerFilters.push({
+						Beet.cache.AdvanceCustomerFilters.push({
 							attr: item.FieldName,
 							name: item.FieldLabel,
 							_type: item.FieldType
@@ -105,7 +105,7 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 					var item = result[c];
 					var key = item[0], op = item[1], value = item[2];
 					for (var _s in Beet.cache.CustomerFilters){
-						var filter = Beet.cache.CustomerFilters[_s];
+						var filter = Beet.cache.AdvanceCustomerFilters[_s];
 						if (filter.attr == key){
 							switch (filter._type){
 								case 1:
@@ -145,7 +145,7 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 			autoLoad: true,
 			proxy: {
 				type: "b_proxy",
-				b_method: customerServer.GetCustomerToJSON,
+				b_method: customerServer.GetCustomerAdvanceToJSON,
 				b_scope: customerServer,
 				filters: {
 					b_onlySchema: false,
@@ -184,7 +184,7 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 
 		var CustomerFiltersStore = Ext.create("Ext.data.Store", {
 			fields: ["attr", "name"],
-			data: Beet.cache.CustomerFilters
+			data: Beet.cache.AdvanceCustomerFilters
 		});
 		
 		var filter = new Ext.form.FieldSet({
