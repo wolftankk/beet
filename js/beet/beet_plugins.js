@@ -383,7 +383,7 @@ Ext.define("Beet.plugins.proxyClient", {
 					that.processResponse(operation, callback, scope, data)
 				},
 				failure: function(error){
-					console.log(error);
+					//console.log(error);
 				}
 			}
 			request.push(ajax_callback);

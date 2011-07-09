@@ -3,7 +3,7 @@ Ext.define("Beet.apps.Viewport.Setting.Store", {
 	extend: "Ext.data.TreeStore",
 	autoLoad: true,
 	root: {
-		text: "客户属性",
+		text: "客户总分类",
 		id: "src",
 		expanded: true
 	},
@@ -190,7 +190,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 			var categoryStore = (function(){
 				var _data = [];
 				if (!leaf){
-					_data.push({ "attr" : -1, "name" : "客户属性"});
+					_data.push({ "attr" : -1, "name" : "客户总分类"});
 				}
 				if (Beet.cache.categoriesData){
 					for (var k in Beet.cache.categoriesData){
@@ -236,6 +236,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 									fieldLabel: label,
 									store: inputmodeStore,
 									name: name,
+									allowBlank: false,
 									queryMode: "local",
 									displayField: "name",
 									valueField: "attr"	
@@ -305,7 +306,8 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 									name: "ServiceType",
 									queryMode: "local",
 									displayField: "name",
-									valueField: "attr"
+									valueField: "attr",
+									value: (rawData && rawData["serviceid"] ? rawData["serviceid"] : "")
 								});
 								break;
 						}
@@ -394,7 +396,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 			var categoryStore = (function(){
 				var _data = [];
 				if (!leaf){
-					_data.push({ "attr" : -1, "name" : "客户属性"});
+					_data.push({ "attr" : -1, "name" : "客户总分类"});
 				}
 				if (Beet.cache.categoriesData){
 					for (var k in Beet.cache.categoriesData){
@@ -631,27 +633,43 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 		var _itemRClick = function(view, record, item, index, e, options){
 			var rawData = record.raw, leaf = record.isLeaf();
 			
-			var editDisabled = record.isRoot();
-
 			if (!record.contextMenu){
+				var citems = [];
+
+				if (record.isRoot()){
+					citems = [{text: "添加分类", handler: function(direction, e){
+							_addItem(direction, e, "category")	
+						}
+					}]
+				}else{
+					if (record.isLeaf()){
+						citems = [
+							{text: "编辑", handler: _editItem },
+							{text: "删除", handler: _delItem }
+						];
+					}else{
+						citems = [
+							{text: "添加分类", handler: function(direction, e){
+									_addItem(direction, e, "category")	
+								}
+							},
+							{text: "添加项目", handler: function(direction, e){
+									_addItem(direction, e, "type")
+								}
+							},
+							"-",
+							{text: "编辑", handler: _editItem},
+							{text: "删除", handler: _delItem}
+						]
+					}
+				}
+
 				record.contextMenu = Ext.create("Ext.menu.Menu", {
 					style: {
 						overflow: 'visible',
 					},
 					plain: true,
-					items: [
-						{text: "添加分类", handler: function(direction, e){
-								_addItem(direction, e, "category")	
-							}
-						},
-						{text: "添加项目", handler: function(direction, e){
-								_addItem(direction, e, "type")
-							}
-						},
-						"-",
-						{text: "编辑", handler: _editItem, disabled: editDisabled},
-						{text: "删除", handler: _delItem, disabled: editDisabled}
-					],
+					items: citems,
 					raw : rawData,
 					leaf: leaf
 				});
