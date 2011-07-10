@@ -423,14 +423,19 @@ Ext.define("Beet.apps.Viewport.CustomerList.Store", {
 	autoLoad: true,
 	proxy: {
 		type: "b_proxy",
-		b_method: Beet.constants.customerServer.GetCustomerToJSON,
-		filters: {
-			b_onlySchema: false
+		b_method: Beet.constants.customerServer.GetCustomerPageData,
+		startParam: "start",
+		limitParam: "limit",
+		b_params: {
+			"start": 0,
+			"limit": 20000000,
+			"filter": ""
 		},
 		b_scope: Beet.constants.customerServer,
 		reader: {
 			type: "json",
-			root: "Data"
+			root: "Data",
+			totalProperty: "TotalCount"
 		}
 	}
 });
@@ -555,7 +560,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			],
 			bbar: Ext.create('Ext.PagingToolbar', {
 				store: this.storeProxy,
-				displayInfo: false,
+				displayInfo: true,
 				displayMsg: '当前显示 {0} - {1} 到 {2}',
 				emptyMsg: "没有数据"
 			})

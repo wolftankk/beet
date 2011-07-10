@@ -598,6 +598,15 @@ Ext.define("Beet.apps.Viewport", {
 			this.setHeight(h - 132);
 		}
 	},
+	removePanel: function(name){
+		var item = Beet.apps.Menu.Tabs[name];
+		if (item){
+			this.workspace.remove(item, true);
+			item.close();
+		}
+		Beet.apps.Menu.Tabs[name];
+		this.workspace.doLayout();
+	},
 	addPanel: function(name, title, config){
 		var item = this.workspace.add(Ext.apply({
 			inTab: true, 

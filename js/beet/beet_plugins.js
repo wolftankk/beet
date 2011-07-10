@@ -249,16 +249,16 @@ Ext.define("Beet.plugins.proxyClient", {
 	/*
 	 * @cfg {String} pageParam 请求页数时候的参数名, 默认为page
 	 */
-	//pageParam: "page",
+	pageParam: "page",
 	/*
 	 * @cfg {String} startParam 请求开始时候的参数名, 默认为start
 	 */
-	//startParam: "start",
+	startParam: "start",
 	/*
 	 * @cfg {String} limitParam 请求数据数量的参数名, 默认为limit
 	 */
-	//limitParam: "limit",
-	filterParam: "",
+	limitParam: "limit",
+	filterParam: "filter",
 	filters: [],
 	//sortParam: "sort",
 	directionParam: "dir",
@@ -306,24 +306,43 @@ Ext.define("Beet.plugins.proxyClient", {
 		return this.doRequest.apply(this, arguments);
 	},
 	buildRequest: function(operation){
+		var params = Ext.applyIf(operation.params || {}, this.b_params || {}),
+			request = [];
+		//params = Ext.applyIf(params, this.getParams(params, operation));
 
+		request = this.getParams(params, operation);
+
+		//operation.request = request;
+
+		return request;
 	},
 	processResponse: function(operation, callback, scope, data){
-		var that = this, reader = that.getReader();
+		var that = this, 
+			mc,
+			reader = that.getReader();
 		
 		if (that.preProcessData && Ext.isFunction(that.preProcessData)){
 			data = that.preProcessData(data);
 		}
 
-		result = reader.read(data);
+		var result = reader.read(data),
+		records = result.records,
+		length = records.length;
+
+		//mc = Ext.create('Ext.util.MixedCollection', true, function(r) {return r.getId();});
+		//mc.addAll(operation.records);
 
 		Ext.apply(operation, {
+			response: data,
 			resultSet: result
 		});
 
 		operation.setCompleted();
 		operation.setSuccessful();
-		Ext.callback(callback, scope || that, [operation]);
+
+		if (typeof callback == "function"){
+			Ext.callback(callback, scope || that, [operation]);
+		}
 	},
 	setException: function(){
 
@@ -343,14 +362,36 @@ Ext.define("Beet.plugins.proxyClient", {
 		return this.applyEncoding(min)
 	},
 	getParams: function(params, operation){
-		var that = this, filters = operation.filters,
-			filterParam = that.filter
+		params = params || {};
+		var me = this,
+			request = [],
+			isDef = Ext.isDefined,
+			page = operation.page,
+			start = operation.start,
+			limit = operation.limit,
 
-		if (filters && filterParam && filters.length > 0){
-			params[filterParam] = that.encodeFilters(filters);
+			pageParam = me.pageParam,
+			startParam = me.startParam,
+			limitParam = me.limitParam,
+			filterParam = me.filterParam;
+
+		if (startParam && Ext.isDefined(params[startParam])){
+			request.push(params[startParam]);
 		}
-	
-		return params;
+		
+		if (limitParam && isDef(params[limitParam])){
+			request.push(params[limitParam]);
+		}
+
+		if (filterParam && isDef(params[filterParam])){
+			request.push(params[filterParam]);
+		}
+
+		if (isDef(params["b_onlySchema"])){
+			request.push(params["b_onlySchema"]);
+		}
+
+		return request;
 	},
 	/*
 	 *
@@ -360,23 +401,10 @@ Ext.define("Beet.plugins.proxyClient", {
 	 */
 	doRequest: function(operation, callback, scope){
 		var that = this, filter = "", filters = that.filters, method = that.b_method, writer = that.getWriter(), request = [], ajax_callback;
-
-		if (Ext.isDefined(filters["filter"])){
-			//filter = that.encodeFilters(filters["filter"]);
-			filter = filters["filter"];
-		}
 		
-		//add filter
-		request.push(filter);//filters
+		request = that.buildRequest(operation);
 		
-		//add arguments
-		if (Ext.isDefined(filters["b_onlySchema"])){
-			request.push(filters["b_onlySchema"]);	
-		}
-		
-
 		if (Ext.isFunction(method)){
-			//ajax callback
 			ajax_callback = {
 				success: function(data){
 					data = Ext.JSON.decode(data);
@@ -410,6 +438,10 @@ Ext.define("Beet.plugins.proxyClient", {
 				__method.apply(that.b_scope, request);
 			}
 		}
+
+		operation.setStarted();
+
+		return request;
 	},
 
 	afterRequest: Ext.emptyFn,

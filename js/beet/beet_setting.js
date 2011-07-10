@@ -10,7 +10,7 @@ Ext.define("Beet.apps.Viewport.Setting.Store", {
 	proxy: {
 		type: "b_proxy",
 		b_method: Beet.constants.customerServer.GetCTTypeDataToJSON,
-		filters: {
+		b_params: {
 			b_onlySchema: false
 		},
 		preProcessData: function(data){
@@ -307,7 +307,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 									queryMode: "local",
 									displayField: "name",
 									valueField: "attr",
-									value: (rawData && rawData["serviceid"] ? rawData["serviceid"] : "")
+									value: ((rawData && rawData["serviceid"]) ? rawData["serviceid"] : "")
 								});
 								break;
 						}
