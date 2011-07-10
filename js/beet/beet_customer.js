@@ -421,14 +421,34 @@ Ext.define("Beet.apps.Viewport.CustomerList.Store", {
 	extend: "Ext.data.Store",
 	model: Beet.apps.Viewport.CustomerList.Model,
 	autoLoad: true,
+	pageSize: Beet.constants.PageSize,
+	load: function(options){
+		var me = this;
+		options = options || {};
+		if (Ext.isFunction(options)) {
+            options = {
+                callback: options
+            };
+        }
+
+        Ext.applyIf(options, {
+            groupers: me.groupers.items,
+            page: me.currentPage,
+            start: (me.currentPage - 1) * me.pageSize,
+            limit: me.pageSize,
+            addRecords: false
+        });      
+		me.proxy.b_params["start"] = options["start"];
+		me.proxy.b_params["limit"] = options["limit"]
+
+        return me.callParent([options]);
+	},
 	proxy: {
 		type: "b_proxy",
 		b_method: Beet.constants.customerServer.GetCustomerPageData,
 		startParam: "start",
 		limitParam: "limit",
 		b_params: {
-			"start": 0,
-			"limit": 20000000,
 			"filter": ""
 		},
 		b_scope: Beet.constants.customerServer,

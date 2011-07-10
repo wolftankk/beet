@@ -8,6 +8,7 @@ Ext.namespace("Beet.apps");
 Beet.constants = {
 	FAILURE: "{00000000-0000-0000-0000-000000000000}",
 	GRANDMADATE: -2208988800,
+	PageSize: 50,
 	
 	CTServiceType : {
 		"{C3DCAA88-D92F-435F-96B2-50BDC665F407}" : "美容",
