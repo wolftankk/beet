@@ -93,10 +93,65 @@ Beet.apps.Menu.Items = [
 		]
 	},
 	{
-		title: "库存管理"
+		title: "员工管理",
+		items:[
+			{
+				xtype: "container",
+				layout: "hbox",
+				defaultType: "buttongroup",
+				defaults:{
+					height: 100,
+					width: 250
+				},
+				items: [
+					{
+						xtype: "buttongroup",
+						title: "员工管理",
+						width: "100%",
+						layout: "anchor",
+						frame: true,
+						defaults: {
+							scale: 'large',
+							rowspan: 3
+						},
+						items: [
+							{
+								xtype: "button",
+								text: "增加员工",
+								id: "employee_addBtn",
+								tooltip: "点击添加员工",
+								handler: function(){
+									var item = Beet.apps.Menu.Tabs["addEmployee"];
+									if (!item){
+										Beet.apps.Viewport.getEmDepartments(function(){
+											Beet.workspace.addPanel("addEmployee", "添加员工", {
+												items: [
+													Ext.create("Beet.apps.Viewport.AddEmployee")
+												]	
+											})
+										})
+									}else{
+										Beet.workspace.workspace.setActiveTab(item);
+									}
+								}
+							},
+							{
+								xtype: "button",
+								text: "编辑员工",
+								id: "employee_editBtn",
+								tooltip:"编辑或者删除员工",
+								handler: function(){
+									
+								}
+							}
+						]
+					}
+				]
+			}
+		]
 	},
 	{
-		title: "人事管理"
+		title: "库存管理"
 	},
 	{
 		title: "排班管理"
@@ -110,7 +165,7 @@ Beet.apps.Menu.Items = [
 				defaultType: "buttongroup",
 				defaults: {
 					height: 100,
-					width: '100%'
+					width: 250
 				},
 				items: [
 					{
@@ -118,7 +173,7 @@ Beet.apps.Menu.Items = [
 						layout: "anchor",
 						defaults: {
 							scale: "large",
-							rowspan: 3
+							rowspan: 1
 						},
 						items: [
 							{
@@ -131,6 +186,47 @@ Beet.apps.Menu.Items = [
 												Ext.create("Beet.apps.Viewport.SettingViewPort")
 											]
 										});	
+									}else{
+										Beet.workspace.workspace.setActiveTab(item);
+									}
+								}
+							}
+						]
+					},
+					{
+						title: "员工管理",
+						layout: "anchor",
+						width: "100%",
+						defaults: {
+							scale: "large",
+							rowspan: 3
+						},
+						items: [
+							{
+								text: "部门设定",
+								handler: function(){
+									var item = Beet.apps.Menu.Tabs["employeeAttr"];
+									if (!item){
+										Beet.workspace.addPanel("employeeAttr", "部门设定", {
+											items: [
+												Ext.create("Beet.apps.EmployeeSettingViewPort.Viewport")
+											]
+										});
+									}else{
+										Beet.workspace.workspace.setActiveTab(item);
+									}
+								}
+							},
+							{
+								text: "分店设定",
+								handler: function(){
+									var item = Beet.apps.Menu.Tabs["subbranch"];
+									if (!item){
+										Beet.workspace.addPanel("subbranch", "分店设定", {
+											items: [
+												Ext.create("Beet.apps.ShopSettingViewPort.Viewport")
+											]
+										});
 									}else{
 										Beet.workspace.workspace.setActiveTab(item);
 									}
@@ -807,3 +903,18 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 }
 
 
+Beet.apps.Viewport.getEmDepartments = function(__callback){
+	var employeeServer = Beet.constants.employeeServer;
+	if (Beet.cache.employeeDepartments == undefined){
+		employeeServer.GetDepartmentData('', false, {
+			success: function(data){
+				console.log(data);	
+			},
+			failure: function(error){
+
+			}
+		});
+	}else{
+		__callback();
+	}
+}

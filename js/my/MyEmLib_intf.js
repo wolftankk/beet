@@ -1,4 +1,4 @@
-// Javascript JSON-RPC Code Generated for the  MyPrivilegeLib library.
+// Javascript JSON-RPC Code Generated for the  MyEmLib library.
 
 /* This codegen depends on the Yahoo YUI (http://developer.yahoo.com/yui/) toolkit and requires the 
    following libraries. Note that it's recommended to download yui and place a local copy next to
@@ -728,161 +728,14 @@ MultiDbLoginServiceV5.prototype.GetDefaultConnectionName = function(__callback) 
 }
 
 // End of service: MultiDbLoginServiceV5
-// Service: MyPrivilegeSvc
-function MyPrivilegeSvc(url){
+// Service: MyEMSvc
+function MyEMSvc(url){
   this.url = url;
 }
 
-MyPrivilegeSvc.prototype.AddUser = function(aUserID, APassword, AUserAgent, ADescription, AGroupID, bOwnerGUID, __callback) {
+MyEMSvc.prototype.CheckPrivilege = function(AOperatorID, AResourceID, __callback) {
   var __message = {
-    "method" : "MyPrivilegeSvc.AddUser",
-    "params" : {
-      "aUserID": aUserID,
-      "APassword": APassword,
-      "AUserAgent": AUserAgent,
-      "ADescription": ADescription,
-      "AGroupID": AGroupID,
-      "bOwnerGUID": bOwnerGUID
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
-MyPrivilegeSvc.prototype.AddResources = function(ResourceID, ResourceName, ResTypeID, Descript, __callback) {
-  var __message = {
-    "method" : "MyPrivilegeSvc.AddResources",
-    "params" : {
-      "ResourceID": ResourceID,
-      "ResourceName": ResourceName,
-      "ResTypeID": ResTypeID,
-      "Descript": Descript
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
-MyPrivilegeSvc.prototype.AddOperators = function(OperatorID, OperatorName, ParentOperatorID, Descript, __callback) {
-  var __message = {
-    "method" : "MyPrivilegeSvc.AddOperators",
-    "params" : {
-      "OperatorID": OperatorID,
-      "OperatorName": OperatorName,
-      "ParentOperatorID": ParentOperatorID,
-      "Descript": Descript
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
-MyPrivilegeSvc.prototype.GetOperatorList = function(AResourceID, __callback) {
-  var __message = {
-    "method" : "MyPrivilegeSvc.GetOperatorList",
-    "params" : {
-      "AResourceID": AResourceID
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
-MyPrivilegeSvc.prototype.CheckPrivilege = function(AOperatorID, AResourceID, __callback) {
-  var __message = {
-    "method" : "MyPrivilegeSvc.CheckPrivilege",
+    "method" : "MyEMSvc.CheckPrivilege",
     "params" : {
       "AOperatorID": AOperatorID,
       "AResourceID": AResourceID
@@ -915,9 +768,9 @@ MyPrivilegeSvc.prototype.CheckPrivilege = function(AOperatorID, AResourceID, __c
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyPrivilegeSvc.prototype.GetGroupListFromOperatorID = function(AOperatorID, IsName, __callback) {
+MyEMSvc.prototype.GetGroupListFromOperatorID = function(AOperatorID, IsName, __callback) {
   var __message = {
-    "method" : "MyPrivilegeSvc.GetGroupListFromOperatorID",
+    "method" : "MyEMSvc.GetGroupListFromOperatorID",
     "params" : {
       "AOperatorID": AOperatorID,
       "IsName": IsName
@@ -950,11 +803,11 @@ MyPrivilegeSvc.prototype.GetGroupListFromOperatorID = function(AOperatorID, IsNa
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyPrivilegeSvc.prototype.GetUserDataToJSON = function(bOnlySchema, __callback) {
+MyEMSvc.prototype.GetOperatorList = function(AResourceID, __callback) {
   var __message = {
-    "method" : "MyPrivilegeSvc.GetUserDataToJSON",
+    "method" : "MyEMSvc.GetOperatorList",
     "params" : {
-      "bOnlySchema": bOnlySchema
+      "AResourceID": AResourceID
       }
   }
   var __callbacks = null;
@@ -984,15 +837,432 @@ MyPrivilegeSvc.prototype.GetUserDataToJSON = function(bOnlySchema, __callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-// End of service: MyPrivilegeSvc
-// Service: MyLoginSvc
-function MyLoginSvc(url){
+MyEMSvc.prototype.AddDepartment = function(ADepName, __callback) {
+  var __message = {
+    "method" : "MyEMSvc.AddDepartment",
+    "params" : {
+      "ADepName": ADepName
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyEMSvc.prototype.UpdateDepartment = function(ADepName, AOLDDepID, __callback) {
+  var __message = {
+    "method" : "MyEMSvc.UpdateDepartment",
+    "params" : {
+      "ADepName": ADepName,
+      "AOLDDepID": AOLDDepID
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyEMSvc.prototype.DelDepartment = function(ADepID, __callback) {
+  var __message = {
+    "method" : "MyEMSvc.DelDepartment",
+    "params" : {
+      "ADepID": ADepID
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyEMSvc.prototype.GetDepartmentData = function(Where, OnlySchema, __callback) {
+  var __message = {
+    "method" : "MyEMSvc.GetDepartmentData",
+    "params" : {
+      "Where": Where,
+      "OnlySchema": OnlySchema
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyEMSvc.prototype.AddStore = function(AStoreName, __callback) {
+  var __message = {
+    "method" : "MyEMSvc.AddStore",
+    "params" : {
+      "AStoreName": AStoreName
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyEMSvc.prototype.UpdateStore = function(AStoreName, AOLDStoreID, __callback) {
+  var __message = {
+    "method" : "MyEMSvc.UpdateStore",
+    "params" : {
+      "AStoreName": AStoreName,
+      "AOLDStoreID": AOLDStoreID
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyEMSvc.prototype.DelStore = function(AStoreID, __callback) {
+  var __message = {
+    "method" : "MyEMSvc.DelStore",
+    "params" : {
+      "AStoreID": AStoreID
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyEMSvc.prototype.GetStoreData = function(AWhere, OnlySchema, __callback) {
+  var __message = {
+    "method" : "MyEMSvc.GetStoreData",
+    "params" : {
+      "AWhere": AWhere,
+      "OnlySchema": OnlySchema
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyEMSvc.prototype.AddEmployee = function(AUserID, AEmployessJSONData, __callback) {
+  var __message = {
+    "method" : "MyEMSvc.AddEmployee",
+    "params" : {
+      "AUserID": AUserID,
+      "AEmployessJSONData": AEmployessJSONData
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyEMSvc.prototype.UpdateEmployee = function(AUserID, UpdateJSONData, __callback) {
+  var __message = {
+    "method" : "MyEMSvc.UpdateEmployee",
+    "params" : {
+      "AUserID": AUserID,
+      "UpdateJSONData": UpdateJSONData
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyEMSvc.prototype.DelEmployee = function(AUserID, __callback) {
+  var __message = {
+    "method" : "MyEMSvc.DelEmployee",
+    "params" : {
+      "AUserID": AUserID
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyEMSvc.prototype.GetEmployeeData = function(Start, Limit, OnlySchema, AWhere, __callback) {
+  var __message = {
+    "method" : "MyEMSvc.GetEmployeeData",
+    "params" : {
+      "Start": Start,
+      "Limit": Limit,
+      "OnlySchema": OnlySchema,
+      "AWhere": AWhere
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+// End of service: MyEMSvc
+// Service: EMLoginSvc
+function EMLoginSvc(url){
   this.url = url;
 }
 
-MyLoginSvc.prototype.Login = function(UserName, Password, Language, ConnectionName, __callback) {
+EMLoginSvc.prototype.Login = function(UserName, Password, Language, ConnectionName, __callback) {
   var __message = {
-    "method" : "MyLoginSvc.Login",
+    "method" : "EMLoginSvc.Login",
     "params" : {
       "UserName": UserName,
       "Password": Password,
@@ -1027,9 +1297,9 @@ MyLoginSvc.prototype.Login = function(UserName, Password, Language, ConnectionNa
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyLoginSvc.prototype.Logout = function(__callback) {
+EMLoginSvc.prototype.Logout = function(__callback) {
   var __message = {
-    "method" : "MyLoginSvc.Logout",
+    "method" : "EMLoginSvc.Logout",
     "params" : {
       }
   }
@@ -1048,7 +1318,7 @@ MyLoginSvc.prototype.Logout = function(__callback) {
             this.callback.success(__result.result);
           else
             this.callback(__result.result);
-        };
+        }
 		Ext.util.Cookies.clear("_sid");
       },
       failure : function (o) {
@@ -1062,9 +1332,9 @@ MyLoginSvc.prototype.Logout = function(__callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyLoginSvc.prototype.GetConnectionNames = function(__callback) {
+EMLoginSvc.prototype.GetConnectionNames = function(__callback) {
   var __message = {
-    "method" : "MyLoginSvc.GetConnectionNames",
+    "method" : "EMLoginSvc.GetConnectionNames",
     "params" : {
       }
   }
@@ -1095,9 +1365,9 @@ MyLoginSvc.prototype.GetConnectionNames = function(__callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyLoginSvc.prototype.GetUserPrivileges = function(__callback) {
+EMLoginSvc.prototype.GetSessionID = function(__callback) {
   var __message = {
-    "method" : "MyLoginSvc.GetUserPrivileges",
+    "method" : "EMLoginSvc.GetSessionID",
     "params" : {
       }
   }
@@ -1128,37 +1398,4 @@ MyLoginSvc.prototype.GetUserPrivileges = function(__callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyLoginSvc.prototype.GetSessionID = function(__callback) {
-  var __message = {
-    "method" : "MyLoginSvc.GetSessionID",
-    "params" : {
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
-// End of service: MyLoginSvc
+// End of service: EMLoginSvc

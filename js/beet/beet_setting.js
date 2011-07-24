@@ -580,7 +580,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 						handler: btnHandler
 					}
 				]
-			})
+			});
 			
 			//appendTo detailPanel
 			var item = that.detailPanel.add({
@@ -589,7 +589,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 				items: [
 					form
 				]
-			})
+			});
 
 			that.detailPanel.setActiveTab(item)
 		}
@@ -713,3 +713,6 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 		return that.detailPanel;
 	}
 });
+
+
+

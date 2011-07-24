@@ -1,6 +1,17 @@
 Beet.config = {
-	customerUrl : "192.168.1.100:6661"
+	serverUrl: "192.168.1.100",
+	getPrivileUrl: function(){
+		return this.serverUrl + ":6660";
+	},
+	getCustomerUrl: function(){
+		return this.serverUrl + ":6661";
+	},
+	getEmployeeUrl: function(){
+		return this.serverUrl + ":6662";
+	}
 }
 
-Beet.constants.customerLoginServer = new CTLoginSvc("http://"+Beet.config.customerUrl+"/JSON");
-Beet.constants.customerServer = new MyCustomerSvc("http://"+Beet.config.customerUrl + "/JSON");
+Beet.constants.customerLoginServer = new CTLoginSvc("http://"+Beet.config.getCustomerUrl() +"/JSON");
+
+Beet.constants.customerServer = new MyCustomerSvc("http://"+Beet.config.getCustomerUrl() + "/JSON");
+Beet.constants.employeeServer = new MyEMSvc("http://" + Beet.config.getEmployeeUrl() + "/JSON");
