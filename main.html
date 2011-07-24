@@ -19,6 +19,7 @@
 		<script type="text/javascript" src="js/my/utf.js"></script>
 		<script type="text/javascript" src="js/my/MyCustomerLib_intf.js"></script>
 		<script type="text/javascript" src="js/my/MyEmLib_intf.js"></script>
+		<script type="text/javascript" src="js/my/MyPrivilegeLib_intf.js"></script>
 		<script type="text/javascript" src="js/my/xxtea.js"></script>
 
 		<script type="text/javascript" src="js/beet/beet_core.js"></script>
@@ -52,6 +53,15 @@
 					}
 
 					Beet.apps.Viewport.getCTTypeData();
+					if (Beet.cache.employee == undefined){
+						Beet.cache.employee = {}
+					}
+					if (Beet.cache.employee.departmentList == undefined){
+						getDepartmentList();
+					}
+					if (Beet.cache.employee.branchesList == undefined){
+						getSubbrachesList();
+					}
 				});
 	
 			</script>

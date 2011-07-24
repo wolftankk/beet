@@ -123,12 +123,10 @@ Beet.apps.Menu.Items = [
 								handler: function(){
 									var item = Beet.apps.Menu.Tabs["addEmployee"];
 									if (!item){
-										Beet.apps.Viewport.getEmDepartments(function(){
-											Beet.workspace.addPanel("addEmployee", "添加员工", {
-												items: [
-													Ext.create("Beet.apps.Viewport.AddEmployee")
-												]	
-											})
+										Beet.workspace.addPanel("addEmployee", "添加员工", {
+											items: [
+												Ext.create("Beet.apps.Viewport.AddEmployee")
+											]	
 										})
 									}else{
 										Beet.workspace.workspace.setActiveTab(item);
@@ -141,7 +139,18 @@ Beet.apps.Menu.Items = [
 								id: "employee_editBtn",
 								tooltip:"编辑或者删除员工",
 								handler: function(){
-									
+									var item = Beet.apps.Menu.Tabs["employeeList"];
+									if (!item){
+										Beet.apps.Viewport.getEmployeeColumnsData(function(){
+											Beet.workspace.addPanel("employeeList", "编辑员工", {
+												items: [
+													Ext.create("Beet.apps.Viewport.EmployeeList")
+												]	
+											})
+										})
+									}else{
+										Beet.workspace.workspace.setActiveTab(item);
+									}
 								}
 							}
 						]
@@ -696,11 +705,11 @@ Ext.define("Beet.apps.Viewport", {
 	},
 	removePanel: function(name){
 		var item = Beet.apps.Menu.Tabs[name];
+		Beet.workspace.workspace.getTabBar().closeTab(item.tab);
 		if (item){
 			this.workspace.remove(item, true);
 			item.close();
 		}
-		Beet.apps.Menu.Tabs[name];
 		this.workspace.doLayout();
 	},
 	addPanel: function(name, title, config){
@@ -738,6 +747,24 @@ Beet.apps.Viewport.getServiceItems = function(__callback){
 			},
 			failure: function(){
 				Ext.Error.railse("与服务器断开链接");
+			}
+		})
+	}else{
+		__callback();
+	}
+}
+
+Beet.apps.Viewport.getEmployeeColumnsData = function(__callback){
+	if (Beet.cache.employeeColumns == undefined){
+		Beet.constants.employeeServer.GetEmployeeData(0, 1, "", true, {
+			success: function(data){
+				var data = Ext.JSON.decode(data);
+				columnsData = data["MetaData"];
+				Beet.cache["employeeColumns"] = columnsData;
+				__callback();
+			},
+			failure: function(error){
+
 			}
 		})
 	}else{
@@ -902,19 +929,45 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 	}
 }
 
-
-Beet.apps.Viewport.getEmDepartments = function(__callback){
+function getDepartmentList(){
 	var employeeServer = Beet.constants.employeeServer;
-	if (Beet.cache.employeeDepartments == undefined){
-		employeeServer.GetDepartmentData('', false, {
-			success: function(data){
-				console.log(data);	
-			},
-			failure: function(error){
-
+	employeeServer.GetDepartmentData("", false, {
+		success: function(data){
+			data = Ext.JSON.decode(data);
+			data = data["Data"];
+			list = [];
+			for (var c in data){
+				var d = data[c];
+				list.push(
+					{attr: d["MD_DEPID"], name: d["MD_DEPNAME"]}
+				);
 			}
-		});
-	}else{
-		__callback();
-	}
+			Beet.cache.employee.departmentList = list;
+		},
+		failure: function(error){
+			Ext.Error.raise(error);
+		}
+	})
+}
+
+function getSubbrachesList(){
+	var employeeServer = Beet.constants.employeeServer;
+	employeeServer.GetStoreData("", false, {
+		success: function(data){
+			data = Ext.JSON.decode(data);
+			data = data["Data"];
+			list = [];
+			for (var c in data){
+				var d = data[c];
+				list.push(
+					{attr: d["MD_StoreID"], name: d["MD_StoreName"]}
+				);
+			}
+
+			Beet.cache.employee.branchesList = list;
+		},
+		failure: function(error){
+			Ext.Error.raise(error);
+		}
+	})
 }

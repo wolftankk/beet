@@ -1217,7 +1217,7 @@ MyEMSvc.prototype.DelEmployee = function(AUserID, __callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyEMSvc.prototype.GetEmployeeData = function(Start, Limit, OnlySchema, AWhere, __callback) {
+MyEMSvc.prototype.GetEmployeeData = function(Start, Limit, AWhere, OnlySchema, __callback) {
   var __message = {
     "method" : "MyEMSvc.GetEmployeeData",
     "params" : {

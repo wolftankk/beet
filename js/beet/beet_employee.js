@@ -7,17 +7,38 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 	},
 	border: 0,
 	suspendLayout: true,
+	lookMask: true,
 	initComponent: function(){
 		var me = this;
 		Ext.apply(this, {});
 
+		if (!me.departmentList){
+			me.createDeparentList();
+		}
+		if (!me.branchesList){
+			me.createBranchesList();
+		}
+		
 		me.baseInfoPanel = Ext.create("Ext.form.Panel", me.getBaseInfoPanelConfig());
-
 		me.items = [
 			me.baseInfoPanel
 		]
 
 		me.callParent(arguments);
+	},
+	createDeparentList: function(){
+		var me = this;
+		me.departmentList = Ext.create("Ext.data.Store", {
+			fields: ["attr", "name"],
+			data: Beet.cache.employee.departmentList	
+		});
+	},
+	createBranchesList: function(){
+		var me = this;
+		me.branchesList = Ext.create("Ext.data.Store", {
+			fields: ["attr", "name"],
+			data: Beet.cache.employee.branchesList
+		});
 	},
 	getBaseInfoPanelConfig: function(){
 		var me = this, config;
@@ -43,35 +64,53 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 				},
 				{
 					fieldLabel: "所属部门",
-					name: "emdep"
+					name: "emdep",
+					xtype: "combobox",
+					store: me.departmentList,
+					queryMode: "local",
+					displayField: "name",
+					valueField: "attr",
+					allowBlank: false,
 				},
 				{
 					fieldLabel: "所属分店",
-					name: "emstore"
+					name: "emstore",
+					xtype: "combobox",
+					store: me.branchesList,
+					queryMode: "local",
+					displayField: "name",
+					valueField: "attr",
+					allowBlank: false,
 				},
 				{
 					fieldLabel: "身份证号",
-					name: "empid"
+					name: "empid",
+					allowBlank: true
 				},
 				{
 					fieldLabel: "分机号",
-					name: "emext"
+					name: "emext",
+					allowBlank: true
 				},
 				{
 					fieldLabel: "地址",
-					name: "emaddr"
+					name: "emaddr",
+					allowBlank: true
 				},
 				{
 					fieldLabel: "QQ/MSN",
-					name: "emim"
+					name: "emim",
+					allowBlank: true
 				},
 				{
 					fieldLabel: "手机",
-					name: "emmobile"
+					name: "emmobile",
+					allowBlank: true
 				},
 				{
 					fieldLabel: "座机号",
-					name: "emphone"
+					name: "emphone",
+					allowBlank: true
 				},
 				{
 					fieldLabel: "出生月份",
@@ -81,7 +120,7 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 					queryMode: "local",
 					displayField: "name",
 					valueField: "attr",
-					allowBlank: false,
+					allowBlank: true,
 				},
 				{
 					fieldLabel: "出生日期",
@@ -91,7 +130,7 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 					queryMode: "local",
 					displayField: "name",
 					valueField: "attr",
-					allowBlank: false
+					allowBlank: true
 				},
 				{
 					fieldLabel: "入职日期",
@@ -113,8 +152,537 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 		}
 		return config;
 	},
-	_addEmployee: function(direction, e){
+	createAdminSeletorWindow: function(needSumbitData, _form){
+		var me = this, privilegeServer = Beet.constants.privilegeServer, employeeServer = Beet.constants.employeeServer;
+		var createWin = function(){
+			var list = [], _data = Beet.cache.adminData.data, _metadata = Beet.cache.adminData.metaData;
 
+			for (var c in _data){
+				var item = _data[c];
+				list.push({
+					inputValue: item["UserGUID"],
+					name: "_etype",
+					boxLabel: item["UserName"] + "   "  + item["Descript"]
+				});
+			}
+
+			var win = Ext.widget("window", {
+				title: "选择员工关联的操作员",
+				width: 450,
+				height: 300,
+				minHeight: 200,
+				autoHeight: true,
+				autoScroll: true,
+				layout: "fit",
+				resizable: true,
+				border: false,
+				modal: true,
+				maximizable: true,
+				border: 0,
+				bodyBorder: false,
+				items: [
+					{
+						xtype: "form",
+						frame: true,
+						border: false,
+						plain: true,
+						height: "100%",
+						fieldDefaults: {
+							msgTarget: "side",
+							labelAlign: "left",
+							labelWidth: 75
+						},
+						defaultType: "radio",
+						items: list,
+						buttons: [
+							{
+								text: "提交",
+								handler: function(widget, e){
+									var t = this, form = t.up("form").getForm(), result = form.getValues();
+									if (result["_etype"]){
+										var _id = result["_etype"];
+										win.close();
+										employeeServer.AddEmployee(_id, needSumbitData, {
+											success: function(uid){
+												if (uid > -1){
+													Ext.MessageBox.show({
+														title: "添加成功!",
+														msg: "是否需要继续添加员工?",
+														buttons: Ext.MessageBox.YESNO,
+														fn: function(btn){
+															if (btn == "yes"){
+																_form.reset();
+															}else{
+																if (Beet.apps.Menu.Tabs["addEmployee"]){
+																	Beet.workspace.removePanel("addEmployee");
+																}
+															}
+														}
+													})
+												}
+											},
+											failure: function(error){
+												Ext.Error.raise(error);
+											}
+										})
+									}
+								}
+							}
+						]
+					}
+				]
+			})
+
+			me.popAdminSelectorWindow = win;
+			win.show();
+		}
+
+		if (Beet.cache.adminData == undefined){
+			Beet.cache.adminData = {};
+			privilegeServer.GetUserDataToJSON(false, {
+				success: function(data){
+					data = Ext.JSON.decode(data);
+					Beet.cache.adminData.data = data["Data"];
+					Beet.cache.adminData.metaData = data["MetaData"];
+
+					createWin();
+				},
+				failure: function(error){
+					Ext.Error.raise(error);
+				}
+			})
+		}else{
+			createWin();
+		}
+	},
+	_addEmployee: function(direction, e){
+		var me = this, form = me.up("form").getForm(), parent = me.ownerCt.ownerCt, result = form.getValues(),needSumbitData, employeeServer = Beet.constants.employeeServer;
+		if (form.isValid()){
+			needSumbitData = Ext.JSON.encode(result);
+			Ext.MessageBox.show({
+				title: "增加员工",
+				msg: "是否需要添加员工: " + result["emname"],
+				buttons: Ext.MessageBox.YESNO,
+				fn: function(btn){
+					if (btn == "yes"){
+						parent.createAdminSeletorWindow(needSumbitData, form);
+					}
+				}
+			});
+		}
+	}
+});
+
+Ext.define("Beet.apps.Viewport.EmployeeList.Model", {
+	extend: "Ext.data.Model",
+	fields: [
+		"EM_UserId",
+		"EM_NAME",
+		"EM_DEP",
+		"EM_DEPNAME",
+		"EM_PID",
+		"EM_STOREID",
+		"EM_STORENAME",
+		"EM_EXT",
+		"EM_ADDR",
+		"EM_IM",
+		"EM_MOBLIE",
+		"EM_PHONE",
+		"EM_BIRTHMONTH",
+		"EM_BIRTHDAY",
+		"EM_INDATE"
+	]
+});
+
+Ext.define("Beet.apps.Viewport.EmployeeList.Store", {
+	extend: "Ext.data.Store",
+	model: Beet.apps.Viewport.EmployeeList.Model,
+	autoLoad: true,
+	pageSize: Beet.constants.PageSize,
+	load: function(options){
+		var me = this;
+		options = options || {};
+		if (Ext.isFunction(options)) {
+			options = {
+				callback: options
+			};
+		}
+
+		Ext.applyIf(options, {
+			groupers: me.groupers.items,
+			page: me.currentPage,
+			start: (me.currentPage - 1) * me.pageSize,
+			limit: me.pageSize,
+			addRecords: false
+		});      
+		me.proxy.b_params["start"] = options["start"];
+		me.proxy.b_params["limit"] = options["limit"]
+
+		return me.callParent([options]);
+	},
+	proxy: {
+		type: "b_proxy",
+		b_method: Beet.constants.employeeServer.GetEmployeeData,
+		startParma: "start",
+		limitParma: "limit",
+		b_params: {
+			"filter" : "",
+			"b_onlySchema": false
+		},
+		b_scope: Beet.constants.employeeServer,
+		reader: {
+			type: "json",
+			root: "Data",
+			totalProperty: "TotalCount"
+		}
+	}
+});
+
+Ext.define("Beet.apps.Viewport.EmployeeList", {
+	extend: "Ext.panel.Panel",
+	layout: "fit",
+	width: "100%",
+	height: "100%",
+	bodyBorder: false,
+	autoHeight: true,
+	minHeight: 400,
+	minWidth: 800,
+	frame: true,
+	defaults:{
+		border: 0
+	},
+	initComponent: function(){
+		var me = this;
+		Ext.apply(me, {
+			storeProxy: Ext.create("Beet.apps.Viewport.EmployeeList.Store")
+		});
+
+		me.createEmployeeGrid();
+		me.createDeparentList();
+		me.createBranchesList();
+
+		me.items = [
+			me.grid
+		];
+
+		me.callParent(arguments);
+	},
+	afterRender: function(){
+		var me = this;
+		me.callParent(arguments);
+	},
+	createDeparentList: function(){
+		var me = this;
+		me.departmentList = Ext.create("Ext.data.Store", {
+			fields: ["attr", "name"],
+			data: Beet.cache.employee.departmentList	
+		});
+	},
+	createBranchesList: function(){
+		var me = this;
+		me.branchesList = Ext.create("Ext.data.Store", {
+			fields: ["attr", "name"],
+			data: Beet.cache.employee.branchesList
+		});
+	},
+	createEmployeeGrid: function(){
+		var me = this, grid = me.grid, store = me.storeProxy, actions, __columns=[], columnsData = Beet.cache.employeeColumns;
+
+		var _actions = {
+			xtype: "actioncolumn",
+			widget: 50,
+			items: []
+		}
+
+		_actions.items.push(
+			"-","-","-", {
+				icon: './resources/themes/images/fam/user_edit.png',
+				tooltip: "编辑员工",
+				id: "employee_grid_edit",
+				handler: function(grid, rowIndex, colIndex){
+					var d = me.storeProxy.getAt(rowIndex)
+					me.editEmployeeFn(d);
+				}
+			}, "-", "-"
+		);
+
+		_actions.items.push("-", {
+			icon: "./resources/themes/images/fam/delete.gif",	
+			tooltip: "删除员工",
+			id: "employee_grid_delete",
+			handler: function(grid, rowIndex, colIndex){
+				var d = me.storeProxy.getAt(rowIndex)
+				me.deleteEmployeeFn(d);
+			}
+			}, "-", "-", "-"
+		);
+
+		__columns.push(_actions);
+		for (var a in columnsData){
+			var item = columnsData[a];
+			if (!item["FieldHidden"]){
+				var column = {
+					flex: 1
+				}
+				for (var k in item){
+					if (k == "FieldLabel"){
+						column["header"] = item[k];
+					}else if(k == "FieldName"){
+						column["dataIndex"] = item[k];
+					}
+				}
+
+				__columns.push(column);
+			}
+		}
+
+		me.grid = Ext.create("Ext.grid.Panel", {
+			store: store,
+			lookMask: true,
+			frame: true,
+			collapsible: false,
+			rorder: false,
+			bodyBorder: 0,
+			autoScroll: true,
+			autoHeight: true,
+			border: 0,
+			columnLines: true,
+			viewConfig: {
+				trackOver: false,
+				stripeRows: true	
+			},
+			columns: __columns,
+			bbar: Ext.create("Ext.PagingToolbar", {
+				store: store,
+				displayInfo: true,
+				displayMsg: '当前显示 {0} - {1} 到 {2}',
+				emptyMsg: "没有数据"
+			})
+		});
+	},
+	editEmployeeFn: function(parentMenu){
+		var me = this, rawData = parentMenu.rawData || parentMenu.raw, guid = rawData.EM_UserID , EmName= rawData.EM_NAME, employeeServer = Beet.constants.employeeServer;
+		if (guid){
+			Ext.MessageBox.show({
+				title: "编辑员工",
+				msg: "是否要修改 " + EmName + " 的资料",
+				buttons: Ext.MessageBox.YESNO,
+				fn : function(btn){
+					if (btn == "yes"){
+						me.popEditWindow(rawData, guid);
+					}
+				}
+			});
+		}
+	},
+	getBaseInfoPanelConfig: function(rawData, guid){
+		var me = this, config;
+
+		config = {
+			frame: true,
+			bodyPadding: 10,
+			layout: "anchor",
+			height: "100%",
+			autoScroll: true,
+			autoHeight: true,
+			fieldDefaults: {
+				msgTarget: 'side',
+				labelAlign: 'left',
+				labelWidth: 75,
+				allowBlank: false
+			},
+			defaultType: "textfield",
+			items: [
+				{
+					fieldLabel: "员工姓名",
+					name: "emname",
+					value: rawData["EM_NAME"]
+				},
+				{
+					fieldLabel: "所属部门",
+					name: "emdep",
+					xtype: "combobox",
+					store: me.departmentList,
+					queryMode: "local",
+					displayField: "name",
+					valueField: "attr",
+					allowBlank: false,
+					value: rawData["EM_DEP"]
+				},
+				{
+					fieldLabel: "所属分店",
+					name: "emstore",
+					xtype: "combobox",
+					store: me.branchesList,
+					queryMode: "local",
+					displayField: "name",
+					valueField: "attr",
+					allowBlank: false,
+					value: rawData["EM_STOREID"]
+				},
+				{
+					fieldLabel: "身份证号",
+					name: "empid",
+					allowBlank: true,
+					value: rawData["EM_PID"]
+				},
+				{
+					fieldLabel: "分机号",
+					name: "emext",
+					allowBlank: true,
+					value: rawData["EM_EXT"]
+				},
+				{
+					fieldLabel: "地址",
+					name: "emaddr",
+					allowBlank: true,
+					value: rawData["EM_ADDR"]
+				},
+				{
+					fieldLabel: "QQ/MSN",
+					name: "emim",
+					allowBlank: true,
+					value: rawData["EM_IM"]
+				},
+				{
+					fieldLabel: "手机",
+					name: "emmobile",
+					allowBlank: true,
+					value: rawData["EM_MOBLIE"]
+				},
+				{
+					fieldLabel: "座机号",
+					name: "emphone",
+					allowBlank: true,
+					value: rawData["EM_PHONE"]
+				},
+				{
+					fieldLabel: "出生月份",
+					xtype: "combobox",
+					store: Beet.constants.monthesList,
+					name: "embirthmonth",
+					queryMode: "local",
+					displayField: "name",
+					valueField: "attr",
+					allowBlank: true,
+					value: rawData["EM_BIRTHMONTH"]
+				},
+				{
+					fieldLabel: "出生日期",
+					xtype: "combobox",
+					store: Beet.constants.daysList,
+					name: "embirthday",
+					queryMode: "local",
+					displayField: "name",
+					valueField: "attr",
+					allowBlank: true,
+					value: rawData["EM_BIRTHDAY"]
+				},
+				{
+					fieldLabel: "入职日期",
+					xtype: "datefield",
+					name: "emindate",
+					allowBlank: false,
+					value: rawData["EM_INDATE"]
+				},
+				{
+					xtype: "button",
+					id : "move-next",
+					scale: "large",
+					text: "修改",
+					handler: function(){
+						var that = this, form = that.up("form").getForm(), result = form.getValues(), employeeServer = Beet.constants.employeeServer;
+						var needSumbitData;
+						//if (form.isValid()){
+							needSumbitData = Ext.JSON.encode(result);
+							employeeServer.UpdateEmployee(guid, needSumbitData, {
+								success: function(isSuccess){
+									if (isSuccess){
+										Ext.MessageBox.show({
+											title: "更新成功!",
+											msg: "更新成功!",
+											buttons: Ext.MessageBox.OK,
+											handler: function(btn){
+												me.editorWin.close();
+											}
+										})
+									}
+								},
+								failure: function(error){
+									Ext.Error.raise(error);
+								}
+							})
+						//}
+					}
+				}
+				
+			]
+		}
+		return config;
+	},
+	popEditWindow: function(rawData, guid){
+		var me = this, EmName = rawData.EM_NAME, employeeServer = Beet.constants.employeeServer, win;
+		
+		win = Ext.widget("window", {
+			title: EmName + " 的资料信息",
+			width: 650,
+			height: 500,
+			minHeight: 400,
+			autoHeight: true,
+			autoScroll: true,
+			layout: "fit",
+			resizable: true,
+			border: false,
+			modal: true,
+			maximizable: true,
+			border: 0,
+			bodyBorder: false,
+			items: [
+				Ext.create("Ext.form.Panel", me.getBaseInfoPanelConfig(rawData, guid))
+			],
+			items: [],
+			buttons: [
+				{
+					text: "关闭",
+					handler:function(){
+						win.close();
+					}
+				}
+			]
+		})
+		me.editorWin = win;
+		win.show();
+	},
+	deleteEmployeeFn: function(parentMenu){
+		var me = this, rawData = parentMenu.rawData || parentMenu.raw, guid = rawData.EM_UserID , EmName= rawData.EM_NAME, employeeServer = Beet.constants.employeeServer;
+		if (guid){
+			Ext.MessageBox.show({
+				title: "删除员工",
+				msg: "是否要删除 " + EmName + " ?",
+				buttons: Ext.MessageBox.YESNO,
+				fn: function(btn){
+					if (btn == "yes"){
+						employeeServer.DelEmployee(guid, {
+							success: function(){
+								Ext.MessageBox.show({
+									title: "删除成功",
+									msg: "删除员工: " + EmName + " 成功",
+									buttons: Ext.MessageBox.OK,
+									fn: function(){
+										me.storeProxy.loadPage(me.storeProxy.currentPage);
+									}
+								})
+							},
+							failure: function(error){
+								Ext.Error.raise("删除员工失败");
+							}
+						})
+					}
+				}
+			});
+		}else{
+			Ext.Error.raise("删除用户失败");
+		}
 	}
 });
 
@@ -528,6 +1096,9 @@ Ext.define("Beet.apps.ShopSettingViewPort.Viewport", {
 	refreshTreeList: function(callback){
 		var me = this;
 		me.storeProxy.load();
+
+		getDepartmentList();
+		getSubbrachesList();
 	},
 	createTreeList: function(){
 		var me = this, store = me.storeProxy, employeeServer = Beet.constants.employeeServer;
