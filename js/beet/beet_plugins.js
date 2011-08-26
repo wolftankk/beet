@@ -387,6 +387,10 @@ Ext.define("Beet.plugins.proxyClient", {
 			request.push(params[filterParam]);
 		}
 
+		if (isDef(params["awhere"])){
+			request.push(params["awhere"]);
+		}
+
 		if (isDef(params["b_onlySchema"])){
 			request.push(params["b_onlySchema"]);
 		}
@@ -403,7 +407,7 @@ Ext.define("Beet.plugins.proxyClient", {
 		var that = this, filter = "", filters = that.filters, method = that.b_method, writer = that.getWriter(), request = [], ajax_callback;
 		
 		request = that.buildRequest(operation);
-		
+
 		if (Ext.isFunction(method)){
 			ajax_callback = {
 				success: function(data){
@@ -411,7 +415,7 @@ Ext.define("Beet.plugins.proxyClient", {
 					that.processResponse(operation, callback, scope, data)
 				},
 				failure: function(error){
-					//console.log(error);
+					Ext.Error.raise(error);
 				}
 			}
 			request.push(ajax_callback);

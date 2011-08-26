@@ -499,9 +499,9 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			items: [
 			]
 		}
-		if (Beet.cache.Operator.privilege){
-			for (var _s in Beet.cache.Operator.privilege){
-				var p  = Beet.cache.Operator.privilege[_s];
+		if (Beet.cache.Operator.customer){
+			for (var _s in Beet.cache.Operator.customer){
+				var p  = Beet.cache.Operator.customer[_s];
 				if (p == Beet.constants.ACT_UPDATE_IID){
 					_actions.items.push(
 						"-","-","-",{
@@ -1015,5 +1015,151 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			}
 		});
 		return item
+	}
+});
+
+
+Ext.define("Beet.apps.Viewport.SendMessages", {
+	extend: "Ext.panel.Panel",
+	layout: "anchor",
+	height: "100%",
+	defaults:{
+		border: 0
+	},
+	border: 0,
+	suspendLayout: true,
+	initComponent: function(){
+		var me = this;
+		me.items = [
+			me.createMainWindow()
+		]
+		me.callParent(arguments);
+	},
+	createMainWindow: function(){
+		var me = this, msgBox = me.msgBox;
+		msgBox = Ext.create("Ext.form.Panel", {
+			frame: true,
+			bodyPadding: 10,
+			layout: "anchor",
+			height: "100%",
+			autoHeight: true,
+			autoScroll: true,
+			fieldDefaults: {
+				msgTarget: "side",
+				allowBlank: false,
+				labelAlign: "left",
+				labelWidth: 75
+			},
+			defaultType: "textfield",
+			items: [
+				{
+					fieldLabel: "手机号码",
+					name: "mobildeiphones"
+				},
+				{
+					xtype: "button",
+					name: "select",
+					text: "+",
+					handler: function(){
+						//get friend list
+						var win;
+
+						win = Ext.widget("window", {
+							title: "选择电话号码",
+							width: 650,
+							height: 550,
+							minHeight: 450,
+							autoScroll: true,
+							autoHeight: true,
+							layout: "fit",
+							resizable: true,
+							border:  false,
+							modal: false,
+							maximizable: true,
+							border: 0,
+							bodyBorder: false,
+							tbar: [
+								{
+									text: "全选",
+									xtype: "button",
+									handler: function(){
+									},
+								},
+								{
+									text: "反选",
+									xtype: "button",
+									handler: function(){
+
+									}
+								},
+							],
+							items: [
+								{
+									height: "100%",
+									xtype: "form",
+									frame: true,
+									bodyPadding: 10,
+									layout: "anchor",
+									autoHeight: true,
+									autoScroll: true
+								}
+							],
+							buttons: [
+								{
+									text: "确定",
+									handler: function(){
+
+									}
+								},
+								{
+									text: "取消",
+									handler: function(){
+										win.close();
+									}
+								}
+							]
+						});
+
+						win.show();
+					}
+				},
+				{
+					fieldLabel: "短信内容",
+					xtype: "textarea",
+					name: "messages",
+					width: 400,
+					height: 100
+				},
+				{
+					xtype: "button",
+					name: "send",
+					text: "发送",
+					handler: function(direction, e){
+						var that = this, form = that.up("form").getForm(), result = form.getValues(),needSubmitData, customerServer = Beet.constants.customerServer;
+						if (form.isValid()){
+							needSubmitData = Ext.JSON.encode(result);
+							console.log(needSubmitData);
+							Ext.MessageBox.show({
+								title: "发送短消息",
+								buttons: Ext.MessageBox.YESNO,
+								fn: function(btn){
+									if (btn == "yes"){
+										customerServer.SendSMS(needSubmitData, {
+											success: function(){
+											},
+											failure: function(error){
+												Ext.Error.raise(error);
+											}
+										})
+									}
+								}
+							});
+						}
+					}
+				}
+			]
+		});
+
+		return msgBox
 	}
 });

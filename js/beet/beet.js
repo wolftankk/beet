@@ -25,7 +25,6 @@ Beet.apps.Menu.Items = [
 					{
 						xtype: 'buttongroup',
 						title: '会员会籍',
-						width: '100%',
 						layout: "anchor",
 						frame: true,
 						defaults: {
@@ -87,6 +86,47 @@ Beet.apps.Menu.Items = [
 								}
 							}
 						]
+					},
+					{
+						xtype: "buttongroup",
+						title: "客户联系",
+						layout: "anchor",
+						width: '100%',
+						defaults: {
+							scale: "large",
+							rowspan: 3
+						},
+						items: {
+							xtype: "button",
+							text: "发送短信",
+							id: "customer_sendmsg",
+							tooltip: "点击打开发送短信界面, 向客户发送短信",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["sendMessages"];
+								if (!item){
+									Beet.workspace.addPanel("sendMessages", "发送短信", {
+										items: [
+											Ext.create("Beet.apps.Viewport.SendMessages")
+										]
+									});
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+								/*var item = Beet.apps.Menu.Tabs["addCustomer"];
+								if (!item){
+									Beet.apps.Viewport.getServiceItems(
+										function(){
+											Beet.workspace.addPanel("addCustomer", "添加会员", {
+												items: [
+													Ext.create("Beet.apps.Viewport.AddUser")
+												]
+											});
+											Beet.apps.Viewport.getCTTypeData();
+									})
+								}else{
+								}*/
+							}
+						}
 					}
 				]
 			}
@@ -276,23 +316,29 @@ Ext.define("Beet.apps.Menu.Panel", {
 	},
 	getOperatorList: function(__callback){
 		//获取权限
-		var that = this, customerServer = Beet.constants.customerServer;
+		if (Beet.cache.Operator == undefined){
+			Beet.cache.Operator = {};
+		}
+		var that = this, customerServer = Beet.constants.customerServer, employeeServer = Beet.constants.employeeServer;
 		customerServer.GetOperatorList(Beet.constants.RES_CUSTOMER_IID, {
 			success: function(data){
-				if (Beet.cache.Operator == undefined){
-					Beet.cache.Operator = {};	
-				}
-				Beet.cache.Operator.privilege = data.split(",");
+				Beet.cache.Operator.customer = data.split(",");
 				that.updatePanelStatus();
 			},
 			failure: function(error){
-				//console.log(error);
+			}
+		});
+
+		employeeServer.GetOperatorList(Beet.constants.RES_DEPARTMENT_IID, {
+			success: function(data){
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
 			}
 		});
 	},
 	updatePanelStatus: function(){
 		var that = this;
-		//TODO: 权限判断
 		
 		for (var k in Beet.constants.privileges){
 			var privilege = Beet.constants.privileges[k], btn = that.query("#"+k), hidden = false, c = 0;
@@ -301,7 +347,7 @@ Ext.define("Beet.apps.Menu.Panel", {
 				if (p == undefined){
 					break;
 				}
-				if (Beet.cache.Operator.privilege.indexOf(p) > -1){
+				if (Beet.cache.Operator.customer.indexOf(p) > -1){
 					hidden = hidden || false;
 				}else{
 					hidden = hidden || true;

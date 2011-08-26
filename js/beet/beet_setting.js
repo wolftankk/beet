@@ -11,6 +11,7 @@ Ext.define("Beet.apps.Viewport.Setting.Store", {
 		type: "b_proxy",
 		b_method: Beet.constants.customerServer.GetCTTypeDataToJSON,
 		b_params: {
+			awhere: "",
 			b_onlySchema: false
 		},
 		preProcessData: function(data){

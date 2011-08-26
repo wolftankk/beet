@@ -640,7 +640,6 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 			items: [
 				Ext.create("Ext.form.Panel", me.getBaseInfoPanelConfig(rawData, guid))
 			],
-			items: [],
 			buttons: [
 				{
 					text: "关闭",
