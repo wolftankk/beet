@@ -1,3 +1,6 @@
+//register menu
+
+
 Ext.define("Beet.apps.Viewport.AddUser", {
 	extend: "Ext.panel.Panel",
 	layout: "anchor",
@@ -1054,7 +1057,7 @@ Ext.define("Beet.apps.Viewport.SendMessages", {
 			items: [
 				{
 					fieldLabel: "手机号码",
-					name: "mobildeiphones"
+					name: "mobile"
 				},
 				{
 					xtype: "button",
@@ -1126,7 +1129,7 @@ Ext.define("Beet.apps.Viewport.SendMessages", {
 				{
 					fieldLabel: "短信内容",
 					xtype: "textarea",
-					name: "messages",
+					name: "message",
 					width: 400,
 					height: 100
 				},
@@ -1138,14 +1141,15 @@ Ext.define("Beet.apps.Viewport.SendMessages", {
 						var that = this, form = that.up("form").getForm(), result = form.getValues(),needSubmitData, customerServer = Beet.constants.customerServer;
 						if (form.isValid()){
 							needSubmitData = Ext.JSON.encode(result);
-							console.log(needSubmitData);
 							Ext.MessageBox.show({
 								title: "发送短消息",
 								buttons: Ext.MessageBox.YESNO,
+								msg: result["message"],
 								fn: function(btn){
 									if (btn == "yes"){
 										customerServer.SendSMS(needSubmitData, {
-											success: function(){
+											success: function(data){
+												console.log(data);
 											},
 											failure: function(error){
 												Ext.Error.raise(error);

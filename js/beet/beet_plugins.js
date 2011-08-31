@@ -668,3 +668,71 @@ Ext.define("Beet.plugins.LiveSearch",{
 	}
 });
 
+Beet.constants.OperatorsList = Ext.create("Ext.data.Store", {
+	fields: ["attr", "name"],
+	data: [
+		{ attr: ">", name: "大于"},
+		{ attr: ">=", name: "大于等于"},
+		{ attr: "<", name: "小于"},
+		{ attr: "<=", name: "小于等于"},
+		{ attr: "=", name: "等于"},
+		{ attr: "!=", name: "不等于"},
+		{ attr: "LIKE", name: "约等于"}
+	]
+});
+
+Beet.constants.monthesList = Ext.create("Ext.data.Store", {
+	fields: ["attr", "name"],
+	data: [
+		{ attr: 1, name: "01"},
+		{ attr: 2, name: "02"},
+		{ attr: 3, name: "03"},
+		{ attr: 4, name: "04"},
+		{ attr: 5, name: "05"},
+		{ attr: 6, name: "06"},
+		{ attr: 7, name: "07"},
+		{ attr: 8, name: "08"},
+		{ attr: 9, name: "09"},
+		{ attr: 10, name: "10"},
+		{ attr: 11, name: "11"},
+		{ attr: 12, name: "12"}
+	]	
+})
+
+
+Beet.constants.daysList = Ext.create("Ext.data.Store", {
+	fields: ["attr", "name"],
+	data: [
+		{ attr: 1, name: "01"},
+		{ attr: 2, name: "02"},
+		{ attr: 3, name: "03"},
+		{ attr: 4, name: "04"},
+		{ attr: 5, name: "05"},
+		{ attr: 6, name: "06"},
+		{ attr: 7, name: "07"},
+		{ attr: 8, name: "08"},
+		{ attr: 9, name: "09"},
+		{ attr: 10, name: "10"},
+		{ attr: 11, name: "11"},
+		{ attr: 12, name: "12"},
+		{ attr: 13, name: "13"},
+		{ attr: 14, name: "14"},
+		{ attr: 15, name: "15"},
+		{ attr: 16, name: "16"},
+		{ attr: 17, name: "17"},
+		{ attr: 18, name: "18"},
+		{ attr: 19, name: "19"},
+		{ attr: 20, name: "20"},
+		{ attr: 21, name: "21"},
+		{ attr: 22, name: "22"},
+		{ attr: 23, name: "23"},
+		{ attr: 24, name: "24"},
+		{ attr: 25, name: "25"},
+		{ attr: 26, name: "26"},
+		{ attr: 27, name: "27"},
+		{ attr: 28, name: "28"},
+		{ attr: 29, name: "29"},
+		{ attr: 30, name: "30"},
+		{ attr: 31, name: "31"}
+	]	
+})

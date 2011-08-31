@@ -8,6 +8,8 @@ if (!String.prototype.replaceAll){
 Ext.namespace("Beet.apps.Menu", "Beet.apps.Menu.Tabs");
 
 //设定目录菜单
+//Beet.apps.Menu.Items = []
+
 Beet.apps.Menu.Items = [
 	{
 		title: "客户管理",
