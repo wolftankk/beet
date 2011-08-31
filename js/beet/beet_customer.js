@@ -1283,6 +1283,9 @@ Ext.define("Beet.apps.Viewport.SendMessages", {
 									if (btn == "yes"){
 										customerServer.SendSMS(needSubmitData, {
 											success: function(data){
+												if (data.indexOf("-") == -1){
+													Ext.Error.raise("发送失败, 返回值为: " + data);
+												}
 												console.log(data);
 											},
 											failure: function(error){

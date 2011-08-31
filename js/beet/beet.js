@@ -102,6 +102,7 @@ Ext.define("Beet.apps.Menu.Panel", {
 			width: '100%',
 			height: 80,
 			autoHeight: true,
+			autoWidth: true,
 			autoScroll: true,
 			layout: "fit",
 			id: "configurePanel",
@@ -326,7 +327,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 
 		var h = Ext.core.Element.getViewHeight();
 		if (Beet.workspace){
-			Beet.workspace.setHeight(h - 132);
+			Beet.workspace.setHeight(h - 112);
 		}
 
 		if (parent.ownerCt){
@@ -444,7 +445,7 @@ Ext.define("Beet.apps.Viewport", {
 	onRender: function(){
 		var that = this, h = Ext.core.Element.getViewHeight();
 		//自动计算高度 总高度 - menu高度
-		that.setHeight(h-132);
+		that.setHeight(h-112);
 		that.callParent(arguments);
 	},
 	createMainPanel: function(){
@@ -487,7 +488,7 @@ Ext.define("Beet.apps.Viewport", {
 			this.setWidth(w);
 		}
 		if (h > 300){
-			this.setHeight(h - 132);
+			this.setHeight(h - 112);
 		}
 	},
 	removePanel: function(name){
