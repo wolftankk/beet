@@ -1,3 +1,72 @@
+registerBeetAppsMenu("employee",
+{
+	title: "员工管理",
+	items:[
+		{
+			xtype: "container",
+			layout: "hbox",
+			defaultType: "buttongroup",
+			defaults:{
+				height: 100,
+				width: 250
+			},
+			items: [
+				{
+					xtype: "buttongroup",
+					title: "员工管理",
+					width: "100%",
+					layout: "anchor",
+					frame: true,
+					defaults: {
+						scale: 'large',
+						rowspan: 3
+					},
+					items: [
+						{
+							xtype: "button",
+							text: "增加员工",
+							id: "employee_addBtn",
+							tooltip: "点击添加员工",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["addEmployee"];
+								if (!item){
+									Beet.workspace.addPanel("addEmployee", "添加员工", {
+										items: [
+											Ext.create("Beet.apps.Viewport.AddEmployee")
+										]	
+									})
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						},
+						{
+							xtype: "button",
+							text: "编辑员工",
+							id: "employee_editBtn",
+							tooltip:"编辑或者删除员工",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["employeeList"];
+								if (!item){
+									Beet.apps.Viewport.getEmployeeColumnsData(function(){
+										Beet.workspace.addPanel("employeeList", "编辑员工", {
+											items: [
+												Ext.create("Beet.apps.Viewport.EmployeeList")
+											]	
+										})
+									})
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+});
+
 Ext.define("Beet.apps.Viewport.AddEmployee", {
 	extend: "Ext.panel.Panel",
 	layout: "anchor",

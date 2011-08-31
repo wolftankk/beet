@@ -8,288 +8,18 @@ if (!String.prototype.replaceAll){
 Ext.namespace("Beet.apps.Menu", "Beet.apps.Menu.Tabs");
 
 //设定目录菜单
-//Beet.apps.Menu.Items = []
+Beet.apps.Menu.Items = []
 
+/*
 Beet.apps.Menu.Items = [
-	{
-		title: "客户管理",
-		items: [
-			{
-				xtype: "container",
-				layout: "hbox",
-				frame: true,
-				defaults: {
-					height: 100,
-					width: 250
-				},
-				defaultType: "buttongroup",
-				items: [
-					{
-						xtype: 'buttongroup',
-						title: '会员会籍',
-						layout: "anchor",
-						frame: true,
-						defaults: {
-							scale: "large",
-							rowspan: 3
-						},
-						items: [
-							{
-								xtype: "button",
-								text: "增加会员",
-								id: "customer_addBtn",
-								tooltip: "点击打开新增会员界面",
-								handler: function(){
-									var item = Beet.apps.Menu.Tabs["addCustomer"];
-									if (!item){
-										Beet.apps.Viewport.getServiceItems(
-											function(){
-												Beet.workspace.addPanel("addCustomer", "添加会员", {
-													items: [
-														Ext.create("Beet.apps.Viewport.AddUser")
-													]
-												});
-												Beet.apps.Viewport.getCTTypeData();
-										})
-									}else{
-										Beet.workspace.workspace.setActiveTab(item);
-									}
-								}
-							},
-							{
-								xtype: "button",
-								text: "编辑会员",
-								id: "customer_editBtn",
-								tooltip: "编辑会员个人资料或者删除会员.",
-								handler: function(){
-									var item = Beet.apps.Menu.Tabs["editCustomer"];
-									if (!item){
-										Beet.apps.Viewport.getColumnsData(function(){
-											Beet.workspace.addPanel("editCustomer", "编辑会员", {
-												items: [
-													Ext.create("Beet.apps.Viewport.CustomerList")
-												]	
-											});
-										});
-									}else{
-										Beet.workspace.workspace.setActiveTab(item);
-									}
-								}
-							},
-							{
-								xtype: "button",
-								text: "高级搜索",
-								id: "customer_searchBtn",
-								tooltip: "高级搜索",
-								handler: function(){
-									var win = Ext.create("Beet.apps.CustomerAdvanceSearch", {});
-									Beet.cache.AdvanceSearchWin = win;
-									win.show();
-								}
-							}
-						]
-					},
-					{
-						xtype: "buttongroup",
-						title: "客户联系",
-						layout: "anchor",
-						width: '100%',
-						defaults: {
-							scale: "large",
-							rowspan: 3
-						},
-						items: {
-							xtype: "button",
-							text: "发送短信",
-							id: "customer_sendmsg",
-							tooltip: "点击打开发送短信界面, 向客户发送短信",
-							handler: function(){
-								var item = Beet.apps.Menu.Tabs["sendMessages"];
-								if (!item){
-									Beet.workspace.addPanel("sendMessages", "发送短信", {
-										items: [
-											Ext.create("Beet.apps.Viewport.SendMessages")
-										]
-									});
-								}else{
-									Beet.workspace.workspace.setActiveTab(item);
-								}
-								/*var item = Beet.apps.Menu.Tabs["addCustomer"];
-								if (!item){
-									Beet.apps.Viewport.getServiceItems(
-										function(){
-											Beet.workspace.addPanel("addCustomer", "添加会员", {
-												items: [
-													Ext.create("Beet.apps.Viewport.AddUser")
-												]
-											});
-											Beet.apps.Viewport.getCTTypeData();
-									})
-								}else{
-								}*/
-							}
-						}
-					}
-				]
-			}
-		]
-	},
-	{
-		title: "员工管理",
-		items:[
-			{
-				xtype: "container",
-				layout: "hbox",
-				defaultType: "buttongroup",
-				defaults:{
-					height: 100,
-					width: 250
-				},
-				items: [
-					{
-						xtype: "buttongroup",
-						title: "员工管理",
-						width: "100%",
-						layout: "anchor",
-						frame: true,
-						defaults: {
-							scale: 'large',
-							rowspan: 3
-						},
-						items: [
-							{
-								xtype: "button",
-								text: "增加员工",
-								id: "employee_addBtn",
-								tooltip: "点击添加员工",
-								handler: function(){
-									var item = Beet.apps.Menu.Tabs["addEmployee"];
-									if (!item){
-										Beet.workspace.addPanel("addEmployee", "添加员工", {
-											items: [
-												Ext.create("Beet.apps.Viewport.AddEmployee")
-											]	
-										})
-									}else{
-										Beet.workspace.workspace.setActiveTab(item);
-									}
-								}
-							},
-							{
-								xtype: "button",
-								text: "编辑员工",
-								id: "employee_editBtn",
-								tooltip:"编辑或者删除员工",
-								handler: function(){
-									var item = Beet.apps.Menu.Tabs["employeeList"];
-									if (!item){
-										Beet.apps.Viewport.getEmployeeColumnsData(function(){
-											Beet.workspace.addPanel("employeeList", "编辑员工", {
-												items: [
-													Ext.create("Beet.apps.Viewport.EmployeeList")
-												]	
-											})
-										})
-									}else{
-										Beet.workspace.workspace.setActiveTab(item);
-									}
-								}
-							}
-						]
-					}
-				]
-			}
-		]
-	},
 	{
 		title: "库存管理"
 	},
 	{
 		title: "排班管理"
 	},
-	{
-		title: "设置",
-		items: [
-			{
-				xtype: "container",
-				layout: "hbox",
-				defaultType: "buttongroup",
-				defaults: {
-					height: 100,
-					width: 250
-				},
-				items: [
-					{
-						title: '客户管理',
-						layout: "anchor",
-						defaults: {
-							scale: "large",
-							rowspan: 1
-						},
-						items: [
-							{
-								text: "会员属性",
-								handler: function(){
-									var item = Beet.apps.Menu.Tabs["customerAttr"];
-									if (!item){
-										Beet.workspace.addPanel("customerAttr", "会员属性", {
-											items: [
-												Ext.create("Beet.apps.Viewport.SettingViewPort")
-											]
-										});	
-									}else{
-										Beet.workspace.workspace.setActiveTab(item);
-									}
-								}
-							}
-						]
-					},
-					{
-						title: "员工管理",
-						layout: "anchor",
-						width: "100%",
-						defaults: {
-							scale: "large",
-							rowspan: 3
-						},
-						items: [
-							{
-								text: "部门设定",
-								handler: function(){
-									var item = Beet.apps.Menu.Tabs["employeeAttr"];
-									if (!item){
-										Beet.workspace.addPanel("employeeAttr", "部门设定", {
-											items: [
-												Ext.create("Beet.apps.EmployeeSettingViewPort.Viewport")
-											]
-										});
-									}else{
-										Beet.workspace.workspace.setActiveTab(item);
-									}
-								}
-							},
-							{
-								text: "分店设定",
-								handler: function(){
-									var item = Beet.apps.Menu.Tabs["subbranch"];
-									if (!item){
-										Beet.workspace.addPanel("subbranch", "分店设定", {
-											items: [
-												Ext.create("Beet.apps.ShopSettingViewPort.Viewport")
-											]
-										});
-									}else{
-										Beet.workspace.workspace.setActiveTab(item);
-									}
-								}
-							}
-						]
-					}
-				]
-			}
-		]
-	}
 ];
+*/
 
 Ext.define("Beet.apps.Menu.Panel", {
 	extend: "Ext.panel.Panel",
@@ -300,7 +30,16 @@ Ext.define("Beet.apps.Menu.Panel", {
 	initComponent: function(){
 		var that = this;
 		//目录设置面板
-		that.getOperatorList();	
+		that.getOperatorList();
+		if (Beet.cache.MenuItems){
+			Beet.apps.Menu.Items = [];
+			for (var item in Beet.cache.MenuItems){
+				Beet.apps.Menu.Items.push(Beet.cache.MenuItems[item]);
+			}
+
+			delete Beet.cache.MenuItems;
+		}
+
 		that.configurePanel = new Ext.tab.Panel(that.getCPanelConfig());
 		that.dockedItems = [
 			//顶部导航条

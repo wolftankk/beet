@@ -1,5 +1,128 @@
 //register menu
-
+registerBeetAppsMenu("customer", 
+{
+	title: "客户管理",
+	items: [
+		{
+			xtype: "container",
+			layout: "hbox",
+			frame: true,
+			defaults: {
+				height: 100,
+				width: 250
+			},
+			defaultType: "buttongroup",
+			items: [
+				{
+					xtype: 'buttongroup',
+					title: '会员会籍',
+					layout: "anchor",
+					frame: true,
+					defaults: {
+						scale: "large",
+						rowspan: 3
+					},
+					items: [
+						{
+							xtype: "button",
+							text: "增加会员",
+							id: "customer_addBtn",
+							tooltip: "点击打开新增会员界面",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["addCustomer"];
+								if (!item){
+									Beet.apps.Viewport.getServiceItems(
+										function(){
+											Beet.workspace.addPanel("addCustomer", "添加会员", {
+												items: [
+													Ext.create("Beet.apps.Viewport.AddUser")
+												]
+											});
+											Beet.apps.Viewport.getCTTypeData();
+									})
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						},
+						{
+							xtype: "button",
+							text: "编辑会员",
+							id: "customer_editBtn",
+							tooltip: "编辑会员个人资料或者删除会员.",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["editCustomer"];
+								if (!item){
+									Beet.apps.Viewport.getColumnsData(function(){
+										Beet.workspace.addPanel("editCustomer", "编辑会员", {
+											items: [
+												Ext.create("Beet.apps.Viewport.CustomerList")
+											]	
+										});
+									});
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						},
+						{
+							xtype: "button",
+							text: "高级搜索",
+							id: "customer_searchBtn",
+							tooltip: "高级搜索",
+							handler: function(){
+								var win = Ext.create("Beet.apps.CustomerAdvanceSearch", {});
+								Beet.cache.AdvanceSearchWin = win;
+								win.show();
+							}
+						}
+					]
+				},
+				{
+					xtype: "buttongroup",
+					title: "客户联系",
+					layout: "anchor",
+					width: '100%',
+					defaults: {
+						scale: "large",
+						rowspan: 3
+					},
+					items: {
+						xtype: "button",
+						text: "发送短信",
+						id: "customer_sendmsg",
+						tooltip: "点击打开发送短信界面, 向客户发送短信",
+						handler: function(){
+							var item = Beet.apps.Menu.Tabs["sendMessages"];
+							if (!item){
+								Beet.workspace.addPanel("sendMessages", "发送短信", {
+									items: [
+										Ext.create("Beet.apps.Viewport.SendMessages")
+									]
+								});
+							}else{
+								Beet.workspace.workspace.setActiveTab(item);
+							}
+							/*var item = Beet.apps.Menu.Tabs["addCustomer"];
+							if (!item){
+								Beet.apps.Viewport.getServiceItems(
+									function(){
+										Beet.workspace.addPanel("addCustomer", "添加会员", {
+											items: [
+												Ext.create("Beet.apps.Viewport.AddUser")
+											]
+										});
+										Beet.apps.Viewport.getCTTypeData();
+								})
+							}else{
+							}*/
+						}
+					}
+				}
+			]
+		}
+	]
+});
 
 Ext.define("Beet.apps.Viewport.AddUser", {
 	extend: "Ext.panel.Panel",

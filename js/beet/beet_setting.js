@@ -1,3 +1,88 @@
+registerBeetAppsMenu("configure", 
+{
+	title: "设置",
+	items: [
+		{
+			xtype: "container",
+			layout: "hbox",
+			defaultType: "buttongroup",
+			defaults: {
+				height: 100,
+				width: 250
+			},
+			items: [
+				{
+					title: '客户管理',
+					layout: "anchor",
+					defaults: {
+						scale: "large",
+						rowspan: 1
+					},
+					items: [
+						{
+							text: "会员属性",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["customerAttr"];
+								if (!item){
+									Beet.workspace.addPanel("customerAttr", "会员属性", {
+										items: [
+											Ext.create("Beet.apps.Viewport.SettingViewPort")
+										]
+									});	
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						}
+					]
+				},
+				{
+					title: "员工管理",
+					layout: "anchor",
+					width: "100%",
+					defaults: {
+						scale: "large",
+						rowspan: 3
+					},
+					items: [
+						{
+							text: "部门设定",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["employeeAttr"];
+								if (!item){
+									Beet.workspace.addPanel("employeeAttr", "部门设定", {
+										items: [
+											Ext.create("Beet.apps.EmployeeSettingViewPort.Viewport")
+										]
+									});
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						},
+						{
+							text: "分店设定",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["subbranch"];
+								if (!item){
+									Beet.workspace.addPanel("subbranch", "分店设定", {
+										items: [
+											Ext.create("Beet.apps.ShopSettingViewPort.Viewport")
+										]
+									});
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+});
+
+
 Ext.namespace("Beet.apps.Viewport.Setting");
 Ext.define("Beet.apps.Viewport.Setting.Store", {
 	extend: "Ext.data.TreeStore",

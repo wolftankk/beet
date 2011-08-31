@@ -59,7 +59,5 @@ function registerBeetAppsMenu(title, data){
 	if (Beet.cache.MenuItems == undefined){
 		Beet.cache.MenuItems = {};
 	}
-
 	Beet.cache.MenuItems[title] = data;
 }
-
