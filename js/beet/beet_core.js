@@ -9,14 +9,12 @@ Beet.constants = {
 	FAILURE: "{00000000-0000-0000-0000-000000000000}",
 	GRANDMADATE: -2208988800,
 	PageSize: 50,
-	
 	CTServiceType : {
 		"{C3DCAA88-D92F-435F-96B2-50BDC665F407}" : "美容",
 		"{BC6B8E96-51A4-40EB-9896-2BC26E97FAE4}" : "美发",
 		"{8CB1DD70-0669-4421-B9BF-EB20015FB03D}" : "瑜伽",
 		"{BA33BC91-FE7F-44A0-8C9D-D53147992B0E}" : "美甲"
 	},
-
 	CTInputMode : {
 		0 : "textfield",
 		1 : "radiogroup",
@@ -61,3 +59,10 @@ function registerBeetAppsMenu(title, data){
 	}
 	Beet.cache.MenuItems[title] = data;
 }
+
+if (!String.prototype.replaceAll){
+	String.prototype.replaceAll = function(reg, str){
+		return this.replace(new RegExp(reg, "gm"), str);
+	}
+}
+

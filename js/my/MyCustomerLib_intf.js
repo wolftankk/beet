@@ -1471,7 +1471,7 @@ MyCustomerSvc.prototype.GetCustomerPageData = function(Start, Limit, AWhere, __c
     __callbacks = {
       callback : __callback,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)

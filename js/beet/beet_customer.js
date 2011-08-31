@@ -8,8 +8,8 @@ registerBeetAppsMenu("customer",
 			layout: "hbox",
 			frame: true,
 			defaults: {
-				height: 100,
-				width: 250
+				height: 80,
+				width: 200
 			},
 			defaultType: "buttongroup",
 			items: [
@@ -82,42 +82,53 @@ registerBeetAppsMenu("customer",
 					xtype: "buttongroup",
 					title: "客户联系",
 					layout: "anchor",
-					width: '100%',
 					defaults: {
 						scale: "large",
 						rowspan: 3
 					},
-					items: {
-						xtype: "button",
-						text: "发送短信",
-						id: "customer_sendmsg",
-						tooltip: "点击打开发送短信界面, 向客户发送短信",
-						handler: function(){
-							var item = Beet.apps.Menu.Tabs["sendMessages"];
-							if (!item){
-								Beet.workspace.addPanel("sendMessages", "发送短信", {
-									items: [
-										Ext.create("Beet.apps.Viewport.SendMessages")
-									]
-								});
-							}else{
-								Beet.workspace.workspace.setActiveTab(item);
+					items: [ 
+						{
+							xtype: "button",
+							text: "发送短信",
+							id: "customer_sendmsg",
+							tooltip: "点击打开发送短信界面, 向客户发送短信",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["sendMessages"];
+								if (!item){
+									Beet.workspace.addPanel("sendMessages", "发送短信", {
+										items: [
+											Ext.create("Beet.apps.Viewport.SendMessages")
+										]
+									});
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
 							}
-							/*var item = Beet.apps.Menu.Tabs["addCustomer"];
-							if (!item){
-								Beet.apps.Viewport.getServiceItems(
-									function(){
-										Beet.workspace.addPanel("addCustomer", "添加会员", {
-											items: [
-												Ext.create("Beet.apps.Viewport.AddUser")
-											]
-										});
-										Beet.apps.Viewport.getCTTypeData();
-								})
-							}else{
-							}*/
 						}
-					}
+					]
+				},
+				{
+					title: "活动管理",
+					layout: "anchor",
+					width: '40%',
+					defaults: {
+						scale: 'large',
+						rowspan: 3
+					},
+					items: [
+						{
+							xtype: "button",
+							text: "新增活动",
+							id: "customer_activity",
+							tooltip: "点击添加活动",
+							handler: function(){
+							}
+						},
+						{
+							xtype: "button",
+							text: "活动列表"
+						}
+					]
 				}
 			]
 		}

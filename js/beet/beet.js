@@ -1,15 +1,8 @@
-if (!String.prototype.replaceAll){
-	String.prototype.replaceAll = function(reg, str){
-		return this.replace(new RegExp(reg, "gm"), str);
-	}
-}
-
 //导航空间
 Ext.namespace("Beet.apps.Menu", "Beet.apps.Menu.Tabs");
 
 //设定目录菜单
 Beet.apps.Menu.Items = []
-
 /*
 Beet.apps.Menu.Items = [
 	{
@@ -23,10 +16,13 @@ Beet.apps.Menu.Items = [
 
 Ext.define("Beet.apps.Menu.Panel", {
 	extend: "Ext.panel.Panel",
-	width: "100%",	
+	width: "100%",
+	autoHeight: true,
+	autoScroll: true,
 	layout: "fit",
 	renderTo: "header",
 	shadow: true,
+	border: 0,
 	initComponent: function(){
 		var that = this;
 		//目录设置面板
@@ -104,7 +100,9 @@ Ext.define("Beet.apps.Menu.Panel", {
 		var config = {
 			border: 1,
 			width: '100%',
-			height: 100,
+			height: 80,
+			autoHeight: true,
+			autoScroll: true,
 			layout: "fit",
 			id: "configurePanel",
 			dock: "bottom",
@@ -134,6 +132,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 	b_collapseDirection : 'top',
 	b_collapsed: false,
 	b_collapsedCls: 'collapsed',
+	border: 0,
 	initComponent: function(){
 		var that = this;
 		if (that.useQuickTips){
@@ -163,7 +162,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 			"->",//设定到右边区域
 			'-',
 			//help
-			that.userName, ' ', 
+			"当前用户: ", that.userName, '-', ' ', 
 			that.logoutButton, ' ',
 			that.toggleButton, ' ',
 			that.helpButton,
@@ -213,6 +212,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 				{
 					xtype: "button",
 					text: "退出",
+					tooltip: "安全退出美度ERP系统",
 					handler: function(){
 						var customerLoginServer = Beet.constants.customerLoginServer;
 						customerLoginServer.Logout({
