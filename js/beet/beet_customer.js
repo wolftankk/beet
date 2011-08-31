@@ -122,6 +122,16 @@ registerBeetAppsMenu("customer",
 							id: "customer_activity",
 							tooltip: "点击添加活动",
 							handler: function(){
+								var item = Beet.apps.Menu.Tabs["vipActivity"];
+								if (!item){
+									Beet.workspace.addPanel("vipActivity", "新增活动", {
+										items: [
+											Ext.create("Beet.apps.Viewport.VIPActivity")
+										]
+									});
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
 							}
 						},
 						{
@@ -1200,63 +1210,9 @@ Ext.define("Beet.apps.Viewport.SendMessages", {
 					handler: function(){
 						//get friend list
 						var win;
-
-						win = Ext.widget("window", {
-							title: "选择电话号码",
-							width: 650,
-							height: 550,
-							minHeight: 450,
-							autoScroll: true,
-							autoHeight: true,
-							layout: "fit",
-							resizable: true,
-							border:  false,
-							modal: false,
-							maximizable: true,
-							border: 0,
-							bodyBorder: false,
-							tbar: [
-								{
-									text: "全选",
-									xtype: "button",
-									handler: function(){
-									},
-								},
-								{
-									text: "反选",
-									xtype: "button",
-									handler: function(){
-
-									}
-								},
-							],
-							items: [
-								{
-									height: "100%",
-									xtype: "form",
-									frame: true,
-									bodyPadding: 10,
-									layout: "anchor",
-									autoHeight: true,
-									autoScroll: true
-								}
-							],
-							buttons: [
-								{
-									text: "确定",
-									handler: function(){
-
-									}
-								},
-								{
-									text: "取消",
-									handler: function(){
-										win.close();
-									}
-								}
-							]
+						win = Ext.create("Beet.plugins.selectCustomerWindow", {
+							typeFrame: msgBox	
 						});
-
 						win.show();
 					}
 				},
@@ -1303,4 +1259,150 @@ Ext.define("Beet.apps.Viewport.SendMessages", {
 
 		return msgBox
 	}
+});
+
+
+Ext.define("Beet.apps.Viewport.VIPActivity", {
+	extend: "Ext.panel.Panel",
+	layout: "anchor",
+	height: "100%",
+	autoHeight: true,
+	defaults:{
+		border: 0
+	},
+	border: 0,
+	suspendLayout: true,
+	initComponent: function(){
+		var me = this;
+
+		me.callParent(arguments)
+	}
+});
+
+
+Ext.define("Beet.plugins.selectCustomerWindow", {
+	extend: "Ext.window.Window",
+	title: "选择客户",
+	id: "selectCustomerWindow",
+	width: 650,
+	height: 550,
+	minHeight: 450,
+	autoDestroy: true,
+	autoHeight: true,
+	autoScroll: true,
+	layout: "fit",
+	resizable: true,
+	border: false,
+	modal: false,
+	maximizable: true,
+	border: 0,
+	bodyBorder: false,
+	initComponent: function(config){
+		var me = this, customerServer = Beet.constants.customerServer;
+		me.items = [];
+		if (me.customerList == undefined){
+			customerServer.GetCustomerToJSON('', false, {
+				success: function(data){
+					data = me.createSelectorForm(Ext.JSON.decode(data));
+				},
+				failure: function(error){
+					Ext.error.raise(error);
+				}
+			});
+		}
+
+		me.callParent();
+	},
+	createSelectorForm: function(data){
+		var form, me = this;
+		var meta = data["MetaData"], data = data["Data"];
+		var sm = Ext.create("Ext.selection.CheckboxModel");
+		
+		if (Beet.plugins.selectCustomerWindow.CustomerListModel == undefined){
+			Ext.define("Beet.plugins.selectCustomerWindow.CustomerListModel", {
+				extend: "Ext.data.Model",
+				fields: [
+					"CTGUID",
+					"CTCardNo",
+					"CTName",
+					"CTNikeName",
+					"CTMobile"
+				]
+			});
+		}
+
+		var store = Ext.create("Ext.data.Store", {
+			model: Beet.plugins.selectCustomerWindow.CustomerListModel,
+			data: data	
+		})
+
+		form = Ext.create("Ext.grid.Panel", {
+			store: store,
+			selModel: sm,
+			frame: true,
+			collapsible: false,	
+			rorder: false,
+			bodyBorder: false,
+			autoScroll: true,
+			autoHeight: true,
+			border: 0,
+			columnLines: true,
+			tbar: [
+				{
+					text: "全选",
+					xtype: "button",
+					handler: function(){
+					},
+				},
+				{
+					text: "反选",
+					xtype: "button",
+					handler: function(){
+
+					}
+				}
+			],
+			viewConfig: {
+				trackOver: false,
+				stripeRows: true
+			},
+			columns: [
+				{
+					text: "会员卡号",
+					flex: 1,
+					dataIndex: "CTCardNo"
+				},
+				{
+					text: "会员名",
+					flex: 1,
+					dataIndex: "CTName"
+				},
+				{
+					text: "会员手机",
+					flex: 1,
+					dataIndex: "CTMobile"
+				}
+			],
+		});
+
+		console.log(form);
+
+		me.add(form)
+		me.doLayout();
+	},
+	buttons: [
+		{
+			text: "确定",
+			handler: function(){
+				var me = this, parent = Ext.getCmp("selectCustomerWindow");
+			}
+		},
+		{
+			text: "取消",
+			handler: function(){
+				var me = this, parent = Ext.getCmp("selectCustomerWindow");
+				parent.close();
+			}
+		}
+	]
 });
