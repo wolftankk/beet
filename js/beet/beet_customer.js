@@ -1201,7 +1201,8 @@ Ext.define("Beet.apps.Viewport.SendMessages", {
 			items: [
 				{
 					fieldLabel: "手机号码",
-					name: "mobile"
+					name: "mobile",
+					id: "mobileNumberFrame"
 				},
 				{
 					xtype: "button",
@@ -1211,7 +1212,8 @@ Ext.define("Beet.apps.Viewport.SendMessages", {
 						//get friend list
 						var win;
 						win = Ext.create("Beet.plugins.selectCustomerWindow", {
-							typeFrame: msgBox	
+							_callback: Ext.bind(me.processSelectedData, me),
+							_selectedData: me.selectedData
 						});
 						win.show();
 					}
@@ -1237,17 +1239,36 @@ Ext.define("Beet.apps.Viewport.SendMessages", {
 								msg: result["message"],
 								fn: function(btn){
 									if (btn == "yes"){
-										customerServer.SendSMS(needSubmitData, {
-											success: function(data){
-												if (data.indexOf("-") == -1){
-													Ext.Error.raise("发送失败, 返回值为: " + data);
-												}
-												console.log(data);
-											},
-											failure: function(error){
-												Ext.Error.raise(error);
+										if (me.mobileNumberList.length > 0){
+											for (var c = 0; c < me.mobileNumberList.length; ++c){
+												var m = me.mobileNumberList[c];
+												result["mobile"] = m;
+												needSubmitData = Ext.JSON.encode(result);
+												customerServer.SendSMS(needSubmitData, {
+													success: function(data){
+														if (data.indexOf("-") == -1){
+															Ext.Error.raise("发送失败, 返回值为: " + data);
+														}
+														console.log(data);
+													},
+													failure: function(error){
+														Ext.Error.raise(error);
+													}
+												});
 											}
-										})
+										}else{
+											customerServer.SendSMS(needSubmitData, {
+												success: function(data){
+													if (data.indexOf("-") == -1){
+														Ext.Error.raise("发送失败, 返回值为: " + data);
+													}
+													console.log(data);
+												},
+												failure: function(error){
+													Ext.Error.raise(error);
+												}
+											})
+										}
 									}
 								}
 							});
@@ -1256,12 +1277,30 @@ Ext.define("Beet.apps.Viewport.SendMessages", {
 				}
 			]
 		});
-
+			
+		me.msgBox = msgBox;
 		return msgBox
+	},
+	processSelectedData: function(data){
+		var me = this, mobileNameList = [], mobileNumberList = [];
+		me.selectedData = data;
+
+		for (var c = 0; c < data.length; ++c){
+			var customer = data[c], customerData = customer["data"];
+			if (customerData["CTMobile"] && customerData["CTMobile"].length == 11){
+				var mobileNumber = customerData["CTMobile"], mobileName = customerData["CTName"];
+				mobileNameList.push(mobileName);
+				mobileNumberList.push(mobileNumber);
+			}
+		}
+		me.mobileNumberList = mobileNumberList;
+		var typeFrame = Ext.getCmp("mobileNumberFrame");
+		typeFrame.setValue(mobileNameList.join(", "));
 	}
 });
 
 
+//新增活动
 Ext.define("Beet.apps.Viewport.VIPActivity", {
 	extend: "Ext.panel.Panel",
 	layout: "anchor",
@@ -1300,6 +1339,7 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 	initComponent: function(config){
 		var me = this, customerServer = Beet.constants.customerServer;
 		me.items = [];
+		me.createCustomerInfo();
 		if (me.customerList == undefined){
 			customerServer.GetCustomerToJSON('', false, {
 				success: function(data){
@@ -1310,13 +1350,40 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 				}
 			});
 		}
-
+		
 		me.callParent();
+	},
+	createCustomerInfo: function(){
+		var me = this;
+		var _actions = {
+			xtype: 'actioncolumn',
+			width: 30,
+			items: [
+			]
+		}
+		_actions.items.push(
+			"-","-","-",{
+				icon: './resources/themes/images/fam/user_edit.png',
+				tooltip: "查看用户详情",
+				id: "",
+				handler:function(grid, rowIndex, colIndex){
+					var win = Ext.create("Beet.plugins.ViewCustomerInfo", {
+						storeProxy: me.storeProxy,
+						_rowIndex: rowIndex,
+						_colIndex: colIndex	
+					});
+					win.show();
+				}
+			}
+		);
+
+		me.viewCustomerInfo = _actions;
 	},
 	createSelectorForm: function(data){
 		var form, me = this;
 		var meta = data["MetaData"], data = data["Data"];
 		var sm = Ext.create("Ext.selection.CheckboxModel");
+		me.selModel = sm;
 		
 		if (Beet.plugins.selectCustomerWindow.CustomerListModel == undefined){
 			Ext.define("Beet.plugins.selectCustomerWindow.CustomerListModel", {
@@ -1331,13 +1398,13 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 			});
 		}
 
-		var store = Ext.create("Ext.data.Store", {
+		me.storeProxy = Ext.create("Ext.data.Store", {
 			model: Beet.plugins.selectCustomerWindow.CustomerListModel,
 			data: data	
 		})
 
 		form = Ext.create("Ext.grid.Panel", {
-			store: store,
+			store: me.storeProxy,
 			selModel: sm,
 			frame: true,
 			collapsible: false,	
@@ -1347,26 +1414,12 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 			autoHeight: true,
 			border: 0,
 			columnLines: true,
-			tbar: [
-				{
-					text: "全选",
-					xtype: "button",
-					handler: function(){
-					},
-				},
-				{
-					text: "反选",
-					xtype: "button",
-					handler: function(){
-
-					}
-				}
-			],
 			viewConfig: {
 				trackOver: false,
 				stripeRows: true
 			},
 			columns: [
+				me.viewCustomerInfo,
 				{
 					text: "会员卡号",
 					flex: 1,
@@ -1385,16 +1438,24 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 			],
 		});
 
-		console.log(form);
+		me.customerListGrid = form;
 
 		me.add(form)
 		me.doLayout();
+
+
+		if (me._selectedData && me._selectedData.length > 0){
+			//select all
+		}
 	},
 	buttons: [
 		{
 			text: "确定",
 			handler: function(){
 				var me = this, parent = Ext.getCmp("selectCustomerWindow");
+				var selectedData = parent.selModel.getSelection();	
+				parent._callback(selectedData);
+				parent.close();
 			}
 		},
 		{
@@ -1405,4 +1466,39 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 			}
 		}
 	]
+});
+
+Ext.define("Beet.plugins.ViewCustomerInfo", {
+	extend: "Ext.window.Window",
+	width: 650,
+	height: 500,
+	minHeight: 400,	
+	autoHeight: true,
+	autoScroll: true,
+	layout: "fit",
+	resizable: true,
+	border: false,
+	modal: true,
+	maximizable: true,
+	border: 0,
+	bodyBorder: false,
+	initComponent: function(){
+		var me = this, storeProxy = me.storeProxy, customerServer = Beet.constants.customerServer;
+		//update title
+		var d = storeProxy.getAt(me._rowIndex), rawData = d.data;
+		me.callParent();
+
+		me.setTitle(rawData["CTName"] + " 的会员资料");
+		var CTGUID = rawData["CTGUID"];
+		console.log(rawData);
+		if (CTGUID){
+			customerServer.GetCustomerItemToJson("CTGUID='"+CTGUID+"'", {
+				success: function(data){
+				},
+				failure: function(error){
+					Ext.error.raise(error);
+				}
+			});
+		}
+	},
 });
