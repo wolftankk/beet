@@ -149,6 +149,8 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 	extend: "Ext.panel.Panel",
 	layout: "anchor",
 	height: "100%",
+	autoScroll: true,
+	autoHeight: true,
 	activeItem: 0,
 	defaults: {
 		border: 0	
@@ -186,100 +188,188 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 			items: [
 				{
 					xtype: "container",
-					layout: "hbox",
-					frame: true,
+					autoScroll: true,
+					autoHeight: true,
 					border: false,
 					items: [
 						{
-							title: "基础信息",
-							xtype: "fieldset",
-							flex: 1,
-							defaultType: "textfield",
-							layout: "anchor",
-							fieldDefaults: {
-								msgTarget: 'side',
-								labelAlign: "left",
-								labelWidth: 75
+							layout: 'column',
+							border: false,
+							bodyStyle: 'background-color:#dfe8f5;',
+							defaults: {
+								bodyStyle: 'background-color:#dfe8f5;'
 							},
+							frame: true,
 							items: [
 								{
-									fieldLabel: "会员姓名",
-									name: "Name",
-									allowBlank: false
-								},
-								{
-									fieldLabel: "会员卡号",
-									name: "CardNo",
-									allowBlank: false
-								},
-								{
-									fieldLabel: "身份证",
-									name: "PersonID"
-								},
-								{
-									xtype: "combobox",
-									fieldLabel: "出生月份",
-									store: Beet.constants.monthesList,
-									name: "Month",
-									queryMode: "local",
-									displayField: "name",
-									valueField: "attr",
-									validator: function(value){
-										if (value > 12){
-											return "输入的月份值太大";
-										}else if (value < 1){
-											return "输入的月份值太小";
-										}
-										return true;
+									columnWidth: .3,
+									border: false,
+									layout: 'anchor',
+									defaultType: "textfield",
+									fieldDefaults: {
+										msgTarget: 'side',
+										labelAlign: "left",
+										labelWidth: 75
 									},
-									allowBlank: false
+									items: [
+										{
+											fieldLabel: "会员卡号",
+											name: "cardno",
+											allowBlank: false
+										},
+										{
+											fieldLabel: "会员姓名",
+											name: "name",
+											allowBlank: false
+										},
+										{
+											fieldLabel: "会员昵称",
+											name: "nike"
+										},
+										{
+											fieldLabel: "会员性别",
+											name: "sex",
+											xtype: "combobox",
+											store: Beet.constants.sexList,
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr"
+										},
+										{
+											fieldLabel: "婚否",
+											name: "marry",
+											xtype: "combobox",
+											store: Beet.constants.MarryList,
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr",
+										},
+										{
+											fieldLabel: "籍贯",
+											name: "province",
+										},
+										{
+											fieldLabel: "学历",
+											name: "education",
+											xtype: "combobox",
+											store: Beet.constants.EducationList,
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr",
+										},
+										{
+											fieldLabel: "入会方式",
+											name: "enjoymode",
+											//下拉
+										},
+										{
+											fieldLabel: "资讯更新方式",
+											name: "updatemode",
+											xtype: "combobox",
+											store: Beet.constants.NewUpdateModes,
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr",
+										},
+									]
 								},
 								{
-									xtype: "combobox",
-									fieldLabel: "出生日期",
-									store: Beet.constants.daysList,
-									name: "Day",
-									queryMode: "local",
-									displayField: "name",
-									valueField: "attr",
-									validator: function(value){
-										if (value > 31){
-											return "输入的日期太大";
-										}else if (value < 1){
-											return "输入的日期太小";
-										}
-										return true;
+									columnWidth: .3,
+									border: false,
+									layout: 'anchor',
+									defaultType: "textfield",
+									fieldDefaults: {
+										msgTarget: 'side',
+										labelAlign: "left",
+										labelWidth: 75
 									},
-									allowBlank: false
+									items: [
+										{
+											fieldLabel: "身份证",
+											name: "personid"
+										},
+										{
+											xtype: "combobox",
+											fieldLabel: "出生月份",
+											store: Beet.constants.monthesList,
+											name: "month",
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr",
+											validator: function(value){
+												if (value > 12){
+													return "输入的月份值太大";
+												}else if (value < 1){
+													return "输入的月份值太小";
+												}
+												return true;
+											},
+											allowBlank: false
+										},
+										{
+											xtype: "combobox",
+											fieldLabel: "出生日期",
+											store: Beet.constants.daysList,
+											name: "day",
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr",
+											validator: function(value){
+												if (value > 31){
+													return "输入的日期太大";
+												}else if (value < 1){
+													return "输入的日期太小";
+												}
+												return true;
+											},
+											allowBlank: false
+										},
+										{
+											fieldLabel: "手机号码",
+											name: "mobile",
+											validator: function(value){
+												var check = new RegExp(/\d+/g);
+												if (value.length == 11 && check.test(value)){
+													return true;
+												}
+												return "手机号码输入有误";
+											},
+											allowBlank: false
+										},
+										{
+											fieldLabel: "座机号码",
+											name: "phone"
+										},
+										{
+											fieldLabel: "电子邮件",
+											name: "email"
+										},
+										{
+											fieldLabel: "QQ/MSN",
+											name: "im"
+										},
+										{
+											fieldLabel: "地址",
+											name: "address",
+											allowBlank: false
+										},
+										{
+											fieldLabel: "职业",
+											name: "job"
+										},
+										//TODO: 专属顾问选择列表
+									]
 								},
 								{
-									fieldLabel: "手机号码",
-									name: "Mobile",
-									validator: function(value){
-										var check = new RegExp(/\d+/g);
-										if (value.length == 11 && check.test(value)){
-											return true;
-										}
-										return "手机号码输入有误";
-									},
-									allowBlank: false
-								},
-								{
-									fieldLabel: "座机号码",
-									name: "Phone"
-								},
-								{
-									fieldLabel: "QQ/MSN",
-									name: "IM"
-								},
-								{
-									fieldLabel: "地址",
-									name: "Address"
-								},
-								{
-									fieldLabel: "职业",
-									name: "Job"
-								}//TODO: 专属顾问选择列表
+									fieldLabel: "备注",
+									name: "descript",
+									xtype: "textarea",
+									labelAlign: "top",
+									enforceMaxLength: true,
+									maxLength: 200,
+									width: 400,
+									height: 200
+								}
 							]
 						},
 						{
@@ -560,7 +650,8 @@ Ext.define("Beet.apps.Viewport.CustomerList.Model", {
 		"CTPhone",
 		"CTJob",
 		"CTIM",
-		"CTAddress"
+		"CTAddress",
+		"CTDescript"
 	]
 });
 
@@ -772,6 +863,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 		var that = this, CTGUID = rawData.CTGUID, CTName = rawData.CTName,
 			customerServer = Beet.constants.customerServer, win;
 
+		console.log(rawData);
 		//get serviceItems;
 		//tabPanel
 		var settingTabPanel = Ext.create("Ext.tab.Panel", {
@@ -809,107 +901,243 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			},
 			items: [
 				{
-					fieldLabel: "会员姓名",
-					name: "Name",
-					value: rawData.CTName,
-					allowBlank: true,
-					dataIndex: "CTName"
-				},
-				{
-					fieldLabel: "会员卡号",
-					name: "CardNo",
-					allowBlank: true,
-					value: rawData.CTCardNo,
-					dataIndex: "CTCardNo"
-				},
-				{
-					fieldLabel: "身份证",
-					name: "PersonID",
-					value: rawData.CTPersonID,
-					dataIndex: "CTPersonID"
-				},
-				{
-					xtype: "combobox",
-					fieldLabel: "出生月份",
-					store: Beet.constants.monthesList,
-					name: "Month",
-					queryMode: "local",
-					displayField: "name",
-					valueField: "attr",
-					allowBlank: false,
-					validator: function(value){
-						if (value > 12){
-							return "输入的月份值太大";
-						}else if (value < 1){
-							return "输入的月份值太小";
+					xtype: "container",
+					autoScroll: true,
+					autoHeight: true,
+					border: false,
+					frame: true,
+					items: [
+						{
+							layout: 'column',
+							border: false,
+							bodyStyle: 'background-color:#dfe8f5;',
+							defaults: {
+								bodyStyle: 'background-color:#dfe8f5;'
+							},
+							items: [
+								{
+									columnWidth: .5,
+									border: false,
+									layout: 'anchor',
+									defaultType: "textfield",
+									fieldDefaults: {
+										msgTarget: 'side',
+										labelAlign: "left",
+										labelWidth: 75
+									},
+									items: [
+										{
+											fieldLabel: "会员卡号",
+											name: "cardno",
+											value: rawData.CTCardNo,
+											dataIndex: "CTCardNo",
+											allowBlank: false
+										},
+										{
+											fieldLabel: "会员姓名",
+											name: "name",
+											allowBlank: false,
+											value: rawData.CTName,
+											dataIndex: "CTName"
+										},
+										{
+											fieldLabel: "会员昵称",
+											name: "nike",
+											value: rawData.CTNikeName,
+											dataIndex: "CTNikeName"
+										},
+										{
+											fieldLabel: "会员性别",
+											name: "sex",
+											value: parseInt(rawData.CTSex, 10),
+											dataIndex: "CTSex",
+											xtype: "combobox",
+											store: Beet.constants.sexList,
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr"
+										},
+										{
+											fieldLabel: "婚否",
+											name: "marry",
+											value: parseInt(rawData.CTMarry, 10),
+											dataIndex: "CTMarry",
+											xtype: "combobox",
+											store: Beet.constants.MarryList,
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr"
+										},
+										{
+											fieldLabel: "籍贯",
+											name: "province",
+											value: rawData.CTProvince,
+											dataIndex: "CTProvince"
+										},
+										{
+											fieldLabel: "学历",
+											name: "education",
+											xtype: "combobox",
+											store: Beet.constants.EducationList,
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr",
+											value: parseInt(rawData.CTEducation, 10),
+											dataIndex: "CTEducation"
+										},
+										{
+											fieldLabel: "入会方式",
+											name: "enjoymode",
+											value: rawData.CTEnjoryMode,
+											dataIndex: "CTEnjoryMode",
+											xtype: "combobox",
+											store: Beet.constants.EnjoyModeList,
+											queryMode: "local",
+											displayField: "attr",
+											valueField: "attr"
+										},
+										{
+											fieldLabel: "资讯更新方式",
+											name: "updatemode",
+											value: parseInt( rawData.CTUpdateMode, 10),
+											dataIndex: "CTUpdateMode",
+											xtype: "combobox",
+											store: Beet.constants.NewUpdateModes,
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr"
+										},
+									]
+								},
+								{
+									columnWidth: .5,
+									border: false,
+									layout: 'anchor',
+									defaultType: "textfield",
+									fieldDefaults: {
+										msgTarget: 'side',
+										labelAlign: "left",
+										labelWidth: 75
+									},
+									items: [
+										{
+											fieldLabel: "身份证",
+											name: "personid",
+											value: rawData.CTPersonID,
+											dataIndex: "CTPersonID"
+										},
+										{
+											fieldLabel: "出生月份",
+											name: "month",
+											xtype: "combobox",
+											store: Beet.constants.monthesList,
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr",
+											validator: function(value){
+												if (value > 12){
+													return "输入的月份值太大";
+												}else if (value < 1){
+													return "输入的月份值太小";
+												}
+												return true;
+											},
+											allowBlank: false,
+											value: parseInt(rawData.CTBirthdayMonth, 10)
+										},
+										{
+											xtype: "combobox",
+											fieldLabel: "出生日期",
+											store: Beet.constants.daysList,
+											name: "day",
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr",
+											validator: function(value){
+												if (value > 31){
+													return "输入的日期太大";
+												}else if (value < 1){
+													return "输入的日期太小";
+												}
+												return true;
+											},
+											allowBlank: false,
+											value: parseInt(rawData.CTBirthdayDay, 10)
+										},
+										{
+											fieldLabel: "手机号码",
+											name: "mobile",
+											validator: function(value){
+												var check = new RegExp(/\d+/g);
+												if (value.length == 11 && check.test(value)){
+													return true;
+												}
+												return "手机号码输入有误";
+											},
+											allowBlank: false,
+											value: rawData.CTMobile,
+											dataIndex: "CTMobile"
+										},
+										{
+											fieldLabel: "座机号码",
+											name: "phone",
+											value: rawData.CTPhone,
+											dataIndex: "CTPhone"
+										},
+										{
+											fieldLabel: "电子邮件",
+											name: "email",
+											value: rawData.CTEmail,
+											dataIndex: "CTEmail"
+										},
+										{
+											fieldLabel: "QQ/MSN",
+											name: "im",
+											value: rawData.CTIM,
+											dataIndex: "CTIM"
+										},
+										{
+											fieldLabel: "地址",
+											name: "address",
+											allowBlank: false,
+											value: rawData.CTAddress,
+											dataIndex: "CTAddress"
+										},
+										{
+											fieldLabel: "职业",
+											name: "job",
+											value: rawData.CTJob,
+											dataIndex:"CTJob"
+										},
+										//TODO: 专属顾问选择列表
+									]
+								}
+							]
+						},
+						{
+							fieldLabel: "备注",
+							name: "descript",
+							xtype: "textarea",
+							labelAlign: "top",
+							enforceMaxLength: true,
+							maxLength: 200,
+							width: 400,
+							height: 200,
+							value: rawData.CTDescript,
+							dataIndex: "CTDescript"
+						},
+						{
+							xtype: "component",
+							width: 5
 						}
-						return true;
-					},
-					value: parseInt(rawData.CTBirthdayMonth, 10)
+					]
 				},
-				{
-					xtype: "combobox",
-					fieldLabel: "出生日期",
-					store: Beet.constants.daysList,
-					name: "Day",
-					queryMode: "local",
-					displayField: "name",
-					valueField: "attr",
-					allowBlank: false,
-					validator: function(value){
-						if (value > 31){
-							return "输入的日期太大";
-						}else if (value < 1){
-							return "输入的日期太小";
-						}
-						return true;
-					},
-					value: parseInt(rawData.CTBirthdayDay, 10)
-				},
-				{
-					fieldLabel: "手机号码",
-					name: "Mobile",
-					allowBlank: true,
-					validator: function(value){
-						var check = new RegExp(/\d+/g);
-						if (value.length == 11 && check.test(value)){
-							return true;
-						}
-						return "手机号码输入有误";
-					},
-					value: rawData.CTMobile,
-					dataIndex: "CTMobile"
-				},
-				{
-					fieldLabel: "座机号码",
-					name: "Phone",
-					value: rawData.CTPhone,
-					dataIndex: "CTPhone"
-				},
-				{
-					fieldLabel: "QQ/MSN",
-					name: "IM",
-					value: rawData.CTIM,
-					dataIndex: "CTIM"
-				},
-				{
-					fieldLabel: "地址",
-					name: "Address",
-					value: rawData.CTAddress,
-					dataIndex: "CTAddress"
-				},
-				{
-					fieldLabel: "职业",
-					name: "Job",
-					value: rawData.CTJob,
-					dataIndex: "CTJob"
-				}
 			],
 			buttons: [{
 				text: "提交修改",
 				handler: function(direction, e){
 					var me = this, form = me.up("form").getForm(), result = form.getValues();
-					if (result["Name"] != "" && result["Mobile"] != ""){
+					if (result["name"] != "" && result["mobile"] != ""){
 						var needSubmitData = Ext.JSON.encode(result);
 						customerServer.UpdateCustomer(CTGUID, needSubmitData, {
 							success: function(){
@@ -1502,3 +1730,180 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
 		}
 	},
 });
+/*
+
+				{
+					xtype: "container",
+					autoScroll: true,
+					autoHeight: true,
+					border: false,
+					items: [
+						{
+							layout: 'column',
+							border: false,
+							bodyStyle: 'background-color:#dfe8f5;',
+							defaults: {
+								bodyStyle: 'background-color:#dfe8f5;'
+							},
+							frame: true,
+							items: [
+								{
+									columnWidth: .3,
+									border: false,
+									layout: 'anchor',
+									defaultType: "textfield",
+									fieldDefaults: {
+										msgTarget: 'side',
+										labelAlign: "left",
+										labelWidth: 75
+									},
+									items: [
+										{
+											fieldLabel: "会员卡号",
+											name: "cardno",
+											allowBlank: false
+										},
+										{
+											fieldLabel: "会员姓名",
+											name: "name",
+											allowBlank: false
+										},
+										{
+											fieldLabel: "会员昵称",
+											name: "nike"
+										},
+										{
+											fieldLabel: "会员性别",
+											name: "sex",
+											//todo 下拉列表
+										},
+										{
+											fieldLabel: "婚否",
+											name: "marry"
+										},
+										{
+											fieldLabel: "籍贯",
+											name: "province",
+										},
+										{
+											fieldLabel: "学历",
+											name: "education",
+										},
+										{
+											fieldLabel: "入会方式",
+											name: "enjoymode",
+											//下拉
+										},
+										{
+											fieldLabel: "资讯更新方式",
+											name: "updatemode",
+											//下拉
+										},
+									]
+								},
+								{
+									columnWidth: .3,
+									border: false,
+									layout: 'anchor',
+									defaultType: "textfield",
+									fieldDefaults: {
+										msgTarget: 'side',
+										labelAlign: "left",
+										labelWidth: 75
+									},
+									items: [
+										{
+											fieldLabel: "身份证",
+											name: "personid"
+										},
+										{
+											xtype: "combobox",
+											fieldLabel: "出生月份",
+											store: Beet.constants.monthesList,
+											name: "month",
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr",
+											validator: function(value){
+												if (value > 12){
+													return "输入的月份值太大";
+												}else if (value < 1){
+													return "输入的月份值太小";
+												}
+												return true;
+											},
+											allowBlank: false
+										},
+										{
+											xtype: "combobox",
+											fieldLabel: "出生日期",
+											store: Beet.constants.daysList,
+											name: "day",
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr",
+											validator: function(value){
+												if (value > 31){
+													return "输入的日期太大";
+												}else if (value < 1){
+													return "输入的日期太小";
+												}
+												return true;
+											},
+											allowBlank: false
+										},
+										{
+											fieldLabel: "手机号码",
+											name: "mobile",
+											validator: function(value){
+												var check = new RegExp(/\d+/g);
+												if (value.length == 11 && check.test(value)){
+													return true;
+												}
+												return "手机号码输入有误";
+											},
+											allowBlank: false
+										},
+										{
+											fieldLabel: "座机号码",
+											name: "phone"
+										},
+										{
+											fieldLabel: "电子邮件",
+											name: "email"
+										},
+										{
+											fieldLabel: "QQ/MSN",
+											name: "im"
+										},
+										{
+											fieldLabel: "地址",
+											name: "address",
+											allowBlank: false
+										},
+										{
+											fieldLabel: "职业",
+											name: "job"
+										},
+										//TODO: 专属顾问选择列表
+									]
+								},
+								{
+									fieldLabel: "备注",
+									name: "descript",
+									xtype: "textarea",
+									labelAlign: "top",
+									enforceMaxLength: true,
+									maxLength: 200,
+									width: 400,
+									height: 200
+								}
+							]
+						},
+						{
+							xtype: "component",
+							width: 5
+						}
+					]
+				},
+				*/

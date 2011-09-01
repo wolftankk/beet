@@ -735,4 +735,54 @@ Beet.constants.daysList = Ext.create("Ext.data.Store", {
 		{ attr: 30, name: "30"},
 		{ attr: 31, name: "31"}
 	]	
-})
+});
+
+Beet.constants.sexList = Ext.create("Ext.data.Store", {
+	fields: ["attr", "name"],
+	data: [
+		{ attr: 1, name: "先生"},
+		{ attr: 2, name: "女士"}
+	]	
+});
+
+Beet.constants.MarryList = Ext.create("Ext.data.Store", {
+	fields: ["attr", "name"],
+	data: [
+		{attr: 0, name: "未知"},
+		{attr: 1, name: "未婚"},
+		{attr: 2, name: '已婚'}
+	]	
+});
+
+Beet.constants.NewUpdateModes = Ext.create("Ext.data.Store", {
+	fields: ["attr", "name"],
+	data: [
+		{attr: 0, name: "电话"},
+		{attr: 1, name: "短信"},
+		{attr: 2, name: 'Email'},
+		{attr: 3, name: '邮寄'},
+		{attr: 4, name: '微薄'}
+	]	
+});
+
+Beet.constants.EducationList = Ext.create("Ext.data.Store", {
+	fields: ["attr", "name"],
+	data: [
+		{attr: 0, name: "大专"},
+		{attr: 1, name: "本科"},
+		{attr: 2, name: '硕士及以上'},
+		{attr: 3, name: '其他'}
+	]	
+});
+
+Beet.constants.EnjoyModeList = Ext.create("Ext.data.Store", {
+	fields: ["attr"],
+	data: [
+		{attr: "友人介绍"},
+		{attr: "杂志"},
+		{attr: "广告"},
+		{attr: "报纸"},
+		{attr: "电视"},
+		{attr: "网络"}
+	]	
+});
