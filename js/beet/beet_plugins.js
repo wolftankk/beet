@@ -1435,6 +1435,27 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
 											value: rawData.CTJob,
 											dataIndex:"CTJob"
 										},
+										{	
+											fieldLabel: "所属分店",
+											name: "storeid",
+											xtype: "combobox",
+											editable: false,
+											store: Beet.cache.branchesList,
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr",
+											value: rawData.CTStoreID,
+											dataIndex: rawData.CTStoreID,
+											allowBlank: false,
+											emptyText: "若不选则由系统智能选择",
+											listeners: {
+												change: function(field, newvalue){
+													if (newvalue == -1){
+														field.clearValue();
+													}
+												}
+											}
+										},
 										//TODO: 专属顾问选择列表
 									]
 								}

@@ -171,6 +171,24 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 		]
 		that.callParent(arguments);
 	},
+	afterRender: function(){
+		var me = this;
+		me.callParent();
+
+		//update storeid
+		me.updateSelectStoreField();
+	},
+	updateSelectStoreField: function(){
+		var me = this;
+		var s = me.baseInfoPanel.down("[name=storeid]");
+		if (Beet.cache.Operator.store && Beet.cache.Operator.store.length > 0){
+			if (Ext.Array.indexOf(Beet.cache.Operator.store, Beet.constants.ACT_INSERT_IID) == -1){
+				s.hide();
+			}else{
+				s.show();
+			}
+		}
+	},
 	getBaseInfoPanelConfig: function(){
 		var that = this, config;
 		config = {
@@ -356,20 +374,52 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 										{
 											fieldLabel: "职业",
 											name: "job"
-										},
+										}
 										//TODO: 专属顾问选择列表
 									]
 								},
 								{
-									fieldLabel: "备注",
-									name: "descript",
-									xtype: "textarea",
-									labelAlign: "top",
-									enforceMaxLength: true,
-									maxLength: 200,
-									width: 400,
-									height: 200
-								}
+									columnWidth: .4,
+									border: false,
+									layout: 'anchor',
+									defaultType: "textfield",
+									fieldDefaults: {
+										msgTarget: 'side',
+										labelAlign: "left",
+										labelWidth: 75
+									},
+									items: [
+										{	
+											fieldLabel: "所属分店",
+											name: "storeid",
+											xtype: "combobox",
+											editable: false,
+											store: Beet.cache.branchesList,
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr",
+											allowBlank: true,
+											emptyText: "若不选则由系统智能选择",
+											listeners: {
+												change: function(field, newvalue){
+													if (newvalue == -1){
+														field.clearValue();
+													}
+												}
+											}
+										},
+										{
+											fieldLabel: "备注",
+											name: "descript",
+											xtype: "textarea",
+											labelAlign: "top",
+											enforceMaxLength: true,
+											maxLength: 200,
+											width: 400,
+											height: 200
+										}
+									]
+								},
 							]
 						},
 						{

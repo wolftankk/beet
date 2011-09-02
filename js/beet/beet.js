@@ -27,6 +27,7 @@ Ext.define("Beet.apps.Menu.Panel", {
 		var that = this;
 		//目录设置面板
 		that.getOperatorList();
+
 		if (Beet.cache.MenuItems){
 			Beet.apps.Menu.Items = [];
 			for (var item in Beet.cache.MenuItems){
@@ -57,6 +58,8 @@ Ext.define("Beet.apps.Menu.Panel", {
 			Beet.cache.Operator = {};
 		}
 		var that = this, customerServer = Beet.constants.customerServer, employeeServer = Beet.constants.employeeServer;
+
+		//客户
 		customerServer.GetOperatorList(Beet.constants.RES_CUSTOMER_IID, {
 			success: function(data){
 				Beet.cache.Operator.customer = data.split(",");
@@ -66,8 +69,20 @@ Ext.define("Beet.apps.Menu.Panel", {
 			}
 		});
 
+		//员工
 		employeeServer.GetOperatorList(Beet.constants.RES_DEPARTMENT_IID, {
 			success: function(data){
+				Beet.cache.Operator.employee = data.split(",");
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
+
+		//store
+		customerServer.GetOperatorList(Beet.constants.RES_STORE_IID, {
+			success: function(data){
+				Beet.cache.Operator.store = data.split(",");
 			},
 			failure: function(error){
 				Ext.Error.raise(error);
@@ -534,7 +549,7 @@ Beet.apps.Viewport.getServiceItems = function(__callback){
 				__callback();
 			},
 			failure: function(){
-				Ext.Error.railse("与服务器断开链接");
+				Ext.Error.raise("与服务器断开链接");
 			}
 		})
 	}else{
@@ -745,6 +760,7 @@ function getSubbrachesList(){
 			data = Ext.JSON.decode(data);
 			data = data["Data"];
 			list = [];
+			list.push({attr: "-1", name: "&nbsp;"});
 			for (var c in data){
 				var d = data[c];
 				list.push(
@@ -753,6 +769,15 @@ function getSubbrachesList(){
 			}
 
 			Beet.cache.employee.branchesList = list;
+			(function(){
+				var me = this;
+				if (Beet.cache.branchesList == undefined){
+					Beet.cache.branchesList = Ext.create("Ext.data.Store", {
+						fields: ["attr", "name"],
+						data: Beet.cache.employee.branchesList
+					});
+				}
+			})();
 		},
 		failure: function(error){
 			Ext.Error.raise(error);

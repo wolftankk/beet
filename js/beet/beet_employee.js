@@ -359,15 +359,14 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 					if (btn == "yes"){
 						employeeServer.AddEmployee(needSumbitData, {
 							success: function(uid){
-								 /*
-								 if (uid > -1){
+								 if (uid !== Beet.constants.FAILURE){
 									 Ext.MessageBox.show({
 										 title: "添加成功!",
 										 msg: "是否需要继续添加员工?",
 										 buttons: Ext.MessageBox.YESNO,
 										 fn: function(btn){
 											 if (btn == "yes"){
-												 _form.reset();
+												 form.reset();
 											 }else{
 												 if (Beet.apps.Menu.Tabs["addEmployee"]){
 													 Beet.workspace.removePanel("addEmployee");
@@ -376,7 +375,6 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 										 }
 									 })
 								 }
-								 */
 							 },
 							failure: function(error){
 								Ext.Error.raise(error);
