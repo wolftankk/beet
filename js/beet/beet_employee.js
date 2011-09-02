@@ -228,6 +228,7 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 					xtype: "datefield",
 					editable: false,
 					name: "emindate",
+					format: "Y/m/d",
 					allowBlank: false
 				},
 				{
@@ -350,6 +351,7 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 	_addEmployee: function(direction, e){
 		var me = this, form = me.up("form").getForm(), parent = me.ownerCt.ownerCt, result = form.getValues(),needSumbitData, employeeServer = Beet.constants.employeeServer;
 		if (form.isValid()){
+			result["emindate"] = +(new Date(result["emindate"]))/1000;
 			needSumbitData = Ext.JSON.encode(result);
 			Ext.MessageBox.show({
 				title: "增加员工",
