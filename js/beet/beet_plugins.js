@@ -1271,7 +1271,8 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
 											store: Beet.constants.sexList,
 											queryMode: "local",
 											displayField: "name",
-											valueField: "attr"
+											valueField: "attr",
+											editable: false
 										},
 										{
 											fieldLabel: "婚否",
@@ -1282,7 +1283,8 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
 											store: Beet.constants.MarryList,
 											queryMode: "local",
 											displayField: "name",
-											valueField: "attr"
+											valueField: "attr",
+											editable: false
 										},
 										{
 											fieldLabel: "籍贯",
@@ -1299,7 +1301,8 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
 											displayField: "name",
 											valueField: "attr",
 											value: parseInt(rawData.CTEducation, 10),
-											dataIndex: "CTEducation"
+											dataIndex: "CTEducation",
+											editable: false
 										},
 										{
 											fieldLabel: "入会方式",
@@ -1322,7 +1325,8 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
 											store: Beet.constants.NewUpdateModes,
 											queryMode: "local",
 											displayField: "name",
-											valueField: "attr"
+											valueField: "attr",
+											editable: false
 										},
 									]
 								},

@@ -128,6 +128,24 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 			defaultType: "textfield",
 			items: [
 				{
+					fieldLabel: "登录名",
+					name: "username",
+				},
+				{
+					fieldLabel: "登陆密码",
+					inputType: 'password',
+					name: "password",
+					minLength: 6
+				},
+				{
+					fieldLabel: "重新输入密码",
+					inputType: 'password',
+					validator: function(value){
+						var pw  = this.previousSibling('[name=password]');
+						return (pw.getValue() === value) ? true : '密码不匹配'; 
+					}
+				},
+				{
 					fieldLabel: "员工姓名",
 					name: "emname"
 				},
@@ -135,6 +153,7 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 					fieldLabel: "所属部门",
 					name: "emdep",
 					xtype: "combobox",
+					editable: false,
 					store: me.departmentList,
 					queryMode: "local",
 					displayField: "name",
@@ -145,6 +164,7 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 					fieldLabel: "所属分店",
 					name: "emstore",
 					xtype: "combobox",
+					editable: false,
 					store: me.branchesList,
 					queryMode: "local",
 					displayField: "name",
@@ -187,6 +207,7 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 					store: Beet.constants.monthesList,
 					name: "embirthmonth",
 					queryMode: "local",
+					editable: false,
 					displayField: "name",
 					valueField: "attr",
 					allowBlank: true,
@@ -194,6 +215,7 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 				{
 					fieldLabel: "出生日期",
 					xtype: "combobox",
+					editable: false,
 					store: Beet.constants.daysList,
 					name: "embirthday",
 					queryMode: "local",
@@ -204,6 +226,7 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 				{
 					fieldLabel: "入职日期",
 					xtype: "datefield",
+					editable: false,
 					name: "emindate",
 					allowBlank: false
 				},
