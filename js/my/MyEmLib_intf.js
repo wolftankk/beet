@@ -1113,11 +1113,10 @@ MyEMSvc.prototype.GetStoreData = function(AWhere, OnlySchema, __callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyEMSvc.prototype.AddEmployee = function(AUserID, AEmployessJSONData, __callback) {
+MyEMSvc.prototype.AddEmployee = function(AEmployessJSONData, __callback) {
   var __message = {
     "method" : "MyEMSvc.AddEmployee",
     "params" : {
-      "AUserID": AUserID,
       "AEmployessJSONData": AEmployessJSONData
       }
   }
@@ -1223,8 +1222,8 @@ MyEMSvc.prototype.GetEmployeeData = function(Start, Limit, AWhere, OnlySchema, _
     "params" : {
       "Start": Start,
       "Limit": Limit,
-      "OnlySchema": OnlySchema,
-      "AWhere": AWhere
+      "AWhere": AWhere,
+      "OnlySchema": OnlySchema
       }
   }
   var __callbacks = null;
@@ -1319,12 +1318,10 @@ EMLoginSvc.prototype.Logout = function(__callback) {
           else
             this.callback(__result.result);
         }
-		Ext.util.Cookies.clear("_sid");
       },
       failure : function (o) {
         if ((typeof this.callback == "object") && this.callback.failure) 
             this.callback.failure(o);
-	    Ext.util.Cookies.clear("_sid");
       },
       timeout : 30000
     }

@@ -357,7 +357,32 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 				buttons: Ext.MessageBox.YESNO,
 				fn: function(btn){
 					if (btn == "yes"){
-						parent.createAdminSeletorWindow(needSumbitData, form);
+						employeeServer.AddEmployee(needSumbitData, {
+							success: function(uid){
+								 /*
+								 if (uid > -1){
+									 Ext.MessageBox.show({
+										 title: "添加成功!",
+										 msg: "是否需要继续添加员工?",
+										 buttons: Ext.MessageBox.YESNO,
+										 fn: function(btn){
+											 if (btn == "yes"){
+												 _form.reset();
+											 }else{
+												 if (Beet.apps.Menu.Tabs["addEmployee"]){
+													 Beet.workspace.removePanel("addEmployee");
+												 }
+											 }
+										 }
+									 })
+								 }
+								 */
+							 },
+							failure: function(error){
+								Ext.Error.raise(error);
+							}
+						})
+						//parent.createAdminSeletorWindow(needSumbitData, form);
 					}
 				}
 			});
