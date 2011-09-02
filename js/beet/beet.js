@@ -567,7 +567,7 @@ Beet.apps.Viewport.getEmployeeColumnsData = function(__callback){
 				__callback();
 			},
 			failure: function(error){
-
+				Ext.Error.raise(error);
 			}
 		})
 	}else{
@@ -585,7 +585,6 @@ Beet.apps.Viewport.getColumnsData = function(__callback){
 				__callback();
 			},
 			failure: function(error){
-
 			}
 		})
 	}else{

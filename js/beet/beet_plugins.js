@@ -1445,7 +1445,7 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
 											displayField: "name",
 											valueField: "attr",
 											value: rawData.CTStoreID,
-											dataIndex: rawData.CTStoreID,
+											dataIndex: "CTStoreID",
 											allowBlank: false,
 											emptyText: "若不选则由系统智能选择",
 											listeners: {

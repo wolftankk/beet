@@ -691,9 +691,18 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 Ext.define("Beet.apps.Viewport.CustomerList.Model", {
 	extend: "Ext.data.Model",
 	fields: [
+		"CTGUID",
 		"CTID",
 		"CTCardNo",
 		"CTName",
+		"CTNickName",
+		"CTSex",
+		"CTMarry",
+		"CTProvince",
+		"CTEducation",
+		"CTEMail",
+		"CTEnjoyMode",
+		"CTUpdateMode",
 		"CTBirthdayMonth",
 		"CTBirthdayDay",
 		"CTMobile",
@@ -701,7 +710,8 @@ Ext.define("Beet.apps.Viewport.CustomerList.Model", {
 		"CTJob",
 		"CTIM",
 		"CTAddress",
-		"CTDescript"
+		"CTDescript",
+		"CTStoreID"
 	]
 });
 
@@ -832,6 +842,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 						column["dataIndex"] = columnData[k];
 					}
 				}
+
 				__columns.push(column);
 			}
 		}
