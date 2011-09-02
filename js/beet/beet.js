@@ -169,7 +169,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 			//about button / menu
 			{
 				xtype: "splitbutton",
-				text: "ICON"
+				text: "美度"
 			}, "-",
 			//menu category button
 			that.navigationToolbar,

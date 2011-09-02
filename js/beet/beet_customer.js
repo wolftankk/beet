@@ -696,13 +696,13 @@ Ext.define("Beet.apps.Viewport.CustomerList.Model", {
 		"CTCardNo",
 		"CTName",
 		"CTNickName",
-		"CTSex",
-		"CTMarry",
+		"CTSexName",
+		"CTMarryName",
 		"CTProvince",
-		"CTEducation",
+		"CTEducationName",
 		"CTEMail",
 		"CTEnjoyMode",
-		"CTUpdateMode",
+		"CTUpdateModeName",
 		"CTBirthdayMonth",
 		"CTBirthdayDay",
 		"CTMobile",
@@ -711,7 +711,7 @@ Ext.define("Beet.apps.Viewport.CustomerList.Model", {
 		"CTIM",
 		"CTAddress",
 		"CTDescript",
-		"CTStoreID"
+		"CTStoreName"
 	]
 });
 
