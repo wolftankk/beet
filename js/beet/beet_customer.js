@@ -1148,6 +1148,9 @@ Ext.define("Beet.apps.Viewport.VIPActivity", {
 			buttons: [
 				{
 					text: "提交",
+					style: {
+						left: 0
+					},
 					handler: function(widget, btn){
 						var form = widget.up("form"), result = form.getValues();
 						var date = result["date"], t = result["time"], ts = (+(new Date(date + " " + t)))/1000;
@@ -1186,48 +1189,79 @@ Ext.define("Beet.apps.Viewport.VIPActivity", {
 			],
 			items: [
 				{
-					fieldLabel: "活动名称",
-					name: "name"
-				},
-				{
-					fieldLabel: "举办日期",
-					name: "date",
-					xtype: "datefield",
-					format: "Y/m/d",
-					value: new Date(),
-					minValue: new Date()
-				},
-				{
-					fieldLabel: "举办时间",
-					xtype: "timefield",
-					format: "H:i",
-					name: "time"
-				},
-				{
-					fieldLabel: "活动描述",
-					xtype: "textarea",
-					height: 100,
-					allowBlank: true,
-					name: "description"
-				},
-				{
-					text: "增加参加人员",
-					xtype: "button",
-					handler: function(width, btn){
-						var win = me.selectCustomerWindow = Ext.create("Beet.plugins.selectCustomerWindow", {
-							_callback: function(value){
-								if (me.customerList){
-									me.panel.remove(me.customerList, true);
-									me.panel.doLayout();
+					xtype: "container",
+					autoScroll: true,
+					autoHeight: true,
+					border: false,
+					frame: true,
+					items: [
+						{
+							layout: 'column',
+							border: false,
+							bodyStyle: 'background-color:#dfe8f5;',
+							defaults: {
+								bodyStyle: 'background-color:#dfe8f5;',
+							},
+							items: [
+								{
+									columnWidth: .5,
+									border: false,
+									layout: 'anchor',
+									defaultType: "textfield",
+									fieldDefaults: {
+										msgTarget: 'side',
+										labelAlign: "left",
+										labelWidth: 75,
+									},
+									items:[
+										{
+											fieldLabel: "活动名称",
+											name: "name"
+										},
+										{
+											fieldLabel: "举办日期",
+											name: "date",
+											xtype: "datefield",
+											format: "Y/m/d",
+											value: new Date(),
+											minValue: new Date()
+										},
+										{
+											fieldLabel: "举办时间",
+											xtype: "timefield",
+											format: "H:i",
+											name: "time"
+										},
+										{
+											fieldLabel: "活动描述",
+											xtype: "textarea",
+											height: 100,
+											allowBlank: true,
+											name: "description"
+										},
+										{
+											text: "增加参加人员",
+											xtype: "button",
+											handler: function(width, btn){
+												var win = me.selectCustomerWindow = Ext.create("Beet.plugins.selectCustomerWindow", {
+													_callback: function(value){
+														if (me.customerList){
+															me.panel.remove(me.customerList, true);
+															me.panel.doLayout();
+														}
+														if (value.length > 0){
+															me.updateCustomerList(value);
+														}
+													}
+												});
+												win.show();	
+											}
+										}
+									]
 								}
-								if (value.length > 0){
-									me.updateCustomerList(value);
-								}
-							}
-							//_selectedData: me.selectedData
-						});
-						win.show();	
-					}
+							]
+						}
+					]
 				}
 				/*
 				{
