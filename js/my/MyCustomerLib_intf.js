@@ -1666,6 +1666,40 @@ MyCustomerSvc.prototype.GetActivityData = function(Start, Limit, AWhere, __callb
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
+MyCustomerSvc.prototype.GetActivityCTData = function(ActivityID, __callback) {
+  var __message = {
+    "method" : "MyCustomerSvc.GetActivityCTData",
+    "params" : {
+      "ActivityID": ActivityID
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
 // End of service: MyCustomerSvc
 // Service: CTLoginSvc
 function CTLoginSvc(url){
