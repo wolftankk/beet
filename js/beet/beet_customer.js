@@ -136,7 +136,16 @@ registerBeetAppsMenu("customer",
 						},
 						{
 							xtype: "button",
-							text: "活动列表"
+							text: "活动列表",
+							tooltip: "查看,编辑已有的活动",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["activitylist"];
+								if (!item){
+
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
 						}
 					]
 				}
@@ -1109,6 +1118,225 @@ Ext.define("Beet.apps.Viewport.VIPActivity", {
 	initComponent: function(){
 		var me = this;
 
-		me.callParent(arguments)
+		me.items = [
+			me.createMainPanel()
+		]
+
+		me.callParent(arguments);
+	},
+	createMainPanel: function(){
+		var me = this, customerServer = Beet.constants.customerServer, panel;
+
+		me.panel = panel = Ext.create("Ext.form.Panel", {
+			frame: true,
+			bodyPadding: 10,
+			height: "100%",
+			autoHeight: true,
+			autoScroll: true,
+			defaultType: "textfield",
+			fieldDefaults: {
+				msgTarget: "side",
+				allowBlank: false,
+				labelAlign: "left",
+				labelWidth: 75,
+				width: 300
+			},
+			buttons: [
+				{
+					text: "提交",
+					scale: "large",
+					handler: function(widget, btn){
+						var form = widget.up("form"), result = form.getValues();
+						var date = result["date"], t = result["time"], ts = (+(new Date(date + " " + t)))/1000;
+						var selectedData = [], customerServer = Beet.constants.customerServer;
+						if (me.selectedData){
+							for (var c in me.selectedData){
+								selectedData.push(c);	
+							}
+						}
+						var needSubmitData = {
+							name: result["name"],
+							description: result["description"],
+							datetime: ts,
+							customers: selectedData
+						}
+
+						customerServer.AddActivity(Ext.JSON.encode(needSubmitData), {
+							success: function(data){
+								if (data > 0){
+									Ext.MessageBox.show({
+										title: "增加活动成功",
+										msg: "增加活动: " + result["name"] + " 成功",
+										buttons: Ext.MessageBox.OK,
+										fn: function(){
+											form.reset();
+										}
+									})
+								}
+							},
+							failure: function(error){
+								Ext.Error.raise(error);
+							}
+						})
+					}
+				}
+			],
+			items: [
+				{
+					fieldLabel: "活动名称",
+					name: "name"
+				},
+				{
+					fieldLabel: "举办日期",
+					name: "date",
+					xtype: "datefield",
+					format: "Y/m/d",
+					value: new Date(),
+					minValue: new Date()
+				},
+				{
+					fieldLabel: "举办时间",
+					xtype: "timefield",
+					format: "H:i",
+					name: "time"
+				},
+				{
+					fieldLabel: "活动描述",
+					xtype: "textarea",
+					height: 100,
+					allowBlank: true,
+					name: "description"
+				},
+				{
+					text: "增加参加人员",
+					xtype: "button",
+					handler: function(width, btn){
+						var win = me.selectCustomerWindow = Ext.create("Beet.plugins.selectCustomerWindow", {
+							_callback: function(value){
+								if (me.customerList){
+									me.panel.remove(me.customerList, true);
+									me.panel.doLayout();
+								}
+								if (value.length > 0){
+									me.updateCustomerList(value);
+								}
+							}
+							//_selectedData: me.selectedData
+						});
+						win.show();	
+					}
+				}
+				/*
+				{
+					fieldLabel: "参加人员"
+				},
+				{
+					fieldLabel: "举办地点"
+				},
+				{
+					fieldLabel: "活动负责人"
+				}*/
+			]
+		});
+
+		return panel
+	},
+	preprocessSelectedData: function(data){
+		var newData = {};
+		
+		if (data == undefined || (Ext.isArray(data) && data.length == 0)){
+			return newData;
+		}
+
+		for (var c = 0; c < data.length; ++c){
+			var item = data[c], d = item["data"];
+			newData[d["CTGUID"]] = d;
+		}
+
+		return newData;
+	},
+	updateCustomerList: function(value){
+		var me = this, nameList = [], store;
+
+		//处理数据层
+		value = me.preprocessSelectedData(value);
+		if (me.selectedData == undefined || me.selectedData.length == 0){
+			me.selectedData = [];
+			me.selectedData = value;
+		}else{
+			if (value && Ext.isObject(value)){
+				for (var k in value){
+					if (me.selectedData[k] == undefined){
+						me.selectedData[k] = value[k];	
+					}
+				}
+			}
+		}
+
+		//创建store
+		value = me.selectedData;
+		for (var c in value){
+			var item = value[c], guid = item["CTGUID"], name = item["CTName"];
+			nameList.push([name, item["CTMobile"], guid]);
+		}
+		store = Ext.create("Ext.data.ArrayStore", {
+			fields: [
+				"name",
+				"mobile",
+				"guid"
+			],
+			data: nameList
+		});
+
+		//创建actions
+		var _actions = {
+			xtype: 'actioncolumn',
+			width: 30,
+			items: [
+				"-", "-",
+				{
+					icon: "./resources/themes/images/fam/delete.gif",
+					tooltip: "删除用户",
+					handler: function(grid, rowIndex, colIndex){
+						var d = store.getAt(rowIndex), guid = d.get("guid");
+
+						delete me.selectedData[guid];
+
+						if (me.customerList){
+							me.panel.remove(me.customerList, true);
+							me.panel.doLayout();
+						}
+						me.updateCustomerList();
+					}
+				}
+			]
+		}
+
+		//grid list
+		var ns = me.customerList = Ext.create("Ext.grid.Panel", {
+			store: store,
+			minHeight: 50,
+			maxHeight: 300,
+			width: 230,
+			autoHeight: true,
+			autoScroll: true,
+			columnLines: true,
+			hideHeaders: true,
+			columns:[
+				_actions,
+				{
+					text: "Name",
+					flex: 1,
+					dataIndex: "name" 
+				},
+				{
+					flex: 1,
+					dataIndex: "mobile"
+				}
+			]	
+		});
+	
+		me.panel.add(ns);
+		me.doLayout();
 	}
 });

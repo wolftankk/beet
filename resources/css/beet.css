@@ -184,3 +184,28 @@ aside{
     font-weight: bold;
 }
 
+/* line 10, /mnt/ebs/nightly/jsduck/template/resources/sass/../../extjs/resources/themes/stylesheets/ext4/default/util/_scroller.scss */
+.x-scroller { overflow: hidden; }
+
+/* line 14, /mnt/ebs/nightly/jsduck/template/resources/sass/../../extjs/resources/themes/stylesheets/ext4/default/util/_scroller.scss */
+.x-scroller-vertical { border: 1px solid #bfbfbf; border-top-color: #c5c5c5; }
+
+/* line 19, /mnt/ebs/nightly/jsduck/template/resources/sass/../../extjs/resources/themes/stylesheets/ext4/default/util/_scroller.scss */
+.x-scroller-horizontal { border: 1px solid #bfbfbf; }
+
+/* line 23, /mnt/ebs/nightly/jsduck/template/resources/sass/../../extjs/resources/themes/stylesheets/ext4/default/util/_scroller.scss */
+.x-vertical-scroller-present .x-scroller-horizontal { border-right-width: 0px; }
+
+/* line 27, /mnt/ebs/nightly/jsduck/template/resources/sass/../../extjs/resources/themes/stylesheets/ext4/default/util/_scroller.scss */
+.x-scroller-ct { overflow: hidden; position: absolute; margin: 0; padding: 0; border: none; left: 0px; top: 0px; /*
+In IE9 (only), the border-box style causes the scroller-ct to be 0px in the
+perpendicular dimension and breaks the scroll as well as offsets it by the left
+offset that we use to try and keep some size on this element. This works on all
+browsers (including IE9).
+*/ box-sizing: content-box !important; -ms-box-sizing: content-box !important; -moz-box-sizing: content-box !important; -webkit-box-sizing: content-box !important; }
+
+/* line 48, /mnt/ebs/nightly/jsduck/template/resources/sass/../../extjs/resources/themes/stylesheets/ext4/default/util/_scroller.scss */
+.x-scroller-vertical .x-scroller-ct { overflow-y: scroll; }
+
+/* line 52, /mnt/ebs/nightly/jsduck/template/resources/sass/../../extjs/resources/themes/stylesheets/ext4/default/util/_scroller.scss */
+.x-scroller-horizontal .x-scroller-ct { overflow-x: scroll; }

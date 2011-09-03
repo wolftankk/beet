@@ -902,6 +902,11 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 					text: "会员手机",
 					flex: 1,
 					dataIndex: "CTMobile"
+				},
+				{
+					text: "地址",
+					flex: 1,
+					dataIndex: "CTAddress"
 				}
 			],
 		});

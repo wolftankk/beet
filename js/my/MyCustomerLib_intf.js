@@ -1427,7 +1427,7 @@ MyCustomerSvc.prototype.GetCustomerAdvanceToJSON = function(AWhere, OnlySchema, 
     "method" : "MyCustomerSvc.GetCustomerAdvanceToJSON",
     "params" : {
       "AWhere": AWhere,
-	  "OnlySchema": OnlySchema
+      "OnlySchema": OnlySchema
       }
   }
   var __callbacks = null;
@@ -1527,6 +1527,108 @@ MyCustomerSvc.prototype.SendSMS = function(SMSJson, __callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
+MyCustomerSvc.prototype.AddActivity = function(ActivityData, __callback) {
+  var __message = {
+    "method" : "MyCustomerSvc.AddActivity",
+    "params" : {
+      "ActivityData": ActivityData
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyCustomerSvc.prototype.UpdateActivity = function(ActivityID, ActivityData, __callback) {
+  var __message = {
+    "method" : "MyCustomerSvc.UpdateActivity",
+    "params" : {
+      "ActivityID": ActivityID,
+      "ActivityData": ActivityData
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyCustomerSvc.prototype.DeleteActivity = function(ActivityID, __callback) {
+  var __message = {
+    "method" : "MyCustomerSvc.DeleteActivity",
+    "params" : {
+      "ActivityID": ActivityID
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
 
 // End of service: MyCustomerSvc
 // Service: CTLoginSvc
