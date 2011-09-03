@@ -139,9 +139,13 @@ registerBeetAppsMenu("customer",
 							text: "活动列表",
 							tooltip: "查看,编辑已有的活动",
 							handler: function(){
-								var item = Beet.apps.Menu.Tabs["activitylist"];
+								var item = Beet.apps.Menu.Tabs["activityList"];
 								if (!item){
-
+									Beet.workspace.addPanel("activityList", "活动列表", {
+										items: [
+											Ext.create("Beet.apps.Viewport.ActivityList")
+										]
+									});
 								}else{
 									Beet.workspace.workspace.setActiveTab(item);
 								}
@@ -1338,5 +1342,173 @@ Ext.define("Beet.apps.Viewport.VIPActivity", {
 	
 		me.panel.add(ns);
 		me.doLayout();
+	}
+});
+
+Ext.define("Beet.apps.Viewport.ActivityList.Model", {
+	extend: "Ext.data.Model",
+	fields: [
+		"AID",
+		"AName",
+		{name: "ADate", type: "auto", convert: function(v, record){
+			var dt = new Date(v*1000);
+			return Ext.Date.format(dt, "Y/m/d H:i");
+		}},
+		"Adescript"
+	]
+});
+
+Ext.define("Beet.apps.Viewport.ActivityList.Store", {
+	extend: "Ext.data.Store",
+	model: Beet.apps.Viewport.ActivityList.Model,
+	autoLoad: true,
+	pageSize: Beet.constants.PageSize,
+	load: function(options){
+		var me = this;
+		options = options || {};
+		if (Ext.isFunction(options)) {
+            options = {
+                callback: options
+            };
+        }
+
+        Ext.applyIf(options, {
+            groupers: me.groupers.items,
+            page: me.currentPage,
+            start: (me.currentPage - 1) * me.pageSize,
+            limit: me.pageSize,
+            addRecords: false
+        });      
+		me.proxy.b_params["start"] = options["start"];
+		me.proxy.b_params["limit"] = options["limit"]
+
+        return me.callParent([options]);
+	},
+	proxy: {
+		type: "b_proxy",
+		b_method: Beet.constants.customerServer.GetActivityData,
+		startParam: "start",
+		limitParam: "limit",
+		b_params: {
+			"filter": ""
+		},
+		b_scope: Beet.constants.customerServer,
+		reader: {
+			type: "json",
+			root: "Data",
+			totalProperty: "TotalCount"
+		}
+	}
+});
+
+Ext.define("Beet.apps.Viewport.ActivityList", {
+	extend: "Ext.panel.Panel",
+	frame: true,
+	height: "100%",
+	autoHeight: true,
+	autoScroll: true,
+	initComponent: function(){
+		var me = this;
+
+		Ext.apply(me, {
+			storeProxy: Ext.create("Beet.apps.Viewport.ActivityList.Store")
+		});
+
+		me.items = [me.createGridList()]
+
+		me.callParent();
+	},
+	createGridList : function(){
+		var me = this, customerServer = Beet.constants.customerServer;
+
+		var _actions = {
+			xtype: 'actioncolumn',
+			width: 50,
+			items: [
+				"-", "-",
+				{
+					icon: "./resources/themes/images/fam/user_edit.png",
+					tooltip: "编辑",
+					handler: function(grid, rowIndex, colIndex){
+						var d = me.storeProxy.getAt(rowIndex), aid = d.get("AID"), name = d.get("AName");
+						//customerServer.UpdateAcitivity();
+					}
+				}, "-", "-","-","-","-",
+				{
+					icon: "./resources/themes/images/fam/delete.gif",
+					tooltip: "删除",
+					handler: function(grid, rowIndex, colIndex){
+						var d = me.storeProxy.getAt(rowIndex), aid = d.get("AID"), name = d.get("AName");
+						Ext.MessageBox.show({
+							title: "删除活动",
+							msg: "是否要删除活动: " + name + " ?",
+							buttons: Ext.MessageBox.YESNO,
+							fn: function(btn){
+								if (btn == "yes"){
+									customerServer.DeleteActivity(aid, {
+										success: function(){
+											 Ext.MessageBox.show({
+												 title: "删除成功",
+												 msg: "删除活动: " + name + " 成功",
+												 buttons: Ext.MessageBox.OK,
+												 fn: function(){
+													 me.storeProxy.loadPage(me.storeProxy.currentPage);
+												 }
+											 })
+										},
+										failure: function(error){
+											Ext.Error.raise("删除活动失败");
+										}
+									})
+								}
+							}
+						});
+					}
+				}
+			]
+		}
+		var grid = me.grid = Ext.create("Ext.grid.Panel", {
+			height: "100%",
+			store: me.storeProxy,
+			lookMask: true,
+			frame: true,
+			collapsible: false,	
+			rorder: false,
+			bodyBorder: false,
+			autoScroll: true,
+			autoHeight: true,
+			border: 0,
+			columnLines: true,
+			viewConfig: {
+				trackOver: false,
+				stripeRows: true
+			},
+			columns: [
+				_actions,
+				{
+					text: "活动名",
+					flex: 1,
+					dataIndex: "AName"
+				},
+				{
+					text: "活动时间",
+					flex: 1,
+					dataIndex: "ADate"	
+				},
+				{
+					text: "活动描述",
+					flex: 1,
+					dataIndex: "Adescript"
+				}
+			],
+			bbar: Ext.create('Ext.PagingToolbar', {
+				store: me.storeProxy,
+				displayInfo: true,
+				displayMsg: '当前显示 {0} - {1} 到 {2}',
+				emptyMsg: "没有数据"
+			})
+		});
+
+		return grid;
 	}
 });
