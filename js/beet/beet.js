@@ -529,20 +529,20 @@ Ext.define("Beet.apps.Viewport", {
 });
 
 //获取服务项目
-Beet.apps.Viewport.getServiceItems = function(__callback){
-	if (Beet.cache.serviceItems == undefined){
-		Beet.cache.serviceItems = [];
-		Beet.constants.customerServer.GetServiceItems({
+Beet.apps.Viewport.getCustomerTypes = function(__callback){
+	if (Beet.cache.customerTypes == undefined){
+		Beet.cache.customerTypes = [];
+		Beet.constants.customerServer.GetCustomerTypes({
 			success: function(data){
 				var data = Ext.JSON.decode(data)
 				if (data["Data"] && Ext.isArray(data["Data"])){
 					var datz = data["Data"];
 					for (var item in datz){
 						var p = datz[item];
-						Beet.cache.serviceItems.push({
-							boxLabel: p["ServiceName"],
-							name: "serverName",
-							inputValue: p["ServiceType"]
+						Beet.cache.customerTypes.push({
+							boxLabel: p["TypeName"],
+							name: "TypeName",
+							inputValue: p["TypeGUID"]
 						})
 					}
 				}
@@ -712,7 +712,7 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 	//get data
 	for (var st in Beet.constants.CTServiceType){
 		//debugger;
-		customerServer.GetCTTypeDataToJSON("ServiceType='"+st+"'", true, {
+		customerServer.GetCTTypeDataToJSON("CustomerType='"+st+"'", true, {
 			success: function(data){
 				data = Ext.JSON.decode(data);
 				var sid = data["category"][0]["serviceid"], _tmp = [];

@@ -15,7 +15,7 @@ registerBeetAppsMenu("customer",
 			items: [
 				{
 					xtype: 'buttongroup',
-					title: '会员会籍',
+					title: '会员管理',
 					layout: "anchor",
 					frame: true,
 					defaults: {
@@ -31,7 +31,7 @@ registerBeetAppsMenu("customer",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["addCustomer"];
 								if (!item){
-									Beet.apps.Viewport.getServiceItems(
+									Beet.apps.Viewport.getCustomerTypes(
 										function(){
 											Beet.workspace.addPanel("addCustomer", "添加会员", {
 												items: [
@@ -173,7 +173,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 		var that = this;
 		Ext.apply(this, {});
 
-		that.serviceItems = Beet.cache.serviceItems;
+		that.customerTypes = Beet.cache.customerTypes;
 		that.baseInfoPanel = Ext.create("Ext.form.Panel", that.getBaseInfoPanelConfig());
 		
 		that.optionTabs = that.createOptionTabs();
@@ -464,7 +464,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 										labelAlign: "left",
 										labelWidth: 75
 									},
-									items: that.serviceItems
+									items: that.customerTypes
 								}
 							]
 						},
@@ -492,11 +492,11 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 	addUser: function(direction, e){
 		var that = this,
 			form = that.up("form").getForm(),
-			result = form.getValues(), needSubmitData, serverItems = {}, customerServer = Beet.constants.customerServer;
+			result = form.getValues(), needSubmitData, customerTypes = {}, customerServer = Beet.constants.customerServer;
 
 		if (result["Name"] != "" && result["Mobile"] != ""){
 			//取得已勾选的服务项目
-			serverItems = result["serverName"];
+			customerTypes = result["TypeName"];
 			needSubmitData = Ext.JSON.encode(result);
 			Ext.MessageBox.show({
 				title: "增加用户",
@@ -508,10 +508,10 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 						customerServer.AddCustomer(needSubmitData, {
 							success: function(uid){
 								Beet.cache.Users[uid] = {
-									serviceItems: serverItems	
+									customerTypes: customerTypes	
 								}
 								Beet.cache.currentUid = uid;
-								if (serverItems && serverItems.length > 0){
+								if (customerTypes && customerTypes.length > 0){
 									var __callback = function(){
 										var formpanel = that.up("form"), parent = formpanel.ownerCt;
 										formpanel.hide();
@@ -649,17 +649,17 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 		optionTabs.removeAll();
 		
 		var userInfo = Beet.cache.Users[uid];
-		var serviceItems = userInfo["serviceItems"], title, firstTab;
+		var customerTypes = userInfo["customerTypes"], title, firstTab;
 		
 		//如果只有一个serviceItem为string	
-		if (typeof serviceItems == "string"){
-			var _s = serviceItems;
-			serviceItems = [_s];
+		if (typeof customerTypes == "string"){
+			var _s = customerTypes;
+			customerTypes = [_s];
 			delete _s;
 		}
 		
-		for (var s in serviceItems){
-			var service = serviceItems[s], title = Beet.constants.CTServiceType[service], data = Beet.cache.advanceProfile[service], items = [];
+		for (var s in customerTypes){
+			var service = customerTypes[s], title = Beet.constants.CTServiceType[service], data = Beet.cache.advanceProfile[service], items = [];
 			var _t = optionTabs.add({
 				title : title,
 				flex: 1,

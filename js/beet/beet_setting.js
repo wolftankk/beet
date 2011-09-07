@@ -211,6 +211,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 		var st = Ext.create("Ext.data.Store", {
 			fields: ["attr", "name"],
 			data: [
+				{"attr" : "{AFF7BC81-ACA3-4E46-B5B1-87A90F45FE8D}", "name" : "基础信息"},
 				{"attr" : "{C3DCAA88-D92F-435F-96B2-50BDC665F407}", "name" : "美容"},
 				{ "attr" : "{BC6B8E96-51A4-40EB-9896-2BC26E97FAE4}", "name" : "美发"},
 				{ "attr" : "{8CB1DD70-0669-4421-B9BF-EB20015FB03D}", "name" : "瑜伽"},
@@ -384,12 +385,12 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 									valueField: "attr"	
 								});
 								break;
-							case "ServiceType":
+							case "CustomerType":
 								//重置item
 								item = Ext.create("Ext.form.ComboBox", {
 									fieldLabel: label,
 									store: st,
-									name: "ServiceType",
+									name: "CustomerType",
 									queryMode: "local",
 									displayField: "name",
 									valueField: "attr",
@@ -598,11 +599,11 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 									value: rawData["_pid"]
 								});
 								break;
-							case "ServiceType":
+							case "CustomerType":
 								item = Ext.create("Ext.form.ComboBox", {
 									fieldLabel: label,
 									store: st,
-									name: "ServiceType",
+									name: "CustomerType",
 									queryMode: "local",
 									displayField: "name",
 									valueField: "attr",
