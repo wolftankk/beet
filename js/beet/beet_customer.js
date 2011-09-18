@@ -1009,7 +1009,7 @@ Ext.define("Beet.apps.Viewport.SendMessages", {
 			items: [
 				{
 					fieldLabel: "手机号码",
-					name: "mobile",
+					name: "mobiles",
 					id: "mobileNumberFrame"
 				},
 				{
@@ -1047,30 +1047,27 @@ Ext.define("Beet.apps.Viewport.SendMessages", {
 								msg: result["message"],
 								fn: function(btn){
 									if (btn == "yes"){
-										if (me.mobileNumberList.length > 0){
-											for (var c = 0; c < me.mobileNumberList.length; ++c){
-												var m = me.mobileNumberList[c];
-												result["mobile"] = m;
-												needSubmitData = Ext.JSON.encode(result);
-												customerServer.SendSMS(needSubmitData, {
-													success: function(data){
-														if (data.indexOf("-") == -1){
-															Ext.Error.raise("发送失败, 返回值为: " + data);
-														}
-														console.log(data);
-													},
-													failure: function(error){
-														Ext.Error.raise(error);
+										if (me.mobileNumberList && me.mobileNumberList.length > 0){
+											result["mobiles"] = me.mobileNumberList;
+											needSubmitData = Ext.JSON.encode(result);
+											customerServer.SendSMS(needSubmitData, {
+												success: function(data){
+													if (data.indexOf("-") > 0){
+														Ext.Error.raise("发送失败, 返回值为: " + data);
 													}
-												});
-											}
+													console.log(data);
+												},
+												failure: function(error){
+													Ext.Error.raise(error);
+												}
+											});
+											me.mobileNumberList = {};
 										}else{
 											customerServer.SendSMS(needSubmitData, {
 												success: function(data){
 													if (data.indexOf("-") == -1){
 														Ext.Error.raise("发送失败, 返回值为: " + data);
 													}
-													console.log(data);
 												},
 												failure: function(error){
 													Ext.Error.raise(error);
@@ -1511,7 +1508,7 @@ Ext.define("Beet.apps.Viewport.ActivityList", {
 					allowBlank: true,
 					name: "description",
 					value: record.get("Adescript")
-				},
+				}
 			],
 			buttons: [
 				{
@@ -1560,14 +1557,14 @@ Ext.define("Beet.apps.Viewport.ActivityList", {
 
 				for (var c = 0; c < meta.length; c++){
 					fields.push(meta[c]["FieldName"]);
-					//if (!meta[c]["FieldHidden"]){
+					if (!meta[c]["FieldHidden"]){
 						_colunms.push(
 						{	
 							text: meta[c]["FieldLabel"],
 							flex: 1,
 							dataIndex: meta[c]["FieldName"] 
 						});
-					//}
+					}
 				}
 
 				for (var c = 0; c < data.length; ++c){
@@ -1588,7 +1585,31 @@ Ext.define("Beet.apps.Viewport.ActivityList", {
 					columnLines: true,
 					hideHeaders: false,
 					columns: _colunms,
-					title: "参与会员"
+					title: "参与会员",
+					tbar: [
+						{
+							xtype: "button",
+							text: "增加会员",
+							handler: function(widget, btn){
+								var win = list.selectCustomerWindow = Ext.create("Beet.plugins.selectCustomerWindow", {
+									_callback: function(value){
+										//form.remove(list, true);
+										//form.doLayout();
+										/*
+										if (me.customerList){
+											me.panel.remove(me.customerList, true);
+											me.panel.doLayout();
+										}
+										if (value.length > 0){
+											me.updateCustomerList(value);
+										}
+										*/
+									}
+								});
+								win.show();	
+							}
+						}
+					]
 				});
 
 				form.add(list);
@@ -1618,7 +1639,6 @@ Ext.define("Beet.apps.Viewport.ActivityList", {
 					handler: function(grid, rowIndex, colIndex){
 						var d = me.storeProxy.getAt(rowIndex);
 						me.updateActivity(d);
-						//customerServer.UpdateAcitivity();
 					}
 				}, "-", "-","-","-","-",
 				{
