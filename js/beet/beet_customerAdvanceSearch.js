@@ -13,9 +13,12 @@ Ext.define("Beet.apps.CustomerAdvanceSearch", {
 	modal: true,
 	border: 0,
 	bodyBorder: 0,
+	checkable: false,
 	initComponent: function(){
 		var me = this;
-		var form = Ext.create("Beet.apps.CustomerSearchEngine");
+		var form = Ext.create("Beet.apps.CustomerSearchEngine", {
+			me.checkable	
+		});
 		me.items = [
 			form
 		];
@@ -61,6 +64,12 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 		Beet.cache.AdvanceCustomerFilters = [];
 
 		me._colunms.push(_actions);
+
+		//insert advance config
+		if (Beet.cache.advanceProfile){
+			
+		}
+		
 		customerServer.GetCustomerToJSON("", true, {
 			success: function(data){
 				var data = Ext.JSON.decode(data);
@@ -163,6 +172,9 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 	search: function(where){
 		//start submit the sql to the server, and create store and columns
 		var me = this, customerServer = Beet.constants.customerServer;
+		if (me.checkable){
+			me.selMode = Ext.create("Ext.selection.CheckboxModel");
+		}
 		
 		//create model
 		if (!Beet.apps.CustomerSearchEngine.Model){
@@ -193,7 +205,8 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 
 		var grid = Ext.create("Beet.apps.CustomerSearchEngine.GridList", {
 			store: store,
-			columns: me._colunms
+			columns: me._colunms,
+			selMode: me.selMode
 		});
 
 		var item = Beet.apps.Menu.Tabs["customeAdvanceSearchBtn"];

@@ -104,6 +104,15 @@ registerBeetAppsMenu("customer",
 									Beet.workspace.workspace.setActiveTab(item);
 								}
 							}
+						},
+						{
+							xtype: "button",
+							text: "历史查询",
+							id: "customer_msghistory",
+							tooltip: "点击查询短信发送历史记录",
+							handler: function(){
+
+							}
 						}
 					]
 				},
