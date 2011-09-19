@@ -160,7 +160,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 		that.navigationToolbar.parent = that;
 
 		//username
-		that.userName = new Ext.toolbar.TextItem({ text: Ext.util.Cookies.get("userName")});
+		//that.userName = new Ext.toolbar.TextItem({ text: Ext.util.Cookies.get("userName")});
 		that.logoutButton = new Ext.toolbar.Toolbar(that.getLogoutButtonConfig());
 		that.helpButton = new Ext.toolbar.Toolbar(that.getHelpButtonConfig());
 		that.toggleButton = new Ext.toolbar.Toolbar(that.getToggleButtonConfig());
@@ -178,7 +178,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 			"->",//设定到右边区域
 			'-',
 			//help
-			"当前用户: ", that.userName, '-', ' ', 
+			"当前用户: ", 'username', '-', ' ', 
 			that.logoutButton, ' ',
 			that.toggleButton, ' ',
 			that.helpButton,

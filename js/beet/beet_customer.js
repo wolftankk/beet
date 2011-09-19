@@ -108,10 +108,19 @@ registerBeetAppsMenu("customer",
 						{
 							xtype: "button",
 							text: "历史查询",
-							id: "customer_msghistory",
+							id: "customer_smshistory",
 							tooltip: "点击查询短信发送历史记录",
 							handler: function(){
-
+								var item = Beet.apps.Menu.Tabs["smsHistory"];
+								if (!item){
+									Beet.workspace.addPanel("smsHistory", "短信历史记录", {
+										items: [
+											Ext.create("Beet.apps.Viewport.SMSHistory");
+										]
+									});
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
 							}
 						}
 					]
@@ -1110,6 +1119,20 @@ Ext.define("Beet.apps.Viewport.SendMessages", {
 		me.mobileNumberList = mobileNumberList;
 		var typeFrame = Ext.getCmp("mobileNumberFrame");
 		typeFrame.setValue(mobileNameList.join(", "));
+	}
+});
+
+Ext.define("Beet.apps.Viewport.SMSHistory", {
+	extend: "Ext.panel.Panel",
+	layout: "anchor",
+	height: "100%",
+	autoHeight: true,
+	autoScroll: true,
+	border: 0,
+	initComponent: function(){
+		var me = this;
+
+		
 	}
 });
 
