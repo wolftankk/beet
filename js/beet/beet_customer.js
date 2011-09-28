@@ -115,7 +115,7 @@ registerBeetAppsMenu("customer",
 								if (!item){
 									Beet.workspace.addPanel("smsHistory", "短信历史记录", {
 										items: [
-											Ext.create("Beet.apps.Viewport.SMSHistory");
+											Ext.create("Beet.apps.Viewport.SMSHistory")
 										]
 									});
 								}else{

@@ -17,7 +17,7 @@ Ext.define("Beet.apps.CustomerAdvanceSearch", {
 	initComponent: function(){
 		var me = this;
 		var form = Ext.create("Beet.apps.CustomerSearchEngine", {
-			me.checkable	
+			checkable : me.checkable	
 		});
 		me.items = [
 			form
@@ -67,7 +67,6 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 
 		//insert advance config
 		if (Beet.cache.advanceProfile){
-			
 		}
 		
 		customerServer.GetCustomerToJSON("", true, {
@@ -206,7 +205,6 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 		var grid = Ext.create("Beet.apps.CustomerSearchEngine.GridList", {
 			store: store,
 			columns: me._colunms,
-			selMode: me.selMode
 		});
 
 		var item = Beet.apps.Menu.Tabs["customeAdvanceSearchBtn"];
@@ -226,9 +224,11 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 	editCustomerFn: function(parentMenu){
 		var that = this, rawData = parentMenu.rawData || parentMenu.raw, CTGUID = rawData.CTGUID, CTName = rawData.CTName;
 		if (CTGUID){
-			var win = Ext.create("Beet.plugins.ViewCustomerInfo", {
+			var win = Ext.create("Beet.plugins.ViewCustomerInfoExtra", {
 				storeProxy: that.storeProxy,
-				rawData: rawData	
+				rawData: rawData,
+				maximized: true,
+				maximizable: false
 			});
 			win.show();
 		}
