@@ -1574,44 +1574,27 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 		me.add(me.settingTabPanel);
 		me.doLayout();
 
-		//var _basic = me.settingTabPanel.add({
-		//	title : "基础信息",
-		//	layout: "fit",
-		//	border: 0,
-		//	items: [
-		//		me.customerBaseInfo
-		//	]
-		//});
-		//me.settingTabPanel.setActiveTab(_basic);
-
 		var CTGUID = rawData["CTGUID"];
-		//if (CTGUID){
-		//	customerServer.GetCustomerItemToJson("CTGUID='"+CTGUID+"'", {
-		//		success: function(data){
-		//			data = Ext.JSON.decode(data);
-		//			me.createCustomerAdvanceInfo(rawData, data["Data"]);
-		//		},
-		//		failure: function(error){
-		//			Ext.error.raise(error);
-		//		}
-		//	});
-		//}
+		if (CTGUID){
+			customerServer.GetCustomerItemToJson("CTGUID='"+CTGUID+"'", {
+				success: function(data){
+					data = Ext.JSON.decode(data);
+					me.createCustomerAdvanceInfo(rawData, data["Data"]);
+				},
+				failure: function(error){
+					Ext.error.raise(error);
+				}
+			});
+		}
 	},
 	afterRender: function(){
 		var me = this;
 		me.callParent();
-		//me.updateEnjoyModeValue();
 	},
 	updateCustomerTitle: function(title){
 		var me = this;
 		me.setTitle(title);
 	},
-	/*
-	updateEnjoyModeValue: function(){
-		var me = this;
-		document.getElementById("customerinfo_enjoymode").childNodes[1].childNodes[0].value = me.rawData.CTEnjoyMode;
-	},
-	*/
 	createCustomerAdvanceInfo: function(rawData, customerData){
 		var me = this, customerServer = Beet.constants.customerServer, CTName = rawData["CTName"], CTGUID = rawData["CTGUID"];
 		var advanceTab = Ext.create("Ext.tab.Panel", {
@@ -1629,13 +1612,17 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 		});
 		
 		var advanceformConfig = {
-			frame: true,
 			border: false,
-			defaults: {
-				margin: "0 0 10 0"
-			},
-			plain: true,
 			height: "100%",
+			autoHeight: true,
+			autoScroll: true,
+			flex: 1,
+			defaults: {
+				bodyStyle: 'background-color:#dfe8f5;',
+				readOnly: !me.editable 
+			},
+			bodyStyle: 'background-color:#dfe8f5;',
+			plain: true,
 			fieldDefaults: {
 				msgTarget: "side",
 				labelAlign: "left",
@@ -1645,74 +1632,9 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 				advanceTab
 			],
 		};
-		if (me.editable){
-			advanceformConfig.buttons = [
-				{
-					text: "更新",
-					handler: function(widget, e){
-						var that = this, form = that.up("form").getForm(), result = form.getValues();
-						//if (!form.isValid()){}
-						var Items = [], Texts = [], needSubmitData;
-						for (var k in result){
-							var r = result[k];
-							if (k.indexOf("text") > -1 && r !== ""){
-								var id = k.split("_")[2];
-								Texts.push({ID: id, Text: r});
-							}else{
-								if (r !== ""){
-									if (Ext.isArray(r)){
-										for (var _c in r){
-											Items.push(r[_c]);
-										}	
-									}else{
-										Items.push(r);
-									}
-								}
-							}
-						}
-						
-						needSubmitData = {
-							"CustomerID" : CTGUID
-						}
-						if (Items.length > 0){
-							needSubmitData["Items"] = Items;
-						}
-						if (Texts.length > 0){
-							needSubmitData["Texts"] = Texts;
-						}
-						
-						needSubmitData = Ext.JSON.encode(needSubmitData);
-						customerServer.UpdateCustomerItem(CTGUID, needSubmitData, {
-							success: function(isSuccess){
-								if (isSuccess){
-									Ext.MessageBox.show({
-										title: "更新成功!",
-										msg: "更新成功!",
-										buttons: Ext.MessageBox.OK,
-										handler: function(btn){
-											me.close();
-										}
-									})
-								}
-							},
-							failure: function(error){
-								Ext.Error.raise(error)
-							}
-						})
-					}
-				}
-			]
-		}
-		me.advancePanel = Ext.create("Ext.form.Panel", advanceformConfig);
 
-		me.settingTabPanel.add({
-			title : "高级信息",
-			layout: "fit",
-			border: 0,
-			items: [
-				me.advancePanel
-			]
-		});
+		me.advancePanel = Ext.create("Ext.panel.Panel", advanceformConfig);
+
 
 		//高级面板选项
 		var _replace = function(target, needId, typeText){
@@ -1751,6 +1673,18 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 		for (var service in serviceItems){
 			var title = serviceItems[service], data = advanceProfile[service], items = [];
 			if (!data || data.length < 0){continue;}
+			for (var _k in data){
+				data[_k].layout = {
+					type : "table",
+					columns: 4,
+					tableAttrs: {
+						cellspacing: 10,
+						style: {
+							width: "100%"
+						}
+					}
+				}
+			}
 			var _t = advanceTab.add({
 				title : title,
 				flex: 1,
@@ -1773,6 +1707,10 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 			}
 		}
 		advanceTab.setActiveTab(_firsttab);
+		
+		me.advancePanel.doLayout();
+		me.settingTabPanel.add(me.advancePanel);
+		me.doLayout();
 	},
 	createTabPanel: function(){
 		var me = this;
@@ -1794,7 +1732,6 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 	createCustomeBase: function(rawData){
 		var me = this, editable = me.editable, customerServer = Beet.constants.customerServer, CTName = rawData["CTName"], CTGUID = rawData["CTGUID"];
 		var basicformConfig = {
-			frame: true,
 			autoHeight: true,
 			autoScroll: true,
 			border: false,
@@ -1893,12 +1830,7 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 							id: "customerinfo_enjoymode",
 							name: "enjoymode",
 							value: rawData.CTEnjoyMode,
-							dataIndex: "CTEnjoyMode",
-							xtype: "combobox",
-							store: Beet.constants.EnjoyModeList,
-							queryMode: "local",
-							displayField: "attr",
-							valueField: "attr"
+							dataIndex: "CTEnjoyMode"
 						},
 						{
 							fieldLabel: "资讯更新方式",
