@@ -124,6 +124,10 @@ Ext.define("Beet.apps.Menu.Panel", {
 			dock: "bottom",
 			plain: true,
 			minTabWidth: 100,
+			bodyStyle: "background-color: #dfe8f5",
+			defaults: {
+				bodyStyle: "background-color: #dfe8f5"
+			},
 			items: Beet.apps.Menu.Items
 		}
 
@@ -481,13 +485,14 @@ Ext.define("Beet.apps.Viewport", {
 			minTabWidth: 150,
 			shadow: true,
 			layout: "anchor",
-			frame: true,
 			defaults: {
 				autoScroll: true,
 				border: 0,
 				closable: true,
+				bodyStyle: "background-color: #dfe8f5",
 				plain: true
 			},
+			bodyStyle: "background-color: #dfe8f5",
 			/*
 			plugins: [
 				{
