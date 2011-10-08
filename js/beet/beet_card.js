@@ -800,7 +800,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 				if (id > 0){
 					Ext.MessageBox.show({
 						title: "提示",
-						msg: "添加产品成功!",
+						msg: "添加消耗产品成功!",
 						buttons: Ext.MessageBox.YESNO,
 						fn: function(btn){
 							if (btn == "yes"){
@@ -810,7 +810,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 						}
 					});
 				}else{
-					Ext.Error.raise("添加产品失败");
+					Ext.Error.raise("添加消耗产品失败");
 				}
 			},
 			failure: function(error){
@@ -959,7 +959,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 		_actions.items.push(
 			"-", "-", "-", {
 				icon: './resources/themes/images/fam/user_edit.png',
-				tooltip: "编辑产品",
+				tooltip: "编辑消耗产品",
 				id: "customer_grid_edit",
 				handler:function(grid, rowIndex, colIndex){
 					var d = me.storeProxy.getAt(rowIndex)
@@ -972,7 +972,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 		}else{
 			_actions.items.push("-", "-", "-",{
 				icon: "./resources/themes/images/fam/delete.gif",
-				tooltip: "删除产品",
+				tooltip: "删除消耗产品",
 				id: "customer_grid_delete",
 				handler: function(grid, rowIndex, colIndex){
 					var d = me.storeProxy.getAt(rowIndex)

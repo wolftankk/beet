@@ -117,11 +117,11 @@ registerBeetAppsMenu("configure",
 							}
 						},
 						{
-							text: "增加产品类别",
+							text: "增加消费产品",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["addProducts"]
 								if (!item){
-									Beet.workspace.addPanel("addProducts", "添加产品类别", {
+									Beet.workspace.addPanel("addProducts", "添加消费产品", {
 										items: [
 											Ext.create("Beet.apps.ProductsViewPort.AddProducts")
 										]
@@ -132,11 +132,11 @@ registerBeetAppsMenu("configure",
 							}
 						},
 						{
-							text: "更新产品类别",
+							text: "更新消费产品",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["productsList"];
 								if (!item){
-									Beet.workspace.addPanel("productsList", "更新产品类别", {
+									Beet.workspace.addPanel("productsList", "更新消费产品", {
 										items: [
 											Ext.create("Beet.apps.ProductsViewPort.UpdateProducts")
 										]
