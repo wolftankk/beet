@@ -782,7 +782,8 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 
 		form.setValues({
 			"p_total": totalPrice,
-			"realprice": realprice
+			"realprice": realprice,
+			"p_sale": sale
 		});
 	},
 	processData: function(f){
@@ -976,7 +977,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 				id: "customer_grid_delete",
 				handler: function(grid, rowIndex, colIndex){
 					var d = me.storeProxy.getAt(rowIndex)
-					//me.deleteProductItem(d);
+					me.deleteProductItem(d);
 				}
 			}, "-","-","-");
 		}
@@ -1053,12 +1054,14 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 		}
 		
 	},
+	*/
 	deleteProductItem: function(parentMenu){
-		var me = this, rawData = parentMenu.rawData || parentMenu.raw, pid = rawData["P_PID"], pname = rawData["P_Name"], cardServer = Beet.constants.cardServer;
-
+		var me = this, rawData = parentMenu.rawData || parentMenu.raw//, pid = rawData["P_PID"], pname = rawData["P_Name"], cardServer = Beet.constants.cardServer;
+		console.log(rawData);
+		/*
 		if (pid){
 			Ext.MessageBox.show({
-				title: "删除产品",
+				title: "删除消费产品",
 				msg: "是否要删除 " + pname + " ?",
 				buttons: Ext.MessageBox.YESNO,
 				fn: function(btn){
@@ -1085,5 +1088,6 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 		}else{
 			Ext.Error.raise("删除产品失败");
 		}
-	}*/
+		*/
+	}
 });
