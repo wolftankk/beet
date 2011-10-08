@@ -39,7 +39,6 @@ registerBeetAppsMenu("configure",
 				{
 					title: "员工管理",
 					layout: "anchor",
-					width: "100%",
 					defaults: {
 						scale: "large",
 						rowspan: 3
@@ -70,6 +69,78 @@ registerBeetAppsMenu("configure",
 											Ext.create("Beet.apps.ShopSettingViewPort.Viewport")
 										]
 									});
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						}
+					]
+				},
+				{
+					title: "产品管理",
+					layout: "anchor",
+					defaults: {
+						scale: "large",
+						rowspan: 3
+					},
+					width: 340,
+					autoWidth: true,
+					items: [
+						{
+							text: "添加产品",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["addProductItem"]
+								if (!item){
+									Beet.workspace.addPanel("addProductItem", "添加产品", {
+										items: [
+											Ext.create("Beet.apps.ProductsViewPort.AddProductItem")
+										]
+									})
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						},
+						{
+							text: "更新产品",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["productItemList"];
+								if (!item){
+									Beet.workspace.addPanel("productItemList", "更新产品", {
+										items: [
+											Ext.create("Beet.apps.ProductsViewPort.UpdateProductItem")
+										]
+									})
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						},
+						{
+							text: "增加产品类别",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["addProducts"]
+								if (!item){
+									Beet.workspace.addPanel("addProducts", "添加产品类别", {
+										items: [
+											Ext.create("Beet.apps.ProductsViewPort.AddProducts")
+										]
+									})
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						},
+						{
+							text: "更新产品类别",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["productsList"];
+								if (!item){
+									Beet.workspace.addPanel("productsList", "更新产品", {
+										items: [
+											Ext.create("Beet.apps.ProductsViewPort.UpdateProducts")
+										]
+									})
 								}else{
 									Beet.workspace.workspace.setActiveTab(item);
 								}

@@ -787,6 +787,16 @@ Beet.constants.EnjoyModeList = Ext.create("Ext.data.Store", {
 	]	
 });
 
+Beet.constants.ServiceList = Ext.create("Ext.data.Store",{
+	fields: ["attr", "name"],
+	data: [
+		{attr:"{C3DCAA88-D92F-435F-96B2-50BDC665F407}" ,name: "美容"},
+		{attr:"{BC6B8E96-51A4-40EB-9896-2BC26E97FAE4}" ,name: "美发"},
+		{attr:"{8CB1DD70-0669-4421-B9BF-EB20015FB03D}" ,name: "瑜伽"},
+		{attr:"{BA33BC91-FE7F-44A0-8C9D-D53147992B0E}" ,name: "美甲"}
+	]
+});
+
 Ext.define("Beet.plugins.selectCustomerWindow", {
 	extend: "Ext.window.Window",
 	title: "选择客户",
@@ -1685,6 +1695,7 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 					}
 				}
 			}
+
 			var _t = advanceTab.add({
 				title : title,
 				flex: 1,

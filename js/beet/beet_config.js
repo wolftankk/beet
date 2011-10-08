@@ -1,5 +1,5 @@
 Beet.config = {
-	serverUrl: "mydogn.vicp.net",
+	serverUrl: "222.247.84.144",
 	getPrivileUrl: function(){
 		return this.serverUrl + ":6660";
 	},
@@ -8,6 +8,9 @@ Beet.config = {
 	},
 	getEmployeeUrl: function(){
 		return this.serverUrl + ":6662";
+	},
+	getCardUrl: function(){
+		return this.serverUrl + ":6663";
 	}
 }
 
@@ -16,3 +19,4 @@ Beet.constants.customerLoginServer = new CTLoginSvc("http://"+Beet.config.getCus
 Beet.constants.privilegeServer = new MyPrivilegeSvc("http://"+Beet.config.getPrivileUrl() + "/JSON");
 Beet.constants.customerServer = new MyCustomerSvc("http://"+Beet.config.getCustomerUrl() + "/JSON");
 Beet.constants.employeeServer = new MyEMSvc("http://" + Beet.config.getEmployeeUrl() + "/JSON");
+Beet.constants.cardServer = new MyCardSvc("http://" + Beet.config.getCardUrl() + "/JSON");

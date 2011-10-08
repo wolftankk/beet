@@ -150,10 +150,21 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 	b_collapsedCls: 'collapsed',
 	border: 0,
 	initComponent: function(){
-		var that = this;
+		var that = this, privilegeServer = Beet.constants.privilegeServer;
 		if (that.useQuickTips){
 			Ext.QuickTips.init();
 		}
+
+		console.log("fetch userInfo");
+		privilegeServer.GetUserInfo({
+			success: function(data){
+				var data = Ext.JSON.decode(data)
+				console.log("userInfo", data);
+			},
+			failure: function(error){
+				Ext.Error.raise("userInfo",error);
+			}
+		})
 		
 		//导航栏toolbar
 		that.navigationToolbar = new Ext.toolbar.Toolbar(that.getNavitionConfig());
