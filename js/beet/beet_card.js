@@ -400,7 +400,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductItemsList", {
 								})
 							},
 							failure: function(error){
-								Ext.Error.raise("删除用户失败");
+								Ext.Error.raise(error);
 							}
 						})
 					}
@@ -793,9 +793,9 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 		}
 
 		form.setValues({
-			"p_total": totalPrice,
-			"realprice": realprice,
-			"p_sale": sale
+			"p_total": totalPrice.toFixed(2),
+			"realprice": realprice.toFixed(2),
+			"p_sale": sale.toFixed(2)
 		});
 	},
 	processData: function(f){
@@ -1068,21 +1068,20 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 	},
 	*/
 	deleteProductItem: function(parentMenu){
-		var me = this, rawData = parentMenu.rawData || parentMenu.raw//, pid = rawData["P_PID"], pname = rawData["P_Name"], cardServer = Beet.constants.cardServer;
-		console.log(rawData);
-		/*
+		var me = this, rawData = parentMenu.rawData || parentMenu.raw, pid = rawData["PID"], pname = rawData["PName"], cardServer = Beet.constants.cardServer;
 		if (pid){
 			Ext.MessageBox.show({
 				title: "删除消费产品",
 				msg: "是否要删除 " + pname + " ?",
 				buttons: Ext.MessageBox.YESNO,
 				fn: function(btn){
+					/*
 					if (btn == "yes"){
-						cardServer.DeleteProductItem(pid, {
+						cardServer.DeleteProducts(pid, false, rawData["PItemId"],{
 							success: function(){
 								Ext.MessageBox.show({
 									title: "删除成功",
-									msg: "删除产品: " + pname + " 成功",
+									msg: "删除消费产品: " + pname + " 成功",
 									buttons: Ext.MessageBox.OK,
 									fn: function(){
 										me.storeProxy.loadPage(me.storeProxy.currentPage);
@@ -1090,16 +1089,16 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 								})
 							},
 							failure: function(error){
-								Ext.Error.raise("删除用户失败");
+								Ext.Error.raise(error);
 							}
 						})
 					}
+					*/
 				}
 			});
 		
 		}else{
 			Ext.Error.raise("删除产品失败");
 		}
-		*/
 	}
 });
