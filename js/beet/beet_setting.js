@@ -136,7 +136,7 @@ registerBeetAppsMenu("configure",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["productsList"];
 								if (!item){
-									Beet.workspace.addPanel("productsList", "更新产品", {
+									Beet.workspace.addPanel("productsList", "更新产品类别", {
 										items: [
 											Ext.create("Beet.apps.ProductsViewPort.UpdateProducts")
 										]
