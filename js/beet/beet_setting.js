@@ -14,6 +14,7 @@ registerBeetAppsMenu("configure",
 				{
 					title: '客户管理',
 					layout: "anchor",
+					width: 80,
 					defaults: {
 						scale: "large",
 						rowspan: 1
@@ -43,6 +44,7 @@ registerBeetAppsMenu("configure",
 						scale: "large",
 						rowspan: 3
 					},
+					width: 160,
 					items: [
 						{
 							text: "部门设定",
@@ -78,12 +80,8 @@ registerBeetAppsMenu("configure",
 				},
 				{
 					title: "产品管理",
-					layout: "anchor",
-					defaults: {
-						scale: "large",
-						rowspan: 3
-					},
-					width: 340,
+					width: 280,
+					columns: 3,
 					autoWidth: true,
 					items: [
 						{
@@ -145,7 +143,39 @@ registerBeetAppsMenu("configure",
 									Beet.workspace.workspace.setActiveTab(item);
 								}
 							}
-						}
+						},
+
+
+						{
+							text: "增加费用",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["addProducts"]
+								if (!item){
+									Beet.workspace.addPanel("addProducts", "添加消费产品", {
+										items: [
+											Ext.create("Beet.apps.ProductsViewPort.AddProducts")
+										]
+									})
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						},
+						{
+							text: "更新费用",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["productsList"];
+								if (!item){
+									Beet.workspace.addPanel("productsList", "更新消费产品", {
+										items: [
+											Ext.create("Beet.apps.ProductsViewPort.UpdateProducts")
+										]
+									})
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						},
 					]
 				}
 			]

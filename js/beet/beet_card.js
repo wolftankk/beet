@@ -165,6 +165,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductItemsList", {
 	frame: true,
 	border: false,
 	shadow: true,
+	b_filter: "",
 	initComponent: function(){
 		var me = this;
 		if (me.b_type == "selection"){
@@ -246,7 +247,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductItemsList", {
 					startParam: "start",
 					limitParam: "limit",
 					b_params: {
-						"awhere" : ""
+						"awhere" : me.b_filter
 					},
 					b_scope: Beet.constants.cardServer,
 					reader: {
@@ -695,7 +696,13 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 							fieldLabel: "折扣价格",
 							allowBlank: false,
 							name: "realprice",
-							editable: false
+							editable: false,
+							listeners: {
+								scope: me,
+								blur: function(){
+									me.onUpdateForm(true);
+								}
+							}
 						},
 						{
 							fieldLabel: "折扣",
@@ -761,7 +768,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 		}));
 		win.doLayout();
 	},
-	onUpdateForm: function(){
+	onUpdateForm: function(force){
 		var me = this, cardServer = Beet.constants.cardServer;
 		var form = me.getForm().getForm();
 		if (me.selectedProductItem == null || (me.selectedProductItem && !me.selectedProductItem.raw)){
@@ -777,8 +784,13 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 		}
 
 		count = values["count"]
-		var totalPrice = productPrice * count;
-		var realprice = sale * totalPrice;
+		var totalPrice = productPrice * count, realprice;
+		if (force){
+			sale = values["realprice"] / totalPrice;
+			realprice = values["realprice"];
+		}else{
+			realprice = sale * totalPrice;
+		}
 
 		form.setValues({
 			"p_total": totalPrice,
