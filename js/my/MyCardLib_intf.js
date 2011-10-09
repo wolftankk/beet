@@ -1145,8 +1145,147 @@ MyCardSvc.prototype.GetChargeTypePageData = function(Start, Limit, AWhere, __cal
       timeout : 30000
     }
   }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyCardSvc.prototype.AddItem = function(ItemJSON, __callback) {
+  var __message = {
+    "method" : "MyCardSvc.AddItem",
+    "params" : {
+      "ItemJSON": ItemJSON
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyCardSvc.prototype.UpdateItem = function(ItemJSON, __callback) {
+  var __message = {
+    "method" : "MyCardSvc.UpdateItem",
+    "params" : {
+      "ItemJSON": ItemJSON
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyCardSvc.prototype.DeleteItem = function(ItemID, __callback) {
+  var __message = {
+    "method" : "MyCardSvc.DeleteItem",
+    "params" : {
+      "ItemID": ItemID
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
   YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
 }
+
+MyCardSvc.prototype.GetItemPageData = function(Start, Limit, AWhere, __callback) {
+  var __message = {
+    "method" : "MyCardSvc.GetItemPageData",
+    "params" : {
+      "Start": Start,
+      "Limit": Limit,
+      "AWhere": AWhere
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+ Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
 
 // End of service: MyCardSvc
 // Service: MyCardLoginSvc

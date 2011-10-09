@@ -149,11 +149,11 @@ registerBeetAppsMenu("configure",
 						{
 							text: "增加费用",
 							handler: function(){
-								var item = Beet.apps.Menu.Tabs["addProducts"]
+								var item = Beet.apps.Menu.Tabs["addCharge"]
 								if (!item){
-									Beet.workspace.addPanel("addProducts", "添加消费产品", {
+									Beet.workspace.addPanel("addCharge", "增加费用", {
 										items: [
-											Ext.create("Beet.apps.ProductsViewPort.AddProducts")
+											Ext.create("Beet.apps.ProductsViewPort.AddCharge")
 										]
 									})
 								}else{
@@ -164,11 +164,11 @@ registerBeetAppsMenu("configure",
 						{
 							text: "更新费用",
 							handler: function(){
-								var item = Beet.apps.Menu.Tabs["productsList"];
+								var item = Beet.apps.Menu.Tabs["chargeList"];
 								if (!item){
-									Beet.workspace.addPanel("productsList", "更新消费产品", {
+									Beet.workspace.addPanel("chargeList", "更新费用", {
 										items: [
-											Ext.create("Beet.apps.ProductsViewPort.UpdateProducts")
+											Ext.create("Beet.apps.ProductsViewPort.UpdateCharge")
 										]
 									})
 								}else{
