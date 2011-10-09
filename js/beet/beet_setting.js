@@ -249,7 +249,7 @@ Ext.define("Beet.apps.Viewport.Setting.Store", {
 						_item["inputmode"] = _tmp["inputmode"];
 					}else{
 						_item["serviceid"] = _tmp["serviceid"];
-						_item["expanded"] = true;
+						_item["expanded"] = false;
 						_item["name"] = "category_" + _tmp["id"];
 						_item["children"] = [];
 					}
@@ -282,6 +282,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 	},
 	height: "100%",
 	shadow: true,
+	cls: "iScroll",
 	frame: true,
 	defaults: {
 		border: 0
