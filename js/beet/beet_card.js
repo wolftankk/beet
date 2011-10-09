@@ -284,7 +284,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductItemsList", {
 		//这里需要权限判断
 		_actions.items.push(
 			"-", "-", "-", {
-				icon: './resources/themes/images/fam/user_edit.png',
+				icon: './resources/themes/images/fam/edit.png',
 				tooltip: "编辑产品",
 				id: "customer_grid_edit",
 				handler:function(grid, rowIndex, colIndex){
@@ -971,7 +971,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 		//这里需要权限判断
 		_actions.items.push(
 			"-", "-", "-", {
-				icon: './resources/themes/images/fam/user_edit.png',
+				icon: './resources/themes/images/fam/edit.png',
 				tooltip: "编辑消耗产品",
 				id: "customer_grid_edit",
 				handler:function(grid, rowIndex, colIndex){
@@ -1701,7 +1701,7 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 		//这里需要权限判断
 		_actions.items.push(
 			"-", "-", "-", {
-				icon: './resources/themes/images/fam/user_edit.png',
+				icon: './resources/themes/images/fam/edit.png',
 				tooltip: "编辑消耗产品",
 				id: "customer_grid_edit",
 				handler:function(grid, rowIndex, colIndex){

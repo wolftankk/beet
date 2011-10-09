@@ -1126,7 +1126,7 @@ MyCardSvc.prototype.GetChargeTypePageData = function(Start, Limit, AWhere, __cal
     __callbacks = {
       callback : __callback,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1228,7 +1228,7 @@ MyCardSvc.prototype.DeleteItem = function(ItemID, __callback) {
     __callbacks = {
       callback : __callback,
       success : function (o) {
-        var __result = YAHOO.lang.JSON.parse(o.responseText);
+        var __result = JSON.parse(o.responseText);
         if (__result.error)
         {
           if ((typeof this.callback == "object") && this.callback.failure)
@@ -1247,7 +1247,7 @@ MyCardSvc.prototype.DeleteItem = function(ItemID, __callback) {
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCardSvc.prototype.GetItemPageData = function(Start, Limit, AWhere, __callback) {

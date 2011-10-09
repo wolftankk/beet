@@ -176,6 +176,37 @@ registerBeetAppsMenu("configure",
 								}
 							}
 						},
+
+						{
+							text: "增加项目",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["addItem"]
+								if (!item){
+									Beet.workspace.addPanel("addItem", "增加项目", {
+										items: [
+											Ext.create("Beet.apps.ProductsViewPort.AddItem")
+										]
+									})
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						},
+						{
+							text: "更新项目",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["itemList"]
+								if (!item){
+									Beet.workspace.addPanel("itemList", "更新项目", {
+										items: [
+											Ext.create("Beet.apps.ProductsViewPort.itemList")
+										]
+									})
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						}
 					]
 				}
 			]
