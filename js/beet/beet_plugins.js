@@ -1019,6 +1019,7 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
 	afterRender: function(){
 		var me = this;
 		me.callParent();
+		//TODO update
 		me.updateEnjoyModeValue();
 	},
 	updateEnjoyModeValue: function(){
@@ -1200,10 +1201,8 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
 			autoHeight: true,
 			autoHeight: true,
 			plain: true,
-			frame: true,
 			defaults: {
 				border: false,
-				frame: true,
 				autoHeight: true,
 				autoScroll: true
 			},
@@ -1213,13 +1212,14 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
 	createCustomeBase: function(rawData){
 		var me = this, editable = me.editable, customerServer = Beet.constants.customerServer, CTName = rawData["CTName"], CTGUID = rawData["CTGUID"];
 		var basicformConfig = {
-			frame: true,
 			autoHeight: true,
 			autoScroll: true,
 			border: false,
 			bodyBorder: false,
 			bodyPadding: 10,
+			bodyStyle: 'background-color:#dfe8f5;',
 			defaults: {
+				bodyStyle: 'background-color:#dfe8f5;',
 				margin: "0 0 10 0"
 			},
 			plain: true,
@@ -1236,7 +1236,6 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
 					autoScroll: true,
 					autoHeight: true,
 					border: false,
-					frame: true,
 					items: [
 						{
 							layout: 'column',
@@ -1544,7 +1543,6 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 	minHeight: 550,	
 	autoHeight: true,
 	autoScroll: true,
-	layout: "fit",
 	height: "100%",
 	resizable: true,
 	border: false,
@@ -1558,6 +1556,7 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 		var me = this, storeProxy = me.storeProxy, customerServer = Beet.constants.customerServer;
 
 		//add close button on the bbar
+		/*
 		me.bbar = [
 			"->",
 			{
@@ -1567,7 +1566,7 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 					me.close();
 				}
 			}
-		]
+		]*/
 
 		if (me.rawData){
 			rawData = me.rawData;
@@ -1582,8 +1581,8 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 		me.createTabPanel();
 		me.createCustomeBase(rawData);
 
-
 		me.callParent();
+
 		me.updateCustomerTitle(rawData["CTName"] + " 的会员资料");
 		me.add(me.settingTabPanel);
 		me.doLayout();
@@ -1614,8 +1613,11 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 		var advanceTab = Ext.create("Ext.tab.Panel", {
 			border: false,
 			plain: true,
-			height: "100%",
+			height: "65%",
+			cls: "iScroll",
 			bodyBorder: false,
+			autoHeight: true,
+			autoScroll: true,
 			defaults: {
 				border: 0,
 				frame: true,
@@ -1690,7 +1692,7 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 			for (var _k in data){
 				data[_k].layout = {
 					type : "table",
-					columns: 4,
+					columns: 1,
 					tableAttrs: {
 						cellspacing: 10,
 						style: {
@@ -1704,8 +1706,9 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 				title : title,
 				flex: 1,
 				border: 0,
-				layout: "anchor",
 				height: "100%",
+				autoHeight: true,
+				autoScroll: true,
 				defaults: {
 					margin: "0 0 10 0"
 				},
@@ -1722,6 +1725,7 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 			}
 		}
 		advanceTab.setActiveTab(_firsttab);
+		advanceTab.doLayout();//update layout
 		
 		me.advancePanel.doLayout();
 		me.settingTabPanel.add(me.advancePanel);
@@ -1732,13 +1736,14 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 		me.settingTabPanel = Ext.create("Ext.panel.Panel", {
 			border: false,
 			bodyBorder: false,
+			height: "100%",
 			autoHeight: true,
 			autoHeight: true,
 			plain: true,
-			frame: true,
+			bodyStyle: 'background-color:#dfe8f5;',
 			defaults: {
 				border: false,
-				frame: true,
+				bodyStyle: 'background-color:#dfe8f5;',
 				autoHeight: true,
 				autoScroll: true
 			}
@@ -1750,8 +1755,11 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 			autoHeight: true,
 			autoScroll: true,
 			border: false,
+			collapsible: true,
+			title: "会员基本资料",
 			bodyBorder: false,
 			plain: true,
+			bodyPadding: 5,
 			flex: 1,
 			items: [
 				{

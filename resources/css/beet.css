@@ -200,3 +200,6 @@ aside{
 /* line 21, ../sass/scrollbars.scss */
 .iScroll ::-webkit-scrollbar-thumb:horizontal { width: 50px; background-color: rgba(0, 0, 0, 0.15); -webkit-border-radius: 4px; }
 
+.x-panel-header-default{
+	background-image: none !important;
+}

@@ -634,6 +634,16 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 							item["collapsible"] = true;
 							if (isSame && inputmode != 0){
 								item["xtype"] = Beet.constants.CTInputMode[inputmode];
+								item["layout"] = {
+									type: "table",
+									columns: 5,
+									tableAttrs: {
+										cellspacing: 10,
+										style: {
+											width: "100%"
+										}
+									}
+								}
 							}else{
 								_data["_xtype"] = "fieldset";
 								item["xtype"] = "fieldset";
