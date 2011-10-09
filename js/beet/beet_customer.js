@@ -902,13 +902,12 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 					]
 				}*/
 			],
-			/*
 			bbar: Ext.create('Ext.PagingToolbar', {
 				store: this.storeProxy,
 				displayInfo: true,
 				displayMsg: '当前显示 {0} - {1} 到 {2}',
 				emptyMsg: "没有数据"
-			})*/
+			})
 		})
 
 		that.add(that.grid);
