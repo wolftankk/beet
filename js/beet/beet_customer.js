@@ -1024,16 +1024,13 @@ Ext.define("Beet.apps.Viewport.SendMessages", {
 			items: [
 				{
 					fieldLabel: "手机号码",
+					xtype: "trigger",
+					width: 400,
 					name: "mobiles",
-					id: "mobileNumberFrame"
-				},
-				{
-					xtype: "button",
-					name: "select",
-					text: "+",
-					handler: function(){
-						//get friend list
+					id: "mobileNumberFrame",
+					onTriggerClick: function(){
 						var win;
+						//这里需要一个高级查询
 						win = Ext.create("Beet.plugins.selectCustomerWindow", {
 							_callback: Ext.bind(me.processSelectedData, me),
 							_selectedData: me.selectedData
