@@ -954,16 +954,18 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 
 Ext.define("Beet.plugins.ViewCustomerInfo", {
 	extend: "Ext.window.Window",
-	width: 700,
+	width: 900,
 	height: 600,
 	minHeight: 550,	
 	autoHeight: true,
 	autoScroll: true,
+	cls: "iScroll",
 	layout: "fit",
 	resizable: true,
 	border: false,
 	modal: true,
 	maximizable: true,
+	maximized: true,
 	border: 0,
 	bodyBorder: false,
 	editable: false,
@@ -1056,6 +1058,7 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
 				advanceTab
 			],
 		};
+
 		if (me.editable){
 			advanceformConfig.buttons = [
 				{
