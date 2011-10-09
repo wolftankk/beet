@@ -15,7 +15,7 @@ Ext.namespace("Beet.plugins");
 Beet.constants = {
 	FAILURE: "{00000000-0000-0000-0000-000000000000}",
 	GRANDMADATE: -2208988800,
-	PageSize: 50,
+	PageSize: 30,
 	CTServiceType : {
 		"{AFF7BC81-ACA3-4E46-B5B1-87A90F45FE8D}" : "基础信息", 
 		"{C3DCAA88-D92F-435F-96B2-50BDC665F407}" : "美容",
