@@ -796,6 +796,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 	height: "100%",
 	bodyBorder: false,
 	autoHeight: true,
+	autoScroll: true,
 	minHeight: 400,
 	minWidth: 800,
 	frame: true,
@@ -807,17 +808,9 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 		Ext.apply(this, {
 			storeProxy: Ext.create("Beet.apps.Viewport.CustomerList.Store")
 		});
-		that.createCustomerGrid();
+		that.callParent(arguments);
 
-		that.items = [
-			that.grid	
-		];
-		
-		that.callParent(arguments);
-	},
-	afterRender: function(){
-		var that = this;
-		that.callParent(arguments);
+		that.createCustomerGrid();
 	},
 	createCustomerGrid: function(){
 		var that = this, grid = that.grid, store = that.storeProxy, actions, __columns = [], columnsData = Beet.cache["customerColumns"];
@@ -887,6 +880,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			bodyBorder: false,
 			autoScroll: true,
 			autoHeight: true,
+			height: "100%",
 			border: 0,
 			columnLines: true,
 			viewConfig: {
@@ -908,13 +902,17 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 					]
 				}*/
 			],
+			/*
 			bbar: Ext.create('Ext.PagingToolbar', {
 				store: this.storeProxy,
 				displayInfo: true,
 				displayMsg: '当前显示 {0} - {1} 到 {2}',
 				emptyMsg: "没有数据"
-			})
+			})*/
 		})
+
+		that.add(that.grid);
+		that.doLayout();
 	},
 	editCustomerFn: function(parentMenu){
 		var that = this, rawData = parentMenu.rawData || parentMenu.raw, CTGUID = rawData.CTGUID, CTName = rawData.CTName;

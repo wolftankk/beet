@@ -321,6 +321,7 @@ Ext.define("Beet.apps.CustomerSearchEngine.GridList", {
 	autoHeight: true,
 	autoScroll: true,
 	columnLines: true,
+	cls: "iScroll",
 	initComponent: function(config){
 		//set store
 		var me = this;

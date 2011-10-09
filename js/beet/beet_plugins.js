@@ -520,6 +520,7 @@ Ext.define("Beet.plugins.LiveSearch",{
 	tagsProtect: '\x0f',
 	regExpProtect: /\\|\/|\+|\\|\.|\[|\]|\{|\}|\?|\$|\*|\^|\|/gm,
 	matchCls: 'x-livesearch-match',
+	cls: 'iScroll',
 	initComponent: function(){
 		var me = this;
 		me.tbar = [

@@ -184,28 +184,19 @@ aside{
     font-weight: bold;
 }
 
-/* line 10, /mnt/ebs/nightly/jsduck/template/resources/sass/../../extjs/resources/themes/stylesheets/ext4/default/util/_scroller.scss */
-.x-scroller { overflow: hidden; }
 
-/* line 14, /mnt/ebs/nightly/jsduck/template/resources/sass/../../extjs/resources/themes/stylesheets/ext4/default/util/_scroller.scss */
-.x-scroller-vertical { border: 1px solid #bfbfbf; border-top-color: #c5c5c5; }
+/* line 1, ../sass/scrollbars.scss */
+.iScroll ::-webkit-scrollbar { width: 7px; height: 9px; }
 
-/* line 19, /mnt/ebs/nightly/jsduck/template/resources/sass/../../extjs/resources/themes/stylesheets/ext4/default/util/_scroller.scss */
-.x-scroller-horizontal { border: 1px solid #bfbfbf; }
+/* line 6, ../sass/scrollbars.scss */
+.iScroll ::-webkit-scrollbar-button:start:decrement, .iScroll ::-webkit-scrollbar-button:end:increment { display: block; height: 0; background-color: transparent; }
 
-/* line 23, /mnt/ebs/nightly/jsduck/template/resources/sass/../../extjs/resources/themes/stylesheets/ext4/default/util/_scroller.scss */
-.x-vertical-scroller-present .x-scroller-horizontal { border-right-width: 0px; }
+/* line 11, ../sass/scrollbars.scss */
+.iScroll ::-webkit-scrollbar-track-piece { -webkit-border-radius: 0; -webkit-border-bottom-right-radius: 4px; -webkit-border-bottom-left-radius: 4px; }
 
-/* line 27, /mnt/ebs/nightly/jsduck/template/resources/sass/../../extjs/resources/themes/stylesheets/ext4/default/util/_scroller.scss */
-.x-scroller-ct { overflow: hidden; position: absolute; margin: 0; padding: 0; border: none; left: 0px; top: 0px; /*
-In IE9 (only), the border-box style causes the scroller-ct to be 0px in the
-perpendicular dimension and breaks the scroll as well as offsets it by the left
-offset that we use to try and keep some size on this element. This works on all
-browsers (including IE9).
-*/ box-sizing: content-box !important; -ms-box-sizing: content-box !important; -moz-box-sizing: content-box !important; -webkit-box-sizing: content-box !important; }
+/* line 16, ../sass/scrollbars.scss */
+.iScroll ::-webkit-scrollbar-thumb:vertical { height: 50px; background-color: rgba(0, 0, 0, 0.15); -webkit-border-radius: 4px; }
 
-/* line 48, /mnt/ebs/nightly/jsduck/template/resources/sass/../../extjs/resources/themes/stylesheets/ext4/default/util/_scroller.scss */
-.x-scroller-vertical .x-scroller-ct { overflow-y: scroll; }
+/* line 21, ../sass/scrollbars.scss */
+.iScroll ::-webkit-scrollbar-thumb:horizontal { width: 50px; background-color: rgba(0, 0, 0, 0.15); -webkit-border-radius: 4px; }
 
-/* line 52, /mnt/ebs/nightly/jsduck/template/resources/sass/../../extjs/resources/themes/stylesheets/ext4/default/util/_scroller.scss */
-.x-scroller-horizontal .x-scroller-ct { overflow-x: scroll; }
