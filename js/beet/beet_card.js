@@ -795,7 +795,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 		form.setValues({
 			"p_total": totalPrice.toFixed(2),
 			"realprice": realprice.toFixed(2),
-			"p_sale": sale.toFixed(2)
+			"p_sale": parseFloat(sale).toFixed(2)
 		});
 	},
 	processData: function(f){
@@ -856,11 +856,11 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 	shadow: true,
 	initComponent: function(){
 		var me = this;
-		//if (me.b_type == "selection"){
-		//	me.editable = false;
-		//}else{
-		//	me.editable = true;
-		//}
+		if (me.b_type == "selection"){
+			me.editable = false;
+		}else{
+			me.editable = true;
+		}
 
 		me.callParent();
 		me.getProductsMetaData();
@@ -976,7 +976,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 				id: "customer_grid_edit",
 				handler:function(grid, rowIndex, colIndex){
 					var d = me.storeProxy.getAt(rowIndex)
-					//me.editProductItem(d);
+					me.editProductItem(d);
 				}
 			}
 		);
@@ -1037,17 +1037,16 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 			me.doLayout();
 		}
 	},
-	/*
 	editProductItem: function(parentMenu){
-		var me = this, rawData = parentMenu.rawData || parentMenu.raw, pid = rawData["P_PID"], pname = rawData["P_Name"], cardServer = Beet.constants.cardServer;
+		var me = this, rawData = parentMenu.rawData || parentMenu.raw, pid = rawData["PID"], pname = rawData["PName"], cardServer = Beet.constants.cardServer;
 		if (pid && me.editable){
 			Ext.MessageBox.show({
-				title: "编辑产品",
-				msg: "是否要更新" + pname + " 的资料",
+				title: "编辑消费产品",
+				msg: "是否要更新 " + pname + " 的资料",
 				buttons: Ext.MessageBox.YESNO,
 				fn : function(btn){
 					if (btn == "yes"){
-						var win = Ext.create("Beet.apps.ProductsViewPort.ViewProductItem", {
+						var win = Ext.create("Beet.apps.ProductsViewPort.ViewProducts", {
 							editable: true,
 							storeProxy: me.storeProxy,
 							rawData: rawData	
@@ -1057,48 +1056,334 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 				}
 			})	
 		}else{
-			var win = Ext.create("Beet.apps.ProductsViewPort.ViewProductItem", {
+			var win = Ext.create("Beet.apps.ProductsViewPort.ViewProducts", {
 				editable: false,
 				storeProxy: me.storeProxy,
 				rawData: rawData	
 			});
 			win.show();
 		}
-		
 	},
-	*/
 	deleteProductItem: function(parentMenu){
 		var me = this, rawData = parentMenu.rawData || parentMenu.raw, pid = rawData["PID"], pname = rawData["PName"], cardServer = Beet.constants.cardServer;
+		console.log(rawData);
 		if (pid){
 			Ext.MessageBox.show({
 				title: "删除消费产品",
-				msg: "是否要删除 " + pname + " ?",
-				buttons: Ext.MessageBox.YESNO,
+				msg: "是否要删除消费产品 " + pname + " ? 是否同时还需要删除产品 " + rawData["PItemName"] + " ?<br/>Yes: 同时删除消费产品和产品;<br/>No: 只删除消费产品;<br/>Cancel: 取消删除,关闭对话框",
+				buttons: Ext.MessageBox.YESNOCANCEL,
 				fn: function(btn){
-					/*
-					if (btn == "yes"){
-						cardServer.DeleteProducts(pid, false, rawData["PItemId"],{
-							success: function(){
-								Ext.MessageBox.show({
-									title: "删除成功",
-									msg: "删除消费产品: " + pname + " 成功",
-									buttons: Ext.MessageBox.OK,
-									fn: function(){
-										me.storeProxy.loadPage(me.storeProxy.currentPage);
-									}
-								})
+					if (btn == "yes" || btn == "no"){
+						var needDeleteItem = (btn == "yes") ? true : false;
+						cardServer.DeleteProducts(pid, needDeleteItem, rawData["PItemId"],{
+							success: function(succ){
+								if (succ){
+									Ext.MessageBox.show({
+										title: "删除成功",
+										msg: "删除消费产品: " + pname + " 成功",
+										buttons: Ext.MessageBox.OK,
+										fn: function(){
+											me.storeProxy.loadPage(me.storeProxy.currentPage);
+										}
+									})
+								}else{
+									Ext.Error.raise("删除消费产品失败");
+								}
 							},
 							failure: function(error){
 								Ext.Error.raise(error);
 							}
 						})
 					}
-					*/
 				}
 			});
-		
 		}else{
 			Ext.Error.raise("删除产品失败");
 		}
+	}
+});
+
+Ext.define("Beet.apps.ProductsViewPort.ViewProducts", {
+	extend: "Ext.window.Window",
+	title: "#",
+	width: 280,
+	height: 310,
+	autoScroll: true,
+	autoHeight: true,
+	layout: "fit",
+	resizable: true,
+	border: false,
+	modal: true,
+	maximizable: true,
+	border: 0,
+	bodyBorder: false,
+	editable: false,
+	_rowIndex: null,
+	initComponent: function(){
+		var me = this, storeProxy = me.storeProxy, cardServer = Beet.constants.cardServer;
+
+		if (me.rawData){
+			rawData = me.rawData;
+		}else{
+			if (me._rowIndex != null){
+				var d = storeProxy.getAt(me._rowIndex);
+				me.rawData = rawData;
+			}
+		}
+
+		me.callParent();
+		me.setTitle(rawData["PName"]);
+		me.createProductItemInfo(rawData);
+	},
+	createProductItemInfo: function(data){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var config = {
+			autoHeight: true,
+			autoScroll: true,
+			border: false,
+			bodyBorder: false,
+			plain: true,
+			frame: true,
+			flex: 1,
+			height: "100%",
+			bodyStyle: {
+				margin: "20 0 0 20"
+			},
+			items: [
+				{
+					layout: {
+						type: "table",
+						columns: 1,
+						tableAttrs: {
+							cellspacing: 10,
+							style: {
+								width: "100%"
+							}
+						}
+					},
+					border: false,
+					bodyStyle: "background-color: #dfe8f5",
+					defaults: {
+						bodyStyle: "background-color: #dfe8f5",
+						readOnly: !me.editable,
+						editable: me.editable,
+						listeners: {
+							scope: me,
+							blur: function(){
+								me.onUpdateForm();
+							}
+						}
+					},
+					defaultType: "textfield",
+					fieldDefaults: {
+						msgTarget: "side",
+						labelAlign: "top",
+						labelWidth: 60
+					},
+					items: [
+						{
+							fieldLabel: "名称",
+							name: "name",
+							allowBlank: false
+						},
+						{
+							fieldLabel: "产品数目",
+							name: "count",
+							allowBlank: false
+						},
+						{
+							fieldLabel: "所属产品",
+							name: "pid",
+							allowBlank: false,
+							xtype: "trigger",
+							editable: false,
+							onTriggerClick: function(){
+								me.triggerOpenSelectProduct(this);
+							}
+						},
+						{
+							fieldLabel: "产品总价",
+							id: "p_total",
+							name: "p_total",
+							readOnly: true
+						},
+						{
+							fieldLabel: "消费次数",
+							name: "stepcount",
+							allowBlank: false
+						},
+						{
+							fieldLabel: "折扣价格",
+							allowBlank: false,
+							name: "realprice",
+							editable: false,
+							listeners: {
+								scope: me,
+								blur: function(){
+									me.onUpdateForm(true);
+								}
+							}
+						},
+						{
+							fieldLabel: "折扣",
+							allowBlank: false,
+							name: "p_sale"
+						},
+					],
+					buttons: [
+						{
+							text: "提交",
+							handler: function(btn, widget){
+								me.processData(this, data)	
+							},
+							hidden: !me.editable
+						},
+						{
+							text: "取消",
+							handler: function(){
+								me.close();
+							},
+							hidden: !me.editable
+						}
+					]
+				}
+			]
+		}
+
+		var form = Ext.widget("form", config);
+		me.form = form;
+		me.add(form);
+		me.doLayout();
+
+		me.restoreFromData();
+	},
+	restoreFromData: function(){
+		var me = this, rawData = me.rawData, form = me.form.getForm();
+		me.selectedProductItem = {
+			customable: true,
+			pid: rawData["PItemID"],
+			pname: rawData["PItemName"],
+			p_price: rawData["PPrice"] / rawData["PCount"]
+		}
+		form.setValues({
+			name: rawData["PName"],
+			count: rawData["PCount"],
+			pid: rawData["PItemName"],
+			p_total: rawData["PPrice"],
+			stepcount: rawData["PStepCount"],
+			realprice: rawData["PRealPrice"],
+			p_sale: rawData["PRate"]
+		})
+	},
+	triggerOpenSelectProduct: function(f){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var config = {
+			extend: "Ext.window.Window",
+			title: "产品",
+			width: 900,
+			height: 640,
+			autoScroll: true,
+			autoHeight: true,
+			layout: "fit",
+			resizable: true,
+			border: false,
+			modal: true,
+			maximizable: true,
+			border: 0,
+			bodyBorder: false,
+			editable: false
+		}
+		var win = Ext.create("Ext.window.Window", config);
+		win.show();
+
+		win.add(Ext.create("Beet.apps.ProductsViewPort.ProductItemsList", {
+			b_type: "selection",
+			b_selectionCallback: function(record){
+				var record = record[0];
+				if (record.get("P_Effective") == "False"){
+					Ext.Msg.alert("警告","该产品无效, 请重新选择");
+					return;
+				}
+				me.selectedProductItem = record;
+				win.close();
+				var rawData = record.raw;
+				f.setValue(rawData["P_Name"]);
+				me.onUpdateForm();
+			}
+		}));
+		win.doLayout();
+	},
+	onUpdateForm: function(force){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var form = me.form.getForm();
+		if (me.selectedProductItem == null){
+			return;
+		}else{
+			if (me.selectedProductItem.customable){
+			}else{
+				if (me.selectedProductItem.raw){
+				}else{
+					return;
+				}
+			}
+		}
+		
+		var values = form.getValues();
+		var count = 0, sale = 1;
+		var productPrice = me.selectedProductItem.customable ? me.selectedProductItem["p_price"] : me.selectedProductItem.get("P_Price");
+
+		if (values["p_sale"] > 0){
+			sale = values["p_sale"];
+		}
+
+		count = values["count"]
+		var totalPrice = productPrice * count, realprice;
+		if (force){
+			sale = values["realprice"] / totalPrice;
+			realprice = values["realprice"];
+		}else{
+			realprice = sale * totalPrice;
+		}
+
+		form.setValues({
+			"p_total": totalPrice.toFixed(2),
+			"realprice": realprice.toFixed(2),
+			"p_sale": parseFloat(sale).toFixed(2)
+		});
+	},
+	processData: function(f){
+		var me = this, cardServer = Beet.constants.cardServer;
+		me.onUpdateForm();//lastupdate
+		var form = f.up("form").getForm(), result = form.getValues();
+		if (me.selectedProductItem == null){
+			Ext.Error.raise("添加失败!");
+			return;
+		}
+		
+		result["pid"] = me.selectedProductItem.customable ? me.selectedProductItem["pid"] : me.selectedProductItem.get("P_PID");//productItem id
+		result["id"] = me.rawData["PID"];//products id
+		console.log(result);
+		cardServer.UpdateProducts(Ext.JSON.encode(result), {
+			success: function(succ){
+				if (succ){
+					Ext.MessageBox.show({
+						title: "提示",
+						msg: "更新消费产品成功!",
+						buttons: Ext.MessageBox.YES,
+						fn: function(btn){
+							if (btn == "yes"){
+								me.storeProxy.loadPage(me.storeProxy.currentPage);
+								me.close();
+							}
+						}
+					});
+				}else{
+					Ext.Error.raise("更新消费产品失败");
+				}
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
 	}
 });
