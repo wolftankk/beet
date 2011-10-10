@@ -175,10 +175,12 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 		that.navigationToolbar.parent = that;
 
 		//username
-		//that.userName = new Ext.toolbar.TextItem({ text: Ext.util.Cookies.get("userName")});
 		that.logoutButton = new Ext.toolbar.Toolbar(that.getLogoutButtonConfig());
 		that.helpButton = new Ext.toolbar.Toolbar(that.getHelpButtonConfig());
 		that.toggleButton = new Ext.toolbar.Toolbar(that.getToggleButtonConfig());
+		that.username = new Ext.toolbar.TextItem({
+			text: "#"
+		}); 
 
 		that.items = [
 			//about button / menu
@@ -193,7 +195,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 			"->",//设定到右边区域
 			'-',
 			//help
-			"当前用户: ", 'username', '-', ' ', 
+			"当前用户: ", that.username, '-', ' ', 
 			that.logoutButton, ' ',
 			that.toggleButton, ' ',
 			that.helpButton,
@@ -207,13 +209,25 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 		Ext.defer(function(){
 			Ext.EventManager.on(that.configurePanel.getTabBar().body, "click", that.onTabBarClick, that);
 		}, 1);
-		/*
-		*/
 		that.b_collapseDirection = that.b_collapseDirection || Ext.Component.DIRECTION_TOP;
+		that.updateUsername();
 	},
 	afterLayout: function(){
 		var that = this;
 		that.callParent();
+	},
+	updateUsername: function(){
+		var me = this, privilegeServer = Beet.constants.privilegeServer;
+		privilegeServer.GetUserInfo({
+			success: function(data){
+				var data = Ext.JSON.decode(data);
+				data = data["Data"];
+				me.username.setText(data[0]["UserName"]);
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
 	},
 	//获取导航栏配置
 	getNavitionConfig: function(){
