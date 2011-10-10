@@ -159,17 +159,6 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 			Ext.QuickTips.init();
 		}
 
-		console.log("fetch userInfo");
-		privilegeServer.GetUserInfo({
-			success: function(data){
-				var data = Ext.JSON.decode(data)
-				console.log("userInfo", data);
-			},
-			failure: function(error){
-				Ext.Error.raise("userInfo",error);
-			}
-		})
-		
 		//导航栏toolbar
 		that.navigationToolbar = new Ext.toolbar.Toolbar(that.getNavitionConfig());
 		that.navigationToolbar.parent = that;
