@@ -183,24 +183,55 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 			})
 		}
 
-		var store = Ext.create("Ext.data.Store", {
-			model: Beet.apps.CustomerSearchEngine.Model,
-			autoLoad: true,
-			proxy: {
-				type: "b_proxy",
-				b_method: customerServer.GetCustomerToJSON,
-				b_scope: customerServer,
-				b_params: {
-					b_onlySchema: false,
-					filter: where
+		if (!Beet.apps.CustomerSearchEngine.Store){
+			Ext.define("Beet.apps.CustomerSearchEngine.Store", {
+				extend: "Ext.data.Store",
+				model: Beet.apps.CustomerSearchEngine.Model,
+				autoLoad: true,
+				pageSize: Beet.constants.PageSize,
+				load: function(options){
+					var that = this, options = options || {};
+					if (Ext.isFunction(options)){
+						options = {
+							callback: options
+						};
+					}
+
+					Ext.applyIf(options, {
+						groupers: that.groupers.items,
+						page: that.currentPage,
+						start: (that.currentPage - 1) * Beet.constants.PageSize,
+						limit: Beet.constants.PageSize,
+						addRecords: false
+					});
+					
+
+					that.proxy.b_params["start"] = options["start"];
+					that.proxy.b_params["limit"] = options["limit"];
+
+					return that.callParent([options]);
 				},
-				reader: {
-					type: "json",
-					root: "Data"
+				proxy: {
+					type: "b_proxy",
+					b_method: Beet.constants.customerServer.GetCustomerPageData,
+					startParam: "start",
+					limitParam: "limit",
+					b_params: {
+						filter: where == undefined ? "" : where
+					},
+					b_scope: Beet.constants.customerServer,
+					reader: {
+						type: "json",
+						root: "Data",
+						totalProperty: "TotalCount"
+					}
 				}
-			}
-		});
+			});
+		}
+
+		var store = Ext.create("Beet.apps.CustomerSearchEngine.Store");
 		me.storeProxy = store;
+
 
 		var grid = Ext.create("Beet.apps.CustomerSearchEngine.GridList", {
 			store: store,
