@@ -403,11 +403,18 @@ Ext.define("Beet.apps.Viewport.EmployeeList.Model", {
 		"EM_EXT",
 		"EM_ADDR",
 		"EM_IM",
-		"EM_MOBLIE",
+		"EM_MOBILE",
 		"EM_PHONE",
 		"EM_BIRTHMONTH",
 		"EM_BIRTHDAY",
-		"EM_INDATE"
+		{ name: "EM_INDATE", 
+		  convert: function(value, record){
+			var date = new Date(value);
+			if (date){
+				return Ext.Date.format(date, "Y/m/d");
+			}
+		  }
+		}
 	]
 });
 
@@ -531,7 +538,7 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 				var d = me.storeProxy.getAt(rowIndex)
 				me.deleteEmployeeFn(d);
 			}
-			}, "-", "-", "-"
+			} 
 		);
 
 		__columns.push(_actions);
@@ -665,7 +672,7 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 					fieldLabel: "手机",
 					name: "emmobile",
 					allowBlank: true,
-					value: rawData["EM_MOBLIE"]
+					value: rawData["EM_MOBILE"]
 				},
 				{
 					fieldLabel: "座机号",
@@ -700,7 +707,8 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 					xtype: "datefield",
 					name: "emindate",
 					allowBlank: false,
-					value: rawData["EM_INDATE"]
+					format: "Y/m/d",
+					value: new Date(rawData["EM_INDATE"])
 				},
 				{
 					xtype: "button",
@@ -709,6 +717,8 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 					text: "修改",
 					handler: function(){
 						var that = this, form = that.up("form").getForm(), result = form.getValues(), employeeServer = Beet.constants.employeeServer;
+						result["emindate"] = (+new Date(result["emindate"])) / 1000;
+
 						var needSumbitData;
 						//if (form.isValid()){
 							needSumbitData = Ext.JSON.encode(result);
