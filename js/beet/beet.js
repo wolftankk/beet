@@ -188,10 +188,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 				xtype: "splitbutton",
 				text: "美度"
 			}, "-",
-			//menu category button
 			that.navigationToolbar,
-			
-			//username
 			"->",//设定到右边区域
 			'-',
 			//help
