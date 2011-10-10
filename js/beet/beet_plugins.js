@@ -1156,7 +1156,7 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
 		if (customerData.length > 0){
 			for (var k in customerData){
 				var _data = customerData[k];
-				var st = _data["ServiceType"], typeId = _data["CTTypeID"], typeText = _data["TypeText"];
+				var st = _data["CustomerType"], typeId = _data["CTTypeID"], typeText = _data["TypeText"];
 				if (advanceProfile[st]){
 					_replace(advanceProfile[st], typeId, typeText);
 				}
@@ -1679,7 +1679,7 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 		if (customerData.length > 0){
 			for (var k in customerData){
 				var _data = customerData[k];
-				var st = _data["ServiceType"], typeId = _data["CTTypeID"], typeText = _data["TypeText"];
+				var st = _data["CustomerType"], typeId = _data["CTTypeID"], typeText = _data["TypeText"];
 				if (advanceProfile[st] && advanceProfile[st].length > 0){
 					_replace(advanceProfile[st], typeId, typeText);
 				}
