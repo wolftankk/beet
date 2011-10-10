@@ -1157,7 +1157,7 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
 			for (var k in customerData){
 				var _data = customerData[k];
 				var st = _data["ServiceType"], typeId = _data["CTTypeID"], typeText = _data["TypeText"];
-				if (advanceProfile[st] && advanceProfile[st].length > 0){
+				if (advanceProfile[st]){
 					_replace(advanceProfile[st], typeId, typeText);
 				}
 			}
