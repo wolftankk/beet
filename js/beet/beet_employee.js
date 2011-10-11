@@ -232,6 +232,11 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 					allowBlank: false
 				},
 				{
+					fieldLabel: "备注",
+					xtype: "textfield",
+					name: "descript"
+				},
+				{
 					xtype: "button",
 					id : "move-next",
 					scale: "large",
@@ -352,6 +357,8 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 		var me = this, form = me.up("form").getForm(), parent = me.ownerCt.ownerCt, result = form.getValues(),needSumbitData, employeeServer = Beet.constants.employeeServer;
 		if (form.isValid()){
 			result["emindate"] = +(new Date(result["emindate"]))/1000;
+			result["password"] = xxtea_encrypt(result["password"])
+
 			needSumbitData = Ext.JSON.encode(result);
 			Ext.MessageBox.show({
 				title: "增加员工",
@@ -407,9 +414,10 @@ Ext.define("Beet.apps.Viewport.EmployeeList.Model", {
 		"EM_PHONE",
 		"EM_BIRTHMONTH",
 		"EM_BIRTHDAY",
+		"EM_DESCRIPT",
 		{ name: "EM_INDATE", 
 		  convert: function(value, record){
-			var date = new Date(value);
+			var date = new Date(value * 1000);
 			if (date){
 				return Ext.Date.format(date, "Y/m/d");
 			}
@@ -623,6 +631,30 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 					value: rawData["EM_NAME"]
 				},
 				{
+					fieldLabel: "登陆名",
+					name: "name",
+					emptyText: "留空则不做修改",
+					allowBlank: true,
+				},
+				{
+					fieldLabel: "登陆密码",
+					inputType: 'password',
+					name: "password",
+					minLength: 6,
+					emptyText: "留空则不做修改",
+					allowBlank: true
+				},
+				{
+					fieldLabel: "重新输入密码",
+					inputType: 'password',
+					allowBlank: true,
+					emptyText: "留空则不做修改",
+					validator: function(value){
+						var pw  = this.previousSibling('[name=password]');
+						return (pw.getValue() === value) ? true : '密码不匹配'; 
+					}
+				},
+				{
 					fieldLabel: "所属部门",
 					name: "emdep",
 					xtype: "combobox",
@@ -708,7 +740,7 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 					name: "emindate",
 					allowBlank: false,
 					format: "Y/m/d",
-					value: new Date(rawData["EM_INDATE"])
+					value: new Date(rawData["EM_INDATE"] * 1000)
 				},
 				{
 					xtype: "button",
@@ -718,6 +750,14 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 					handler: function(){
 						var that = this, form = that.up("form").getForm(), result = form.getValues(), employeeServer = Beet.constants.employeeServer;
 						result["emindate"] = (+new Date(result["emindate"])) / 1000;
+						if (result["name"] == "" && result["name"].length == 0){
+							delete result["name"];
+						}
+						if (result["password"] == "" && result["password"].length == 0){
+							delete result["password"];
+						}else{
+							result["password"] = xxtea_encrypt(result["password"]);
+						}
 
 						var needSumbitData;
 						//if (form.isValid()){
@@ -753,7 +793,7 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 		win = Ext.widget("window", {
 			title: EmName + " 的资料信息",
 			width: 650,
-			height: 500,
+			height: 600,
 			minHeight: 400,
 			autoHeight: true,
 			autoScroll: true,
