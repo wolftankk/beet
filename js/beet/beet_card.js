@@ -1633,7 +1633,7 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 		if (!Beet.apps.ProductsViewPort.ChargeTypeStore){
 			Ext.define("Beet.apps.ProductsViewPort.ChargeTypeStore", {
 				extend: "Ext.data.Store",
-				model: Beet.apps.ProductsViewPort.ChargeTypeStore,
+				model: Beet.apps.ProductsViewPort.ChargeTypeModel,
 				autoLoad: true,
 				pageSize: Beet.constants.PageSize,
 				load: function(options){
