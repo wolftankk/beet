@@ -1767,7 +1767,7 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 			me.doLayout();
 		}
 	},
-	editProductItem: function(parentMenu){
+	editChargeType: function(parentMenu){
 		var me = this, rawData = parentMenu.rawData || parentMenu.raw, cid = rawData["CID"], cname = rawData["CName"], cardServer = Beet.constants.cardServer;
 		if (cid && me.editable){
 			Ext.MessageBox.show({
@@ -1831,12 +1831,11 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 	}
 });
 
-/*
-Ext.define("Beet.apps.ProductsViewPort.ViewProducts", {
+Ext.define("Beet.apps.ProductsViewPort.ViewChargeType", {
 	extend: "Ext.window.Window",
 	title: "#",
 	width: 280,
-	height: 310,
+	height: 270,
 	autoScroll: true,
 	autoHeight: true,
 	layout: "fit",
@@ -1861,10 +1860,10 @@ Ext.define("Beet.apps.ProductsViewPort.ViewProducts", {
 		}
 
 		me.callParent();
-		me.setTitle(rawData["PName"]);
-		me.createProductItemInfo(rawData);
+		me.setTitle(rawData["CName"]);
+		me.createChargeType(rawData);
 	},
-	createProductItemInfo: function(data){
+	createChargeType: function(data){
 		var me = this, cardServer = Beet.constants.cardServer;
 		var config = {
 			autoHeight: true,
@@ -1916,48 +1915,39 @@ Ext.define("Beet.apps.ProductsViewPort.ViewProducts", {
 							allowBlank: false
 						},
 						{
-							fieldLabel: "产品数目",
-							name: "count",
-							allowBlank: false
-						},
-						{
-							fieldLabel: "所属产品",
-							name: "pid",
+							fieldLabel: "费用金额",
+							name: "cost",
 							allowBlank: false,
-							xtype: "trigger",
-							editable: false,
-							onTriggerClick: function(){
-								me.triggerOpenSelectProduct(this);
-							}
 						},
 						{
-							fieldLabel: "产品总价",
-							id: "p_total",
-							name: "p_total",
-							readOnly: true
+							fieldLabel: "是否应用折扣",
+							name: "applyrate",
+							xtype: "checkbox",
+							checked: data["CApplyRate"] == "False" ? false : true,
+							inputValue: 1
 						},
 						{
-							fieldLabel: "消费次数",
-							name: "stepcount",
-							allowBlank: false
+							fieldLabel: "折扣",
+							name: "rate",
+							value: 1
 						},
 						{
-							fieldLabel: "折扣价格",
-							allowBlank: false,
-							name: "realprice",
-							editable: false,
+							fieldLabel: "折扣金额",
+							name: "discount",
 							listeners: {
 								scope: me,
 								blur: function(){
-									me.onUpdateForm(true);
+									me.onUpdateForm(true)
 								}
 							}
 						},
 						{
-							fieldLabel: "折扣",
-							allowBlank: false,
-							name: "p_sale"
-						},
+							fieldLabel: "是否有效",
+							name: "effective",
+							xtype: "checkbox",
+							checked: data["CEffective"] == "False" ? false : true,
+							inputValue: 1
+						}
 					],
 					buttons: [
 						{
@@ -1988,117 +1978,56 @@ Ext.define("Beet.apps.ProductsViewPort.ViewProducts", {
 	},
 	restoreFromData: function(){
 		var me = this, rawData = me.rawData, form = me.form.getForm();
-		me.selectedProductItem = {
-			customable: true,
-			pid: rawData["PItemID"],
-			pname: rawData["PItemName"],
-			p_price: rawData["PPrice"] / rawData["PCount"]
-		}
+		var discount = parseFloat(rawData["CCost"]) * parseFloat(rawData["CRate"]);
 		form.setValues({
-			name: rawData["PName"],
-			count: rawData["PCount"],
-			pid: rawData["PItemName"],
-			p_total: rawData["PPrice"],
-			stepcount: rawData["PStepCount"],
-			realprice: rawData["PRealPrice"],
-			p_sale: rawData["PRate"]
+			name: rawData["CName"],
+			cost: rawData["CCost"],
+			rate: rawData["CRate"],
+			discount: discount
 		})
-	},
-	triggerOpenSelectProduct: function(f){
-		var me = this, cardServer = Beet.constants.cardServer;
-		var config = {
-			extend: "Ext.window.Window",
-			title: "产品",
-			width: 900,
-			height: 640,
-			autoScroll: true,
-			autoHeight: true,
-			layout: "fit",
-			resizable: true,
-			border: false,
-			modal: true,
-			maximizable: true,
-			border: 0,
-			bodyBorder: false,
-			editable: false
-		}
-		var win = Ext.create("Ext.window.Window", config);
-		win.show();
-
-		win.add(Ext.create("Beet.apps.ProductsViewPort.ProductItemsList", {
-			b_type: "selection",
-			b_selectionCallback: function(record){
-				var record = record[0];
-				if (record.get("P_Effective") == "False"){
-					Ext.Msg.alert("警告","该产品无效, 请重新选择");
-					return;
-				}
-				me.selectedProductItem = record;
-				win.close();
-				var rawData = record.raw;
-				f.setValue(rawData["P_Name"]);
-				me.onUpdateForm();
-			}
-		}));
-		win.doLayout();
 	},
 	onUpdateForm: function(force){
 		var me = this, cardServer = Beet.constants.cardServer;
 		var form = me.form.getForm();
-		if (me.selectedProductItem == null){
-			return;
-		}else{
-			if (me.selectedProductItem.customable){
-			}else{
-				if (me.selectedProductItem.raw){
-				}else{
-					return;
-				}
-			}
-		}
-		
+		//get data
 		var values = form.getValues();
-		var count = 0, sale = 1;
-		var productPrice = me.selectedProductItem.customable ? me.selectedProductItem["p_price"] : me.selectedProductItem.get("P_Price");
+		
+		var cost, rate, discount;
+		cost = parseFloat(values["cost"]);
 
-		if (values["p_sale"] > 0){
-			sale = values["p_sale"];
+		if (isNaN(cost) || cost < 0){
+			return;
 		}
 
-		count = values["count"]
-		var totalPrice = productPrice * count, realprice;
+		rate = values["rate"];
+		discount = values["discount"];
 		if (force){
-			sale = values["realprice"] / totalPrice;
-			realprice = values["realprice"];
+			rate = discount / cost;	
 		}else{
-			realprice = sale * totalPrice;
+			discount = rate * cost;
 		}
 
 		form.setValues({
-			"p_total": totalPrice.toFixed(2),
-			"realprice": realprice.toFixed(2),
-			"p_sale": parseFloat(sale).toFixed(2)
-		});
+			rate: parseFloat(rate).toFixed(2),
+			discount: parseFloat(discount).toFixed(2)
+		})
 	},
 	processData: function(f){
 		var me = this, cardServer = Beet.constants.cardServer;
 		me.onUpdateForm();//lastupdate
 		var form = f.up("form").getForm(), result = form.getValues();
-		if (me.selectedProductItem == null){
-			Ext.Error.raise("添加失败!");
-			return;
-		}
-		
-		result["pid"] = me.selectedProductItem.customable ? me.selectedProductItem["pid"] : me.selectedProductItem.get("P_PID");//productItem id
-		result["id"] = me.rawData["PID"];//products id
-		console.log(result);
-		cardServer.UpdateProducts(Ext.JSON.encode(result), {
-			success: function(succ){
-				if (succ){
+
+		result["applyrate"] = result["applyrate"] == 1 ? true : false;
+		result["effective"] = result["effective"] == 1 ? true : false;
+		result["id"] = me.rawData["CID"];
+
+		cardServer.UpdateChargeType(Ext.JSON.encode(result), {
+			success: function(id){
+				if (id > 0){
 					Ext.MessageBox.show({
 						title: "提示",
-						msg: "更新消费产品成功!",
-						buttons: Ext.MessageBox.YES,
+						msg: "更新费用成功!",
+						buttons: Ext.MessageBox.YESNO,
 						fn: function(btn){
 							if (btn == "yes"){
 								me.storeProxy.loadPage(me.storeProxy.currentPage);
@@ -2107,7 +2036,7 @@ Ext.define("Beet.apps.ProductsViewPort.ViewProducts", {
 						}
 					});
 				}else{
-					Ext.Error.raise("更新消费产品失败");
+					Ext.Error.raise("更新费用失败");
 				}
 			},
 			failure: function(error){
@@ -2116,4 +2045,3 @@ Ext.define("Beet.apps.ProductsViewPort.ViewProducts", {
 		});
 	}
 });
-*/
