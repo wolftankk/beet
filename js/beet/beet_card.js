@@ -1706,7 +1706,7 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 				id: "customer_grid_edit",
 				handler:function(grid, rowIndex, colIndex){
 					var d = me.storeProxy.getAt(rowIndex)
-					//me.editProductItem(d);
+					me.editChargeType(d);
 				}
 			}
 		);
@@ -1719,7 +1719,7 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 				id: "customer_grid_delete",
 				handler: function(grid, rowIndex, colIndex){
 					var d = me.storeProxy.getAt(rowIndex)
-					//me.deleteProductItem(d);
+					me.deleteCharge(d);
 				}
 			}, "-","-","-");
 		}
@@ -1768,15 +1768,15 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 		}
 	},
 	editProductItem: function(parentMenu){
-		var me = this, rawData = parentMenu.rawData || parentMenu.raw, pid = rawData["PID"], pname = rawData["PName"], cardServer = Beet.constants.cardServer;
-		if (pid && me.editable){
+		var me = this, rawData = parentMenu.rawData || parentMenu.raw, cid = rawData["CID"], cname = rawData["CName"], cardServer = Beet.constants.cardServer;
+		if (cid && me.editable){
 			Ext.MessageBox.show({
-				title: "编辑消费产品",
-				msg: "是否要更新 " + pname + " 的资料",
+				title: "编辑费用",
+				msg: "是否要更新 " + cname + " 的资料",
 				buttons: Ext.MessageBox.YESNO,
 				fn : function(btn){
 					if (btn == "yes"){
-						var win = Ext.create("Beet.apps.ProductsViewPort.ViewProducts", {
+						var win = Ext.create("Beet.apps.ProductsViewPort.ViewChargeType", {
 							editable: true,
 							storeProxy: me.storeProxy,
 							rawData: rawData	
@@ -1786,7 +1786,7 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 				}
 			})	
 		}else{
-			var win = Ext.create("Beet.apps.ProductsViewPort.ViewProducts", {
+			var win = Ext.create("Beet.apps.ProductsViewPort.ViewChargeType", {
 				editable: false,
 				storeProxy: me.storeProxy,
 				rawData: rawData	
@@ -1794,30 +1794,28 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 			win.show();
 		}
 	},
-	deleteProductItem: function(parentMenu){
-		var me = this, rawData = parentMenu.rawData || parentMenu.raw, pid = rawData["PID"], pname = rawData["PName"], cardServer = Beet.constants.cardServer;
-		console.log(rawData);
-		if (pid){
+	deleteCharge: function(parentMenu){
+		var me = this, rawData = parentMenu.rawData || parentMenu.raw, cid = rawData["CID"], cname = rawData["CName"], cardServer = Beet.constants.cardServer;
+		if (cid){
 			Ext.MessageBox.show({
-				title: "删除消费产品",
-				msg: "是否要删除消费产品 " + pname + " ? 是否同时还需要删除产品 " + rawData["PItemName"] + " ?<br/>Yes: 同时删除消费产品和产品;<br/>No: 只删除消费产品;<br/>Cancel: 取消删除,关闭对话框",
-				buttons: Ext.MessageBox.YESNOCANCEL,
+				title: "删除费用",
+				msg: "是否需要删除费用: " + cname + "?",
+				buttons: Ext.MessageBox.YESNO,
 				fn: function(btn){
-					if (btn == "yes" || btn == "no"){
-						var needDeleteItem = (btn == "yes") ? true : false;
-						cardServer.DeleteProducts(pid, needDeleteItem, rawData["PItemId"],{
+					if (btn == "yes"){
+						cardServer.DeleteChargeType(cid, {
 							success: function(succ){
 								if (succ){
 									Ext.MessageBox.show({
 										title: "删除成功",
-										msg: "删除消费产品: " + pname + " 成功",
+										msg: "删除费用: " + cname + " 成功",
 										buttons: Ext.MessageBox.OK,
 										fn: function(){
 											me.storeProxy.loadPage(me.storeProxy.currentPage);
 										}
 									})
 								}else{
-									Ext.Error.raise("删除消费产品失败");
+									Ext.Error.raise("删除费用失败");
 								}
 							},
 							failure: function(error){
@@ -1828,7 +1826,7 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 				}
 			});
 		}else{
-			Ext.Error.raise("删除产品失败");
+			Ext.Error.raise("删除费用失败");
 		}
 	}
 });
