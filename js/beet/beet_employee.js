@@ -743,6 +743,11 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 					value: new Date(rawData["EM_INDATE"] * 1000)
 				},
 				{
+					fieldLabel: "备注",
+					allowBlank: true,
+					value: rawData["EM_DESCRIPT"]
+				},
+				{
 					xtype: "button",
 					id : "move-next",
 					scale: "large",
