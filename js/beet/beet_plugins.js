@@ -1063,7 +1063,7 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
 		if (me.editable){
 			advanceformConfig.buttons = [
 				{
-					text: "更新",
+					text: "提交修改",
 					handler: function(widget, e){
 						var that = this, form = that.up("form").getForm(), result = form.getValues();
 						//if (!form.isValid()){}
