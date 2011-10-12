@@ -769,7 +769,7 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 											title: "更新成功!",
 											msg: "更新成功!",
 											buttons: Ext.MessageBox.OK,
-											handler: function(btn){
+											fn: function(btn){
 												me.storeProxy.loadPage(me.storeProxy.currentPage);
 												me.editorWin.close();
 											}
@@ -791,7 +791,7 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 	popEditWindow: function(rawData, guid){
 		var me = this, EmName = rawData.EM_NAME, employeeServer = Beet.constants.employeeServer, win;
 		
-		win = Ext.widget("window", {
+		me.editorWin = win = Ext.widget("window", {
 			title: EmName + " 的资料信息",
 			width: 650,
 			height: 600,
@@ -817,7 +817,6 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 				}
 			]
 		})
-		me.editorWin = win;
 		win.show();
 	},
 	deleteEmployeeFn: function(parentMenu){
