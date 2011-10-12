@@ -952,7 +952,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 		var me = this, grid = me.grid, sm = null;
 		if (me.b_type == "selection"){
 			sm = Ext.create("Ext.selection.CheckboxModel", {
-				mode: "SINGLE"
+				mode: me.b_selectionMode ? me.b_selectionMode : "SINGLE"
 			});
 			me.selModel = sm;
 		}
@@ -1007,7 +1007,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 			autoHeight: true,
 			border: 0,
 			selModel: sm,
-			height: "100%",
+			height: me.editable ? "100%" : "95%",
 			columnLines: true,
 			viewConfig:{
 				trackOver: false,
@@ -2049,5 +2049,229 @@ Ext.define("Beet.apps.ProductsViewPort.ViewChargeType", {
 
 // 项目
 Ext.define("Beet.apps.ProductsViewPort.AddItem", {
+	extend: "Ext.form.Panel",
+	height: "100%",
+	autoHeight: true,
+	autoScroll:true,
+	frame:true,
+	border: false,
+	bodyBorder: false,
+	plain: true,
+	flex: 1,
+	initComponent: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		me.selectedProducts = {};
+		me.selectedChargeType = {};
 
+		me.callParent()	
+		me.createMainPanel();
+	},
+	createMainPanel: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var options = {
+			autoHeight: true,
+			autoScroll: true,
+			height: 480,
+			cls: "iScroll",
+			border: true,
+			plain: true,
+			bodyStyle: "background-color: #dfe8f5"
+		}
+
+		me.productsPanel = Ext.widget("panel", Ext.apply(options, {
+			tbar: [{
+				xtype: "button",
+				text: "绑定消费产品",
+				handler: function(){
+					me.selectProducts();
+				}
+			}]	
+		}));
+		me.chargeTypesPanel = Ext.widget("panel", Ext.apply(options, {
+			tbar: [{
+				xtype: "button",
+				text: "绑定费用",
+				handler: function(){
+				}
+			}]	
+		}));
+
+		var config = {
+			autoHeight: true,
+			autoScroll: true,
+			height: "100%",
+			anchor: "fit",	
+			border: false,
+			bodyBorder: false,
+			plain: true,
+			items: [
+				{
+					layout: {
+						type: "table",
+						columns: 2,
+						tableAttrs: {
+							cellspacing: 10,
+							style: {
+								width: "100%",
+							}
+						}
+					},
+					autoHeight: true,
+					height: "100%",
+					border: false,
+					bodyStyle: "background-color: #dfe8f5",
+					defaults: {
+						bodyStyle: "background-color: #dfe8f5",
+					},
+					defaultType: "textfield",
+					fieldDefaults: {
+						msgTarget: "side",
+						labelAlign: "top",
+						labelWidth: 60
+					},
+					items: [
+						{
+							fieldLabel: "名称",
+							allowBlank: false,
+							name: "name"
+						},
+						{
+							fieldLabel: "注释",
+							allowBlank: true,
+							name: "descript"
+						},
+						me.productsPanel,
+						me.chargeTypesPanel
+					]
+				}
+			],
+			bbar:[
+				"->",
+				{
+					text: "提交",
+					xtype: "button",
+					border: 1,
+					style: {
+						borderColor: "#99BBE8"
+					},
+					handler: function(){
+
+					}
+				}
+			]
+		};
+		var form = Ext.widget("form", config);
+		me.form = form;
+		me.add(form);
+		me.doLayout();
+
+		//update panel
+		me.initializeProductsPanel();
+	},
+	initializeProductsPanel: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		if (me.productsPanel.__columns && me.productsPanel.__columns.length > 0){
+			return;
+		}
+
+		cardServer.GetProductPageData(0, 1, "", {
+			success: function(data){
+				var data = Ext.JSON.decode(data)["MetaData"];
+				var columns = me.productsPanel.__columns = [];
+				var fields = me.productsPanel.__fields = [];
+				for (var c in data){
+					var meta = data[c];
+					fields.push(meta["FieldName"])
+					if (!meta["FieldHidden"]){
+						columns.push({
+							dataIndex: meta["FieldName"],
+							header: meta["FieldLabel"],
+							flex: 1
+						})
+					}
+				}
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
+	},
+	selectProducts: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var config = {
+			extend: "Ext.window.Window",
+			title: "选择消费产品",
+			width: 900,
+			height: 640,
+			autoScroll: true,
+			autoHeight: true,
+			layout: "fit",
+			resizable: true,
+			border: false,
+			modal: true,
+			maximizable: true,
+			border: 0,
+			bodyBorder: false,
+			editable: false
+		}
+		var win = Ext.create("Ext.window.Window", config);
+		win.show();
+
+		win.add(Ext.create("Beet.apps.ProductsViewPort.ProductsList", {
+			b_type: "selection",
+			b_selectionMode: "MULTI",
+			b_selectionCallback: function(records){
+				if (records.length == 0){ win.close(); return;}
+				me.updateProductsPanel(records);
+				win.close();
+			}
+		}));
+		win.doLayout();
+	},
+	updateProductsPanel: function(records){
+		var me = this, selectedProducts = me.selectedProducts;
+		var __fields = me.productsPanel.__fields;
+		for (var r = 0; r < records.length; ++r){
+			var record = records[r];
+			var pid = record.get("PID");
+			var rawData = record.raw;
+			if (selectedProducts[pid] == undefined){
+				selectedProducts[pid] = []
+			}else{
+				selectedProducts[pid] = [];
+			}
+			for (var c = 0; c < __fields.length; ++c){
+				var k = __fields[c];
+				selectedProducts[pid].push(rawData[k]);
+			}
+		}
+
+		var tmp = []
+		for (var c in selectedProducts){
+			tmp.push(selectedProducts[c]);
+		}
+		var store = Ext.create("Ext.data.ArrayStore", {
+			fields: __fields,
+			data: tmp
+		})
+
+		console.log(me.productsPanel);
+		var grid = me.productsPanel.grid = Ext.create("Ext.grid.Panel", {
+			store: store,
+			minHeight: 50,
+			maxHeight: 480,
+			width: 500,
+			cls: "iScroll",
+			autoHeight: true,
+			autoScroll: true,
+			columnLines: true,
+			columns: me.productsPanel.__columns	
+		});
+
+		me.productsPanel.add(grid);
+		me.productsPanel.doLayout();
+	},
+	processData: function(){
+
+	}
 });
