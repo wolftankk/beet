@@ -2045,3 +2045,9 @@ Ext.define("Beet.apps.ProductsViewPort.ViewChargeType", {
 		});
 	}
 });
+
+
+// 项目
+Ext.define("Beet.apps.ProductsViewPort.AddItem", {
+
+});

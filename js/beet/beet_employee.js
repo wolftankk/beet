@@ -770,6 +770,7 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 											msg: "更新成功!",
 											buttons: Ext.MessageBox.OK,
 											handler: function(btn){
+												
 												me.editorWin.close();
 											}
 										})

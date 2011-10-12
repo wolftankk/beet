@@ -3,16 +3,6 @@ Ext.namespace("Beet.apps.Menu", "Beet.apps.Menu.Tabs");
 
 //设定目录菜单
 Beet.apps.Menu.Items = []
-/*
-Beet.apps.Menu.Items = [
-	{
-		title: "库存管理"
-	},
-	{
-		title: "排班管理"
-	},
-];
-*/
 
 Ext.define("Beet.apps.Menu.Panel", {
 	extend: "Ext.panel.Panel",
@@ -203,12 +193,26 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 		that.callParent();
 	},
 	updateUsername: function(){
-		var me = this, privilegeServer = Beet.constants.privilegeServer;
+		var me = this, privilegeServer = Beet.constants.privilegeServer, employeeServer = Beet.constants.employeeServer;
 		privilegeServer.GetUserInfo({
 			success: function(data){
 				var data = Ext.JSON.decode(data);
 				data = data["Data"];
-				me.username.setText(data[0]["UserName"]);
+				var guid = data[0]["UserGUID"];
+				var UserName = data[0]["UserName"];
+				employeeServer.GetEmployeeData(0, 1, "em_userid='" + guid + "'", false, {
+					success: function(_data){
+						_data = Ext.JSON.decode(_data)["Data"];
+						if (_data[0] && _data[0]["EM_NAME"]){
+							me.username.setText(_data[0]["EM_NAME"]);
+						}else{
+							me.username.setText(UserName);
+						}
+					},
+					failure: function(error){
+						Ext.Error.raise(error);
+					}
+				});
 			},
 			failure: function(error){
 				Ext.Error.raise(error);
