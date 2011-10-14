@@ -1682,7 +1682,7 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 		var me = this, grid = me.grid, sm = null;
 		if (me.b_type == "selection"){
 			sm = Ext.create("Ext.selection.CheckboxModel", {
-				mode: "SINGLE"
+				mode: me.b_selectionMode ? me.b_selectionMode : "SINGLE"
 			});
 			me.selModel = sm;
 		}
@@ -1737,7 +1737,7 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 			autoHeight: true,
 			border: 0,
 			selModel: sm,
-			height: "100%",
+			height: !me.editable ? "95%" : "100%",
 			columnLines: true,
 			viewConfig:{
 				trackOver: false,
@@ -2092,6 +2092,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 				xtype: "button",
 				text: "绑定费用",
 				handler: function(){
+					me.selectChargeType();
 				}
 			}]	
 		}));
@@ -2178,6 +2179,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 
 		//update panel
 		me.initializeProductsPanel();
+		me.initializeChargeTypePanel();
 	},
 	initializeProductsPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -2314,6 +2316,143 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 
 		me.productsPanel.add(grid);
 		me.productsPanel.doLayout();
+	},
+	initializeChargeTypePanel: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		if (me.chargeTypesPanel.__columns && me.chargeTypesPanel.__columns.length > 0){
+			return;
+		}
+		var columns = me.chargeTypesPanel.__columns = [];
+		var _actions = {
+			xtype: 'actioncolumn',
+			width: 30,
+			items: [
+			]
+		}
+		_actions.items.push("-",{
+			icon: "./resources/themes/images/fam/delete.gif",
+			tooltip: "删除费用",
+			id: "customer_grid_delete",
+			handler: function(grid, rowIndex, colIndex){
+				var d = grid.store.getAt(rowIndex)
+				me.deleteChargeType(d);
+			}
+		}, "-");
+
+		columns.push(_actions);
+		cardServer.GetChargeTypePageData(0, 1, "", {
+			success: function(data){
+				var data = Ext.JSON.decode(data)["MetaData"];
+				var fields = me.chargeTypesPanel.__fields = [];
+				for (var c in data){
+					var meta = data[c];
+					fields.push(meta["FieldName"])
+					if (!meta["FieldHidden"]){
+						columns.push({
+							dataIndex: meta["FieldName"],
+							header: meta["FieldLabel"],
+							flex: 1
+						})
+					}
+				}
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
+	},
+	selectChargeType: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var config = {
+			extend: "Ext.window.Window",
+			title: "选择费用",
+			width: 900,
+			height: 640,
+			autoScroll: true,
+			autoHeight: true,
+			layout: "fit",
+			resizable: true,
+			border: false,
+			modal: true,
+			maximizable: true,
+			border: 0,
+			bodyBorder: false,
+			editable: false
+		}
+		var win = Ext.create("Ext.window.Window", config);
+		win.show();
+
+		win.add(Ext.create("Beet.apps.ProductsViewPort.ChargeList", {
+			b_type: "selection",
+			b_selectionMode: "MULTI",
+			b_selectionCallback: function(records){
+				if (records.length == 0){ win.close(); return;}
+				me.addChargeType(records);
+				win.close();
+			}
+		}));
+		win.doLayout();
+	},
+	addChargeType: function(records){
+		var me = this, selectedChargeType = me.selectedChargeType;
+		var __fields = me.chargeTypesPanel.__fields;
+		for (var r = 0; r < records.length; ++r){
+			var record = records[r];
+			var cid = record.get("CID");
+			var rawData = record.raw;
+			if (selectedChargeType[cid] == undefined){
+				selectedChargeType[cid] = []
+			}else{
+				selectedChargeType[cid] = [];
+			}
+			for (var c = 0; c < __fields.length; ++c){
+				var k = __fields[c];
+				selectedChargeType[cid].push(rawData[k]);
+			}
+		}
+
+		me.updateChargeTypePanel();
+	},
+	deleteChargeType: function(record){
+		var me = this, selectedChargeType = me.selectedChargeType;
+		var cid = record.get("CID");
+		if (selectedChargeType[cid]){
+			selectedChargeType[cid] = null;
+			delete selectedChargeType[cid];
+		}
+
+		me.updateChargeTypePanel();
+	},
+	updateChargeTypePanel: function(){
+		var me = this, selectedChargeType = me.selectedChargeType;
+		var __fields = me.chargeTypesPanel.__fields;
+		var tmp = []
+		for (var c in selectedChargeType){
+			tmp.push(selectedChargeType[c]);
+		}
+		var store = Ext.create("Ext.data.ArrayStore", {
+			fields: __fields,
+			data: tmp
+		})
+
+		if (me.chargeTypesPanel.grid) {
+			me.chargeTypesPanel.remove(me.chargeTypesPanel.grid);
+			me.chargeTypesPanel.grid = null;
+			me.chargeTypesPanel.doLayout();
+		}
+
+		var grid = me.chargeTypesPanel.grid = Ext.create("Ext.grid.Panel", {
+			store: store,
+			minHeight: 50,
+			maxHeight: 480,
+			cls: "iScroll",
+			autoScroll: true,
+			columnLines: true,
+			columns: me.chargeTypesPanel.__columns	
+		});
+
+		me.chargeTypesPanel.add(grid);
+		me.chargeTypesPanel.doLayout();
 	},
 	processData: function(){
 
