@@ -3233,6 +3233,10 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 							me.selectedChargeType = {};
 							me.updateProductsPanel();
 							me.updateChargeTypePanel();
+							if (me.itemList.cache[me.selectedItemId]){
+								me.itemList.cache[me.selectedItemId] = {};
+								delete me.itemList.cache[me.selectedItemId];
+							}
 							me.itemList.store.loadPage(me.itemList.store.currentPage);
 						}
 					});
