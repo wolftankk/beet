@@ -2167,7 +2167,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 					border: 0,
 					bodyStyle: "background-color: #dfe8f5",
 					handler: function(){
-
+						me.processData(this);
 					}
 				}
 			]
@@ -2219,11 +2219,34 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 						})
 					}
 				}
+				me.initializeProductsGrid();
 			},
 			failure: function(error){
 				Ext.Error.raise(error);
 			}
 		});
+	},
+	initializeProductsGrid: function(){
+		var me = this, selectedProducts = me.selectedProducts;
+		var __fields = me.productsPanel.__fields;
+
+		if (me.productsPanel.grid == undefined){
+			var store = Ext.create("Ext.data.ArrayStore", {
+				fields: __fields
+			})
+
+			var grid = me.productsPanel.grid = Ext.create("Ext.grid.Panel", {
+				store: store,
+				height: 448,
+				cls: "iScroll",
+				autoScroll: true,
+				columnLines: true,
+				columns: me.productsPanel.__columns	
+			});
+
+			me.productsPanel.add(grid);
+			me.productsPanel.doLayout();
+		}
 	},
 	selectProducts: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -2289,33 +2312,12 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 	},
 	updateProductsPanel: function(){
 		var me = this, selectedProducts = me.selectedProducts;
-		var __fields = me.productsPanel.__fields;
+		var grid = me.productsPanel.grid, store = grid.getStore();
 		var tmp = []
 		for (var c in selectedProducts){
 			tmp.push(selectedProducts[c]);
 		}
-		var store = Ext.create("Ext.data.ArrayStore", {
-			fields: __fields,
-			data: tmp
-		})
-		if (me.productsPanel.grid) {
-			me.productsPanel.remove(me.productsPanel.grid);
-			me.productsPanel.grid = null;
-			me.productsPanel.doLayout();
-		}
-
-		var grid = me.productsPanel.grid = Ext.create("Ext.grid.Panel", {
-			store: store,
-			minHeight: 50,
-			maxHeight: 480,
-			cls: "iScroll",
-			autoScroll: true,
-			columnLines: true,
-			columns: me.productsPanel.__columns	
-		});
-
-		me.productsPanel.add(grid);
-		me.productsPanel.doLayout();
+		store.loadData(tmp);
 	},
 	initializeChargeTypePanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -2355,11 +2357,31 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 						})
 					}
 				}
+				me.initializeChargeGrid();
 			},
 			failure: function(error){
 				Ext.Error.raise(error);
 			}
 		});
+	},
+	initializeChargeGrid: function(){
+		var me = this, selectedChargeType = me.selectedChargeType;
+		var __fields = me.chargeTypesPanel.__fields;
+		var store = Ext.create("Ext.data.ArrayStore", {
+			fields: __fields
+		})
+
+		var grid = me.chargeTypesPanel.grid = Ext.create("Ext.grid.Panel", {
+			store: store,
+			height: 448,
+			cls: "iScroll",
+			autoScroll: true,
+			columnLines: true,
+			columns: me.chargeTypesPanel.__columns
+		});
+
+		me.chargeTypesPanel.add(grid);
+		me.chargeTypesPanel.doLayout();
 	},
 	selectChargeType: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -2425,36 +2447,19 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 	},
 	updateChargeTypePanel: function(){
 		var me = this, selectedChargeType = me.selectedChargeType;
+		var grid = me.chargeTypesPanel.grid, store = grid.getStore();
 		var __fields = me.chargeTypesPanel.__fields;
 		var tmp = []
 		for (var c in selectedChargeType){
 			tmp.push(selectedChargeType[c]);
 		}
-		var store = Ext.create("Ext.data.ArrayStore", {
-			fields: __fields,
-			data: tmp
-		})
-
-		if (me.chargeTypesPanel.grid) {
-			me.chargeTypesPanel.remove(me.chargeTypesPanel.grid);
-			me.chargeTypesPanel.grid = null;
-			me.chargeTypesPanel.doLayout();
-		}
-
-		var grid = me.chargeTypesPanel.grid = Ext.create("Ext.grid.Panel", {
-			store: store,
-			minHeight: 50,
-			maxHeight: 480,
-			cls: "iScroll",
-			autoScroll: true,
-			columnLines: true,
-			columns: me.chargeTypesPanel.__columns	
-		});
-
-		me.chargeTypesPanel.add(grid);
-		me.chargeTypesPanel.doLayout();
+		store.loadData(tmp);
 	},
-	processData: function(){
+	processData: function(f){
+		var me = this, cardServer = Beet.constants.cardServer,
+			form = f.up("form").getForm(), result = form.getValues();
+		var selectedProducts = me.selectedProducts, selectedChargeType = me.selectedChargeType;
 
+		console.log(result, selectedProducts, selectedChargeType);//
 	}
 });
