@@ -2455,13 +2455,50 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 		store.loadData(tmp);
 	},
 	resetAll: function(){
+		var me = this;
+		//reset all
+		me.selectedChargeType = {};
+		me.selectedProducts = {};	
 
+		me.productsPanel.grid.getStore().loadData([]);
+		me.chargeTypesPanel.grid.getStore().loadData([]);
 	},
 	processData: function(f){
 		var me = this, cardServer = Beet.constants.cardServer,
 			form = f.up("form").getForm(), result = form.getValues();
 		var selectedProducts = me.selectedProducts, selectedChargeType = me.selectedChargeType;
 
-		console.log(result, selectedProducts, selectedChargeType);//
+		//name descript products charges
+		var products = Ext.Object.getKeys(selectedProducts);
+		var charges = Ext.Object.getKeys(selectedChargeType);
+
+		if (products && products.length > 0){
+			result["products"] = products;
+		}
+
+		if (charges && charges.length > 0){
+			result["charges"] = charges;
+		}
+
+		cardServer.AddItem(Ext.JSON.encode(result), {
+			success: function(itemId){
+				if (itemId > 0){
+					Ext.MessageBox.show({
+						title: "提示",
+						msg: "添加项目成功!",
+						buttons: Ext.MessageBox.YESNO,
+						fn: function(btn){
+							if (btn == "yes"){
+								form.reset()
+								me.resetAll();
+							}
+						}
+					});
+				}
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		})
 	}
 });
