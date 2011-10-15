@@ -2057,7 +2057,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 	border: false,
 	bodyBorder: false,
 	plain: true,
-	flex: 1,
 	initComponent: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
 		me.selectedProducts = {};
@@ -2454,6 +2453,9 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			tmp.push(selectedChargeType[c]);
 		}
 		store.loadData(tmp);
+	},
+	resetAll: function(){
+
 	},
 	processData: function(f){
 		var me = this, cardServer = Beet.constants.cardServer,

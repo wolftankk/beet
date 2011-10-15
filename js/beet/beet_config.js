@@ -1,5 +1,5 @@
 Beet.config = {
-	serverUrl: "222.69.227.253",
+	serverUrl: "192.168.1.100",
 	getPrivileUrl: function(){
 		return this.serverUrl + ":6660";
 	},
