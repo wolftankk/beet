@@ -2522,6 +2522,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		me.itemList = {};//save store fields columns and grid
 		me.itemList.cache = {};//cache itemdata
 		me.selectedItemId = 0;
+		me.selectedItemIndex = 0;
 		me.callParent()	
 
 		me.buildStoreAndModel();
@@ -2651,7 +2652,15 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 			}
 		});
 
+		me.itemList.store.on("load", function(){
+			me.fireSelectGridItem();
+		})
+
 		me.createMainPanel();
+	},
+	fireSelectGridItem: function(){
+		var me = this;
+		me.itemList.grid.fireEvent("itemdblclick", me.itemList.grid, me.itemList.store.getAt(me.selectedItemIndex), null, me.selectedItemIndex)
 	},
 	createMainPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -2797,6 +2806,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		//update panel
 		me.initializeProductsPanel();
 		me.initializeChargeTypePanel();
+
 	},
 	initializeProductsPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -3128,6 +3138,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		me.selectedChargeType = {};
 		var itemId = record.get("IID");
 		me.selectedItemId = itemId;
+		me.selectedItemIndex = index;
 		me.form.getForm().setValues({
 			name: record.get("IName"),
 			descript: record.get("IDescript")
@@ -3150,7 +3161,6 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 						success: function(data){
 							var data = Ext.JSON.decode(data)["Data"];
 							me.itemList.cache[itemId].products = data;
-							console.log(data);
 							me.addProducts(data, true);
 						},
 						failure: function(error){
@@ -3219,7 +3229,11 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 						msg: "更新项目成功!",
 						buttons: Ext.MessageBox.OK,
 						fn: function(btn){
-							me.itemList.grid.loadPage(me.itemList.grid.currentPage);
+							me.selectedProducts = {};
+							me.selectedChargeType = {};
+							me.updateProductsPanel();
+							me.updateChargeTypePanel();
+							me.itemList.store.loadPage(me.itemList.store.currentPage);
 						}
 					});
 				}else{
