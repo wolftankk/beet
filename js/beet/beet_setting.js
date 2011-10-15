@@ -199,7 +199,7 @@ registerBeetAppsMenu("configure",
 								if (!item){
 									Beet.workspace.addPanel("itemList", "更新项目", {
 										items: [
-											Ext.create("Beet.apps.ProductsViewPort.itemList")
+											Ext.create("Beet.apps.ProductsViewPort.ItemList")
 										]
 									})
 								}else{

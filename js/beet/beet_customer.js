@@ -180,6 +180,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 	extend: "Ext.panel.Panel",
 	layout: "anchor",
 	height: "100%",
+	width: "100%",
 	autoScroll: true,
 	autoHeight: true,
 	activeItem: 0,
