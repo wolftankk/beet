@@ -2521,6 +2521,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		me.selectedChargeType = {};
 		me.itemList = {};//save store fields columns and grid
 		me.itemList.cache = {};//cache itemdata
+		me.selectedItemId = 0;
 		me.callParent()	
 
 		me.buildStoreAndModel();
@@ -2896,18 +2897,25 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		}));
 		win.doLayout();
 	},
-	addProducts: function(records){
+	addProducts: function(records, isRaw){
 		var me = this, selectedProducts = me.selectedProducts;
 		var __fields = me.productsPanel.__fields;
 		for (var r = 0; r < records.length; ++r){
 			var record = records[r];
-			var pid = record.get("PID");
-			var rawData = record.raw;
+			var pid, rawData;
+			if (isRaw){
+				pid = record["PID"];
+				rawData = record;
+			}else{
+				pid = record.get("PID");
+				rawData = record.raw;
+			}
 			if (selectedProducts[pid] == undefined){
 				selectedProducts[pid] = []
 			}else{
 				selectedProducts[pid] = [];
 			}
+
 			for (var c = 0; c < __fields.length; ++c){
 				var k = __fields[c];
 				selectedProducts[pid].push(rawData[k]);
@@ -3031,13 +3039,19 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		}));
 		win.doLayout();
 	},
-	addChargeType: function(records){
+	addChargeType: function(records, isRaw){
 		var me = this, selectedChargeType = me.selectedChargeType;
 		var __fields = me.chargeTypesPanel.__fields;
 		for (var r = 0; r < records.length; ++r){
 			var record = records[r];
-			var cid = record.get("CID");
-			var rawData = record.raw;
+			var cid, rawData;
+			if (isRaw){
+				cid = record["CID"];
+				rawData = record;
+			}else{
+				cid = record.get("CID");
+				rawData = record.raw;
+			}
 			if (selectedChargeType[cid] == undefined){
 				selectedChargeType[cid] = []
 			}else{
@@ -3110,7 +3124,10 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 	},
 	onSelectItem: function(grid, record, item, index, e){
 		var me = this, cardServer = Beet.constants.cardServer;
+		me.selectedProducts = {};//reset
+		me.selectedChargeType = {};
 		var itemId = record.get("IID");
+		me.selectedItemId = itemId;
 		me.form.getForm().setValues({
 			name: record.get("IName"),
 			descript: record.get("IDescript")
@@ -3120,9 +3137,26 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 			return;
 		}
 		if (me.itemList.cache[itemId] == undefined){
+			me.itemList.cache[itemId] = {};
 			cardServer.GetItemProducts(itemId, {
 				success: function(data){
-					console.log(data);	
+					data = Ext.JSON.decode(data)["products"];
+					var sql = [];
+					for (var c = 0; c < data.length; ++c){
+						sql.push("pid=" + data[c]);
+					}
+					var s = sql.join(" OR ");
+					cardServer.GetProductPageData(1, 1000000, s, {
+						success: function(data){
+							var data = Ext.JSON.decode(data)["Data"];
+							me.itemList.cache[itemId].products = data;
+							console.log(data);
+							me.addProducts(data, true);
+						},
+						failure: function(error){
+							Ext.Error.raise(error)
+						}
+					});
 				},
 				failure: function(error){
 					Ext.Error.raise(error);
@@ -3130,12 +3164,71 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 			})
 			cardServer.GetItemCharges(itemId, {
 				success: function(data){
-					console.log(data);	
+					data = Ext.JSON.decode(data)["charges"];
+					var sql = [];
+					for (var c = 0; c < data.length; ++c){
+						sql.push("cid=" + data[c]);
+					}
+					var s = sql.join(" OR ");
+					cardServer.GetChargeTypePageData(1, 1000000, s, {
+						success: function(data){
+							var data = Ext.JSON.decode(data)["Data"];
+							me.itemList.cache[itemId].charges= data;
+							me.addChargeType(data, true);
+						},
+						failure: function(error){
+							Ext.Error.raise(error)
+						}
+					});
 				},
 				failure: function(error){
 					Ext.Error.raise(error);
 				}
 			})
+		}else{
+			me.addProducts(me.itemList.cache[itemId].products, true);
+			me.addChargeType(me.itemList.cache[itemId].charges, true);
 		}
+	},
+	processData: function(f){
+		var me = this, cardServer = Beet.constants.cardServer,
+			form = f.up("form").getForm(), result = form.getValues();
+		var selectedProducts = me.selectedProducts, selectedChargeType = me.selectedChargeType;
+		if (me.selectedItemId < 0){
+			return;
+		}
+
+		//name descript products charges
+		var products = Ext.Object.getKeys(selectedProducts);
+		var charges = Ext.Object.getKeys(selectedChargeType);
+
+		if (products && products.length > 0){
+			result["products"] = products;
+		}
+
+		if (charges && charges.length > 0){
+			result["charges"] = charges;
+		}
+		result["id"] = me.selectedItemId;
+
+		cardServer.UpdateItem(Ext.JSON.encode(result), {
+			success: function(succ){
+				if (succ){
+					Ext.MessageBox.show({
+						title: "提示",
+						msg: "更新项目成功!",
+						buttons: Ext.MessageBox.OK,
+						fn: function(btn){
+							me.itemList.grid.loadPage(me.itemList.grid.currentPage);
+						}
+					});
+				}else{
+					Ext.Msg.alert("警告", "更新产品失败!!");
+				}
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		})
 	}
 });

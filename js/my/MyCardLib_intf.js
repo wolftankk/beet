@@ -1247,7 +1247,7 @@ MyCardSvc.prototype.DeleteItem = function(ItemID, __callback) {
       timeout : 30000
     }
   }
-  YAHOO.util.Connect.asyncRequest("POST", this.url, __callbacks, YAHOO.util.Lang.JSON.stringify(__message));
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
 MyCardSvc.prototype.GetItemPageData = function(Start, Limit, AWhere, __callback) {
