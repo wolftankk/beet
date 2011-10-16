@@ -3391,7 +3391,13 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 									bodyStyle: "background-color: #dfe8f5",
 									defaults: {
 										bodyStyle: "background-color: #dfe8f5",
-										width: 400
+										width: 400,
+										listeners: {
+											scope: me,
+											blur: function(){
+												me.onUpdateForm();
+											}
+										}
 									},
 									defaultType: "textfield",
 									fieldDefaults: {
@@ -3406,9 +3412,50 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 											name: "name"
 										},
 										{
+											fieldLabel: "总价",
+											allowBlank: false,
+											name: "price"
+										},
+										{
+											fieldLabel: "折扣",
+											allowBlank: false,
+											value: 1,
+											name: "rate"
+										},
+										{
+											fieldLabel: "折扣总价",
+											allowBlank: false,
+											name: "realprice"
+										},
+										{
+											fieldLabel: "消费次数",
+											allowBlank: false,
+											value: 1,
+											name: "stepcount"
+										},
+										{
+											fieldLabel: "单次折扣价格",
+											allowBlank: false,
+											value: 1,
+											name: "_perscaleprice"
+										},
+										{	
+											xtype: "datefield",
+											fieldLabel: "开始日期",
+											allowBlank: false,
+											format: "Y/m/d",
+											value: new Date()
+										},
+										{
+											xtype: "datefield",
+											fieldLabel: "结束日期",
+											allowBlank: false,
+											format: "Y/m/d"
+										},
+										{
 											fieldLabel: "注释",
 											xtype: "textarea",
-											height: 130,
+											height: 230,
 											allowBlank: true,
 											name: "descript"
 										},
@@ -3439,6 +3486,8 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 					scale: "large",
 					width: 100,
 					border: 1,
+					formBind: true,
+					disabled: true,
 					style: {
 						borderColor: "#99BBE8"
 					},
@@ -3742,6 +3791,8 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 
 		me.itemsPanel.grid.getStore().loadData([]);
 		me.chargeTypesPanel.grid.getStore().loadData([]);
+	},
+	onUpdateForm: function(){
 	},
 	processData: function(f){
 		/*
