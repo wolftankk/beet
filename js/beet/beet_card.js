@@ -812,7 +812,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 			return;
 		}
 		result["pid"] = me.selectedProductItem.get("P_PID");
-		console.log(result);
 		cardServer.AddProducts(Ext.JSON.encode(result), {
 			success: function(id){
 				if (id > 0){
@@ -1073,7 +1072,6 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 	},
 	deleteProductItem: function(parentMenu){
 		var me = this, rawData = parentMenu.rawData || parentMenu.raw, pid = rawData["PID"], pname = rawData["PName"], cardServer = Beet.constants.cardServer;
-		console.log(rawData);
 		if (pid){
 			Ext.MessageBox.show({
 				title: "删除消费产品",
@@ -1369,7 +1367,6 @@ Ext.define("Beet.apps.ProductsViewPort.ViewProducts", {
 		
 		result["pid"] = me.selectedProductItem.customable ? me.selectedProductItem["pid"] : me.selectedProductItem.get("P_PID");//productItem id
 		result["id"] = me.rawData["PID"];//products id
-		console.log(result);
 		cardServer.UpdateProducts(Ext.JSON.encode(result), {
 			success: function(succ){
 				if (succ){
@@ -1541,11 +1538,9 @@ Ext.define("Beet.apps.ProductsViewPort.AddCharge", {
 		me.onUpdateForm();//lastupdate
 		var form = f.up("form").getForm(), result = form.getValues();
 
-		console.log(result);
 		result["applyrate"] = result["applyrate"] == 1 ? true : false;
 		result["effective"] = result["effective"] == 1 ? true : false;
 
-		console.log(result);
 		cardServer.AddChargeType(Ext.JSON.encode(result), {
 			success: function(id){
 				if (id > 0){
