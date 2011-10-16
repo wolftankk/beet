@@ -2120,49 +2120,79 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			items: [
 				{
 					layout: {
-						type: "table",
-						columns: 2,
-						tableAttrs: {
-							cellspacing: 10,
-							style: {
-								width: "100%",
-							}
-						}
+						type: "hbox",
+						align: "stretch"
 					},
+					height: 490,
 					autoHeight: true,
+					autoScroll: true,
 					border: false,
 					bodyStyle: "background-color: #dfe8f5",
 					defaults: {
 						bodyStyle: "background-color: #dfe8f5",
+						border: false
 					},
-					defaultType: "textfield",
-					fieldDefaults: {
-						msgTarget: "side",
-						labelAlign: "top",
-						labelWidth: 60
-					},
-					items: [
+					items:[
 						{
-							fieldLabel: "名称",
-							allowBlank: false,
-							name: "name"
+							layout: {
+								type: 'vbox',
+								align: 'stretch'
+							},
+							height: 480,
+							flex: 1,
+							items: [
+								{
+									layout: {
+										type: "table",
+										columns: 1,
+										tableAttrs: {
+											cellspacing: 10,
+											style: {
+												width: "100%",
+											}
+										}
+									},
+									border: false,
+									bodyStyle: "background-color: #dfe8f5",
+									defaults: {
+										bodyStyle: "background-color: #dfe8f5",
+										width: 400
+									},
+									defaultType: "textfield",
+									fieldDefaults: {
+										msgTarget: "side",
+										labelAlign: "top",
+										labelWidth: 60
+									},
+									items: [
+										{
+											fieldLabel: "名称",
+											allowBlank: false,
+											name: "name"
+										},
+										{
+											fieldLabel: "注释",
+											xtype: "textarea",
+											height: 130,
+											allowBlank: true,
+											name: "descript"
+										},
+									]
+								}
+							]
 						},
 						{
-							fieldLabel: "注释",
-							allowBlank: true,
-							name: "descript"
-						},
-					]
-				},
-				{
-					layout: {
-						type: 'hbox',
-						align: 'stretch'
-					},
-					height: 460,
-					items: [
-						me.productsPanel,
-						me.chargeTypesPanel
+							layout: {
+								type: 'vbox',
+								align: 'stretch'
+							},
+							flex: 2,
+							height: 500,
+							items: [
+								me.productsPanel,
+								me.chargeTypesPanel
+							]
+						}
 					]
 				}
 			],
