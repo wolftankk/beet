@@ -3292,3 +3292,972 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		})
 	}
 });
+
+Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
+	extend: "Ext.form.Panel",
+	height: "100%",
+	width: "100%",
+	autoHeight: true,
+	autoScroll:true,
+	frame:true,
+	border: false,
+	bodyBorder: false,
+	plain: true,
+	initComponent: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		me.selectedItems = {};
+		me.selectedChargeType = {};
+
+		me.callParent();	
+		me.createMainPanel();
+	},
+	createMainPanel: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var options = {
+			autoScroll: true,
+			height: 460,
+			cls: "iScroll",
+			border: true,
+			plain: true,
+			flex: 1,
+			bodyStyle: "background-color: #dfe8f5"
+		}
+
+		me.itemsPanel = Ext.widget("panel", Ext.apply(options, {
+			tbar: [{
+				xtype: "button",
+				text: "绑定项目",
+				handler: function(){
+					me.selectItems();
+				}
+			}]	
+		}));
+		me.chargeTypesPanel = Ext.widget("panel", Ext.apply(options, {
+			tbar: [{
+				xtype: "button",
+				text: "绑定费用",
+				handler: function(){
+					me.selectChargeType();
+				}
+			}]	
+		}));
+
+		var config = {
+			autoHeight: true,
+			autoScroll: true,
+			cls: "iScroll",
+			height: "100%",
+			width: "100%",
+			anchor: "fit",	
+			border: false,
+			bodyBorder: false,
+			plain: true,
+			items: [
+				{
+					layout: {
+						type: "hbox",
+						align: "stretch"
+					},
+					height: 490,
+					autoHeight: true,
+					autoScroll: true,
+					border: false,
+					bodyStyle: "background-color: #dfe8f5",
+					defaults: {
+						bodyStyle: "background-color: #dfe8f5",
+						border: false
+					},
+					items:[
+						{
+							layout: {
+								type: 'vbox',
+								align: 'stretch'
+							},
+							height: 480,
+							flex: 1,
+							items: [
+								{
+									layout: {
+										type: "table",
+										columns: 1,
+										tableAttrs: {
+											cellspacing: 10,
+											style: {
+												width: "100%",
+											}
+										}
+									},
+									border: false,
+									bodyStyle: "background-color: #dfe8f5",
+									defaults: {
+										bodyStyle: "background-color: #dfe8f5",
+										width: 400
+									},
+									defaultType: "textfield",
+									fieldDefaults: {
+										msgTarget: "side",
+										labelAlign: "top",
+										labelWidth: 60
+									},
+									items: [
+										{
+											fieldLabel: "名称",
+											allowBlank: false,
+											name: "name"
+										},
+										{
+											fieldLabel: "注释",
+											xtype: "textarea",
+											height: 130,
+											allowBlank: true,
+											name: "descript"
+										},
+									]
+								}
+							]
+						},
+						{
+							layout: {
+								type: 'vbox',
+								align: 'stretch'
+							},
+							flex: 2,
+							height: 500,
+							items: [
+								me.itemsPanel,
+								me.chargeTypesPanel
+							]
+						}
+					]
+				}
+			],
+			bbar:[
+				"->",
+				{
+					text: "新增",
+					xtype: "button",
+					scale: "large",
+					width: 100,
+					border: 1,
+					style: {
+						borderColor: "#99BBE8"
+					},
+					border: 0,
+					bodyStyle: "background-color: #dfe8f5",
+					handler: function(){
+						me.processData(this);
+					}
+				}
+			]
+		};
+		var form = Ext.widget("form", config);
+		me.form = form;
+		me.add(form);
+		me.doLayout();
+
+		//update panel
+		me.initializeItemsPanel();
+		me.initializeChargeTypePanel();
+	},
+	initializeItemsPanel: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		if (me.itemsPanel.__columns && me.itemsPanel.__columns.length > 0){
+			return;
+		}
+		var columns = me.itemsPanel.__columns = [];
+		var _actions = {
+			xtype: 'actioncolumn',
+			width: 30,
+			items: [
+			]
+		}
+		_actions.items.push("-",{
+			icon: "./resources/themes/images/fam/delete.gif",
+			tooltip: "删除消耗产品",
+			id: "customer_grid_delete",
+			handler: function(grid, rowIndex, colIndex){
+				var d = grid.store.getAt(rowIndex)
+				me.deleteItem(d);
+			}
+		}, "-");
+
+		columns.push(_actions);
+		cardServer.GetItemPageData(0, 1, "", {
+			success: function(data){
+				var data = Ext.JSON.decode(data)["MetaData"];
+				var fields = me.itemsPanel.__fields = [];
+				for (var c in data){
+					var meta = data[c];
+					fields.push(meta["FieldName"])
+					if (!meta["FieldHidden"]){
+						columns.push({
+							dataIndex: meta["FieldName"],
+							header: meta["FieldLabel"],
+							flex: 1
+						})
+					}
+				}
+				me.initializeItemsGrid();
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
+	},
+	initializeItemsGrid: function(){
+		var me = this, selectedItems = me.selectedItems;
+		var __fields = me.itemsPanel.__fields;
+
+		if (me.itemsPanel.grid == undefined){
+			var store = Ext.create("Ext.data.ArrayStore", {
+				fields: __fields
+			})
+
+			var grid = me.itemsPanel.grid = Ext.create("Ext.grid.Panel", {
+				store: store,
+				height: 215,
+				cls: "iScroll",
+				autoScroll: true,
+				columnLines: true,
+				columns: me.itemsPanel.__columns	
+			});
+
+			me.itemsPanel.add(grid);
+			me.itemsPanel.doLayout();
+		}
+	},
+	selectItems: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var config = {
+			extend: "Ext.window.Window",
+			title: "选择项目",
+			width: 1000,
+			height: 640,
+			autoScroll: true,
+			autoHeight: true,
+			layout: "fit",
+			resizable: true,
+			border: false,
+			modal: true,
+			maximizable: true,
+			border: 0,
+			bodyBorder: false,
+			editable: false
+		}
+		var win = Ext.create("Ext.window.Window", config);
+		win.show();
+
+		win.add(Ext.create("Beet.apps.ProductsViewPort.ItemListWindow", {
+			b_type: "selection",
+			b_selectionMode: "MULTI",
+			b_selectionCallback: function(records){
+				if (records.length == 0){ win.close(); return;}
+				me.addItems(records);
+				win.close();
+			}
+		}));
+		win.doLayout();
+	},
+	addItems: function(records){
+		var me = this, selectedItems = me.selectedItems;
+		var __fields = me.itemsPanel.__fields;
+		for (var r = 0; r < records.length; ++r){
+			var record = records[r];
+			var id = record.get("IID");
+			var rawData = record.raw;
+			if (selectedItems[id] == undefined){
+				selectedItems[id] = []
+			}else{
+				selectedItems[id] = [];
+			}
+			for (var c = 0; c < __fields.length; ++c){
+				var k = __fields[c];
+				selectedItems[id].push(rawData[k]);
+			}
+		}
+
+		me.updateItemsPanel();
+	},
+	deleteItem: function(record){
+		var me = this, selectedItems = me.selectedItems;
+		var id = record.get("IID");
+		if (selectedItems[id]){
+			selectedItems[id] = null;
+			delete selectedItems[id];
+		}
+
+		me.updateItemsPanel();
+	},
+	updateItemsPanel: function(){
+		var me = this, selectedItems = me.selectedItems;
+		var grid = me.itemsPanel.grid, store = grid.getStore();
+		var tmp = []
+		for (var c in selectedItems){
+			tmp.push(selectedItems[c]);
+		}
+		store.loadData(tmp);
+	},
+	initializeChargeTypePanel: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		if (me.chargeTypesPanel.__columns && me.chargeTypesPanel.__columns.length > 0){
+			return;
+		}
+		var columns = me.chargeTypesPanel.__columns = [];
+		var _actions = {
+			xtype: 'actioncolumn',
+			width: 30,
+			items: [
+			]
+		}
+		_actions.items.push("-",{
+			icon: "./resources/themes/images/fam/delete.gif",
+			tooltip: "删除费用",
+			id: "customer_grid_delete",
+			handler: function(grid, rowIndex, colIndex){
+				var d = grid.store.getAt(rowIndex)
+				me.deleteChargeType(d);
+			}
+		}, "-");
+
+		columns.push(_actions);
+		cardServer.GetChargeTypePageData(0, 1, "", {
+			success: function(data){
+				var data = Ext.JSON.decode(data)["MetaData"];
+				var fields = me.chargeTypesPanel.__fields = [];
+				for (var c in data){
+					var meta = data[c];
+					fields.push(meta["FieldName"])
+					if (!meta["FieldHidden"]){
+						columns.push({
+							dataIndex: meta["FieldName"],
+							header: meta["FieldLabel"],
+							flex: 1
+						})
+					}
+				}
+				me.initializeChargeGrid();
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
+	},
+	initializeChargeGrid: function(){
+		var me = this, selectedChargeType = me.selectedChargeType;
+		var __fields = me.chargeTypesPanel.__fields;
+		var store = Ext.create("Ext.data.ArrayStore", {
+			fields: __fields
+		})
+
+		var grid = me.chargeTypesPanel.grid = Ext.create("Ext.grid.Panel", {
+			store: store,
+			height: 215,
+			cls: "iScroll",
+			autoScroll: true,
+			columnLines: true,
+			columns: me.chargeTypesPanel.__columns
+		});
+
+		me.chargeTypesPanel.add(grid);
+		me.chargeTypesPanel.doLayout();
+	},
+	selectChargeType: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var config = {
+			extend: "Ext.window.Window",
+			title: "选择费用",
+			width: 900,
+			height: 640,
+			autoScroll: true,
+			autoHeight: true,
+			layout: "fit",
+			resizable: true,
+			border: false,
+			modal: true,
+			maximizable: true,
+			border: 0,
+			bodyBorder: false,
+			editable: false
+		}
+		var win = Ext.create("Ext.window.Window", config);
+		win.show();
+
+		win.add(Ext.create("Beet.apps.ProductsViewPort.ChargeList", {
+			b_type: "selection",
+			b_selectionMode: "MULTI",
+			b_selectionCallback: function(records){
+				if (records.length == 0){ win.close(); return;}
+				me.addChargeType(records);
+				win.close();
+			}
+		}));
+		win.doLayout();
+	},
+	addChargeType: function(records){
+		var me = this, selectedChargeType = me.selectedChargeType;
+		var __fields = me.chargeTypesPanel.__fields;
+		for (var r = 0; r < records.length; ++r){
+			var record = records[r];
+			var cid = record.get("CID");
+			var rawData = record.raw;
+			if (selectedChargeType[cid] == undefined){
+				selectedChargeType[cid] = []
+			}else{
+				selectedChargeType[cid] = [];
+			}
+			for (var c = 0; c < __fields.length; ++c){
+				var k = __fields[c];
+				selectedChargeType[cid].push(rawData[k]);
+			}
+		}
+
+		me.updateChargeTypePanel();
+	},
+	deleteChargeType: function(record){
+		var me = this, selectedChargeType = me.selectedChargeType;
+		var cid = record.get("CID");
+		if (selectedChargeType[cid]){
+			selectedChargeType[cid] = null;
+			delete selectedChargeType[cid];
+		}
+
+		me.updateChargeTypePanel();
+	},
+	updateChargeTypePanel: function(){
+		var me = this, selectedChargeType = me.selectedChargeType;
+		var grid = me.chargeTypesPanel.grid, store = grid.getStore();
+		var __fields = me.chargeTypesPanel.__fields;
+		var tmp = []
+		for (var c in selectedChargeType){
+			tmp.push(selectedChargeType[c]);
+		}
+		store.loadData(tmp);
+	},
+
+	resetAll: function(){
+		var me = this;
+		//reset all
+		me.selectedChargeType = {};
+		me.selectedItems = {};	
+
+		me.itemsPanel.grid.getStore().loadData([]);
+		me.chargeTypesPanel.grid.getStore().loadData([]);
+	},
+	processData: function(f){
+		/*
+		var me = this, cardServer = Beet.constants.cardServer,
+			form = f.up("form").getForm(), result = form.getValues();
+		var selectedProducts = me.selectedProducts, selectedChargeType = me.selectedChargeType;
+
+		//name descript products charges
+		var products = Ext.Object.getKeys(selectedProducts);
+		var charges = Ext.Object.getKeys(selectedChargeType);
+
+		if (products && products.length > 0){
+			result["products"] = products;
+		}
+
+		if (charges && charges.length > 0){
+			result["charges"] = charges;
+		}
+
+		cardServer.AddItem(Ext.JSON.encode(result), {
+			success: function(itemId){
+				if (itemId > 0){
+					Ext.MessageBox.show({
+						title: "提示",
+						msg: "添加项目成功!",
+						buttons: Ext.MessageBox.YESNO,
+						fn: function(btn){
+							if (btn == "yes"){
+								form.reset()
+								me.resetAll();
+							}
+						}
+					});
+				}
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		})
+		*/
+	}
+});
+
+
+//用户选择itemlist
+Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
+	extend: "Ext.panel.Panel",
+	height: "100%",
+	width: "100%",
+	autoHeight: true,
+	autoScroll:true,
+	frame:true,
+	border: false,
+	bodyBorder: false,
+	plain: true,
+	b_filter: "",
+	initComponent: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		me.selectedProducts = {};
+		me.selectedChargeType = {};
+		me.itemList = {};//save store fields columns and grid
+		me.itemList.cache = {};//cache itemdata
+		me.selectedItemId = 0;
+		me.selectedItemIndex = 0;
+		me.callParent()	
+
+		me.buildStoreAndModel();
+	},
+	buildStoreAndModel: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var columns = me.itemList.__columns = [];
+		
+		cardServer.GetItemPageData(0, 1, "", {
+			success: function(data){
+				var data = Ext.JSON.decode(data)["MetaData"];
+				var fields = me.itemList.__fields = [];
+				for (var c in data){
+					var meta = data[c];
+					fields.push(meta["FieldName"])
+					if (!meta["FieldHidden"]){
+						columns.push({
+							dataIndex: meta["FieldName"],
+							header: meta["FieldLabel"],
+							flex: 1
+						})
+					}
+				}
+				
+				if (!Beet.apps.ProductsViewPort.itemModel){
+					Ext.define("Beet.apps.ProductsViewPort.itemModel", {
+						extend: "Ext.data.Model",
+						fields: fields
+					});
+				}
+
+				if (!Beet.apps.ProductsViewPort.itemStore){
+					Ext.define("Beet.apps.ProductsViewPort.itemStore", {
+						extend: "Ext.data.Store",
+						model: Beet.apps.ProductsViewPort.itemModel,
+						autoLoad: true,
+						pageSize: Beet.constants.PageSize,
+						load: function(options){
+							var that = this, options = options || {};
+							if (Ext.isFunction(options)){
+								options = {
+									callback: options
+								};
+							}
+
+							Ext.applyIf(options, {
+								groupers: that.groupers.items,
+								page: that.currentPage,
+								start: (that.currentPage - 1) * Beet.constants.PageSize,
+								limit: Beet.constants.PageSize,
+								addRecords: false
+							});
+							
+							that.proxy.b_params["start"] = options["start"];
+							that.proxy.b_params["limit"] = options["limit"];
+
+							return that.callParent([options]);
+						},
+						proxy: {
+							type: "b_proxy",
+							b_method: cardServer.GetItemPageData,
+							startParam: "start",
+							limitParam: "limit",
+							b_params: {
+								"awhere" : me.b_filter
+							},
+							b_scope: Beet.constants.cardServer,
+							reader: {
+								type: "json",
+								root: "Data",
+								totalProperty: "TotalCount"
+							}
+						}
+					});
+				}
+
+
+				me.initializeItemGrid();
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
+	},
+	initializeItemGrid: function(){
+		var me = this;
+		var __fields = me.itemList.__fields;
+		var store = me.itemList.store = Ext.create("Beet.apps.ProductsViewPort.itemStore");
+		if (me.b_type == "selection"){
+			var sm = Ext.create("Ext.selection.CheckboxModel", {
+				mode: me.b_selectionMode ? me.b_selectionMode : "SINGLE"
+			});
+			me.selModel = sm;
+		}
+
+		var grid = me.itemList.grid = Ext.create("Ext.grid.Panel", {
+			autoHeight: true,
+			height: "100%",
+			cls:"iScroll",
+			autoScroll: true,
+			border: true,
+			plain: true,
+			flex: 1,
+			store: store,
+			selModel: me.selModel,
+			columnLines: true,
+			columns: me.itemList.__columns,
+			bbar: Ext.create("Ext.PagingToolbar", {
+				store: store,
+				displayInfo: true,
+				displayMsg: '当前显示 {0} - {1} 到 {2}',
+				emptyMsg: "没有数据"
+			}),
+			listeners: {
+				itemdblclick: function(grid, record, item, index, e){
+					me.onSelectItem(grid, record, item, index, e);	
+				}
+			}
+		});
+
+		me.createMainPanel();
+	},
+	createMainPanel: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var options = {
+			autoScroll: true,
+			height: 240,
+			cls: "iScroll",
+			border: true,
+			plain: true,
+			flex: 1,
+			bodyStyle: "background-color: #dfe8f5"
+		}
+
+		me.productsPanel = Ext.widget("panel", Ext.apply(options, {
+			title: "消费产品"
+		}));
+		me.chargeTypesPanel = Ext.widget("panel", Ext.apply(options, {
+			title: "费用"
+		}));
+
+		var config = {
+			autoHeight: true,
+			autoScroll: true,
+			cls: "iScroll",
+			height: "95%",
+			width: "100%",
+			anchor: "fit",	
+			border: false,
+			bodyBorder: false,
+			plain: true,
+			bodyStyle: "background-color: #dfe8f5",
+			items: [
+				{
+					layout: {
+						type: "hbox",
+						align: "stretch"
+					},
+					height: 550,
+					autoHeight: true,
+					autoScroll: true,
+					border: false,
+					bodyStyle: "background-color: #dfe8f5",
+					defaults: {
+						bodyStyle: "background-color: #dfe8f5",
+						border: false
+					},
+					items:[
+						{
+							layout: {
+								type: 'vbox',
+								align: 'stretch'
+							},
+							height: 550,
+							flex: 1,
+							items: [
+								me.itemList.grid
+							]
+						},
+						{
+							layout: {
+								type: 'vbox',
+								align: 'stretch'
+							},
+							flex: 2,
+							height: 550,
+							items: [
+								me.productsPanel,
+								me.chargeTypesPanel
+							]
+						}
+					]
+				}
+			]
+		};
+		var form = Ext.widget("form", config);
+		me.form = form;
+		me.add(form);
+		me.doLayout();
+
+		//update panel
+		me.initializeProductsPanel();
+		me.initializeChargeTypePanel();
+
+		if (me.b_type == "selection"){
+			me.add(Ext.widget("button", {
+				text: "确定",
+				handler: function(){
+					if (me.b_selectionCallback){
+						me.b_selectionCallback(me.selModel.getSelection());
+					}
+				}
+			}))
+			me.doLayout();
+		}
+	},
+	initializeProductsPanel: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		if (me.productsPanel.__columns && me.productsPanel.__columns.length > 0){
+			return;
+		}
+		var columns = me.productsPanel.__columns = [];
+
+		cardServer.GetProductPageData(0, 1, "", {
+			success: function(data){
+				var data = Ext.JSON.decode(data)["MetaData"];
+				var fields = me.productsPanel.__fields = [];
+				for (var c in data){
+					var meta = data[c];
+					fields.push(meta["FieldName"])
+					if (!meta["FieldHidden"]){
+						columns.push({
+							dataIndex: meta["FieldName"],
+							header: meta["FieldLabel"],
+							flex: 1
+						})
+					}
+				}
+				me.initializeProductsGrid();
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
+	},
+	initializeProductsGrid: function(){
+		var me = this, selectedProducts = me.selectedProducts;
+		var __fields = me.productsPanel.__fields;
+
+		if (me.productsPanel.grid == undefined){
+			var store = Ext.create("Ext.data.ArrayStore", {
+				fields: __fields
+			})
+
+			var grid = me.productsPanel.grid = Ext.create("Ext.grid.Panel", {
+				store: store,
+				height: 255,
+				cls: "iScroll",
+				autoScroll: true,
+				columnLines: true,
+				columns: me.productsPanel.__columns	
+			});
+
+			me.productsPanel.add(grid);
+			me.productsPanel.doLayout();
+		}
+	},
+	addProducts: function(records, isRaw){
+		var me = this, selectedProducts = me.selectedProducts;
+		var __fields = me.productsPanel.__fields;
+		for (var r = 0; r < records.length; ++r){
+			var record = records[r];
+			var pid, rawData;
+			if (isRaw){
+				pid = record["PID"];
+				rawData = record;
+			}else{
+				pid = record.get("PID");
+				rawData = record.raw;
+			}
+			if (selectedProducts[pid] == undefined){
+				selectedProducts[pid] = []
+			}else{
+				selectedProducts[pid] = [];
+			}
+
+			for (var c = 0; c < __fields.length; ++c){
+				var k = __fields[c];
+				selectedProducts[pid].push(rawData[k]);
+			}
+		}
+
+		me.updateProductsPanel();
+	},
+	updateProductsPanel: function(){
+		var me = this, selectedProducts = me.selectedProducts;
+		var grid = me.productsPanel.grid, store = grid.getStore();
+		var tmp = []
+		for (var c in selectedProducts){
+			tmp.push(selectedProducts[c]);
+		}
+		store.loadData(tmp);
+	},
+	initializeChargeTypePanel: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		if (me.chargeTypesPanel.__columns && me.chargeTypesPanel.__columns.length > 0){
+			return;
+		}
+		var columns = me.chargeTypesPanel.__columns = [];
+		cardServer.GetChargeTypePageData(0, 1, "", {
+			success: function(data){
+				var data = Ext.JSON.decode(data)["MetaData"];
+				var fields = me.chargeTypesPanel.__fields = [];
+				for (var c in data){
+					var meta = data[c];
+					fields.push(meta["FieldName"])
+					if (!meta["FieldHidden"]){
+						columns.push({
+							dataIndex: meta["FieldName"],
+							header: meta["FieldLabel"],
+							flex: 1
+						})
+					}
+				}
+				me.initializeChargeGrid();
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
+	},
+	initializeChargeGrid: function(){
+		var me = this, selectedChargeType = me.selectedChargeType;
+		var __fields = me.chargeTypesPanel.__fields;
+		var store = Ext.create("Ext.data.ArrayStore", {
+			fields: __fields
+		})
+
+		var grid = me.chargeTypesPanel.grid = Ext.create("Ext.grid.Panel", {
+			store: store,
+			height: 255,
+			cls: "iScroll",
+			autoScroll: true,
+			columnLines: true,
+			columns: me.chargeTypesPanel.__columns
+		});
+
+		me.chargeTypesPanel.add(grid);
+		me.chargeTypesPanel.doLayout();
+	},
+	addChargeType: function(records, isRaw){
+		var me = this, selectedChargeType = me.selectedChargeType;
+		var __fields = me.chargeTypesPanel.__fields;
+		for (var r = 0; r < records.length; ++r){
+			var record = records[r];
+			var cid, rawData;
+			if (isRaw){
+				cid = record["CID"];
+				rawData = record;
+			}else{
+				cid = record.get("CID");
+				rawData = record.raw;
+			}
+			if (selectedChargeType[cid] == undefined){
+				selectedChargeType[cid] = []
+			}else{
+				selectedChargeType[cid] = [];
+			}
+			for (var c = 0; c < __fields.length; ++c){
+				var k = __fields[c];
+				selectedChargeType[cid].push(rawData[k]);
+			}
+		}
+
+		me.updateChargeTypePanel();
+	},
+	updateChargeTypePanel: function(){
+		var me = this, selectedChargeType = me.selectedChargeType;
+		var grid = me.chargeTypesPanel.grid, store = grid.getStore();
+		var __fields = me.chargeTypesPanel.__fields;
+		var tmp = []
+		for (var c in selectedChargeType){
+			tmp.push(selectedChargeType[c]);
+		}
+		store.loadData(tmp);
+	},
+	onSelectItem: function(grid, record, item, index, e){
+		var me = this, cardServer = Beet.constants.cardServer;
+		me.selectedProducts = {};//reset
+		me.selectedChargeType = {};
+		var itemId = record.get("IID");
+		me.selectedItemId = itemId;
+		me.selectedItemIndex = index;
+		me.form.getForm().setValues({
+			name: record.get("IName"),
+			descript: record.get("IDescript")
+		});
+		if (itemId <= 0){
+			Ext.Msg.alert("错误", "项目ID非法!");
+			return;
+		}
+		if (me.itemList.cache[itemId] == undefined){
+			me.itemList.cache[itemId] = {};
+			cardServer.GetItemProducts(itemId, {
+				success: function(data){
+					data = Ext.JSON.decode(data)["products"];
+					var sql = [];
+					for (var c = 0; c < data.length; ++c){
+						sql.push("pid=" + data[c]);
+					}
+					var s = sql.join(" OR ");
+					cardServer.GetProductPageData(1, 1000000, s, {
+						success: function(data){
+							var data = Ext.JSON.decode(data)["Data"];
+							me.itemList.cache[itemId].products = data;
+							me.addProducts(data, true);
+						},
+						failure: function(error){
+							Ext.Error.raise(error)
+						}
+					});
+				},
+				failure: function(error){
+					Ext.Error.raise(error);
+				}
+			})
+			cardServer.GetItemCharges(itemId, {
+				success: function(data){
+					data = Ext.JSON.decode(data)["charges"];
+					var sql = [];
+					for (var c = 0; c < data.length; ++c){
+						sql.push("cid=" + data[c]);
+					}
+					var s = sql.join(" OR ");
+					cardServer.GetChargeTypePageData(1, 1000000, s, {
+						success: function(data){
+							var data = Ext.JSON.decode(data)["Data"];
+							me.itemList.cache[itemId].charges= data;
+							me.addChargeType(data, true);
+						},
+						failure: function(error){
+							Ext.Error.raise(error)
+						}
+					});
+				},
+				failure: function(error){
+					Ext.Error.raise(error);
+				}
+			})
+		}else{
+			me.addProducts(me.itemList.cache[itemId].products, true);
+			me.addChargeType(me.itemList.cache[itemId].charges, true);
+		}
+	}
+});

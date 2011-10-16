@@ -80,8 +80,8 @@ registerBeetAppsMenu("configure",
 				},
 				{
 					title: "产品管理",
-					width: 320,
-					columns: 4,
+					width: 400,
+					columns: 6,
 					autoWidth: true,
 					items: [
 						{
@@ -100,11 +100,11 @@ registerBeetAppsMenu("configure",
 							}
 						},
 						{
-							text: "更新产品",
+							text: "编辑产品",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["productItemList"];
 								if (!item){
-									Beet.workspace.addPanel("productItemList", "更新产品", {
+									Beet.workspace.addPanel("productItemList", "编辑产品", {
 										items: [
 											Ext.create("Beet.apps.ProductsViewPort.UpdateProductItem")
 										]
@@ -130,11 +130,11 @@ registerBeetAppsMenu("configure",
 							}
 						},
 						{
-							text: "更新消费产品",
+							text: "编辑消费产品",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["productsList"];
 								if (!item){
-									Beet.workspace.addPanel("productsList", "更新消费产品", {
+									Beet.workspace.addPanel("productsList", "编辑消费产品", {
 										items: [
 											Ext.create("Beet.apps.ProductsViewPort.UpdateProducts")
 										]
@@ -162,11 +162,11 @@ registerBeetAppsMenu("configure",
 							}
 						},
 						{
-							text: "更新费用",
+							text: "编辑费用",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["chargeList"];
 								if (!item){
-									Beet.workspace.addPanel("chargeList", "更新费用", {
+									Beet.workspace.addPanel("chargeList", "编辑费用", {
 										items: [
 											Ext.create("Beet.apps.ProductsViewPort.UpdateCharge")
 										]
@@ -193,11 +193,11 @@ registerBeetAppsMenu("configure",
 							}
 						},
 						{
-							text: "更新项目",
+							text: "编辑项目",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["itemList"]
 								if (!item){
-									Beet.workspace.addPanel("itemList", "更新项目", {
+									Beet.workspace.addPanel("itemList", "编辑项目", {
 										items: [
 											Ext.create("Beet.apps.ProductsViewPort.ItemList")
 										]
@@ -206,6 +206,24 @@ registerBeetAppsMenu("configure",
 									Beet.workspace.workspace.setActiveTab(item);
 								}
 							}
+						},
+						{
+							text: "增加套餐",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["addPackage"]
+								if (!item){
+									Beet.workspace.addPanel("addPackage", "增加套餐", {
+										items: [
+											Ext.create("Beet.apps.ProductsViewPort.AddPackage")
+										]
+									})
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						},
+						{
+							text: "编辑套餐"
 						}
 					]
 				}
