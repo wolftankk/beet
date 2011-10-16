@@ -229,6 +229,7 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 					editable: false,
 					name: "emindate",
 					format: "Y/m/d",
+					value: new Date(),
 					allowBlank: false
 				},
 				{
