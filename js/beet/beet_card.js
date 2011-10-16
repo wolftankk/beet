@@ -906,7 +906,11 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 			});
 		}
 
-		if (!Beet.apps.ProductsViewPort.ProductsStore){
+		//need reset?
+		//if (!Beet.apps.ProductsViewPort.ProductsStore){
+		if (Beet.apps.ProductsViewPort.ProductsStore){
+			Beet.apps.ProductsViewPort.ProductsStore = null;
+		}
 			Ext.define("Beet.apps.ProductsViewPort.ProductsStore", {
 				extend: "Ext.data.Store",
 				model: Beet.apps.ProductsViewPort.ProductsModel,
@@ -940,7 +944,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 					startParam: "start",
 					limitParam: "limit",
 					b_params: {
-						"awhere" : ""
+						"awhere" : me.b_filter
 					},
 					b_scope: Beet.constants.cardServer,
 					reader: {
@@ -950,7 +954,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 					}
 				}
 			});
-		}
+		//}
 
 		me.createGrid();
 	},
@@ -2690,7 +2694,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		});
 
 		me.itemList.store.on("load", function(){
-			if (me.itemList.getCount() > 0){
+			if (me.itemList.store.getCount() > 0){
 				me.fireSelectGridItem();
 			}
 		})
@@ -2932,19 +2936,34 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 			bodyBorder: false,
 			editable: false
 		}
-		var win = Ext.create("Ext.window.Window", config);
-		win.show();
-
-		win.add(Ext.create("Beet.apps.ProductsViewPort.ProductsList", {
-			b_type: "selection",
-			b_selectionMode: "MULTI",
-			b_selectionCallback: function(records){
-				if (records.length == 0){ win.close(); return;}
-				me.addProducts(records);
-				win.close();
+		
+		cardServer.GetProductPageData(0, 1, "", {
+			success: function(data){
+				var win = Ext.create("Beet.apps.AdvanceSearch", {
+					searchData: Ext.JSON.decode(data),
+					b_callback: function(where){
+						var win = Ext.create("Ext.window.Window", config);
+						win.show();
+						win.add(Ext.create("Beet.apps.ProductsViewPort.ProductsList", {
+							b_filter: where,
+							b_type: "selection",
+							b_selectionMode: "MULTI",
+							b_selectionCallback: function(records){
+								if (records.length == 0){ win.close(); return;}
+								me.addProducts(records);
+								win.close();
+							}
+						}));
+						win.doLayout();
+					}
+				})
+				win.show();
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
 			}
-		}));
-		win.doLayout();
+		});
+
 	},
 	addProducts: function(records, isRaw){
 		var me = this, selectedProducts = me.selectedProducts;
