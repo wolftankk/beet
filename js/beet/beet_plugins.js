@@ -677,7 +677,7 @@ Beet.constants.OperatorsList = Ext.create("Ext.data.Store", {
 		{ attr: "<", name: "小于"},
 		{ attr: "<=", name: "小于等于"},
 		{ attr: "=", name: "等于"},
-		{ attr: "<>", name: "不等于"},
+		{ attr: "!=", name: "不等于"},
 		{ attr: "LIKE", name: "约等于"}
 	]
 });

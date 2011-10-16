@@ -164,7 +164,6 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 					}
 					filters.push(key + " " + op + " " + value);
 				}
-				
 				me.up("form").search(filters.join(" AND "));
 			}
 		}
@@ -233,7 +232,6 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 		var store = Ext.create("Beet.apps.CustomerSearchEngine.Store");
 		me.storeProxy = store;
 
-
 		var grid = Ext.create("Beet.apps.CustomerSearchEngine.GridList", {
 			store: store,
 			columns: me._colunms,
@@ -248,10 +246,8 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 				grid
 			]
 		});
-
-		
+		Beet.apps.CustomerSearchEngine.Store = null;
 		Beet.cache.AdvanceSearchWin.close();
-
 	},
 	editCustomerFn: function(parentMenu){
 		var that = this, rawData = parentMenu.rawData || parentMenu.raw, CTGUID = rawData.CTGUID, CTName = rawData.CTName;
