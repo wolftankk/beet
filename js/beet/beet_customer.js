@@ -994,6 +994,7 @@ Ext.define("Beet.apps.Viewport.SendMessages", {
 	extend: "Ext.panel.Panel",
 	layout: "anchor",
 	height: "100%",
+	width: "100%",
 	defaults:{
 		border: 0
 	},
@@ -1121,6 +1122,7 @@ Ext.define("Beet.apps.Viewport.SMSHistory", {
 	extend: "Ext.panel.Panel",
 	layout: "anchor",
 	height: "100%",
+	width: "100%",
 	autoHeight: true,
 	autoScroll: true,
 	border: 0,
@@ -1137,6 +1139,7 @@ Ext.define("Beet.apps.Viewport.VIPActivity", {
 	extend: "Ext.panel.Panel",
 	layout: "anchor",
 	height: "100%",
+	width: "100%",
 	autoHeight: true,
 	defaults:{
 		border: 0
@@ -1462,6 +1465,7 @@ Ext.define("Beet.apps.Viewport.ActivityList", {
 	extend: "Ext.panel.Panel",
 	frame: true,
 	height: "100%",
+	width: "100%",
 	autoHeight: true,
 	autoScroll: true,
 	initComponent: function(){

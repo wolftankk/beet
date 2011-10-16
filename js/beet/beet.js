@@ -136,6 +136,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 	extend: "Ext.toolbar.Toolbar",
 	alias: "widget.BeetMenuBar",
 	height: 30,
+	width: "100%",
 	cls: "beet-navigationbar",
 	useQuickTips: true,
 	//设置两个私有属性, 为了与ext不冲突 使用 b_xxx 命名
@@ -744,6 +745,9 @@ Beet.apps.Viewport.getCTTypeData = function(__callback, force){
 		//debugger;
 		customerServer.GetCTTypeDataToJSON("CustomerType='"+st+"'", true, {
 			success: function(data){
+				if (data == undefined || data == "" ){
+					return;
+				}
 				data = Ext.JSON.decode(data);
 				var sid = data["category"][0]["serviceid"], _tmp = [];
 				_preprocess(data, _tmp);

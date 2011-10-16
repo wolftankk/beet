@@ -32,6 +32,7 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 	bodyBorder: 0,
 	border: 0,
 	height: "100%",
+	width: "100%",
 	flex: 1,
 	autoHeight: true,
 	autoScroll: true,

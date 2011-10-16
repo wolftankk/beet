@@ -281,6 +281,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 		align: "stretch",
 	},
 	height: "100%",
+	width: "100%",
 	shadow: true,
 	cls: "iScroll",
 	frame: true,

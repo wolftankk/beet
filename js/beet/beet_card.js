@@ -23,6 +23,7 @@ Ext.namespace("Beet.apps.ProductsViewPort");
 Ext.define("Beet.apps.ProductsViewPort.AddProductItem", {
 	extend: "Ext.form.Panel",
 	height: "100%",
+	width: "100%",
 	autoHeight: true,
 	autoScroll:true,
 	frame:true,
@@ -162,6 +163,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductItemsList", {
 	autoHeight: true,
 	autoScroll: true,
 	height: "100%",
+	width: "100%",
 	frame: true,
 	border: false,
 	shadow: true,
@@ -321,6 +323,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductItemsList", {
 			border: 0,
 			selModel: sm,
 			height: me.editable ? "100%" : "95%",
+			width: "100%",
 			columnLines: true,
 			viewConfig:{
 				trackOver: false,
@@ -594,6 +597,7 @@ Ext.define("Beet.apps.ProductsViewPort.ViewProductItem", {
 Ext.define("Beet.apps.ProductsViewPort.UpdateProductItem", {
 	extend: "Ext.panel.Panel",
 	height: "100%",
+	width: "100%",
 	border: false,
 	plain: true,
 	initComponent: function(){
@@ -607,6 +611,7 @@ Ext.define("Beet.apps.ProductsViewPort.UpdateProductItem", {
 Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 	extend: "Ext.form.Panel",
 	height: "100%",
+	width: "100%",
 	autoHeight: true,
 	autoScroll:true,
 	frame:true,
@@ -836,6 +841,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 Ext.define("Beet.apps.ProductsViewPort.UpdateProducts", {
 	extend: "Ext.panel.Panel",
 	height: "100%",
+	width: "100%",
 	border: false,
 	plain: true,
 	initComponent: function(){
@@ -851,6 +857,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 	autoHeight: true,
 	autoScroll: true,
 	height: "100%",
+	width: "100%",
 	frame: true,
 	border: false,
 	shadow: true,
@@ -1392,6 +1399,7 @@ Ext.define("Beet.apps.ProductsViewPort.ViewProducts", {
 Ext.define("Beet.apps.ProductsViewPort.AddCharge", {
 	extend: "Ext.form.Panel",
 	height: "100%",
+	width: "100%",
 	autoHeight: true,
 	autoScroll:true,
 	frame:true,
@@ -1566,6 +1574,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddCharge", {
 Ext.define("Beet.apps.ProductsViewPort.UpdateCharge", {
 	extend: "Ext.panel.Panel",
 	height: "100%",
+	width: "100%",
 	border: false,
 	plain: true,
 	initComponent: function(){
@@ -1581,6 +1590,7 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 	autoHeight: true,
 	autoScroll: true,
 	height: "100%",
+	width: "100%",
 	frame: true,
 	border: false,
 	shadow: true,
@@ -2070,7 +2080,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 		var me = this, cardServer = Beet.constants.cardServer;
 		var options = {
 			autoScroll: true,
-			height: 480,
+			height: 460,
 			cls: "iScroll",
 			border: true,
 			plain: true,
@@ -2149,7 +2159,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 						type: 'hbox',
 						align: 'stretch'
 					},
-					height: 480,
+					height: 460,
 					items: [
 						me.productsPanel,
 						me.chargeTypesPanel
@@ -2159,8 +2169,10 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			bbar:[
 				"->",
 				{
-					text: "提交",
+					text: "新增",
 					xtype: "button",
+					scale: "large",
+					width: 100,
 					border: 1,
 					style: {
 						borderColor: "#99BBE8"

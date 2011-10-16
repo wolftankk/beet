@@ -906,6 +906,7 @@ Ext.define("Beet.apps.EmployeeSettingViewPort.Viewport", {
 		type: "hbox",
 		align: "stretch"
 	},
+	width: "100%",
 	height: "100%",
 	shadow: true,
 	frame: true,
@@ -1239,6 +1240,7 @@ Ext.define("Beet.apps.ShopSettingViewPort.Viewport", {
 		type: "hbox",
 		align: "stretch"
 	},
+	width: "100%",
 	height: "100%",
 	shadow: true,
 	frame: true,

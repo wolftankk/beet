@@ -677,7 +677,7 @@ Beet.constants.OperatorsList = Ext.create("Ext.data.Store", {
 		{ attr: "<", name: "小于"},
 		{ attr: "<=", name: "小于等于"},
 		{ attr: "=", name: "等于"},
-		{ attr: "!=", name: "不等于"},
+		{ attr: "<>", name: "不等于"},
 		{ attr: "LIKE", name: "约等于"}
 	]
 });
@@ -1543,7 +1543,6 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 	minHeight: 550,	
 	autoHeight: true,
 	autoScroll: true,
-	height: "100%",
 	resizable: true,
 	border: false,
 	modal: true,
@@ -1613,7 +1612,8 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 		var advanceTab = Ext.create("Ext.tab.Panel", {
 			border: false,
 			plain: true,
-			height: "65%",
+			height: 300,
+			width: "100%",
 			cls: "iScroll",
 			bodyBorder: false,
 			autoHeight: true,
@@ -1629,6 +1629,7 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 		
 		var advanceformConfig = {
 			border: false,
+			width: "100%",
 			height: "100%",
 			autoHeight: true,
 			autoScroll: true,
@@ -1707,6 +1708,7 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 				flex: 1,
 				border: 0,
 				height: "100%",
+				width: "100%",
 				autoHeight: true,
 				autoScroll: true,
 				defaults: {
@@ -1730,12 +1732,14 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 		me.advancePanel.doLayout();
 		me.settingTabPanel.add(me.advancePanel);
 		me.doLayout();
+		advanceTab.setHeight(me.advancePanel.getHeight() * 0.6);
 	},
 	createTabPanel: function(){
 		var me = this;
 		me.settingTabPanel = Ext.create("Ext.panel.Panel", {
 			border: false,
 			bodyBorder: false,
+			width: "100%",
 			height: "100%",
 			autoHeight: true,
 			autoHeight: true,
