@@ -236,6 +236,36 @@ registerBeetAppsMenu("configure",
 									Beet.workspace.workspace.setActiveTab(item);
 								}
 							}
+						},
+						{
+							text: "增加卡项",
+							handler: function(){
+								//var item = Beet.apps.Menu.Tabs["addPackage"]
+								//if (!item){
+								//	Beet.workspace.addPanel("addPackage", "增加套餐", {
+								//		items: [
+								//			Ext.create("Beet.apps.ProductsViewPort.AddPackage")
+								//		]
+								//	})
+								//}else{
+								//	Beet.workspace.workspace.setActiveTab(item);
+								//}
+							}
+						},
+						{
+							text: "编辑卡项",
+							handler: function(){
+								//var item = Beet.apps.Menu.Tabs["packageList"]
+								//if (!item){
+								//	Beet.workspace.addPanel("packageList", "编辑套餐", {
+								//		items: [
+								//			Ext.create("Beet.apps.ProductsViewPort.PackageList")
+								//		]
+								//	})
+								//}else{
+								//	Beet.workspace.workspace.setActiveTab(item);
+								//}
+							}
 						}
 					]
 				}

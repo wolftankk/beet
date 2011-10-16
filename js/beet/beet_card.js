@@ -3199,16 +3199,18 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 						sql.push("pid=" + data[c]);
 					}
 					var s = sql.join(" OR ");
-					cardServer.GetProductPageData(1, 1000000, s, {
-						success: function(data){
-							var data = Ext.JSON.decode(data)["Data"];
-							me.itemList.cache[itemId].products = data;
-							me.addProducts(data, true);
-						},
-						failure: function(error){
-							Ext.Error.raise(error)
-						}
-					});
+					if (s.length > 0){
+						cardServer.GetProductPageData(1, 1000000, s, {
+							success: function(data){
+								var data = Ext.JSON.decode(data)["Data"];
+								me.itemList.cache[itemId].products = data;
+								me.addProducts(data, true);
+							},
+							failure: function(error){
+								Ext.Error.raise(error)
+							}
+						});
+					}
 				},
 				failure: function(error){
 					Ext.Error.raise(error);
@@ -3222,16 +3224,18 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 						sql.push("cid=" + data[c]);
 					}
 					var s = sql.join(" OR ");
-					cardServer.GetChargeTypePageData(1, 1000000, s, {
-						success: function(data){
-							var data = Ext.JSON.decode(data)["Data"];
-							me.itemList.cache[itemId].charges= data;
-							me.addChargeType(data, true);
-						},
-						failure: function(error){
-							Ext.Error.raise(error)
-						}
-					});
+					if (s.length > 0){
+						cardServer.GetChargeTypePageData(1, 1000000, s, {
+							success: function(data){
+								var data = Ext.JSON.decode(data)["Data"];
+								me.itemList.cache[itemId].charges= data;
+								me.addChargeType(data, true);
+							},
+							failure: function(error){
+								Ext.Error.raise(error)
+							}
+						});
+					}
 				},
 				failure: function(error){
 					Ext.Error.raise(error);
@@ -3724,16 +3728,18 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 						sql.push("pid=" + data[c]);
 					}
 					var s = sql.join(" OR ");
-					cardServer.GetProductPageData(1, 1000000, s, {
-						success: function(data){
-							var data = Ext.JSON.decode(data)["Data"];
-							me.itemList.cache[itemId].products = data;
-							me.addProducts(data, true);
-						},
-						failure: function(error){
-							Ext.Error.raise(error)
-						}
-					});
+					if (s.length > 0){
+						cardServer.GetProductPageData(1, 1000000, s, {
+							success: function(data){
+								var data = Ext.JSON.decode(data)["Data"];
+								me.itemList.cache[itemId].products = data;
+								me.addProducts(data, true);
+							},
+							failure: function(error){
+								Ext.Error.raise(error)
+							}
+						});
+					}
 				},
 				failure: function(error){
 					Ext.Error.raise(error);
@@ -3747,16 +3753,18 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 						sql.push("cid=" + data[c]);
 					}
 					var s = sql.join(" OR ");
-					cardServer.GetChargeTypePageData(1, 1000000, s, {
-						success: function(data){
-							var data = Ext.JSON.decode(data)["Data"];
-							me.itemList.cache[itemId].charges= data;
-							me.addChargeType(data, true);
-						},
-						failure: function(error){
-							Ext.Error.raise(error)
-						}
-					});
+					if (s.length > 0){
+						cardServer.GetChargeTypePageData(1, 1000000, s, {
+							success: function(data){
+								var data = Ext.JSON.decode(data)["Data"];
+								me.itemList.cache[itemId].charges= data;
+								me.addChargeType(data, true);
+							},
+							failure: function(error){
+								Ext.Error.raise(error)
+							}
+						});
+					}
 				},
 				failure: function(error){
 					Ext.Error.raise(error);
@@ -3783,6 +3791,10 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 		var me = this, cardServer = Beet.constants.cardServer;
 		me.selectedItems = {};
 		me.selectedChargeType = {};
+		me.count = {
+			itemsCount : 0,
+			chargesCount : 0
+		}
 
 		me.callParent();	
 		me.createMainPanel();
@@ -3890,30 +3902,38 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 										{
 											fieldLabel: "总价",
 											allowBlank: false,
-											name: "pprice"
+											name: "price"
 										},
 										{
 											fieldLabel: "折扣",
 											allowBlank: false,
 											value: 1,
-											name: "prate"
+											name: "rate"
 										},
 										{
 											fieldLabel: "折扣总价",
 											allowBlank: false,
-											name: "prealprice"
+											name: "realprice",
+											listeners: {
+												scope: me,
+												blur: function(){
+													me.onUpdateForm(true);
+												}
+											}
 										},
 										{
 											fieldLabel: "消费次数",
 											allowBlank: false,
 											value: 1,
-											name: "pstepcount"
+											name: "stepcount"
 										},
 										{
 											fieldLabel: "单次折扣价格",
 											allowBlank: false,
 											value: 1,
-											name: "_perscaleprice"
+											name: "_perscaleprice",
+											readOnly: true,
+											editable: false
 										},
 										{	
 											xtype: "datefield",
@@ -4034,7 +4054,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 	initializeItemsGrid: function(){
 		var me = this, selectedItems = me.selectedItems;
 		var __fields = me.itemsPanel.__fields;
-
 		if (me.itemsPanel.grid == undefined){
 			var store = Ext.create("Ext.data.ArrayStore", {
 				fields: __fields
@@ -4102,7 +4121,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 				selectedItems[id].push(rawData[k]);
 			}
 		}
-
+		
 		me.updateItemsPanel();
 	},
 	deleteItem: function(record){
@@ -4119,10 +4138,16 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 		var me = this, selectedItems = me.selectedItems;
 		var grid = me.itemsPanel.grid, store = grid.getStore();
 		var tmp = []
+		var count = 0;
 		for (var c in selectedItems){
+			count = count + parseFloat(selectedItems[c][0].replace(",", ""));
 			tmp.push(selectedItems[c]);
 		}
 		store.loadData(tmp);
+		//update
+		me.count.itemsCount = count;
+		me.form.getForm().setValues({"price" : (me.count.itemsCount + me.count.chargesCount)});
+		me.onUpdateForm();
 	},
 	initializeChargeTypePanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -4255,10 +4280,15 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 		var grid = me.chargeTypesPanel.grid, store = grid.getStore();
 		var __fields = me.chargeTypesPanel.__fields;
 		var tmp = []
+		var count = 0;
 		for (var c in selectedChargeType){
+			count += parseFloat( selectedChargeType[c][2].replace(",", ""));
 			tmp.push(selectedChargeType[c]);
 		}
 		store.loadData(tmp);
+		me.count.chargesCount = count;
+		me.form.getForm().setValues({"price" : (me.count.itemsCount + me.count.chargesCount)});
+		me.onUpdateForm();
 	},
 
 	resetAll: function(){
@@ -4266,36 +4296,61 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 		//reset all
 		me.selectedChargeType = {};
 		me.selectedItems = {};	
+		me.count = {
+			itemsCount : 0,
+			chargesCount : 0
+		}
 
 		me.itemsPanel.grid.getStore().loadData([]);
 		me.chargeTypesPanel.grid.getStore().loadData([]);
 	},
-	onUpdateForm: function(){
+	onUpdateForm: function(force){
+		var me = this, form = me.form.getForm(), values = form.getValues();
+		var sale = values["rate"], stepcount = values["stepcount"], price = values["price"], realprice = values["realprice"];
+		if (force) {
+			sale = realprice / price;
+		}else{
+			realprice = price * sale;
+		}
+		var _perscaleprice = realprice / stepcount;
+		if (price <= 0 ) { return; }	
+		form.setValues({
+			rate: parseFloat(sale).toFixed(2),
+			stepcount: parseFloat(stepcount).toFixed(2),
+			realprice: parseFloat(realprice).toFixed(2),
+			_perscaleprice: parseFloat(_perscaleprice).toFixed(2)
+		});
 	},
 	processData: function(f){
-		/*
 		var me = this, cardServer = Beet.constants.cardServer,
 			form = f.up("form").getForm(), result = form.getValues();
-		var selectedProducts = me.selectedProducts, selectedChargeType = me.selectedChargeType;
+		var selectedItems = me.selectedItems , selectedChargeType = me.selectedChargeType;
+		me.onUpdateForm(true);
 
 		//name descript products charges
-		var products = Ext.Object.getKeys(selectedProducts);
+		var items = Ext.Object.getKeys(selectedItems);
 		var charges = Ext.Object.getKeys(selectedChargeType);
 
-		if (products && products.length > 0){
-			result["products"] = products;
+		
+		if (items && items.length > 0){
+			result["items"] = items;
 		}
 
 		if (charges && charges.length > 0){
 			result["charges"] = charges;
 		}
 
-		cardServer.AddItem(Ext.JSON.encode(result), {
-			success: function(itemId){
-				if (itemId > 0){
+		//转换时间
+		result["startdate"] = +(new Date(result["startdate"])) / 1000;
+		result["enddate"] = +(new Date(result["enddate"])) / 1000
+
+		console.log(result);
+		cardServer.AddPackage(Ext.JSON.encode(result), {
+			success: function(pid){
+				if (pid > 0){
 					Ext.MessageBox.show({
 						title: "提示",
-						msg: "添加项目成功!",
+						msg: "添加套餐成功!",
 						buttons: Ext.MessageBox.YESNO,
 						fn: function(btn){
 							if (btn == "yes"){
@@ -4310,7 +4365,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 				Ext.Error.raise(error);
 			}
 		})
-		*/
 	}
 });
 
@@ -4357,7 +4411,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 		}, "-");
 
 		columns.push(_actions);
-		cardServer.GetPackagesPageData(0, 1, "", {
+		cardServer.GetPackagesPageDataToJSON(0, 1, "", {
 			success: function(data){
 				var data = Ext.JSON.decode(data)["MetaData"];
 				var fields = me.packageList.__fields = [];
@@ -4368,7 +4422,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 						columns.push({
 							dataIndex: meta["FieldName"],
 							header: meta["FieldLabel"],
-							flex: 1
+							defaultWidth: 50,
 						})
 					}
 				}
@@ -4409,7 +4463,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 						},
 						proxy: {
 							type: "b_proxy",
-							b_method: cardServer.GetPackagesPageData,
+							b_method: cardServer.GetPackagesPageDataToJSON,
 							startParam: "start",
 							limitParam: "limit",
 							b_params: {
@@ -4569,29 +4623,26 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 										{
 											fieldLabel: "总价",
 											allowBlank: false,
-											name: "pprice"
+											name: "price"
 										},
 										{
 											fieldLabel: "折扣",
 											allowBlank: false,
-											value: 1,
-											name: "prate"
+											name: "rate"
 										},
 										{
 											fieldLabel: "折扣总价",
 											allowBlank: false,
-											name: "prealprice"
+											name: "realprice"
 										},
 										{
 											fieldLabel: "消费次数",
 											allowBlank: false,
-											value: 1,
-											name: "pstepcount"
+											name: "stepcount"
 										},
 										{
 											fieldLabel: "单次折扣价格",
 											allowBlank: false,
-											value: 1,
 											name: "_perscaleprice"
 										},
 										{	
@@ -4600,7 +4651,6 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 											allowBlank: false,
 											format: "Y/m/d",
 											name: "startdate",
-											value: new Date()
 										},
 										{
 											xtype: "datefield",
@@ -4626,8 +4676,8 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 								type: 'vbox',
 								align: 'stretch'
 							},
-							flex: 1,
 							height: 500,
+							width: 300,
 							items: [
 								me.itemsPanel,
 								me.chargeTypesPanel
@@ -4700,7 +4750,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 						})
 					}
 				}
-				me.initializeItemGrid();
+				me.initializeItemsGrid();
 			},
 			failure: function(error){
 				Ext.Error.raise(error);
@@ -4718,7 +4768,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 
 			var grid = me.itemsPanel.grid = Ext.create("Ext.grid.Panel", {
 				store: store,
-				height: 448,
+				height: 220,
 				cls: "iScroll",
 				autoScroll: true,
 				columnLines: true,
@@ -4761,13 +4811,19 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 		}));
 		win.doLayout();
 	},
-	addItems: function(records){
+	addItems: function(records, isRaw){
 		var me = this, selectedItems = me.selectedItems;
 		var __fields = me.itemsPanel.__fields;
 		for (var r = 0; r < records.length; ++r){
 			var record = records[r];
-			var id = record.get("IID");
-			var rawData = record.raw;
+			var id, rawData;
+			if (isRaw){
+				id = record["ID"];
+				rawData = record;
+			}else{
+				id = record.get("ID");
+				rawData = record.raw;
+			}
 			if (selectedItems[id] == undefined){
 				selectedItems[id] = []
 			}else{
@@ -4778,7 +4834,6 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 				selectedItems[id].push(rawData[k]);
 			}
 		}
-
 		me.updateItemsPanel();
 	},
 	deleteItem: function(record){
@@ -4834,7 +4889,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 						columns.push({
 							dataIndex: meta["FieldName"],
 							header: meta["FieldLabel"],
-							flex: 1
+							flex: 1,
 						})
 					}
 				}
@@ -4854,7 +4909,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 
 		var grid = me.chargeTypesPanel.grid = Ext.create("Ext.grid.Panel", {
 			store: store,
-			height: 448,
+			height: 220,
 			cls: "iScroll",
 			autoScroll: true,
 			columnLines: true,
@@ -4944,8 +4999,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 	},
 	deletePackage: function(record){
 		var me = this, cardServer = Beet.constants.cardServer;
-		/*
-		var itemId = record.get("IID"), itemName = record.get("IName");
+		var itemId = record.get("ID"), itemName = record.get("Name");
 		if (itemId){
 			Ext.MessageBox.show({
 				title: "删除项目",
@@ -4953,18 +5007,18 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 				buttons: Ext.MessageBox.YESNO,
 				fn: function(btn){
 					if (btn == "yes"){
-						cardServer.DeleteItem(itemId, {
+						cardServer.DeletePackage(itemId, {
 							success: function(){
 								Ext.MessageBox.show({
 									title: "删除成功",
 									msg: "删除项目: " + itemName + " 成功",
 									buttons: Ext.MessageBox.OK,
 									fn: function(){
-										me.itemList.store.loadPage(me.itemList.store.currentPage);
-										if (me.itemList.cache[itemId]){
-											me.itemList.cache[itemId] = {};
-											delete me.itemList.cache[itemId];
-										}
+										//me.itemList.store.loadPage(me.itemList.store.currentPage);
+										//if (me.itemList.cache[itemId]){
+										//	me.itemList.cache[itemId] = {};
+										//	delete me.itemList.cache[itemId];
+										//}
 									}
 								})
 							},
@@ -4979,51 +5033,61 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 		}else{
 			Ext.Error.raise("删除项目失败");
 		}
-		*/
 	},
 	onSelectItem: function(grid, record, item, index, e){
 		var me = this, cardServer = Beet.constants.cardServer;
 		me.selectedItems = {};//reset
 		me.selectedChargeType = {};
 
-		/*
-		var itemId = record.get("IID");
-		me.selectedItemId = itemId;
-		me.selectedItemIndex = index;
+		var pid = record.get("ID");
+		me.selectedPackageId = pid;
+		me.selectedPackageIndex = index;
+
 		me.form.getForm().setValues({
-			name: record.get("IName"),
-			descript: record.get("IDescript")
+			name: record.get("Name"),
+			price: record.get("PPrice").replace(",", ""),
+			rate: record.get("PRate"),
+			realprice: record.get("PRealPrice").replace(",", ""),
+			stepcount: record.get("PStepCount").replace(",", ""),
+			_perscaleprice: record.get("PStepRealPrice").replace(",",""),
+			startdate: new Date(record.get("StartDate")),
+			enddate: new Date(record.get("EndDate")),
+			descript: record.get("Descript")
 		});
-		if (itemId <= 0){
+		if (pid <= 0){
 			Ext.Msg.alert("错误", "项目ID非法!");
 			return;
 		}
-		if (me.itemList.cache[itemId] == undefined){
-			me.itemList.cache[itemId] = {};
-			cardServer.GetItemProducts(itemId, {
+		
+		if (me.packageList.cache[pid] == undefined){
+			me.packageList.cache[pid] = {};
+			//TODO
+			cardServer.GetPackagesItems(pid, {
 				success: function(data){
-					data = Ext.JSON.decode(data)["products"];
+					data = Ext.JSON.decode(data)["items"];
 					var sql = [];
 					for (var c = 0; c < data.length; ++c){
 						sql.push("pid=" + data[c]);
 					}
 					var s = sql.join(" OR ");
-					cardServer.GetProductPageData(1, 1000000, s, {
-						success: function(data){
-							var data = Ext.JSON.decode(data)["Data"];
-							me.itemList.cache[itemId].products = data;
-							me.addProducts(data, true);
-						},
-						failure: function(error){
-							Ext.Error.raise(error)
-						}
-					});
+					if (s.length > 0){
+						cardServer.GetItemPageData(1, 1000000, s, {
+							success: function(data){
+								var data = Ext.JSON.decode(data)["Data"];
+								me.packageList.cache[pid].items= data;
+								me.addItems(data, true);
+							},
+							failure: function(error){
+								Ext.Error.raise(error)
+							}
+						});
+					}
 				},
 				failure: function(error){
 					Ext.Error.raise(error);
 				}
 			})
-			cardServer.GetItemCharges(itemId, {
+			cardServer.GetPackagesCharges(pid, {
 				success: function(data){
 					data = Ext.JSON.decode(data)["charges"];
 					var sql = [];
@@ -5031,26 +5095,28 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 						sql.push("cid=" + data[c]);
 					}
 					var s = sql.join(" OR ");
-					cardServer.GetChargeTypePageData(1, 1000000, s, {
-						success: function(data){
-							var data = Ext.JSON.decode(data)["Data"];
-							me.itemList.cache[itemId].charges= data;
-							me.addChargeType(data, true);
-						},
-						failure: function(error){
-							Ext.Error.raise(error)
-						}
-					});
+					if (s == "" || s.length == 0){
+					}else{
+						cardServer.GetChargeTypePageData(1, 1000000, s, {
+							success: function(data){
+								var data = Ext.JSON.decode(data)["Data"];
+								me.packageList.cache[pid].charges= data;
+								me.addChargeType(data, true);
+							},
+							failure: function(error){
+								Ext.Error.raise(error)
+							}
+						});
+					}
 				},
 				failure: function(error){
 					Ext.Error.raise(error);
 				}
 			})
 		}else{
-			me.addProducts(me.itemList.cache[itemId].products, true);
-			me.addChargeType(me.itemList.cache[itemId].charges, true);
+			me.addItems(me.packageList.cache[pid].items, true);
+			me.addChargeType(me.packageList.cache[pid].charges, true);
 		}
-		*/
 	},
 	processData: function(f){
 		/*
