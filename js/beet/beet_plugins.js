@@ -865,6 +865,7 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 	buildStoreAndModel: function(where){
 		var me = this;
 		if (!Beet.plugins.selectCustomerWindowCustomerListModel){
+			//ISSUE #65
 			Ext.define("Beet.plugins.selectCustomerWindowCustomerListModel", {
 				extend: "Ext.data.Model",
 				fields: [
@@ -878,7 +879,7 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 		}
 
 		if (Beet.plugins.selectCustomerWindowCustomerListStore){
-			Beet.plugins.selectCustomerWindowCustomerListStore = null
+			Beet.plugins.selectCustomerWindowCustomerListStore = undefined 
 		}
 		
 
