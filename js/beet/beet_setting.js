@@ -80,7 +80,7 @@ registerBeetAppsMenu("configure",
 				},
 				{
 					title: "产品管理",
-					width: 400,
+					width: 420,
 					columns: 6,
 					autoWidth: true,
 					items: [
