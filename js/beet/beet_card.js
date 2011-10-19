@@ -168,7 +168,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductItemsList", {
 	shadow: true,
 	b_filter: "",
 	initComponent: function(){
-		var me = this;
+		var me = this, cardServer = Beet.constants.cardServer
 		if (me.b_type == "selection"){
 			me.editable = false;
 		}else{
@@ -177,7 +177,23 @@ Ext.define("Beet.apps.ProductsViewPort.ProductItemsList", {
 
 		me.callParent();
 
-		me.getProductItemMetaData();
+		//add advancePanel
+
+		cardServer.GetProductItemPageData(0, 1, "", {
+			success: function(data){
+				var win = Ext.create("Beet.apps.AdvanceSearch", {
+					searchData: Ext.JSON.decode(data),
+					b_callback: function(where){
+						me.b_filter = where;
+						me.getProductItemMetaData();
+					}
+				});
+				win.show();
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
 	},
 	getProductItemMetaData: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -860,7 +876,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 	border: false,
 	shadow: true,
 	initComponent: function(){
-		var me = this;
+		var me = this, cardServer = Beet.constants.cardServer;
 		if (me.b_type == "selection"){
 			me.editable = false;
 		}else{
@@ -868,7 +884,21 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 		}
 
 		me.callParent();
-		me.getProductsMetaData();
+		cardServer.GetProductPageData(0, 1, "", {
+			success: function(data){
+				var win = Ext.create("Beet.apps.AdvanceSearch", {
+					searchData: Ext.JSON.decode(data),
+					b_callback: function(where){
+						me.b_filter = where;
+						me.getProductsMetaData();
+					}
+				});
+				win.show();
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
 	},
 	getProductsMetaData: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -1593,7 +1623,7 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 	border: false,
 	shadow: true,
 	initComponent: function(){
-		var me = this;
+		var me = this, cardServer = Beet.constants.cardServer;
 		if (me.b_type == "selection"){
 			me.editable = false;
 		}else{
@@ -1601,7 +1631,22 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 		}
 
 		me.callParent();
-		me.getProductsMetaData();
+
+		cardServer.GetChargeTypePageData(0, 1, "", {
+			success: function(data){
+				var win = Ext.create("Beet.apps.AdvanceSearch", {
+					searchData: Ext.JSON.decode(data),
+					b_callback: function(where){
+						me.b_filter = where;
+						me.getProductsMetaData();
+					}
+				});
+				win.show();
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
 	},
 	getProductsMetaData: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -2555,6 +2600,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 	border: false,
 	bodyBorder: false,
 	plain: true,
+	b_filter: "",
 	initComponent: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
 		me.selectedProducts = {};
@@ -2565,7 +2611,21 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		me.selectedItemIndex = 0;
 		me.callParent()	
 
-		me.buildStoreAndModel();
+		cardServer.GetItemPageData(0, 1, "", {
+			success: function(data){
+				var win = Ext.create("Beet.apps.AdvanceSearch", {
+					searchData: Ext.JSON.decode(data),
+					b_callback: function(where){
+						me.b_filter = where;
+						me.buildStoreAndModel();
+					}
+				});
+				win.show();
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
 	},
 	buildStoreAndModel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -2643,7 +2703,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 							startParam: "start",
 							limitParam: "limit",
 							b_params: {
-								"awhere" : ""
+								"awhere" : me.b_filter
 							},
 							b_scope: Beet.constants.cardServer,
 							reader: {
@@ -2936,32 +2996,18 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 			editable: false
 		}
 		
-		cardServer.GetProductPageData(0, 1, "", {
-			success: function(data){
-				var win = Ext.create("Beet.apps.AdvanceSearch", {
-					searchData: Ext.JSON.decode(data),
-					b_callback: function(where){
-						var win = Ext.create("Ext.window.Window", config);
-						win.show();
-						win.add(Ext.create("Beet.apps.ProductsViewPort.ProductsList", {
-							b_filter: where,
-							b_type: "selection",
-							b_selectionMode: "MULTI",
-							b_selectionCallback: function(records){
-								if (records.length == 0){ win.close(); return;}
-								me.addProducts(records);
-								win.close();
-							}
-						}));
-						win.doLayout();
-					}
-				})
-				win.show();
-			},
-			failure: function(error){
-				Ext.Error.raise(error);
+		var win = Ext.create("Ext.window.Window", config);
+		win.show();
+		win.add(Ext.create("Beet.apps.ProductsViewPort.ProductsList", {
+			b_type: "selection",
+			b_selectionMode: "MULTI",
+			b_selectionCallback: function(records){
+				if (records.length == 0){ win.close(); return;}
+				me.addProducts(records);
+				win.close();
 			}
-		});
+		}));
+		win.doLayout();
 
 	},
 	addProducts: function(records, isRaw){
@@ -3334,7 +3380,21 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 		me.selectedItemIndex = 0;
 		me.callParent()	
 
-		me.buildStoreAndModel();
+		cardServer.GetItemPageData(0, 1, "", {
+			success: function(data){
+				var win = Ext.create("Beet.apps.AdvanceSearch", {
+					searchData: Ext.JSON.decode(data),
+					b_callback: function(where){
+						me.b_filter = where;
+						me.buildStoreAndModel();
+					}
+				});
+				win.show();
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
 	},
 	buildStoreAndModel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -4392,6 +4452,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 	border: false,
 	bodyBorder: false,
 	plain: true,
+	b_filter: "",
 	initComponent: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
 		me.selectedItems = {};
@@ -4403,7 +4464,21 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 		me.selectedPackageIndex = 0;
 		me.callParent()	
 
-		me.buildStoreAndModel();
+		cardServer.GetPackagesPageDataToJSON(0, 1, "", {
+			success: function(data){
+				var win = Ext.create("Beet.apps.AdvanceSearch", {
+					searchData: Ext.JSON.decode(data),
+					b_callback: function(where){
+						me.b_filter = where;
+						me.buildStoreAndModel();
+					}
+				});
+				win.show();
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
 	},
 	buildStoreAndModel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
