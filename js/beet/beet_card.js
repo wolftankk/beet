@@ -19,7 +19,6 @@ registerBeetAppsMenu("card", {
 
 Ext.namespace("Beet.apps.ProductsViewPort");
 
-
 Ext.define("Beet.apps.ProductsViewPort.AddProductItem", {
 	extend: "Ext.form.Panel",
 	height: "100%",

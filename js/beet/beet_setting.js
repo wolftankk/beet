@@ -237,6 +237,7 @@ registerBeetAppsMenu("configure",
 								}
 							}
 						},
+						/*
 						{
 							text: "增加卡项",
 							handler: function(){
@@ -267,6 +268,7 @@ registerBeetAppsMenu("configure",
 								//}
 							}
 						}
+						*/
 					]
 				}
 			]

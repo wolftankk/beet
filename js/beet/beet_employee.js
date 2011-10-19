@@ -481,6 +481,7 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 	minHeight: 400,
 	minWidth: 800,
 	frame: true,
+	b_filter: "",
 	defaults:{
 		border: 0
 	},

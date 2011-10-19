@@ -52,13 +52,29 @@ registerBeetAppsMenu("customer",
 							tooltip: "编辑会员个人资料或者删除会员.",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["editCustomer"];
+								var customerServer = Beet.constants.customerServer;
 								if (!item){
-									Beet.apps.Viewport.getColumnsData(function(){
-										Beet.workspace.addPanel("editCustomer", "编辑会员", {
-											items: [
-												Ext.create("Beet.apps.Viewport.CustomerList")
-											]	
-										});
+									customerServer.GetCustomerPageData(0, 1, "", {
+										success: function(data){
+											var win = Ext.create("Beet.apps.AdvanceSearch", {
+												searchData: Ext.JSON.decode(data),
+												b_callback: function(where){
+													Beet.apps.Viewport.getColumnsData(function(){
+														Beet.workspace.addPanel("editCustomer", "编辑会员", {
+															items: [
+																Ext.create("Beet.apps.Viewport.CustomerList", {
+																	b_filter: where	
+																})
+															]	
+														});
+													});
+												}
+											});
+											win.show();
+										},
+										failure: function(error){
+											Ext.Error.raise(error);
+										}
 									});
 								}else{
 									Beet.workspace.workspace.setActiveTab(item);
@@ -720,75 +736,7 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 });
 
 
-Ext.define("Beet.apps.Viewport.CustomerList.Model", {
-	extend: "Ext.data.Model",
-	fields: [
-		"CTGUID",
-		"CTID",
-		"CTCardNo",
-		"CTName",
-		"CTNickName",
-		"CTSexName",
-		"CTMarryName",
-		"CTProvince",
-		"CTEducationName",
-		"CTEMail",
-		"CTEnjoyMode",
-		"CTUpdateModeName",
-		"CTBirthdayMonth",
-		"CTBirthdayDay",
-		"CTMobile",
-		"CTPhone",
-		"CTJob",
-		"CTIM",
-		"CTAddress",
-		"CTDescript",
-		"CTStoreName"
-	]
-});
 
-Ext.define("Beet.apps.Viewport.CustomerList.Store", {
-	extend: "Ext.data.Store",
-	model: Beet.apps.Viewport.CustomerList.Model,
-	autoLoad: true,
-	pageSize: Beet.constants.PageSize,
-	load: function(options){
-		var me = this;
-		options = options || {};
-		if (Ext.isFunction(options)) {
-            options = {
-                callback: options
-            };
-        }
-
-        Ext.applyIf(options, {
-            groupers: me.groupers.items,
-            page: me.currentPage,
-            start: (me.currentPage - 1) * me.pageSize,
-            limit: me.pageSize,
-            addRecords: false
-        });      
-		me.proxy.b_params["start"] = options["start"];
-		me.proxy.b_params["limit"] = options["limit"]
-
-        return me.callParent([options]);
-	},
-	proxy: {
-		type: "b_proxy",
-		b_method: Beet.constants.customerServer.GetCustomerPageData,
-		startParam: "start",
-		limitParam: "limit",
-		b_params: {
-			"filter": ""
-		},
-		b_scope: Beet.constants.customerServer,
-		reader: {
-			type: "json",
-			root: "Data",
-			totalProperty: "TotalCount"
-		}
-	}
-});
 
 Ext.define("Beet.apps.Viewport.CustomerList", {
 	extend: "Ext.panel.Panel",
@@ -804,14 +752,97 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 	defaults: {
 		border: 0
 	},
+	b_filter: "",
 	initComponent: function(){
 		var that = this;
-		Ext.apply(this, {
-			storeProxy: Ext.create("Beet.apps.Viewport.CustomerList.Store")
-		});
+		Ext.apply(this, {});
 		that.callParent(arguments);
 
+		that.buildStoreAndModel();
+
 		that.createCustomerGrid();
+	},
+	buildStoreAndModel: function(){
+		var me = this;
+		if (Beet.apps.Viewport.CustomerListStore){
+			Beet.apps.Viewport.CustomerListStore = null;
+		}
+		
+		if (!Beet.apps.Viewport.CustomerListModel){
+			Ext.define("Beet.apps.Viewport.CustomerListModel", {
+				extend: "Ext.data.Model",
+				fields: [
+					"CTGUID",
+					"CTID",
+					"CTCardNo",
+					"CTName",
+					"CTNickName",
+					"CTSexName",
+					"CTMarryName",
+					"CTProvince",
+					"CTEducationName",
+					"CTEMail",
+					"CTEnjoyMode",
+					"CTUpdateModeName",
+					"CTBirthdayMonth",
+					"CTBirthdayDay",
+					"CTMobile",
+					"CTPhone",
+					"CTJob",
+					"CTIM",
+					"CTAddress",
+					"CTDescript",
+					"CTStoreName"
+				]
+			});
+		}
+
+
+		Ext.define("Beet.apps.Viewport.CustomerListStore", {
+			extend: "Ext.data.Store",
+			model: Beet.apps.Viewport.CustomerListModel,
+			autoLoad: true,
+			pageSize: Beet.constants.PageSize,
+			b_filter: "",
+			load: function(options){
+				var me = this;
+				options = options || {};
+				if (Ext.isFunction(options)) {
+					options = {
+						callback: options
+					};
+				}
+
+				Ext.applyIf(options, {
+					groupers: me.groupers.items,
+					page: me.currentPage,
+					start: (me.currentPage - 1) * me.pageSize,
+					limit: me.pageSize,
+					addRecords: false
+				});      
+				me.proxy.b_params["start"] = options["start"];
+				me.proxy.b_params["limit"] = options["limit"]
+
+				return me.callParent([options]);
+			},
+			proxy: {
+				type: "b_proxy",
+				b_method: Beet.constants.customerServer.GetCustomerPageData,
+				startParam: "start",
+				limitParam: "limit",
+				b_params: {
+					"filter": me.b_filter
+				},
+				b_scope: Beet.constants.customerServer,
+				reader: {
+					type: "json",
+					root: "Data",
+					totalProperty: "TotalCount"
+				}
+			}
+		});
+
+		me.storeProxy = Ext.create("Beet.apps.Viewport.CustomerListStore");
 	},
 	createCustomerGrid: function(){
 		var that = this, grid = that.grid, store = that.storeProxy, actions, __columns = [], columnsData = Beet.cache["customerColumns"];
@@ -1033,11 +1064,11 @@ Ext.define("Beet.apps.Viewport.SendMessages", {
 					onTriggerClick: function(){
 						var win;
 						//这里需要一个高级查询
-						win = Ext.create("Beet.plugins.selectCustomerWindow", {
-							_callback: Ext.bind(me.processSelectedData, me),
-							_selectedData: me.selectedData
-						});
-						win.show();
+						//win = Ext.create("Beet.plugins.selectCustomerWindow", {
+						//	_callback: Ext.bind(me.processSelectedData, me),
+						//	_selectedData: me.selectedData
+						//});
+						//win.show();
 					}
 				},
 				{

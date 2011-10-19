@@ -819,16 +819,17 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 		var me = this, customerServer = Beet.constants.customerServer;
 		me.items = [];
 		me.createCustomerInfo();
-		if (me.customerList == undefined){
-			customerServer.GetCustomerToJSON('', false, {
-				success: function(data){
-					data = me.createSelectorForm(Ext.JSON.decode(data));
-				},
-				failure: function(error){
-					Ext.error.raise(error);
-				}
-			});
-		}
+		//add advanceFilters
+		//if (me.customerList == undefined){
+		//	customerServer.GetCustomerToJSON('', false, {
+		//		success: function(data){
+		//			data = me.createSelectorForm(Ext.JSON.decode(data));
+		//		},
+		//		failure: function(error){
+		//			Ext.error.raise(error);
+		//		}
+		//	});
+		//}
 		
 		me.callParent();
 	},
