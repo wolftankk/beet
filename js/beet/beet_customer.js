@@ -1062,13 +1062,12 @@ Ext.define("Beet.apps.Viewport.SendMessages", {
 					name: "mobiles",
 					id: "mobileNumberFrame",
 					onTriggerClick: function(){
-						var win;
 						//这里需要一个高级查询
-						//win = Ext.create("Beet.plugins.selectCustomerWindow", {
-						//	_callback: Ext.bind(me.processSelectedData, me),
-						//	_selectedData: me.selectedData
-						//});
-						//win.show();
+						win = Ext.create("Beet.plugins.selectCustomerWindow", {
+							_callback: Ext.bind(me.processSelectedData, me),
+							_selectedData: me.selectedData
+						});
+						win.show();
 					}
 				},
 				{

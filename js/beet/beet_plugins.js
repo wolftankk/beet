@@ -819,19 +819,22 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 		var me = this, customerServer = Beet.constants.customerServer;
 		me.items = [];
 		me.createCustomerInfo();
-		//add advanceFilters
-		//if (me.customerList == undefined){
-		//	customerServer.GetCustomerToJSON('', false, {
-		//		success: function(data){
-		//			data = me.createSelectorForm(Ext.JSON.decode(data));
-		//		},
-		//		failure: function(error){
-		//			Ext.error.raise(error);
-		//		}
-		//	});
-		//}
-		
 		me.callParent();
+
+		customerServer.GetCustomerPageData(0, 1, "", {
+			success: function(data){
+				var win = Ext.create("Beet.apps.AdvanceSearch", {
+					searchData: Ext.JSON.decode(data),
+					b_callback: function(where){
+						me.buildStoreAndModel(where);
+					}
+				})
+				win.show();
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
 	},
 	createCustomerInfo: function(){
 		var me = this;
@@ -859,14 +862,10 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 
 		me.viewCustomerInfo = _actions;
 	},
-	createSelectorForm: function(data){
-		var form, me = this;
-		var meta = data["MetaData"], data = data["Data"];
-		var sm = Ext.create("Ext.selection.CheckboxModel");
-		me.selModel = sm;
-		
-		if (Beet.plugins.selectCustomerWindow.CustomerListModel == undefined){
-			Ext.define("Beet.plugins.selectCustomerWindow.CustomerListModel", {
+	buildStoreAndModel: function(where){
+		var me = this;
+		if (!Beet.plugins.selectCustomerWindowCustomerListModel){
+			Ext.define("Beet.plugins.selectCustomerWindowCustomerListModel", {
 				extend: "Ext.data.Model",
 				fields: [
 					"CTGUID",
@@ -878,10 +877,63 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 			});
 		}
 
-		me.storeProxy = Ext.create("Ext.data.Store", {
-			model: Beet.plugins.selectCustomerWindow.CustomerListModel,
-			data: data	
-		})
+		if (Beet.plugins.selectCustomerWindowCustomerListStore){
+			Beet.plugins.selectCustomerWindowCustomerListStore = null
+		}
+		
+
+		Ext.define("Beet.plugins.selectCustomerWindowCustomerListStore", {
+			extend: "Ext.data.Store",
+			model: Beet.plugins.selectCustomerWindowCustomerListModel,
+			autoLoad: true,
+			pageSize: Beet.constants.PageSize,
+			b_filter: "",
+			load: function(options){
+				var me = this;
+				options = options || {};
+				if (Ext.isFunction(options)) {
+					options = {
+						callback: options
+					};
+				}
+
+				Ext.applyIf(options, {
+					groupers: me.groupers.items,
+					page: me.currentPage,
+					start: (me.currentPage - 1) * me.pageSize,
+					limit: me.pageSize,
+					addRecords: false
+				});      
+				me.proxy.b_params["start"] = options["start"];
+				me.proxy.b_params["limit"] = options["limit"]
+
+				return me.callParent([options]);
+			},
+			proxy: {
+				type: "b_proxy",
+				b_method: Beet.constants.customerServer.GetCustomerPageData,
+				startParam: "start",
+				limitParam: "limit",
+				b_params: {
+					"filter": where
+				},
+				b_scope: Beet.constants.customerServer,
+				reader: {
+					type: "json",
+					root: "Data",
+					totalProperty: "TotalCount"
+				}
+			}
+		});
+
+		me.storeProxy = Ext.create("Beet.plugins.selectCustomerWindowCustomerListStore");
+		me.createSelectorForm();
+	},
+	createSelectorForm: function(){
+		var form, me = this;
+		var sm = Ext.create("Ext.selection.CheckboxModel");
+		me.selModel = sm;
+		
 
 		form = Ext.create("Ext.grid.Panel", {
 			store: me.storeProxy,
@@ -921,17 +973,18 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 					dataIndex: "CTAddress"
 				}
 			],
+			bbar: Ext.create('Ext.PagingToolbar', {
+				store: this.storeProxy,
+				displayInfo: true,
+				displayMsg: '当前显示 {0} - {1}, 总共{2}条数据',
+				emptyMsg: "没有数据"
+			})
 		});
 
 		me.customerListGrid = form;
 
 		me.add(form)
 		me.doLayout();
-
-
-		if (me._selectedData && me._selectedData.length > 0){
-			//select all
-		}
 	},
 	buttons: [
 		{
