@@ -47,14 +47,30 @@ registerBeetAppsMenu("employee",
 							tooltip:"编辑或者删除员工",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["employeeList"];
+								var employeeServer = Beet.constants.employeeServer;
 								if (!item){
-									Beet.apps.Viewport.getEmployeeColumnsData(function(){
-										Beet.workspace.addPanel("employeeList", "编辑员工", {
-											items: [
-												Ext.create("Beet.apps.Viewport.EmployeeList")
-											]	
-										})
-									})
+									employeeServer.GetEmployeeData(0, 1, "", true, {
+										success: function(data){
+											var win = Ext.create("Beet.apps.AdvanceSearch", {
+												searchData: Ext.JSON.decode(data),
+												b_callback: function(where){
+													Beet.apps.Viewport.getEmployeeColumnsData(function(){
+														Beet.workspace.addPanel("employeeList", "编辑员工", {
+															items: [
+																Ext.create("Beet.apps.Viewport.EmployeeList", {
+																	b_filter: where
+																})
+															]	
+														})
+													})
+												}
+											});
+											win.show();
+										},
+										failure: function(error){
+											Ext.Error.raise(error);
+										}
+									});
 								}else{
 									Beet.workspace.workspace.setActiveTab(item);
 								}
@@ -398,78 +414,7 @@ Ext.define("Beet.apps.Viewport.AddEmployee", {
 	}
 });
 
-Ext.define("Beet.apps.Viewport.EmployeeList.Model", {
-	extend: "Ext.data.Model",
-	fields: [
-		"EM_UserId",
-		"EM_NAME",
-		"EM_DEP",
-		"EM_DEPNAME",
-		"EM_PID",
-		"EM_STOREID",
-		"EM_STORENAME",
-		"EM_EXT",
-		"EM_ADDR",
-		"EM_IM",
-		"EM_MOBILE",
-		"EM_PHONE",
-		"EM_BIRTHMONTH",
-		"EM_BIRTHDAY",
-		"EM_DESCRIPT",
-		{ name: "EM_INDATE", 
-		  convert: function(value, record){
-			var date = new Date(value * 1000);
-			if (date){
-				return Ext.Date.format(date, "Y/m/d");
-			}
-		  }
-		}
-	]
-});
 
-Ext.define("Beet.apps.Viewport.EmployeeList.Store", {
-	extend: "Ext.data.Store",
-	model: Beet.apps.Viewport.EmployeeList.Model,
-	autoLoad: true,
-	pageSize: Beet.constants.PageSize,
-	load: function(options){
-		var me = this;
-		options = options || {};
-		if (Ext.isFunction(options)) {
-			options = {
-				callback: options
-			};
-		}
-
-		Ext.applyIf(options, {
-			groupers: me.groupers.items,
-			page: me.currentPage,
-			start: (me.currentPage - 1) * me.pageSize,
-			limit: me.pageSize,
-			addRecords: false
-		});      
-		me.proxy.b_params["start"] = options["start"];
-		me.proxy.b_params["limit"] = options["limit"]
-
-		return me.callParent([options]);
-	},
-	proxy: {
-		type: "b_proxy",
-		b_method: Beet.constants.employeeServer.GetEmployeeData,
-		startParma: "start",
-		limitParma: "limit",
-		b_params: {
-			"filter" : "",
-			"b_onlySchema": false
-		},
-		b_scope: Beet.constants.employeeServer,
-		reader: {
-			type: "json",
-			root: "Data",
-			totalProperty: "TotalCount"
-		}
-	}
-});
 
 Ext.define("Beet.apps.Viewport.EmployeeList", {
 	extend: "Ext.panel.Panel",
@@ -487,23 +432,95 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 	},
 	initComponent: function(){
 		var me = this;
-		Ext.apply(me, {
-			storeProxy: Ext.create("Beet.apps.Viewport.EmployeeList.Store")
-		});
 
-		me.createEmployeeGrid();
 		me.createDeparentList();
 		me.createBranchesList();
 
-		me.items = [
-			me.grid
-		];
-
 		me.callParent(arguments);
+		me.buildStoreAndModel();
 	},
-	afterRender: function(){
+	buildStoreAndModel: function(){
 		var me = this;
-		me.callParent(arguments);
+		if (!Beet.apps.Viewport.EmployeeListModel){
+			Ext.define("Beet.apps.Viewport.EmployeeListModel", {
+				extend: "Ext.data.Model",
+				fields: [
+					"EM_UserId",
+					"EM_NAME",
+					"EM_DEP",
+					"EM_DEPNAME",
+					"EM_PID",
+					"EM_STOREID",
+					"EM_STORENAME",
+					"EM_EXT",
+					"EM_ADDR",
+					"EM_IM",
+					"EM_MOBILE",
+					"EM_PHONE",
+					"EM_BIRTHMONTH",
+					"EM_BIRTHDAY",
+					"EM_DESCRIPT",
+					{ name: "EM_INDATE", 
+					  convert: function(value, record){
+						var date = new Date(value * 1000);
+						if (date){
+							return Ext.Date.format(date, "Y/m/d");
+						}
+					  }
+					}
+				]
+			});
+		}
+
+		if (Beet.apps.Viewport.EmployeeListStore){
+			Beet.apps.Viewport.EmployeeListStore = undefined;
+		}
+		Ext.define("Beet.apps.Viewport.EmployeeListStore", {
+			extend: "Ext.data.Store",
+			model: Beet.apps.Viewport.EmployeeListModel,
+			autoLoad: true,
+			pageSize: Beet.constants.PageSize,
+			load: function(options){
+				var me = this;
+				options = options || {};
+				if (Ext.isFunction(options)) {
+					options = {
+						callback: options
+					};
+				}
+
+				Ext.applyIf(options, {
+					groupers: me.groupers.items,
+					page: me.currentPage,
+					start: (me.currentPage - 1) * me.pageSize,
+					limit: me.pageSize,
+					addRecords: false
+				});      
+				me.proxy.b_params["start"] = options["start"];
+				me.proxy.b_params["limit"] = options["limit"]
+
+				return me.callParent([options]);
+			},
+			proxy: {
+				type: "b_proxy",
+				b_method: Beet.constants.employeeServer.GetEmployeeData,
+				startParma: "start",
+				limitParma: "limit",
+				b_params: {
+					"filter" : me.b_filter,
+					"b_onlySchema": false
+				},
+				b_scope: Beet.constants.employeeServer,
+				reader: {
+					type: "json",
+					root: "Data",
+					totalProperty: "TotalCount"
+				}
+			}
+		});
+		
+		me.storeProxy = Ext.create("Beet.apps.Viewport.EmployeeListStore");
+		me.createEmployeeGrid();
 	},
 	createDeparentList: function(){
 		var me = this;
@@ -574,6 +591,8 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 			store: store,
 			lookMask: true,
 			frame: true,
+			width: "100%",
+			height: "100%",
 			collapsible: false,
 			rorder: false,
 			bodyBorder: 0,
@@ -593,6 +612,9 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 				emptyMsg: "没有数据"
 			})
 		});
+
+		me.add(me.grid);
+		me.doLayout();
 	},
 	editEmployeeFn: function(parentMenu){
 		var me = this, rawData = parentMenu.rawData || parentMenu.raw, guid = rawData.EM_UserID , EmName= rawData.EM_NAME, employeeServer = Beet.constants.employeeServer;
