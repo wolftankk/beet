@@ -116,6 +116,21 @@ registerBeetAppsMenu("configure",
 							}
 						},*/
 						{
+							text: "产品分类",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["addProductCategory"]
+								if (!item){
+									Beet.workspace.addPanel("addProductCategory", "产品分类", {
+										items: [
+											Ext.create("Beet.apps.ProductsViewPort.ProductCategoryTree")
+										]
+									})
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						},
+						{
 							text: "增加产品",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["addProducts"]

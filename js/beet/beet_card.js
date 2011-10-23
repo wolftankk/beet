@@ -625,6 +625,100 @@ Ext.define("Beet.apps.ProductsViewPort.UpdateProductItem", {
 	}
 });
 */
+Ext.define("Beet.apps.ProductsViewPort.ProductCategoryTree",{
+	extend: "Ext.panel.Panel",
+	cls: "iScroll",
+	frame: true,
+	rootVisible: true,
+	height: "100%",
+	width: "100%",
+	initComponent: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		me.buildStore();
+		me.callParent();
+
+		me.createTreeList();
+	},
+	buildStore: function(){
+		if (!Beet.apps.ProductsViewPort.ProductCatgoryTreeStore){
+			Ext.define("Beet.apps.ProductsViewPort.ProductCatgoryTreeStore", {
+				extend: "Ext.data.TreeStore",
+				autoLoad: true,
+				root: {
+					text: "总分类",
+					id: "src",
+					expanded: true
+				},
+				proxy: {
+					type: "b_proxy",
+					b_method: Beet.constants.cardServer.GetProductCategoryData,
+					preProcessData: function(data){
+						var originData = data["root"];
+						var bucket = [];
+						
+						var processData = function(target, cache){
+							var k;
+							for (k = 0; k < target.length; ++k){
+								var _tmp = target[k];
+								var item = {};
+								if (_tmp.data && _tmp.data.length > 0){
+									item["expanded"] = true;
+									item["text"] = _tmp["name"];
+									item["id"] = _tmp["id"];
+									item["children"] = [];
+
+									processData(_tmp.data, item["children"]);
+								}else{
+									item = _tmp;
+									item["text"] = _tmp["name"];
+									item["leaf"] = true
+								}
+								cache.push(item);
+							}
+						}
+
+						processData(originData, bucket);
+
+						return bucket;
+					},
+					b_scope: Beet.constants.cardServer,
+					reader: {
+						type: "json"	
+					}
+				},
+			})
+		}
+	},
+	createTreeList: function(){
+		var me= this, cardServer = Beet.constants.cardServer, store;
+		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.ProductCatgoryTreeStore");
+		me.treeList = Ext.create("Ext.tree.Panel", {
+			store: store,
+			frame: true,
+			lookMask: true,
+			width: 230,
+			height: 500,
+			border: 0,
+			useArrow: true,
+			split: true,
+			dockedItems: [
+				{
+					ptype: "tooltip",
+					frame: true,
+					items: [
+						{
+							html: "右键打开功能菜单, 进行编辑删除",
+							frame: true,
+						}
+					],
+				}
+			]
+		});
+
+		me.add(me.treeList);
+		me.doLayout();
+	}
+});
 
 Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 	extend: "Ext.form.Panel",
@@ -640,7 +734,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 	initComponent: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
 	
-		me.selectedProductItem = null;
 		me.callParent()	
 		me.createMainPanel();
 	},
@@ -669,13 +762,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 					border: false,
 					bodyStyle: "background-color: #dfe8f5",
 					defaults: {
-						bodyStyle: "background-color: #dfe8f5",
-						listeners: {
-							scope: me,
-							blur: function(){
-								me.onUpdateForm();
-							}
-						}
+						bodyStyle: "background-color: #dfe8f5"
 					},
 					defaultType: "textfield",
 					fieldDefaults: {
@@ -737,8 +824,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 						},
 						{
 							fieldLabel: "产品分类",
-							name: "categoryid",
-							allowBlank: false
+							name: "categoryid"
 						},
 						{
 							xtype: "component",
@@ -804,19 +890,18 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 	},
 	processData: function(f){
 		var me = this, cardServer = Beet.constants.cardServer;
-		/*
 		var form = f.up("form").getForm(), result = form.getValues();
-		if (me.selectedProductItem == null || (me.selectedProductItem && !me.selectedProductItem.raw)){
-			Ext.Error.raise("添加失败!");
-			return;
+		if (result["categoryid"].length == 0){
+			result["categoryid"] = undefined;
+			delete result["categoryid"];
 		}
-		result["pid"] = me.selectedProductItem.get("P_PID");
+
 		cardServer.AddProducts(Ext.JSON.encode(result), {
 			success: function(id){
 				if (id > 0){
 					Ext.MessageBox.show({
 						title: "提示",
-						msg: "添加消耗产品成功!",
+						msg: "添加产品成功!",
 						buttons: Ext.MessageBox.YESNO,
 						fn: function(btn){
 							if (btn == "yes"){
@@ -826,14 +911,13 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 						}
 					});
 				}else{
-					Ext.Error.raise("添加消耗产品失败");
+					Ext.Error.raise("添加产品失败");
 				}
 			},
 			failure: function(error){
 				Ext.Error.raise(error);
 			}
 		});
-		*/
 	}
 });
 
