@@ -931,7 +931,6 @@ Ext.define("Beet.apps.ProductsViewPort.ProductCategoryTree",{
 });
 
 function buildProductCategoryTreeStore(){
-	console.log(this);
 	if (!Beet.apps.ProductsViewPort.ProductCatgoryTreeStore){
 		Ext.define("Beet.apps.ProductsViewPort.ProductCatgoryTreeStore", {
 			extend: "Ext.data.TreeStore",
@@ -1221,6 +1220,10 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 	autoScroll: true,
 	height: "100%",
 	width: "100%",
+	layout: {
+		type: "hbox",
+		columns: 2
+	},
 	frame: true,
 	border: false,
 	shadow: true,
@@ -1234,6 +1237,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 		}
 
 		me.callParent();
+		me.createTreeList();
 		me.getProductsMetaData();
 	},
 	getProductsMetaData: function(){
@@ -1321,6 +1325,45 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 
 		me.createGrid();
 	},
+	createTreeList: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		Ext.bind(buildProductCategoryTreeStore, me)();
+
+		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.ProductCatgoryTreeStore");
+		me.treeList = Ext.create("Ext.tree.Panel", {
+			store: store,
+			frame: true,
+			lookMask: true,
+			cls: "iScroll",
+			collapsible: true,
+			collapseDirection: "left",
+			width: 230,
+			height: 500,
+			border: 0,
+			useArrow: true,
+			title: "产品分类",
+			split: true,
+		});
+
+		me.treeList.on({
+			itemClick: me.onTreeItemClick,
+			scope: me
+		})
+
+		me.add(me.treeList);
+		me.treeList.setHeight(Beet.workspace.getHeight() - 40);
+		me.doLayout();
+	},
+	onTreeItemClick: function(frame, record, item){
+		var me = this, id = record.get("id");
+		if (id != -1){
+			me.b_filter = "PCategoryID = " + id;
+		}else{
+			me.b_filter = "";
+		}
+
+		me.filterProducts();
+	},
 	createGrid: function(){
 		var me = this, grid = me.grid, sm = null;
 		if (me.b_type == "selection"){
@@ -1379,7 +1422,10 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 			bodyBorder: false,
 			autoScroll: true,
 			autoHeight: true,
+			autoWidth: true,
 			border: 0,
+			flex: 1,
+			cls: "iScroll",
 			selModel: sm,
 			height: me.editable ? "100%" : "95%",
 			columnLines: true,
@@ -1395,7 +1441,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 				emptyMsg: "没有数据"
 			}),
 			tbar: [
-				"->",
+				"-",
 				{
 					xtype: "button",
 					text: "高级搜索",
@@ -1407,11 +1453,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 									searchData: Ext.JSON.decode(data),
 									b_callback: function(where){
 										me.b_filter = where;
-										if (me.grid){
-											me.remove(me.grid);
-											me.doLayout();
-										}
-										me.getProductsMetaData();
+										me.filterProducts();
 									}
 								});
 								win.show();
@@ -1438,6 +1480,14 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 			}))
 			me.doLayout();
 		}
+	},
+	filterProducts: function(){
+		var me = this
+		if (me.grid){
+			me.remove(me.grid);
+			me.doLayout();
+		}
+		me.getProductsMetaData();
 	},
 	editProductItem: function(parentMenu){
 		var me = this, rawData = parentMenu.rawData || parentMenu.raw, pid = rawData["PID"], pname = rawData["PName"], cardServer = Beet.constants.cardServer;
