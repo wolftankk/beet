@@ -517,13 +517,15 @@ Ext.define("Beet.plugins.LiveSearch",{
 	regExpMode: false,
 	defaultStatusText: "没有找到",
 	tagsRe: /<[^>]*>/gm,
+	width: "100%",
 	tagsProtect: '\x0f',
 	regExpProtect: /\\|\/|\+|\\|\.|\[|\]|\{|\}|\?|\$|\*|\^|\|/gm,
 	matchCls: 'x-livesearch-match',
 	cls: 'iScroll',
 	initComponent: function(){
 		var me = this;
-		me.tbar = [
+		me.tbar = me.tbar || {};
+		Ext.Array.each([
 			'搜索', {
 				xtype: "textfield",
 				name: "searchField",
@@ -550,7 +552,15 @@ Ext.define("Beet.plugins.LiveSearch",{
 				scope: me,
 				tooltip: "查找后一项"
 			},
-		]
+		], function(a){
+			me.tbar.push(a);
+		});
+
+		//调整位置
+		var tmp = me.tbar.splice(-4, 4);
+		me.tbar = tmp.concat(me.tbar);
+
+		Ext.apply(me, arguments);
 		me.callParent(arguments);
 	},
 	afterRender: function(){

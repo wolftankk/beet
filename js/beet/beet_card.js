@@ -1288,7 +1288,6 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 		}
 
 		//need reset?
-		//if (!Beet.apps.ProductsViewPort.ProductsStore){
 		if (Beet.apps.ProductsViewPort.ProductsStore){
 			Beet.apps.ProductsViewPort.ProductsStore = null;
 		}
@@ -1335,7 +1334,6 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 				}
 			}
 		});
-		//}
 
 		me.createGrid();
 	},
@@ -1392,6 +1390,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 			lookMask: true,
 			frame: true,
 			collapsible: false,
+			height: "100%",
 			rorder: false,
 			bodyBorder: false,
 			autoScroll: true,
@@ -1410,9 +1409,15 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 				displayInfo: true,
 				displayMsg: '当前显示 {0} - {1} 到 {2}',
 				emptyMsg: "没有数据"
-			})
+			}),
+			tbar: [
+				"->",
+				{
+					xtype: "button",
+					text: "高级搜索"
+				}
+			]
 		})
-
 		me.add(me.grid);
 		me.doLayout();
 
