@@ -930,6 +930,61 @@ Ext.define("Beet.apps.ProductsViewPort.ProductCategoryTree",{
 	}
 });
 
+function buildProductCategoryTreeStore(){
+	console.log(this);
+	if (!Beet.apps.ProductsViewPort.ProductCatgoryTreeStore){
+		Ext.define("Beet.apps.ProductsViewPort.ProductCatgoryTreeStore", {
+			extend: "Ext.data.TreeStore",
+			autoLoad: true,
+			root: {
+				text: "总分类",
+				id: "-1",
+				expanded: true
+			},
+			proxy: {
+				type: "b_proxy",
+				b_method: Beet.constants.cardServer.GetProductCategoryData,
+				preProcessData: function(data){
+					var originData = data["root"];
+					var bucket = [];
+					
+					var processData = function(target, cache, pid){
+						var k;
+						for (k = 0; k < target.length; ++k){
+							var _tmp = target[k];
+							var item = {};
+							if (_tmp.data && _tmp.data.length > 0){
+								item["expanded"] = true;
+								item["text"] = _tmp["name"];
+								item["id"] = _tmp["id"];
+								item["pid"] = pid;
+								item["children"] = [];
+
+								processData(_tmp.data, item["children"], item["id"]);
+							}else{
+								item = _tmp;
+								item["text"] = _tmp["name"];
+								item["leaf"] = true;
+								item["pid"] = pid;
+								//item["checked"] = false;
+							}
+							cache.push(item);
+						}
+					}
+
+					processData(originData, bucket, -1);
+
+					return bucket;
+				},
+				b_scope: Beet.constants.cardServer,
+				reader: {
+					type: "json"	
+				}
+			},
+		})
+	}
+}
+
 Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 	extend: "Ext.form.Panel",
 	height: "100%",
@@ -1070,58 +1125,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 	},
 	buildStore: function(){
 		var me = this;
-		if (!Beet.apps.ProductsViewPort.ProductCatgoryTreeStore){
-			Ext.define("Beet.apps.ProductsViewPort.ProductCatgoryTreeStore", {
-				extend: "Ext.data.TreeStore",
-				autoLoad: true,
-				root: {
-					text: "总分类",
-					id: "-1",
-					expanded: true
-				},
-				proxy: {
-					type: "b_proxy",
-					b_method: Beet.constants.cardServer.GetProductCategoryData,
-					preProcessData: function(data){
-						var originData = data["root"];
-						var bucket = [];
-						
-						var processData = function(target, cache, pid){
-							var k;
-							for (k = 0; k < target.length; ++k){
-								var _tmp = target[k];
-								var item = {};
-								if (_tmp.data && _tmp.data.length > 0){
-									item["expanded"] = true;
-									item["text"] = _tmp["name"];
-									item["id"] = _tmp["id"];
-									item["pid"] = pid;
-									item["children"] = [];
-
-									processData(_tmp.data, item["children"], item["id"]);
-								}else{
-									item = _tmp;
-									item["text"] = _tmp["name"];
-									item["leaf"] = true;
-									item["pid"] = pid;
-									//item["checked"] = false;
-								}
-								cache.push(item);
-							}
-						}
-
-						processData(originData, bucket, -1);
-
-						return bucket;
-					},
-					b_scope: Beet.constants.cardServer,
-					reader: {
-						type: "json"	
-					}
-				},
-			})
-		}
-
+		Ext.bind(buildProductCategoryTreeStore, me)();
 		me.createTreeList();
 	},
 	refreshTreeList: function(){
