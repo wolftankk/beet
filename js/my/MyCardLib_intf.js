@@ -733,144 +733,6 @@ function MyCardSvc(url){
   this.url = url;
 }
 
-MyCardSvc.prototype.AddProductItem = function(ProductItemJSON, __callback) {
-  var __message = {
-    "method" : "MyCardSvc.AddProductItem",
-    "params" : {
-      "ProductItemJSON": ProductItemJSON
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
-MyCardSvc.prototype.UpdateProductItem = function(ProductItemJSON, __callback) {
-  var __message = {
-    "method" : "MyCardSvc.UpdateProductItem",
-    "params" : {
-      "ProductItemJSON": ProductItemJSON
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
-MyCardSvc.prototype.DeleteProductItem = function(AProductItemID, __callback) {
-  var __message = {
-    "method" : "MyCardSvc.DeleteProductItem",
-    "params" : {
-      "AProductItemID": AProductItemID
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
-MyCardSvc.prototype.GetProductItemPageData = function(Start, Limit, AWhere, __callback) {
-  var __message = {
-    "method" : "MyCardSvc.GetProductItemPageData",
-    "params" : {
-      "Start": Start,
-      "Limit": Limit,
-      "AWhere": AWhere
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
 MyCardSvc.prototype.AddProducts = function(ProductsJSON, __callback) {
   var __message = {
     "method" : "MyCardSvc.AddProducts",
@@ -939,12 +801,11 @@ MyCardSvc.prototype.UpdateProducts = function(ProductsJSON, __callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyCardSvc.prototype.DeleteProducts = function(PruductID, bDelProductItem, __callback) {
+MyCardSvc.prototype.DeleteProducts = function(PruductID, __callback) {
   var __message = {
     "method" : "MyCardSvc.DeleteProducts",
     "params" : {
-      "PruductID": PruductID,
-      "bDelProductItem": bDelProductItem
+      "PruductID": PruductID
       }
   }
   var __callbacks = null;

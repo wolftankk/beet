@@ -19,6 +19,8 @@ registerBeetAppsMenu("card", {
 
 Ext.namespace("Beet.apps.ProductsViewPort");
 
+
+/*
 Ext.define("Beet.apps.ProductsViewPort.AddProductItem", {
 	extend: "Ext.form.Panel",
 	height: "100%",
@@ -622,6 +624,7 @@ Ext.define("Beet.apps.ProductsViewPort.UpdateProductItem", {
 		me.doLayout();
 	}
 });
+*/
 
 Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 	extend: "Ext.form.Panel",
@@ -692,42 +695,50 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 							allowBlank: false
 						},
 						{
-							fieldLabel: "所属产品",
-							name: "pid",
-							allowBlank: false,
-							xtype: "trigger",
-							editable: false,
-							onTriggerClick: function(){
-								me.triggerOpenSelectProduct(this);
-							}
-						},
-						{
-							fieldLabel: "产品总价",
-							id: "p_total",
-							name: "p_total",
-							readOnly: true
-						},
-						{
-							fieldLabel: "消费次数",
-							name: "stepcount",
+							fieldLabel: "产品价格",
+							name: "price",
 							allowBlank: false
 						},
 						{
-							fieldLabel: "折扣价格",
+							fieldLabel: "产品生效日期",
+							xtype: "datefield",
 							allowBlank: false,
-							name: "realprice",
-							editable: false,
-							listeners: {
-								scope: me,
-								blur: function(){
-									me.onUpdateForm(true);
-								}
-							}
+							value: new Date(),
+							name: "startdate",
+							format: "Y/m/d"
 						},
 						{
-							fieldLabel: "折扣",
+							fieldLabel: "产品失效日期",
+							xtype: "datefield",
 							allowBlank: false,
-							name: "p_sale"
+							name: "enddate",
+							format: "Y/m/d"
+						},
+						{
+							fieldLabel: "产品规格",
+							name: "standards",
+							allowBlank: false
+						},
+						{
+							fieldLabel: "产品所属服务",
+							name: "serviceid",
+							allowBlank: false,
+							xtype: "combobox",
+							editable: false,
+							store: Beet.constants.ServiceList,
+							queryMode:"local",
+							displayField: "name",
+							valueField: "attr",
+						},
+						{
+							fieldLabel: "注释",
+							name: "descript",
+							allowBlank: true,
+						},
+						{
+							fieldLabel: "产品分类",
+							name: "categoryid",
+							allowBlank: false
 						},
 						{
 							xtype: "component",
@@ -736,6 +747,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 						{
 							xtype: "button",
 							text: "提交",
+							width: 200,
 							handler: function(btn, widget){
 								me.processData(this)	
 							}
@@ -751,6 +763,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 		me.doLayout();
 	},
 	triggerOpenSelectProduct: function(f){
+		/*
 		var me = this, cardServer = Beet.constants.cardServer;
 		var config = {
 			extend: "Ext.window.Window",
@@ -787,40 +800,11 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 			}
 		}));
 		win.doLayout();
-	},
-	onUpdateForm: function(force){
-		var me = this, cardServer = Beet.constants.cardServer;
-		var form = me.getForm().getForm();
-		if (me.selectedProductItem == null || (me.selectedProductItem && !me.selectedProductItem.raw)){
-			return;
-		}
-		//get data
-		var values = form.getValues();
-		var count = 0, sale = 1;
-		var productPrice = me.selectedProductItem.get("P_Price");
-
-		if (values["p_sale"] > 0){
-			sale = values["p_sale"];
-		}
-
-		count = values["count"]
-		var totalPrice = productPrice * count, realprice;
-		if (force){
-			sale = values["realprice"] / totalPrice;
-			realprice = values["realprice"];
-		}else{
-			realprice = sale * totalPrice;
-		}
-
-		form.setValues({
-			"p_total": totalPrice.toFixed(2),
-			"realprice": realprice.toFixed(2),
-			"p_sale": parseFloat(sale).toFixed(2)
-		});
+		*/
 	},
 	processData: function(f){
 		var me = this, cardServer = Beet.constants.cardServer;
-		me.onUpdateForm();//lastupdate
+		/*
 		var form = f.up("form").getForm(), result = form.getValues();
 		if (me.selectedProductItem == null || (me.selectedProductItem && !me.selectedProductItem.raw)){
 			Ext.Error.raise("添加失败!");
@@ -849,6 +833,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 				Ext.Error.raise(error);
 			}
 		});
+		*/
 	}
 });
 
@@ -884,13 +869,13 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 		}
 
 		me.callParent();
+		/*
 		cardServer.GetProductPageData(0, 1, "", {
 			success: function(data){
 				var win = Ext.create("Beet.apps.AdvanceSearch", {
 					searchData: Ext.JSON.decode(data),
 					b_callback: function(where){
 						me.b_filter = where;
-						me.getProductsMetaData();
 					}
 				});
 				win.show();
@@ -899,6 +884,8 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 				Ext.Error.raise(error);
 			}
 		});
+		*/
+		me.getProductsMetaData();
 	},
 	getProductsMetaData: function(){
 		var me = this, cardServer = Beet.constants.cardServer;

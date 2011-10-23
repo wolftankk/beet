@@ -84,6 +84,7 @@ registerBeetAppsMenu("configure",
 					columns: 6,
 					autoWidth: true,
 					items: [
+						/*
 						{
 							text: "添加产品",
 							handler: function(){
@@ -113,13 +114,13 @@ registerBeetAppsMenu("configure",
 									Beet.workspace.workspace.setActiveTab(item);
 								}
 							}
-						},
+						},*/
 						{
-							text: "增加消费产品",
+							text: "增加产品",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["addProducts"]
 								if (!item){
-									Beet.workspace.addPanel("addProducts", "添加消费产品", {
+									Beet.workspace.addPanel("addProducts", "添加产品", {
 										items: [
 											Ext.create("Beet.apps.ProductsViewPort.AddProducts")
 										]
@@ -130,11 +131,11 @@ registerBeetAppsMenu("configure",
 							}
 						},
 						{
-							text: "编辑消费产品",
+							text: "编辑产品",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["productsList"];
 								if (!item){
-									Beet.workspace.addPanel("productsList", "编辑消费产品", {
+									Beet.workspace.addPanel("productsList", "编辑产品", {
 										items: [
 											Ext.create("Beet.apps.ProductsViewPort.UpdateProducts")
 										]
