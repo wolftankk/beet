@@ -2135,7 +2135,7 @@ Ext.define("Beet.apps.AdvanceSearchForm", {
 
 		for (var k in metaData){
 			var item = metaData[k];
-			if (!item.FieldHidden || !item.FilterHidden){
+			if (!item.FieldHidden && !item.FilterHidden){
 				//下拉菜单
 				me.advanceFilters.push({
 					attr: item.FieldName,
@@ -2203,7 +2203,6 @@ Ext.define("Beet.apps.AdvanceSearchForm", {
 	search: function(where){
 		var me = this, customerServer = Beet.constants.customerServer;
 		if (me.b_callback){
-			console.log(where)
 			me.b_callback(where);
 		}
 

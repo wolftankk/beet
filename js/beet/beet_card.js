@@ -1234,22 +1234,6 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 		}
 
 		me.callParent();
-		/*
-		cardServer.GetProductPageData(0, 1, "", {
-			success: function(data){
-				var win = Ext.create("Beet.apps.AdvanceSearch", {
-					searchData: Ext.JSON.decode(data),
-					b_callback: function(where){
-						me.b_filter = where;
-					}
-				});
-				win.show();
-			},
-			failure: function(error){
-				Ext.Error.raise(error);
-			}
-		});
-		*/
 		me.getProductsMetaData();
 	},
 	getProductsMetaData: function(){
@@ -1414,7 +1398,29 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 				"->",
 				{
 					xtype: "button",
-					text: "高级搜索"
+					text: "高级搜索",
+					handler: function(){
+						var cardServer = Beet.constants.cardServer;
+						cardServer.GetProductPageData(0, 1, "", {
+							success: function(data){
+								var win = Ext.create("Beet.apps.AdvanceSearch", {
+									searchData: Ext.JSON.decode(data),
+									b_callback: function(where){
+										me.b_filter = where;
+										if (me.grid){
+											me.remove(me.grid);
+											me.doLayout();
+										}
+										me.getProductsMetaData();
+									}
+								});
+								win.show();
+							},
+							failure: function(error){
+								Ext.Error.raise(error);
+							}
+						});
+					}
 				}
 			]
 		})
