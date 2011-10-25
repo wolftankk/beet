@@ -1142,6 +1142,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 			height: 500,
 			border: 0,
 			useArrow: true,
+			bodyStyle: "background-color: #fff",
 			split: true,
 		});
 
@@ -1268,12 +1269,12 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 			}
 		};
 		
-		if (!Beet.apps.ProductsViewPort.ProductsModel){
+		//if (Ext.isDefined("Beet.apps.ProductsViewPort.ProductsModel")){
 			Ext.define("Beet.apps.ProductsViewPort.ProductsModel", {
 				extend: "Ext.data.Model",
 				fields: fields
 			});
-		}
+		//}
 
 		//need reset?
 		if (Beet.apps.ProductsViewPort.ProductsStore){
@@ -1520,18 +1521,17 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 		var me = this, rawData = parentMenu.rawData || parentMenu.raw, pid = rawData["PID"], pname = rawData["PName"], cardServer = Beet.constants.cardServer;
 		if (pid){
 			Ext.MessageBox.show({
-				title: "删除消费产品",
-				msg: "是否要删除消费产品 " + pname + " ? 是否同时还需要删除产品 " + rawData["PItemName"] + " ?<br/>Yes: 同时删除消费产品和产品;<br/>No: 只删除消费产品;<br/>Cancel: 取消删除,关闭对话框",
-				buttons: Ext.MessageBox.YESNOCANCEL,
+				title: "删除产品",
+				msg: "是否要删除产品 " + pname + " ? ", 
+				buttons: Ext.MessageBox.YESNO,
 				fn: function(btn){
-					if (btn == "yes" || btn == "no"){
-						var needDeleteItem = (btn == "yes") ? true : false;
-						cardServer.DeleteProducts(pid, needDeleteItem, rawData["PItemId"],{
+					if (btn == "yes"){
+						cardServer.DeleteProducts(pid, {
 							success: function(succ){
 								if (succ){
 									Ext.MessageBox.show({
 										title: "删除成功",
-										msg: "删除消费产品: " + pname + " 成功",
+										msg: "删除产品: " + pname + " 成功",
 										buttons: Ext.MessageBox.OK,
 										fn: function(){
 											me.storeProxy.loadPage(me.storeProxy.currentPage);
