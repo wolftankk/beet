@@ -1609,11 +1609,11 @@ Ext.define("Beet.apps.ProductsViewPort.ViewProducts", {
 	},
 	refreshTreeList: function(){
 		var me = this;
-		me.storeProxy.load();
+		me.treeStore.load();
 	},
 	createTreeList: function(){
 		var me= this, cardServer = Beet.constants.cardServer, store;
-		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.ProductCatgoryTreeStore");
+		me.treeStore = store = Ext.create("Beet.apps.ProductsViewPort.ProductCatgoryTreeStore");
 		me.treeList = Ext.create("Ext.tree.Panel", {
 			store: store,
 			frame: true,
