@@ -54,27 +54,12 @@ registerBeetAppsMenu("customer",
 								var item = Beet.apps.Menu.Tabs["editCustomer"];
 								var customerServer = Beet.constants.customerServer;
 								if (!item){
-									customerServer.GetCustomerPageData(0, 1, "", {
-										success: function(data){
-											var win = Ext.create("Beet.apps.AdvanceSearch", {
-												searchData: Ext.JSON.decode(data),
-												b_callback: function(where){
-													Beet.apps.Viewport.getColumnsData(function(){
-														Beet.workspace.addPanel("editCustomer", "编辑会员", {
-															items: [
-																Ext.create("Beet.apps.Viewport.CustomerList", {
-																	b_filter: where	
-																})
-															]	
-														});
-													});
-												}
-											});
-											win.show();
-										},
-										failure: function(error){
-											Ext.Error.raise(error);
-										}
+									Beet.apps.Viewport.getColumnsData(function(){
+										Beet.workspace.addPanel("editCustomer", "编辑会员", {
+											items: [
+											Ext.create("Beet.apps.Viewport.CustomerList")
+										]	
+										});
 									});
 								}else{
 									Beet.workspace.workspace.setActiveTab(item);
@@ -846,6 +831,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 	},
 	createCustomerGrid: function(){
 		var that = this, grid = that.grid, store = that.storeProxy, actions, __columns = [], columnsData = Beet.cache["customerColumns"];
+		var customerServer = Beet.constants.customerServer;
 		
 		var _actions = {
 			xtype: 'actioncolumn',
@@ -920,19 +906,44 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 				stripeRows: true
 			},
 			columns: __columns,
-			plugins: [
-				/*
+			tbar: [
+				"-",
 				{
-					ptype: "b_contextmenu",
-					contextMenu: [
-						that.editCustomer(),
-						that.deleteCustomer(),
-						"-",
-						{
-							text: "取消"
-						}
-					]
-				}*/
+					xtype: "button",
+					text: "高级搜索",
+					handler: function(){
+						customerServer.GetCustomerPageData(0, 1, "", {
+							success: function(data){
+								var win = Ext.create("Beet.apps.AdvanceSearch", {
+									searchData: Ext.JSON.decode(data),
+									b_callback: function(where){
+										that.b_filter = where;
+										that.storeProxy.setProxy({
+											type: "b_proxy",
+											b_method: customerServer.GetCustomerPageData,
+											startParam: "start",
+											limitParam: "limit",
+											b_params: {
+												"awhere" : that.b_filter
+											},
+											b_scope: Beet.constants.customerServer,
+											reader: {
+												type: "json",
+											root: "Data",
+											totalProperty: "TotalCount"
+											}
+										});
+										that.storeProxy.loadPage(that.storeProxy.currentPage);
+									}
+								});
+								win.show();
+							},
+							failure: function(error){
+								Ext.Error.raise(error);
+							}
+						});
+					}
+				}
 			],
 			bbar: Ext.create('Ext.PagingToolbar', {
 				store: this.storeProxy,
