@@ -9,6 +9,7 @@ $orange: #ed9200;
 $color: #fff;
 $font-size: 15px;
 $css-shadow-background-color: #000000;
+$include-shadow-images: false;
 
 //panel
 $panel-header-background-color: #3a4155;
@@ -32,6 +33,7 @@ $window-body-background-color: #1f2833;
 $window-body-color: #fff;
 $window-body-border-color: #18181a;
 $window-inner-border-color: #414b5c;
+$window-header-color: #fff;
 
 //loadmask
 $loadmask-msg-background-color: #3f4757;
@@ -158,6 +160,13 @@ $progress-background-color: #232d38;
 $progress-text-color-back: #aaa;
 $progress-bar-background-color: $orange;
 
+//btn group
+$btn-group-background-color: #393d4e;
+$btn-group-header-background-color: #676772;
+$btn-group-border-color: #606068;
+$btn-group-inner-border-color: #757478;
+$btn-group-header-color: #D2D2D2;
+
 //datepicker
 $datepicker-background-color: #21252e;
 $datepicker-border-color: #798294;
@@ -195,6 +204,16 @@ $boundlist-item-selected-background-color: #e5872c;
 $tip-base-color: #5e6986;
 $tip-border-color: #122d5e;
 $tip-body-color: #000;
+
+//menu
+$menu-background-color: #414551;
+$menu-text-color: #fff;
+
+$menu-item-active-background-color: $orange;
+$menu-item-active-border-color: darken($orange, 5);
+
+$menu-separator-border-color: #222233;
+$menu-separator-background-color: #666666;
 
 @import 'compass';
 @import 'ext4/default/all';
