@@ -933,7 +933,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 											totalProperty: "TotalCount"
 											}
 										});
-										that.storeProxy.loadPage(that.storeProxy.currentPage);
+										that.storeProxy.loadPage(1);
 									}
 								});
 								win.show();
