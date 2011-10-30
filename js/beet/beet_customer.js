@@ -2199,6 +2199,11 @@ Ext.define("Beet.apps.AddCustomerCard", {
 	},
 	onSelectCustomer: function(records){
 		var me = this, form = me.form.getForm(), cardServer = Beet.constants.cardServer;
+		//reset all
+		me.selectedCustomerId = null
+		me.selectedCards = {};
+		form.reset();
+		me.updateCardPanel();
 		if (records && records.length == 1){
 			var record = records[0];
 			var CTGUID = record.get("CTGUID"), name = record.get("CTName");
