@@ -1824,8 +1824,24 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		me.selectedCustomerId = null, me.selectedCards = {};
 		me.callParent();
 
-		me.createCustomerGrid();
+		me.getCardMetaData();
 		me.createMainPanel();
+	},
+	getCardMetaData: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		cardServer.GetCustomerCardsPageData(0, 1, "", {
+			success: function(data){
+				var data = Ext.JSON.decode(data);
+				me.buildStoreAndModel(data["MetaData"]);
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
+	},
+	buildStoreAndModel: function(data){
+		var me = this, cardServer = Beet.constants.cardServer;
+		console.log(data);
 	},
 	createCustomerGrid: function(){
 		var me = this;
