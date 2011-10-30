@@ -1819,13 +1819,16 @@ Ext.define("Beet.apps.AddCustomerCard", {
 	border: false,
 	bodyBorder: false,
 	plain: true,
+	b_filter: "",
 	initComponent: function(){
 		var me = this;
-		me.selectedCustomerId = null, me.selectedCards = {};
+		me.selectedCustomerId = null;
+		me.selectedCards = {};
+
 		me.callParent();
 
-		me.getCardMetaData();
 		me.createMainPanel();
+		me.getCardMetaData();
 	},
 	getCardMetaData: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -1839,22 +1842,102 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			}
 		});
 	},
-	buildStoreAndModel: function(data){
-		var me = this, cardServer = Beet.constants.cardServer;
-		console.log(data);
+	buildStoreAndModel: function(metaData){
+		var fields = [], me = this, cardServer = Beet.constants.cardServer;
+		me.columns = [];
+		for (var c = 0; c < metaData.length; ++c){
+			var d = metaData[c];
+			fields.push(d["FieldName"]);
+			if (!d["FieldHidden"]) {
+				me.columns.push({
+					flex: 1,
+					header: d["FieldLabel"],
+					dataIndex: d["FieldName"]	
+				})
+			}
+		};
+		if (! Ext.isDefined(Beet.apps.AddCustomerCardModel)){
+			Ext.define("Beet.apps.AddCustomerCardModel", {
+				extend: "Ext.data.Model",
+				fields: fields
+			});
+		}
+
+		if (!Ext.isDefined(Beet.apps.AddCustomerCardStore)){
+			Ext.define("Beet.apps.AddCustomerCardStore", {
+				extend: "Ext.data.Store",
+				model: Beet.apps.AddCustomerCardModel,
+				autoLoad: true,
+				pageSize: Beet.constants.PageSize,
+				load: function(options){
+					var that = this, options = options || {};
+					if (Ext.isFunction(options)){
+						options = {
+							callback: options
+						};
+					}
+
+					Ext.applyIf(options, {
+						groupers: that.groupers.items,
+						page: that.currentPage,
+						start: (that.currentPage - 1) * Beet.constants.PageSize,
+						limit: Beet.constants.PageSize,
+						addRecords: false
+					});
+					
+
+					that.proxy.b_params["start"] = options["start"];
+					that.proxy.b_params["limit"] = options["limit"];
+
+					return that.callParent([options]);
+				},
+				proxy: {
+					type: "b_proxy",
+					b_method: cardServer.GetCustomerCardsPageData,
+					startParam: "start",
+					limitParam: "limit",
+					b_params: {
+						"awhere" : me.b_filter
+					},
+					b_scope: Beet.constants.cardServer,
+					reader: {
+						type: "json",
+						root: "Data",
+						totalProperty: "TotalCount"
+					}
+				}
+			});
+		}
+		me.createCustomerGrid();
 	},
 	createCustomerGrid: function(){
-		var me = this;
-		//me.customerGrid = Ext.create("Beet.plugins.LiveSearch", {
-		//	width: "100%",
-		//	height: "50%",
-		//	frame: true,
-		//	plain: true,
-		//	border: false	
-		//})
+		var me = this, cardServer = Beet.constants.cardServer, store;
+		me.storeProxy = store = Ext.create("Beet.apps.AddCustomerCardStore");
+		me.customerGrid = Ext.create("Beet.plugins.LiveSearch", {
+			store: store,
+			title: "会员卡列表",
+			lookMask: true,
+			frame: true,
+			height: "50%",
+			width: "100%",
+			rorder: false,
+			bodyBorder: false,
+			autoScroll: true,
+			autoHeight: true,
+			autoWidth: true,
+			border: 0,
+			flex: 1,
+			cls: "iScroll",
+			columnLines: true,
+			viewConfig:{
+				trackOver: false,
+				stripeRows: true
+			},
+			columns: me.columns,
+		})
 
-		//me.add(me.customerGrid);
-		//me.doLayout();
+		me.add(me.customerGrid);
+		me.doLayout();
 	},
 	createMainPanel: function(){
 		var me = this;
@@ -1888,7 +1971,9 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			anchor: "fit",	
 			border: false,
 			bodyBorder: false,
+			frame: true,
 			plain: true,
+			title: "编辑区",
 			items: [
 				{
 					layout: {
@@ -1938,6 +2023,11 @@ Ext.define("Beet.apps.AddCustomerCard", {
 									},
 									items: [
 										{
+											fieldLabel: "卡号",
+											name: "cardno",
+											allowBlank: false
+										},
+										{
 											fieldLabel: "会员名",
 											xtype: "trigger",
 											width: 400,
@@ -1973,16 +2063,46 @@ Ext.define("Beet.apps.AddCustomerCard", {
 										},
 										{
 											fieldLabel: "注释",
-											allowBlank: false,
+											allowBlank: true,
+											xtype: "textarea",
 											name: "descript"
+										},
+									]
+								},
+								{
+									layout: {
+										type: "hbox",
+										columns: 2
+									},
+									height: 50,
+									border: false,
+									autoHeight: true,
+									autoScroll: true,
+									border: false,
+									bodyStyle: "background-color: #dfe8f5",
+									items: [
+										{
+											xtype: "component",
+											width: 150
 										},
 										{
 											xtype: "button",
-											scale: "large",
-											width: 200,
-											text: "更新",
+											scale: "medium",
+											text: "增加",
 											handler: function(){
 												me.processData(this);
+											}
+										},
+										{
+											xtype: "component",
+											width: 30
+										},
+										{
+											xtype: "button",
+											scale: "medium",
+											text: "更新",
+											handler: function(){
+												me.processData(this, true);
 											}
 										}
 									]
@@ -2013,7 +2133,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		me.initializeCardPanel();
 	},
 	onSelectCustomer: function(records){
-		var me = this, form = me.form.getForm();
+		var me = this, form = me.form.getForm(), cardServer = Beet.constants.cardServer;
 		if (records && records.length == 1){
 			var record = records[0];
 			var CTGUID = record.get("CTGUID"), name = record.get("CTName");
@@ -2022,6 +2142,24 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			})
 
 			me.selectedCustomerId = CTGUID;
+			
+			me.b_filter = "ID="+CTGUID;
+			me.storeProxy.setProxy({
+				type: "b_proxy",
+				b_method: cardServer.GetCustomerCardsPageData,
+				startParam: "start",
+				limitParam: "limit",
+				b_params: {
+					"awhere" : me.b_filter
+				},
+				b_scope: Beet.constants.cardServer,
+				reader: {
+					type: "json",
+					root: "Data",
+					totalProperty: "TotalCount"
+				}
+			});
+			me.storeProxy.loadPage(1);
 		}
 	},
 	initializeCardPanel: function(){
@@ -2137,6 +2275,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 				cid = record.get("ID");
 				rawData = record.raw;
 			}
+
 			if (selectedCards[cid] == undefined){
 				selectedCards[cid] = []
 			}else{
@@ -2147,6 +2286,29 @@ Ext.define("Beet.apps.AddCustomerCard", {
 				selectedCards[cid].push(rawData[k]);
 			}
 		}
+
+		var cardInfoData = records[0];
+		var validunit = parseInt(cardInfoData.get("ValidUnit")), validdate = cardInfoData.get("ValidDate");
+
+		var tryenddate = 0;
+		switch (validunit){
+			case 0:
+				tryenddate = 365 * 24 * 60 * 60 * 1000 * validdate;
+				break;
+			case 1:
+				tryenddate = 31 * 24 * 60 * 60 * 1000 * validdate;
+				break;
+			case 2:
+				tryenddate = 24 * 60 * 60 * 1000 * validdate;
+				break;
+		}
+		var form = me.form.getForm(), values = form.getValues();
+		var enddate = +new Date(values["startdate"]) + tryenddate;
+
+		console.log(enddate, +new Date(), validunit)
+		form.setValues({
+			enddate: new Date(enddate)	
+		})
 
 		me.updateCardPanel();
 	},
@@ -2168,9 +2330,10 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		for (var c in selectedCards){
 			tmp.push(selectedCards[c]);
 		}
+		
 		store.loadData(tmp);
 	},
-	processData: function(f){
+	processData: function(f, isUpdate){
 		var me = this, cardServer = Beet.constants.cardServer, form = me.form, results = form.getValues();
 		var selectedCards = me.selectedCards;
 		var customerId = me.selectedCustomerId;
@@ -2181,6 +2344,43 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		}
 
 		var cards = Ext.Object.getKeys(selectedCards);
+		results["id"] = customerId;
+		results["cards"] = [
+			{
+				id: cards[0],
+				startdate: +new Date(results["startdate"]) / 1000,
+				enddate: +new Date(results["enddate"]) / 1000
+			}
+		];
+
+		delete results["startdate"];
+		delete results["enddate"];
 		
+		if (isUpdate){
+			
+		}else{
+			cardServer.AddCustomerCard(Ext.JSON.encode(results), {
+				success: function(succ){
+					if (succ){
+						Ext.MessageBox.show({
+							title: "增加成功",
+							msg: "是否需要继续添加?",
+							buttons: Ext.MessageBox.YESNO,
+							fn: function(btn){
+								if (btn == "yes"){
+									me.selectedCustomerId = null
+									me.selectedCards = {};
+									form.reset();
+									me.updateCardPanel();
+								}
+							}
+						})
+					}
+				},
+				failure: function(error){
+					Ext.Error.raise(error);
+				}
+			});
+		}
 	}
 })
