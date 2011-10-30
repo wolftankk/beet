@@ -35,12 +35,13 @@ Ext.define("Beet.apps.Menu.Panel", {
 				configurePanel: that.configurePanel,
 				dock: "top"
 			},
-			that.configurePanel
 		]
 		
 		//当框体变动的时候 进行自动调整大小
 		Ext.EventManager.onWindowResize(that.fireResize, that);
 		this.callParent(arguments);
+		that.add(that.configurePanel);
+		that.doLayout();
 	},
 	getOperatorList: function(__callback){
 		//获取权限
@@ -225,9 +226,9 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 		var that = this, config,
 		configurePanel = that.configurePanel, navigationTab = configurePanel.getTabBar();
 		navigationTab.ownerCt = that.parent;
-		navigationTab.dock = "";
-		navigationTab.width = 600;
-		navigationTab.height=23;
+		//navigationTab.dock = "";
+		navigationTab.setWidth(600);
+		navigationTab.setHeight(23);
 		navigationTab.border=0;
 		config = {
 			cls: "beet-navtoolbar",
@@ -469,17 +470,15 @@ Ext.define("Beet.apps.Viewport", {
 		var that=this;
 		Ext.apply(this, {});
 
-		that.items = [
-			that.createMainPanel()
-		];
-
 		Ext.EventManager.onWindowResize(that.fireResize, that);
 
-		that.callParent();	
+		that.callParent();
+		that.add(that.createMainPanel());
+		that.doLayout();
 	},
 	onRender: function(){
 		var that = this, h = Ext.core.Element.getViewHeight();
-		//自动计算高度 总高度 - menu高度
+		////自动计算高度 总高度 - menu高度
 		that.setHeight(h-112);
 		that.callParent(arguments);
 	},
