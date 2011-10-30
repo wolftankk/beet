@@ -4847,21 +4847,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 		me.selectedPackageIndex = 0;
 		me.callParent()	
 
-		cardServer.GetPackagesPageDataToJSON(0, 1, "", {
-			success: function(data){
-				var win = Ext.create("Beet.apps.AdvanceSearch", {
-					searchData: Ext.JSON.decode(data),
-					b_callback: function(where){
-						me.b_filter = where;
-						me.buildStoreAndModel();
-					}
-				});
-				win.show();
-			},
-			failure: function(error){
-				Ext.Error.raise(error);
-			}
-		});
+		me.buildStoreAndModel();
 	},
 	buildStoreAndModel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -4960,11 +4946,11 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 		});
 	},
 	initializePackageGrid: function(){
-		var me = this;
+		var me = this, cardServer = Beet.constants.cardServer;
 		var __fields = me.packageList.__fields;
 		var store = me.packageList.store = Ext.create("Beet.apps.ProductsViewPort.packageStore");
 
-		var grid = me.packageList.grid = Ext.create("Ext.grid.Panel", {
+		var grid = me.packageList.grid = Ext.create("Beet.plugins.LiveSearch", {
 			autoHeight: true,
 			height: 480,
 			cls:"iScroll",
@@ -4975,6 +4961,44 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 			store: store,
 			columnLines: true,
 			columns: me.packageList.__columns,
+			tbar: [
+				"-",
+				{
+					xtype: "button",
+					text: "高级搜索",
+					handler: function(){
+						cardServer.GetPackagesPageDataToJSON(0, 1, "", {
+							success: function(data){
+								var win = Ext.create("Beet.apps.AdvanceSearch", {
+									searchData: Ext.JSON.decode(data),
+									b_callback: function(where){
+										me.b_filter = where;
+										me.packageList.store.setProxy({
+											type: "b_proxy",
+											b_method: cardServer.GetPackagesPageDataToJSON,
+											startParam: "start",
+											limitParam: "limit",
+											b_params: {
+												"awhere" : me.b_filter
+											},
+											b_scope: Beet.constants.cardServer,
+											reader: {
+												type: "json",
+												root: "Data",
+												totalProperty: "TotalCount"
+											}
+										});
+									}
+								});
+								win.show();
+							},
+							failure: function(error){
+								Ext.Error.raise(error);
+							}
+						});
+					}
+				}
+			],
 			bbar: Ext.create("Ext.PagingToolbar", {
 				store: store,
 				displayInfo: true,
