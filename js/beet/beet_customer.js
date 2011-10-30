@@ -1824,7 +1824,21 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		me.selectedCustomerId = null, me.selectedCards = {};
 		me.callParent();
 
+		me.createCustomerGrid();
 		me.createMainPanel();
+	},
+	createCustomerGrid: function(){
+		var me = this;
+		//me.customerGrid = Ext.create("Beet.plugins.LiveSearch", {
+		//	width: "100%",
+		//	height: "50%",
+		//	frame: true,
+		//	plain: true,
+		//	border: false	
+		//})
+
+		//me.add(me.customerGrid);
+		//me.doLayout();
 	},
 	createMainPanel: function(){
 		var me = this;
@@ -1853,7 +1867,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			autoHeight: true,
 			autoScroll: true,
 			cls: "iScroll",
-			height: "100%",
+			height: "50%",
 			width: "100%",
 			anchor: "fit",	
 			border: false,
@@ -1929,12 +1943,17 @@ Ext.define("Beet.apps.AddCustomerCard", {
 										{
 											fieldLabel: "生效日期",
 											allowBlank: false,
-											name: "startdate"
+											name: "startdate",
+											xtype: "datefield",
+											value: new Date(),
+											format: "Y/m/d"
 										},
 										{
 											fieldLabel: "失效日期",
 											allowBlank: false,
-											name: "enddate"
+											name: "enddate",
+											xtype: "datefield",
+											format: "Y/m/d"
 										},
 										{
 											fieldLabel: "注释",
@@ -2077,7 +2096,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 
 		win.add(Ext.create("Beet.apps.ProductsViewPort.CardList", {
 			b_type: "selection",
-			b_selectionMode: "MULTI",
+			b_selectionMode: "SINGLE",
 			b_selectionCallback: function(records){
 				if (records.length == 0){ win.close(); return;}
 				me.addCard(records);
