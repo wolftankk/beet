@@ -613,10 +613,6 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 	autoScroll: true,
 	height: "100%",
 	width: "100%",
-	layout: {
-		type: "hbox",
-		columns: 2
-	},
 	frame: true,
 	border: false,
 	shadow: true,
@@ -628,8 +624,22 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 		}else{
 			me.editable = true;
 		}
-
+		
 		me.callParent();
+		me.mainPanel = Ext.create("Ext.panel.Panel", {
+			height: (me.b_type == "selection" ? "95%" : "100%"),
+			width: "100%",
+			autoHeight: true,
+			autoScroll: true,
+			border: false,
+			layout: {
+				type: "hbox",
+				columns: 2,
+				align: 'stretch'
+			},
+		})
+		me.add(me.mainPanel);
+		me.doLayout();
 		me.createTreeList();
 		me.getProductsMetaData();
 	},
@@ -739,9 +749,9 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 			scope: me
 		})
 
-		me.add(me.treeList);
+		me.mainPanel.add(me.treeList);
 		me.treeList.setHeight(Beet.workspace.getHeight() - 40);
-		me.doLayout();
+		me.mainPanel.doLayout();
 	},
 	onTreeItemClick: function(frame, record, item){
 		var me = this, id = record.get("id");
@@ -855,12 +865,13 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 				}
 			]
 		})
-		me.add(me.grid);
-		me.doLayout();
+		me.mainPanel.add(me.grid);
+		me.mainPanel.doLayout();
 
 		if (me.b_type == "selection"){
 			me.add(Ext.widget("button", {
 				text: "确定",
+				floating: false,
 				handler: function(){
 					if (me.b_selectionCallback){
 						me.b_selectionCallback(me.selModel.getSelection());
@@ -2476,7 +2487,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 		me.productsPanel = Ext.widget("panel", Ext.apply(options, {
 			tbar: [{
 				xtype: "button",
-				text: "绑定消费产品",
+				text: "绑定产品",
 				handler: function(){
 					me.selectProducts();
 				}
@@ -2623,7 +2634,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 		}
 		_actions.items.push("-",{
 			icon: "./resources/themes/images/fam/delete.gif",
-			tooltip: "删除消耗产品",
+			tooltip: "删除产品",
 			id: "customer_grid_delete",
 			handler: function(grid, rowIndex, colIndex){
 				var d = grid.store.getAt(rowIndex)
@@ -2680,7 +2691,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 		var me = this, cardServer = Beet.constants.cardServer;
 		var config = {
 			extend: "Ext.window.Window",
-			title: "选择消费产品",
+			title: "选择产品",
 			width: 900,
 			height: 640,
 			autoScroll: true,
@@ -2953,21 +2964,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		me.selectedItemIndex = 0;
 		me.callParent()	
 
-		cardServer.GetItemPageData(0, 1, "", {
-			success: function(data){
-				var win = Ext.create("Beet.apps.AdvanceSearch", {
-					searchData: Ext.JSON.decode(data),
-					b_callback: function(where){
-						me.b_filter = where;
-						me.buildStoreAndModel();
-					}
-				});
-				win.show();
-			},
-			failure: function(error){
-				Ext.Error.raise(error);
-			}
-		});
+		me.buildStoreAndModel();
 	},
 	buildStoreAndModel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -3066,11 +3063,11 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		});
 	},
 	initializeItemGrid: function(){
-		var me = this;
+		var me = this, cardServer = Beet.constants.cardServer;
 		var __fields = me.itemList.__fields;
 		var store = me.itemList.store = Ext.create("Beet.apps.ProductsViewPort.itemStore");
 
-		var grid = me.itemList.grid = Ext.create("Ext.grid.Panel", {
+		var grid = me.itemList.grid = Ext.create("Beet.plugins.LiveSearch", {
 			autoHeight: true,
 			height: 480,
 			cls:"iScroll",
@@ -3081,6 +3078,45 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 			store: store,
 			columnLines: true,
 			columns: me.itemList.__columns,
+			tbar: [
+				"-",
+				{
+					text: "高级搜索",
+					xtype: "button",
+					handler: function(){
+						cardServer.GetItemPageData(0, 1, "", {
+							success: function(data){
+								var win = Ext.create("Beet.apps.AdvanceSearch", {
+									searchData: Ext.JSON.decode(data),
+									b_callback: function(where){
+										me.b_filter = where;
+										me.itemList.store.setProxy({
+											type: "b_proxy",
+											b_method: cardServer.GetItemPageData,
+											startParam: "start",
+											limitParam: "limit",
+											b_params: {
+												"awhere" : me.b_filter
+											},
+											b_scope: Beet.constants.cardServer,
+											reader: {
+												type: "json",
+												root: "Data",
+												totalProperty: "TotalCount"
+											}
+										})
+										me.itemList.store.loadPage(1);
+									}
+								});
+								win.show();
+							},
+							failure: function(error){
+								Ext.Error.raise(error);
+							}
+						});
+					}
+				},
+			],
 			bbar: Ext.create("Ext.PagingToolbar", {
 				store: store,
 				displayInfo: true,
@@ -3121,7 +3157,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		me.productsPanel = Ext.widget("panel", Ext.apply(options, {
 			tbar: [{
 				xtype: "button",
-				text: "绑定消费产品",
+				text: "绑定产品",
 				handler: function(){
 					me.selectProducts();
 				}
@@ -3497,6 +3533,11 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 	addChargeType: function(records, isRaw){
 		var me = this, selectedChargeType = me.selectedChargeType;
 		var __fields = me.chargeTypesPanel.__fields;
+		if (records == undefined){
+			selectedChargeType = {};
+			me.updateChargeTypePanel();
+			return;
+		}
 		for (var r = 0; r < records.length; ++r){
 			var record = records[r];
 			var cid, rawData;
