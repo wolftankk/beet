@@ -1814,6 +1814,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 	width: "100%",
 	autoHeight: true,
 	autoScroll:true,
+	autoDestory: true,
 	frame:true,
 	border: false,
 	bodyBorder: false,
@@ -2328,17 +2329,23 @@ Ext.define("Beet.apps.AddCustomerCard", {
 					header: "生效日期",
 					dataIndex: "startdate",
 					flex: 1,
-					editor: 'datefield',
-					field: {
+					xtype: 'datecolumn',
+					editor: {
 						xtype: "datefield",
-						format: "Y/m/d"
+						format: "Y/m/d",
+						allowBlank: false
 					}
 				},
 				{
 					header: "失效日期",
 					dataIndex: "enddate",
 					flex: 1,
-					editor: 'datefield'
+					xtype: 'datecolumn',
+					editor: {
+						xtype: "datefield",
+						format: "Y/m/d",
+						allowBlank: false
+					}
 				},
 				]);
 
@@ -2362,6 +2369,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			height: "100%",
 			cls: "iScroll",
 			autoScroll: true,
+			autoHeight: true,
 			columnLines: true,
 			columns: me.cardPanel.__columns,
 			plugins: [
@@ -2370,6 +2378,10 @@ Ext.define("Beet.apps.AddCustomerCard", {
 				})
 			],
 		});
+
+		grid.on("beforedestroy", function(){
+			me.cardPanel.grid.plugins = [];
+		})
 
 		me.cardPanel.add(grid);
 		me.cardPanel.doLayout();
