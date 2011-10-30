@@ -1334,36 +1334,81 @@ Ext.define("Beet.apps.ProductsViewPort.AddRebate", {
 		me.form = Ext.create("Ext.form.Panel", config);
 		me.add(me.form);
 		me.doLayout();
+		if (me.b_editMode && me.b_rawData){
+			me.restoreFromData()
+		}
+	},
+	restoreFromData: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var form = me.form.getForm(), rawData = me.b_rawData;
+		form.setValues({
+			name: rawData["Name"],
+			value: rawData["Value"].replace(",", ""),
+			ismoney: rawData["IsMoney"] ? 1 : 0,
+			startdate: rawData["StartDate"],
+			enddate: rawData["EndDate"],
+			validunit: parseInt(rawData["ValidUnit"]),
+			descript: rawData["Descript"]
+		});
 	},
 	processData: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
 		var form = me.form.getForm(), results = form.getValues();
 		results["ismoney"] = results["ismoney"] == 1 ? true : false;
-		cardServer.AddRebate(Ext.JSON.encode(results), {
-			success: function(rid){
-				if (rid > -1){
-					Ext.Msg.show({
-						title: "增加返利",
-						msg: "添加成功, 是否需要继续添加?",
-						buttons: Ext.MessageBox.YESNO,
-						fn: function(btn){
-							if (btn == "yes"){
-								form.reset();
-							}else{
-								if (me.b_callback){
-									me.b_callback();
+
+		if (me.b_editMode){
+			var rid = me.b_rawData["RID"];
+			results["id"] = rid;
+			cardServer.UpdateRebate(Ext.JSON.encode(results), {
+				success: function(succ){
+					if (succ){
+						Ext.MessageBox.show({
+							title: "提示",
+							msg: "更新返利成功!",
+							buttons: Ext.MessageBox.YES,
+							fn: function(btn){
+								if (btn == "yes"){
+									if (me.b_callback){
+										me.b_callback();
+									}
 								}
 							}
-						}
-					});
-				}else{
-					Ext.Msg.alert("添加失败", "添加返利失败")
+						});
+					}else{
+						Ext.Error.raise("更新返利失败");
+					}
+				},
+				failure: function(error){
+					Ext.Error.raise(error)
 				}
-			},
-			failure: function(error){
-				Ext.Error.raise(error)
-			}
-		})
+			})
+		}else{
+			cardServer.AddRebate(Ext.JSON.encode(results), {
+				success: function(rid){
+					if (rid > -1){
+						Ext.Msg.show({
+							title: "增加返利",
+							msg: "添加成功, 是否需要继续添加?",
+							buttons: Ext.MessageBox.YESNO,
+							fn: function(btn){
+								if (btn == "yes"){
+									form.reset();
+								}else{
+									if (me.b_callback){
+										me.b_callback();
+									}
+								}
+							}
+						});
+					}else{
+						Ext.Msg.alert("添加失败", "添加返利失败")
+					}
+				},
+				failure: function(error){
+					Ext.Error.raise(error)
+				}
+			})
+		}
 	}
 });
 
@@ -1622,21 +1667,32 @@ Ext.define("Beet.apps.ProductsViewPort.RebateList", {
 			me.doLayout();
 		}
 	},
-	/*
-	editChargeType: function(parentMenu){
-		var me = this, rawData = parentMenu.rawData || parentMenu.raw, cid = rawData["CID"], cname = rawData["CName"], cardServer = Beet.constants.cardServer;
-		if (cid && me.editable){
+	editRebate: function(parentMenu){
+		var me = this, rawData = parentMenu.rawData || parentMenu.raw, rid = rawData["RID"], cname = rawData["Name"], cardServer = Beet.constants.cardServer;
+		if (rid && me.editable){
 			Ext.MessageBox.show({
-				title: "编辑费用",
+				title: "编辑返利",
 				msg: "是否要更新 " + cname + " 的资料",
 				buttons: Ext.MessageBox.YESNO,
 				fn : function(btn){
 					if (btn == "yes"){
-						var win = Ext.create("Beet.apps.ProductsViewPort.ViewChargeType", {
-							editable: true,
-							storeProxy: me.storeProxy,
-							rawData: rawData	
+						var win = Ext.create("Ext.window.Window", {
+							height: 300,
+							width: 300,
+							title: "编辑返利",
+							autoHeight: true,
+							autoScroll: true,
+							autoWidth: true
 						});
+						win.add(Ext.create("Beet.apps.ProductsViewPort.AddRebate", {
+							b_rawData: rawData,
+							b_editMode: true,
+							b_callback: function(){
+								me.storeProxy.loadPage(me.storeProxy.currentPage);
+								win.close();
+							}
+						}));
+						win.doLayout();
 						win.show();
 					}
 				}
@@ -1650,28 +1706,28 @@ Ext.define("Beet.apps.ProductsViewPort.RebateList", {
 			win.show();
 		}
 	},
-	deleteCharge: function(parentMenu){
-		var me = this, rawData = parentMenu.rawData || parentMenu.raw, cid = rawData["CID"], cname = rawData["CName"], cardServer = Beet.constants.cardServer;
-		if (cid){
+	deleteRebate: function(parentMenu){
+		var me = this, rawData = parentMenu.rawData || parentMenu.raw, rid = rawData["RID"], cname = rawData["Name"], cardServer = Beet.constants.cardServer;
+		if (rid){
 			Ext.MessageBox.show({
-				title: "删除费用",
-				msg: "是否需要删除费用: " + cname + "?",
+				title: "删除返利",
+				msg: "是否需要删除返利: " + cname + "?",
 				buttons: Ext.MessageBox.YESNO,
 				fn: function(btn){
 					if (btn == "yes"){
-						cardServer.DeleteChargeType(cid, {
+						cardServer.DeleteRebate(rid, {
 							success: function(succ){
 								if (succ){
 									Ext.MessageBox.show({
 										title: "删除成功",
-										msg: "删除费用: " + cname + " 成功",
+										msg: "删除返利: " + cname + " 成功",
 										buttons: Ext.MessageBox.OK,
 										fn: function(){
 											me.storeProxy.loadPage(me.storeProxy.currentPage);
 										}
 									})
 								}else{
-									Ext.Error.raise("删除费用失败");
+									Ext.Error.raise("删除返利失败");
 								}
 							},
 							failure: function(error){
@@ -1684,7 +1740,7 @@ Ext.define("Beet.apps.ProductsViewPort.RebateList", {
 		}else{
 			Ext.Error.raise("删除费用失败");
 		}
-	}*/
+	}
 });
 
 //charge
@@ -1893,22 +1949,7 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 		}
 
 		me.callParent();
-
-		cardServer.GetChargeTypePageData(0, 1, "", {
-			success: function(data){
-				var win = Ext.create("Beet.apps.AdvanceSearch", {
-					searchData: Ext.JSON.decode(data),
-					b_callback: function(where){
-						me.b_filter = where;
-						me.getProductsMetaData();
-					}
-				});
-				win.show();
-			},
-			failure: function(error){
-				Ext.Error.raise(error);
-			}
-		});
+		me.getProductsMetaData();
 	},
 	getProductsMetaData: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -1994,7 +2035,7 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 		me.createGrid();
 	},
 	createGrid: function(){
-		var me = this, grid = me.grid, sm = null;
+		var me = this, grid = me.grid, sm = null, cardServer = Beet.constants.cardServer;
 		if (me.b_type == "selection"){
 			sm = Ext.create("Ext.selection.CheckboxModel", {
 				mode: me.b_selectionMode ? me.b_selectionMode : "SINGLE"
@@ -2059,6 +2100,45 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 				stripeRows: true
 			},
 			columns: me.columns,
+			tbar: [
+				"-",
+				{
+					xtype: "button",
+					text: "高级搜索",
+					handler: function(){
+						cardServer.GetChargeTypePageData(0, 1, "", {
+							success: function(data){
+								var win = Ext.create("Beet.apps.AdvanceSearch", {
+									searchData: Ext.JSON.decode(data),
+									b_callback: function(where){
+										me.b_filter = where;
+										me.storeProxy.setProxy({
+											type: "b_proxy",
+											b_method: cardServer.GetChargeTypePageData,
+											startParam: "start",
+											limitParam: "limit",
+											b_params: {
+												"awhere" : me.b_filter
+											},
+											b_scope: Beet.constants.cardServer,
+											reader: {
+												type: "json",
+												root: "Data",
+												totalProperty: "TotalCount"
+											}
+										});
+										me.storeProxy.loadPage(1)
+									}
+								});
+								win.show();
+							},
+							failure: function(error){
+								Ext.Error.raise(error);
+							}
+						});
+					}
+				}
+			],
 			bbar: Ext.create("Ext.PagingToolbar", {
 				store: store,
 				displayInfo: true,
