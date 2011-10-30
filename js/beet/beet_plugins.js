@@ -833,26 +833,14 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 	maximizable: true,
 	border: 0,
 	bodyBorder: false,
+	b_filter: "",
 	initComponent: function(config){
 		var me = this, customerServer = Beet.constants.customerServer;
 		me.items = [];
 		me.createCustomerInfo();
 		me.callParent();
 
-		customerServer.GetCustomerPageData(0, 1, "", {
-			success: function(data){
-				var win = Ext.create("Beet.apps.AdvanceSearch", {
-					searchData: Ext.JSON.decode(data),
-					b_callback: function(where){
-						me.buildStoreAndModel(where);
-					}
-				})
-				win.show();
-			},
-			failure: function(error){
-				Ext.Error.raise(error);
-			}
-		});
+		me.buildStoreAndModel(me.b_filter);
 	},
 	createCustomerInfo: function(){
 		var me = this;
@@ -882,53 +870,8 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 	},
 	buildStoreAndModel: function(where){
 		var me = this;
-		if (!Beet.plugins.selectCustomerWindowCustomerListModel){
-			//ISSUE #65
-			Ext.define("Beet.plugins.selectCustomerWindowCustomerListModel", {
-				extend: "Ext.data.Model",
-				fields: [
-					"CTGUID",
-					"CTCardNo",
-					"CTName",
-					"CTNikeName",
-					"CTMobile"
-				]
-			});
-		}
-
-		if (Beet.plugins.selectCustomerWindowCustomerListStore){
-			Beet.plugins.selectCustomerWindowCustomerListStore = undefined 
-		}
-		
-
-		Ext.define("Beet.plugins.selectCustomerWindowCustomerListStore", {
-			extend: "Ext.data.Store",
-			model: Beet.plugins.selectCustomerWindowCustomerListModel,
-			autoLoad: true,
-			pageSize: Beet.constants.PageSize,
-			b_filter: "",
-			load: function(options){
-				var me = this;
-				options = options || {};
-				if (Ext.isFunction(options)) {
-					options = {
-						callback: options
-					};
-				}
-
-				Ext.applyIf(options, {
-					groupers: me.groupers.items,
-					page: me.currentPage,
-					start: (me.currentPage - 1) * me.pageSize,
-					limit: me.pageSize,
-					addRecords: false
-				});      
-				me.proxy.b_params["start"] = options["start"];
-				me.proxy.b_params["limit"] = options["limit"]
-
-				return me.callParent([options]);
-			},
-			proxy: {
+		if (me.storeProxy){
+			me.storeProxy.setProxy({
 				type: "b_proxy",
 				b_method: Beet.constants.customerServer.GetCustomerPageData,
 				startParam: "start",
@@ -942,21 +885,83 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 					root: "Data",
 					totalProperty: "TotalCount"
 				}
-			}
-		});
+			});
+			me.createSelectorForm();
+			return;
+		}
+
+		if (!Ext.isDefined(Beet.plugins.selectCustomerWindowCustomerListModel)){
+			Ext.define("Beet.plugins.selectCustomerWindowCustomerListModel", {
+				extend: "Ext.data.Model",
+				fields: [
+					"CTGUID",
+					"CTCardNo",
+					"CTName",
+					"CTNikeName",
+					"CTMobile"
+				]
+			});
+		}
+
+
+		if (!Ext.isDefined(Beet.plugins.selectCustomerWindowCustomerListStore)){
+			Ext.define("Beet.plugins.selectCustomerWindowCustomerListStore", {
+				extend: "Ext.data.Store",
+				model: Beet.plugins.selectCustomerWindowCustomerListModel,
+				autoLoad: true,
+				pageSize: Beet.constants.PageSize,
+				b_filter: "",
+				load: function(options){
+					var me = this;
+					options = options || {};
+					if (Ext.isFunction(options)) {
+						options = {
+							callback: options
+						};
+					}
+
+					Ext.applyIf(options, {
+						groupers: me.groupers.items,
+						page: me.currentPage,
+						start: (me.currentPage - 1) * me.pageSize,
+						limit: me.pageSize,
+						addRecords: false
+					});      
+					me.proxy.b_params["start"] = options["start"];
+					me.proxy.b_params["limit"] = options["limit"]
+
+					return me.callParent([options]);
+				},
+				proxy: {
+					type: "b_proxy",
+					b_method: Beet.constants.customerServer.GetCustomerPageData,
+					startParam: "start",
+					limitParam: "limit",
+					b_params: {
+						"filter": where
+					},
+					b_scope: Beet.constants.customerServer,
+					reader: {
+						type: "json",
+						root: "Data",
+						totalProperty: "TotalCount"
+					}
+				}
+			});
+		}
 
 		me.storeProxy = Ext.create("Beet.plugins.selectCustomerWindowCustomerListStore");
 		me.createSelectorForm();
 	},
 	createSelectorForm: function(){
-		var form, me = this;
+		var form, me = this, customerServer = Beet.constants.customerServer;
 		var sm = Ext.create("Ext.selection.CheckboxModel", {
 			mode: me.b_selectionMode ? me.b_selectionMode : "MULTI"	
 		});
 		me.selModel = sm;
 		
 
-		form = Ext.create("Ext.grid.Panel", {
+		form = Ext.create("Beet.plugins.LiveSearch", {
 			store: me.storeProxy,
 			selModel: sm,
 			frame: true,
@@ -992,6 +997,44 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 					text: "地址",
 					flex: 1,
 					dataIndex: "CTAddress"
+				}
+			],
+			tbar: [
+				"-",
+				{
+					xtype: "button",
+					text: "高级搜索",
+					handler: function(){
+						customerServer.GetCustomerPageData(0, 1, "", {
+							success: function(data){
+								var win = Ext.create("Beet.apps.AdvanceSearch", {
+									searchData: Ext.JSON.decode(data),
+									b_callback: function(where){
+										me.storeProxy.setProxy({
+											type: "b_proxy",
+											b_method: Beet.constants.customerServer.GetCustomerPageData,
+											startParam: "start",
+											limitParam: "limit",
+											b_params: {
+												"filter": where
+											},
+											b_scope: Beet.constants.customerServer,
+											reader: {
+												type: "json",
+												root: "Data",
+												totalProperty: "TotalCount"
+											}
+										});
+										me.storeProxy.loadPage(1)
+									}
+								})
+								win.show();
+							},
+							failure: function(error){
+								Ext.Error.raise(error);
+							}
+						});
+					}
 				}
 			],
 			bbar: Ext.create('Ext.PagingToolbar', {

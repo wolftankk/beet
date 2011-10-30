@@ -2136,6 +2136,16 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		store.loadData(tmp);
 	},
 	processData: function(f){
+		var me = this, cardServer = Beet.constants.cardServer, form = me.form, results = form.getValues();
+		var selectedCards = me.selectedCards;
+		var customerId = me.selectedCustomerId;
 
+		if (!customerId){
+			Ext.MessageBox.alert("失败", "请选择会员!");
+			return;
+		}
+
+		var cards = Ext.Object.getKeys(selectedCards);
+		
 	}
 })
