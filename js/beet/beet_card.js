@@ -7157,7 +7157,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		_actions.items.push(
 			"-", "-", "-", {
 				icon: './resources/themes/images/fam/edit.png',
-				tooltip: "编辑卡项",
+				tooltip: me.b_type == "selection" ? "查看卡项" : "编辑卡项",
 				id: "customer_grid_edit",
 				handler:function(grid, rowIndex, colIndex){
 					var d = me.storeProxy.getAt(rowIndex)
@@ -7186,7 +7186,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 			lookMask: true,
 			frame: true,
 			collapsible: false,
-			height: me.b_editable ? "95%" : "100%",
+			height: me.b_type == "selection" ? "95%" : "100%",
 			width : "100%",
 			rorder: false,
 			bodyBorder: false,
@@ -7253,18 +7253,18 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		me.add(me.cardgrid);
 		me.doLayout();
 
-		//if (me.b_type == "selection"){
-		//	me.add(Ext.widget("button", {
-		//		text: "确定",
-		//		floating: false,
-		//		handler: function(){
-		//			if (me.b_selectionCallback){
-		//				me.b_selectionCallback(me.selModel.getSelection());
-		//			}
-		//		}
-		//	}))
-		//	me.doLayout();
-		//}
+		if (me.b_type == "selection"){
+			me.add(Ext.widget("button", {
+				text: "确定",
+				width: 200,
+				handler: function(){
+					if (me.b_selectionCallback){
+						me.b_selectionCallback(me.selModel.getSelection());
+					}
+				}
+			}))
+			me.doLayout();
+		}
 	},
 	deleteCardItem: function(record){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -7291,53 +7291,94 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 	},
 	editCardItem: function(record){
 		var me = this, cardServer = Beet.constants.cardServer;
-		Ext.MessageBox.show({
-			title: "编辑卡项",
-			msg: "你确定需要编辑 " + record.get("Name") + " 吗?",
-			buttons: Ext.MessageBox.YESNO,
-			fn: function(btn){
-				if (btn == "yes"){
-					var win = Ext.create("Ext.window.Window", {
-						height: 670,
-						width: 1100,
-						maximized: true,
-						autoScroll: true,
-						autoHeight: true,
-						autoDestory: true,
-						plain: true,
-						title: "编辑 " + record.get("Name"),
-						border: false
-					});
+		if (me.b_type == "selection"){
+			var win = Ext.create("Ext.window.Window", {
+				height: 670,
+				width: 1100,
+				maximized: true,
+				autoScroll: true,
+				autoHeight: true,
+				autoDestory: true,
+				plain: true,
+				title: "查看 " + record.get("Name"),
+				border: false
+			});
 
-					me.cardInfo = win;
-					win.show();
-					me.createCardPanel();
-					Ext.MessageBox.show({
-						msg: "正在载入卡项数据...",
-						progressText: "载入中...",
-						width: 300,
-						wait: true,
-						waitConfig: {interval: 800},
-						closable: false
-					})
-					setTimeout(function(){
-						cardServer.GetCardDetailData(record.get("ID"), {
-							success: function(data){
-								var data = Ext.JSON.decode(data);
-								me.onSelectItem(record, data);
-							},
-							failure: function(error){
-								Ext.MessageBox.hide();
-								Ext.Error.raise(error);
-							}
-						})
-					}, 2000);
-					setTimeout(function(){
+			me.cardInfo = win;
+			win.show();
+			me.createCardPanel();
+			Ext.MessageBox.show({
+				msg: "正在载入卡项数据...",
+				progressText: "载入中...",
+				width: 300,
+				wait: true,
+				waitConfig: {interval: 800},
+				closable: false
+			})
+			setTimeout(function(){
+				cardServer.GetCardDetailData(record.get("ID"), {
+					success: function(data){
+						var data = Ext.JSON.decode(data);
+						me.onSelectItem(record, data);
+					},
+					failure: function(error){
 						Ext.MessageBox.hide();
-					}, 8000);
+						Ext.Error.raise(error);
+					}
+				})
+			}, 2000);
+			setTimeout(function(){
+				Ext.MessageBox.hide();
+			}, 8000);
+		}else{
+			Ext.MessageBox.show({
+				title: "编辑卡项",
+				msg: "你确定需要编辑 " + record.get("Name") + " 吗?",
+				buttons: Ext.MessageBox.YESNO,
+				fn: function(btn){
+					if (btn == "yes"){
+						var win = Ext.create("Ext.window.Window", {
+							height: 670,
+							width: 1100,
+							maximized: true,
+							autoScroll: true,
+							autoHeight: true,
+							autoDestory: true,
+							plain: true,
+							title: "编辑 " + record.get("Name"),
+							border: false
+						});
+
+						me.cardInfo = win;
+						win.show();
+						me.createCardPanel();
+						Ext.MessageBox.show({
+							msg: "正在载入卡项数据...",
+							progressText: "载入中...",
+							width: 300,
+							wait: true,
+							waitConfig: {interval: 800},
+							closable: false
+						})
+						setTimeout(function(){
+							cardServer.GetCardDetailData(record.get("ID"), {
+								success: function(data){
+									var data = Ext.JSON.decode(data);
+									me.onSelectItem(record, data);
+								},
+								failure: function(error){
+									Ext.MessageBox.hide();
+									Ext.Error.raise(error);
+								}
+							})
+						}, 2000);
+						setTimeout(function(){
+							Ext.MessageBox.hide();
+						}, 8000);
+					}
 				}
-			}
-		})
+			})
+		}
 	},
 	createCardPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -7498,6 +7539,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 											scale: "large",
 											width: 200,
 											text: "更新",
+											hidden: me.b_type == "selection",
 											handler: function(){
 												me.processData(this);
 											}

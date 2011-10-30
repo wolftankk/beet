@@ -950,7 +950,9 @@ Ext.define("Beet.plugins.selectCustomerWindow", {
 	},
 	createSelectorForm: function(){
 		var form, me = this;
-		var sm = Ext.create("Ext.selection.CheckboxModel");
+		var sm = Ext.create("Ext.selection.CheckboxModel", {
+			mode: me.b_selectionMode ? me.b_selectionMode : "MULTI"	
+		});
 		me.selModel = sm;
 		
 

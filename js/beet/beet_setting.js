@@ -99,6 +99,7 @@ registerBeetAppsMenu("configure",
 								}
 							}
 						},
+						/*
 						{
 							text: "返利",
 							handler: function(){
@@ -113,6 +114,7 @@ registerBeetAppsMenu("configure",
 								}
 							},
 						},
+						*/
 						{
 							text: "增加产品",
 							handler: function(){

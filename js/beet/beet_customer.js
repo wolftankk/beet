@@ -1828,6 +1828,27 @@ Ext.define("Beet.apps.AddCustomerCard", {
 	},
 	createMainPanel: function(){
 		var me = this;
+
+		var options = {
+			autoScroll: true,
+			height: 460,
+			cls: "iScroll",
+			border: true,
+			plain: true,
+			flex: 1,
+			bodyStyle: "background-color: #dfe8f5"
+		}
+
+		me.cardPanel = Ext.widget("panel", Ext.apply(options, {
+			tbar: [{
+				xtype: "button",
+				text: "绑定卡项",
+				handler: function(){
+					me.selectCard();
+				}
+			}]	
+		}));
+
 		var config = {
 			autoHeight: true,
 			autoScroll: true,
@@ -1887,7 +1908,18 @@ Ext.define("Beet.apps.AddCustomerCard", {
 									},
 									items: [
 										{
-											
+											fieldLabel: "会员名",
+											xtype: "trigger",
+											width: 400,
+											name: "customername",
+											onTriggerClick: function(){
+												//这里需要一个高级查询
+												win = Ext.create("Beet.plugins.selectCustomerWindow", {
+													b_selectionMode: "SINGLE",
+													_callback: Ext.bind(me.onSelectCustomer, me)
+												});
+												win.show();
+											}
 										},
 										{
 											fieldLabel: "余额",
@@ -1909,8 +1941,28 @@ Ext.define("Beet.apps.AddCustomerCard", {
 											allowBlank: false,
 											name: "descript"
 										},
+										{
+											xtype: "button",
+											scale: "large",
+											width: 200,
+											text: "更新",
+											handler: function(){
+												me.processData(this);
+											}
+										}
 									]
 								}
+							]
+						},
+						{
+							layout: {
+								type: 'vbox',
+								align: 'stretch'
+							},
+							flex: 2,
+							height: 500,
+							items: [
+								me.cardPanel
 							]
 						}
 					]
@@ -1922,5 +1974,168 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		me.form = form;
 		me.add(form);
 		me.doLayout();
+
+		me.initializeCardPanel();
+	},
+	onSelectCustomer: function(records){
+		var me = this, form = me.form.getForm();
+		if (records && records.length == 1){
+			var record = records[0];
+			var CTGUID = record.get("CTGUID"), name = record.get("CTName");
+			form.setValues({
+				customername: name
+			})
+
+			me.selectedCustomerId = CTGUID;
+		}
+	},
+	initializeCardPanel: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		if (me.cardPanel.__columns && me.cardPanel.__columns.length > 0){
+			return;
+		}
+		var columns = me.cardPanel.__columns = [];
+		var _actions = {
+			xtype: 'actioncolumn',
+			width: 30,
+			items: [
+			]
+		}
+		_actions.items.push("-",{
+			icon: "./resources/themes/images/fam/delete.gif",
+			tooltip: "删除卡项",
+			id: "customer_grid_delete",
+			handler: function(grid, rowIndex, colIndex){
+				var d = grid.store.getAt(rowIndex)
+				me.deleteCard(d);
+			}
+		}, "-");
+
+		columns.push(_actions);
+		cardServer.GetCardPageData(0, 1, "", {
+			success: function(data){
+				var data = Ext.JSON.decode(data)["MetaData"];
+				var fields = me.cardPanel.__fields = [];
+				for (var c in data){
+					var meta = data[c];
+					fields.push(meta["FieldName"])
+					if (!meta["FieldHidden"]){
+						columns.push({
+							dataIndex: meta["FieldName"],
+							header: meta["FieldLabel"],
+							flex: 1,
+						})
+					}
+				}
+				me.initializeCardGrid();
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
+	},
+	initializeCardGrid: function(){
+		var me = this, selectedCards = me.selectedCards;
+		var __fields = me.cardPanel.__fields;
+		var store = Ext.create("Ext.data.ArrayStore", {
+			fields: __fields
+		})
+
+		var grid = me.cardPanel.grid = Ext.create("Ext.grid.Panel", {
+			store: store,
+			width: "100%",
+			height: "100%",
+			cls: "iScroll",
+			autoScroll: true,
+			columnLines: true,
+			columns: me.cardPanel.__columns
+		});
+
+		me.cardPanel.add(grid);
+		me.cardPanel.doLayout();
+	},
+	selectCard: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var config = {
+			extend: "Ext.window.Window",
+			title: "选则卡项",
+			width: 900,
+			height: 640,
+			autoScroll: true,
+			autoHeight: true,
+			layout: "fit",
+			resizable: true,
+			border: false,
+			modal: true,
+			maximizable: true,
+			border: 0,
+			bodyBorder: false,
+			editable: false
+		}
+		var win = Ext.create("Ext.window.Window", config);
+		win.show();
+
+		win.add(Ext.create("Beet.apps.ProductsViewPort.CardList", {
+			b_type: "selection",
+			b_selectionMode: "MULTI",
+			b_selectionCallback: function(records){
+				if (records.length == 0){ win.close(); return;}
+				me.addCard(records);
+				win.close();
+			}
+		}));
+		win.doLayout();
+	},
+	addCard: function(records, isRaw){
+		var me = this, selectedCards = me.selectedCards;
+		var __fields = me.cardPanel.__fields;
+		if (records == undefined){
+			return;
+		}
+		for (var r = 0; r < records.length; ++r){
+			var record = records[r];
+			var cid, rawData;
+			if (isRaw){
+				cid = record["ID"];
+				rawData = record;
+			}else{
+				cid = record.get("ID");
+				rawData = record.raw;
+			}
+			if (selectedCards[cid] == undefined){
+				selectedCards[cid] = []
+			}else{
+				selectedCards[cid] = [];
+			}
+			for (var c = 0; c < __fields.length; ++c){
+				var k = __fields[c];
+				selectedCards[cid].push(rawData[k]);
+			}
+		}
+
+		me.updateCardPanel();
+	},
+	deleteCard: function(record){
+		var me = this, selectedCards = me.selectedCards;
+		var cid = record.get("ID");
+		if (selectedCards[cid]){
+			selectedCards[cid] = null;
+			delete selectedCards[cid];
+		}
+
+		me.updateCardPanel();
+	},
+	updateCardPanel: function(){
+		var me = this, selectedCards = me.selectedCards;
+		var grid = me.cardPanel.grid, store = grid.getStore();
+		var __fields = me.cardPanel.__fields;
+		var tmp = []
+		for (var c in selectedCards){
+			tmp.push(selectedCards[c]);
+		}
+		store.loadData(tmp);
+	},
+	processData: function(f){
+
 	}
 })
