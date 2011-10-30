@@ -243,7 +243,7 @@ registerBeetAppsMenu("configure",
 								if (!item){
 									Beet.workspace.addPanel("addCard", "增加卡项", {
 										items: [
-											Ext.create("Beet.apps.ProductsViewPort.AddPackage")
+											Ext.create("Beet.apps.ProductsViewPort.AddCard")
 										]
 									})
 								}else{
@@ -258,7 +258,7 @@ registerBeetAppsMenu("configure",
 								if (!item){
 									Beet.workspace.addPanel("cardList", "编辑卡项", {
 										items: [
-											Ext.create("Beet.apps.ProductsViewPort.cardList")
+											Ext.create("Beet.apps.ProductsViewPort.CardList")
 										]
 									})
 								}else{
