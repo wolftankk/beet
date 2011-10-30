@@ -2047,21 +2047,6 @@ Ext.define("Beet.apps.AddCustomerCard", {
 											name: "balance"
 										},
 										{
-											fieldLabel: "生效日期",
-											allowBlank: false,
-											name: "startdate",
-											xtype: "datefield",
-											value: new Date(),
-											format: "Y/m/d"
-										},
-										{
-											fieldLabel: "失效日期",
-											allowBlank: false,
-											name: "enddate",
-											xtype: "datefield",
-											format: "Y/m/d"
-										},
-										{
 											fieldLabel: "注释",
 											allowBlank: true,
 											xtype: "textarea",
@@ -2117,6 +2102,51 @@ Ext.define("Beet.apps.AddCustomerCard", {
 							flex: 2,
 							height: 500,
 							items: [
+								{
+									layout: {
+										type: "table",
+										columns: 3,
+										tableAttrs: {
+											cellspacing: 10,
+											style: {
+												width: "100%",
+											}
+										}
+									},
+									border: false,
+									bodyStyle: "background-color: #dfe8f5",
+									defaults: {
+										bodyStyle: "background-color: #dfe8f5",
+										width: 300
+									},
+									defaultType: "textfield",
+									fieldDefaults: {
+										msgTarget: "side",
+										labelAlign: "top",
+										labelWidth: 60
+									},
+									items:[
+										{
+											xtype: "component",
+											width: 30
+										},
+										{
+											fieldLabel: "生效日期",
+											allowBlank: false,
+											name: "startdate",
+											xtype: "datefield",
+											value: new Date(),
+											format: "Y/m/d"
+										},
+										{
+											fieldLabel: "失效日期",
+											allowBlank: false,
+											name: "enddate",
+											xtype: "datefield",
+											format: "Y/m/d"
+										},
+									]
+								},
 								me.cardPanel
 							]
 						}
@@ -2143,7 +2173,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 
 			me.selectedCustomerId = CTGUID;
 			
-			me.b_filter = "ID="+CTGUID;
+			me.b_filter = "ID='"+CTGUID + "'";
 			me.storeProxy.setProxy({
 				type: "b_proxy",
 				b_method: cardServer.GetCustomerCardsPageData,
@@ -2305,7 +2335,6 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		var form = me.form.getForm(), values = form.getValues();
 		var enddate = +new Date(values["startdate"]) + tryenddate;
 
-		console.log(enddate, +new Date(), validunit)
 		form.setValues({
 			enddate: new Date(enddate)	
 		})
@@ -2357,6 +2386,10 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		delete results["enddate"];
 		
 		if (isUpdate){
+			if (!me.selectedCustomerCardID){
+				Ext.MessageBox.alert("失败", "请选择卡项!");
+				return;
+			}
 			
 		}else{
 			cardServer.AddCustomerCard(Ext.JSON.encode(results), {
@@ -2372,6 +2405,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 									me.selectedCards = {};
 									form.reset();
 									me.updateCardPanel();
+									me.storeProxy.loadPage(1);
 								}
 							}
 						})
