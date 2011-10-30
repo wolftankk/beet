@@ -100,6 +100,20 @@ registerBeetAppsMenu("configure",
 							}
 						},
 						{
+							text: "返利",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["Rebate"];
+								if (!item){
+									Beet.workspace.addPanel("Rabate", "返利", {
+										items: [
+											Ext.create("Beet.apps.ProductsViewPort.RebateList")
+										]	
+									})
+								}else{
+								}
+							},
+						},
+						{
 							text: "增加产品",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["addProducts"]

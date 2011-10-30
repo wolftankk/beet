@@ -710,7 +710,6 @@ Beet.constants.monthesList = Ext.create("Ext.data.Store", {
 	]	
 })
 
-
 Beet.constants.daysList = Ext.create("Ext.data.Store", {
 	fields: ["attr", "name"],
 	data: [
@@ -773,6 +772,15 @@ Beet.constants.NewUpdateModes = Ext.create("Ext.data.Store", {
 		{attr: 2, name: 'Email'},
 		{attr: 3, name: '邮寄'},
 		{attr: 4, name: '微薄'}
+	]	
+});
+
+Beet.constants.DateType = Ext.create("Ext.data.Store", {
+	fields: ["attr", "name"],
+	data: [
+		{attr: 0, name: "年"},
+		{attr: 1, name: "月"},
+		{attr: 2, name: "日"}	
 	]	
 });
 
