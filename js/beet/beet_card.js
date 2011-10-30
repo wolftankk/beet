@@ -6237,7 +6237,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 						type: "hbox",
 						align: "stretch"
 					},
-					height: 490,
+					height: "100%",
 					autoHeight: true,
 					autoScroll: true,
 					border: false,
@@ -6252,7 +6252,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 								type: 'vbox',
 								align: 'stretch'
 							},
-							height: 480,
+							height: "100%",
 							flex: 1,
 							items: [
 								{
@@ -6317,6 +6317,23 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 											allowBlank: true,
 											name: "descript"
 										},
+										{
+											text: "新增",
+											xtype: "button",
+											scale: "large",
+											width: 200,
+											border: 1,
+											formBind: true,
+											disabled: true,
+											style: {
+												borderColor: "#99BBE8"
+											},
+											border: 0,
+											bodyStyle: "background-color: #dfe8f5",
+											handler: function(){
+												me.processData(this);
+											}
+										}
 									]
 								}
 							]
@@ -6338,26 +6355,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 					]
 				}
 			],
-			bbar:[
-				"->",
-				{
-					text: "新增",
-					xtype: "button",
-					scale: "large",
-					width: 100,
-					border: 1,
-					formBind: true,
-					disabled: true,
-					style: {
-						borderColor: "#99BBE8"
-					},
-					border: 0,
-					bodyStyle: "background-color: #dfe8f5",
-					handler: function(){
-						me.processData(this);
-					}
-				}
-			]
 		};
 		var form = Ext.widget("form", config);
 		me.form = form;
@@ -7326,14 +7323,14 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 					setTimeout(function(){
 						cardServer.GetCardDetailData(record.get("ID"), {
 							success: function(data){
-								console.log(Ext.JSON.decode(data));
+								var data = Ext.JSON.decode(data);
+								me.onSelectItem(record, data);
 							},
 							failure: function(error){
 								Ext.MessageBox.hide();
 								Ext.Error.raise(error);
 							}
 						})
-						//me.onSelectItem(record);
 					}, 2000);
 					setTimeout(function(){
 						Ext.MessageBox.hide();
@@ -7496,6 +7493,15 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 											allowBlank: true,
 											name: "descript"
 										},
+										{
+											xtype: "button",
+											scale: "large",
+											width: 200,
+											text: "更新",
+											handler: function(){
+												me.processData(this);
+											}
+										}
 									]
 								}
 							]
@@ -7517,27 +7523,6 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 					]
 				}
 			],
-			/*
-			bbar:[
-				"->",
-				{
-					text: "新增",
-					xtype: "button",
-					scale: "large",
-					width: 100,
-					border: 1,
-					formBind: true,
-					disabled: true,
-					style: {
-						borderColor: "#99BBE8"
-					},
-					border: 0,
-					bodyStyle: "background-color: #dfe8f5",
-					handler: function(){
-						me.processData(this);
-					}
-				}
-			]*/
 		};
 		var form = Ext.widget("form", config);
 		me.cardInfo.form = form;
@@ -8133,84 +8118,104 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		}
 		store.loadData(tmp);
 	},
-	onSelectItem: function(record){
+	onSelectItem: function(record, detailData){
 		var me = this, cardServer = Beet.constants.cardServer;
 		me.resetAll();
+		var cardId = record.get("ID");
+		me.selectedCardId = cardId;
 
-		
-		/*
-		var itemId = record.get("IID");
-		me.selectedItemId = itemId;
-		me.selectedItemIndex = index;
-		me.form.getForm().setValues({
-			name: record.get("IName"),
-			descript: record.get("IDescript")
+		var form = me.cardInfo.form.getForm();
+		form.setValues({
+			name: record.get("Name"),
+			par: record.get("Par").replace(/,/g, ""),
+			insure: record.get("Insure").replace(/,/g, ""),
+			validdate: record.get("ValidDate"),
+			validunit: parseInt(record.get("ValidUnit")),
+			descript: record.get("Descript")
 		});
-		if (itemId <= 0){
-			Ext.Msg.alert("错误", "项目ID非法!");
-			return;
+		
+		var charges = detailData["charges"],
+			interests = detailData["interests"],
+			packages = detailData["packages"],
+			rebates = detailData["rebates"];
+
+		if (charges && charges.length > 0){
+			var sql = [];
+			for (var c = 0; c < charges.length; ++c){
+				sql.push("cid=" + charges[c]);
+			}
+			var s = sql.join(" OR ");
+			if (s.length > 0){
+				cardServer.GetChargeTypePageData(1, charges.length, s, {
+					success: function(data){
+						var data = Ext.JSON.decode(data)["Data"];
+						me.addChargeType(data, true);
+					},
+					failure: function(error){
+						Ext.Error.raise(error);
+					}
+				})
+			}
 		}
-		if (me.itemList.cache[itemId] == undefined){
-			me.itemList.cache[itemId] = {};
-			cardServer.GetItemProducts(itemId, {
-				success: function(data){
-					data = Ext.JSON.decode(data)["products"];
-					var sql = [];
-					for (var c = 0; c < data.length; ++c){
-						sql.push("pid=" + data[c]);
+		if (interests && interests.length > 0){
+			var sql = [];
+			for (var c = 0; c < interests.length; ++c){
+				sql.push("id=" + interests[c]);
+			}
+			var s = sql.join(" OR ");
+			if (s.length > 0){
+				cardServer.GetInterestsPageData(1, interests.length, s, {
+					success: function(data){
+						var data = Ext.JSON.decode(data)["Data"];
+						me.addInterest(data, true);
+					},
+					failure: function(error){
+						Ext.Error.raise(error);
 					}
-					var s = sql.join(" OR ");
-					if (s.length > 0){
-						cardServer.GetProductPageData(1, 1000000, s, {
-							success: function(data){
-								var data = Ext.JSON.decode(data)["Data"];
-								me.itemList.cache[itemId].products = data;
-								me.addProducts(data, true);
-							},
-							failure: function(error){
-								Ext.Error.raise(error)
-							}
-						});
-					}
-				},
-				failure: function(error){
-					Ext.Error.raise(error);
-				}
-			})
-			cardServer.GetItemCharges(itemId, {
-				success: function(data){
-					data = Ext.JSON.decode(data)["charges"];
-					var sql = [];
-					for (var c = 0; c < data.length; ++c){
-						sql.push("cid=" + data[c]);
-					}
-					var s = sql.join(" OR ");
-					if (s.length > 0){
-						cardServer.GetChargeTypePageData(1, 1000000, s, {
-							success: function(data){
-								var data = Ext.JSON.decode(data)["Data"];
-								me.itemList.cache[itemId].charges= data;
-								me.addChargeType(data, true);
-							},
-							failure: function(error){
-								Ext.Error.raise(error)
-							}
-						});
-					}
-				},
-				failure: function(error){
-					Ext.Error.raise(error);
-				}
-			})
-		}else{
-			me.addProducts(me.itemList.cache[itemId].products, true);
-			me.addChargeType(me.itemList.cache[itemId].charges, true);
+				})
+			}
 		}
-		*/
+		if (rebates && rebates.length > 0){
+			var sql = [];
+			for (var c = 0; c < rebates.length; ++c){
+				sql.push("rid=" + rebates[c]);
+			}
+			var s = sql.join(" OR ");
+			if (s.length > 0){
+				cardServer.GetRebatePageData(1, rebates.length, s, {
+					success: function(data){
+						var data = Ext.JSON.decode(data)["Data"];
+						me.addRebate(data, true);
+					},
+					failure: function(error){
+						Ext.Error.raise(error);
+					}
+				})
+			}
+		}
+		if (packages && packages.length > 0){
+			var sql = [];
+			for (var c = 0; c < packages.length; ++c){
+				sql.push("id=" + packages[c]);
+			}
+			var s = sql.join(" OR ");
+			if (s.length > 0){
+				cardServer.GetPackagesPageDataToJSON(1, packages.length, s, {
+					success: function(data){
+						var data = Ext.JSON.decode(data)["Data"];
+						me.addPackage(data, true);
+					},
+					failure: function(error){
+						Ext.Error.raise(error);
+					}
+				})
+			}
+		}
 	},
 	resetAll: function(){
 		var me = this;
 
+		me.selectedCardId = undefined;
 		me.selectedInterests = {};
 		me.selectedChargeType = {};
 		me.selectedRebates = {};
@@ -8227,10 +8232,15 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		me.updateRebatesPanel();
 		me.updatePackagesPanel();
 	},
-	/*
 	processData: function(f){
 		var me = this, cardServer = Beet.constants.cardServer,
 			form = f.up("form").getForm(), results = form.getValues();
+		
+		if (!me.selectedCardId){
+			Ext.Error.raise("卡项ID无效!");
+			return;
+		}
+
 		var selectedInterests = me.selectedInterests, selectedChargeType = me.selectedChargeType,
 			selectedPackages = me.selectedPackages, selectedRebates = me.selectedRebates;
 
@@ -8256,27 +8266,28 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 			results["rebates"] = rebates;
 		}
 
-		cardServer.AddCard(Ext.JSON.encode(results), {
-			success: function(pid){
-				if (pid == Beet.constants.FAILURE){
-					Ext.MessageBox.alert("添加失败", "添加卡项失败");
-				}else{
+		results["id"] = me.selectedCardId;
+		cardServer.UpdateCard(Ext.JSON.encode(results), {
+			success: function(succ){
+				if (succ){
 					Ext.MessageBox.show({
 						title: "提示",
-						msg: "添加卡项成功!",
-						buttons: Ext.MessageBox.YESNO,
+						msg: "更新卡项成功!",
+						buttons: Ext.MessageBox.OK,
 						fn: function(btn){
-							if (btn == "yes"){
-								form.reset()
-								me.resetAll();
-							}
+							form.reset()
+							me.resetAll();
+							me.cardInfo.close();
+							me.storeProxy.loadPage(me.storeProxy.currentPage);
 						}
 					});
+				}else{
+					Ext.Msg.alert("更新失败", "更新卡项失败");
 				}
 			},
 			failure: function(error){
 				Ext.Error.raise(error);
 			}
 		})
-	}*/
+	}
 })

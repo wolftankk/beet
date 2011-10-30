@@ -18,6 +18,7 @@ registerBeetAppsMenu("customer",
 					title: '会员管理',
 					layout: "anchor",
 					frame: true,
+					width: 260,
 					defaults: {
 						scale: "large",
 						rowspan: 3
@@ -76,6 +77,22 @@ registerBeetAppsMenu("customer",
 								Beet.cache.AdvanceSearchWin = win;
 								win.show();
 							}
+						},
+						{
+							xtype: "button",
+							text: "会员卡管理",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["addCustomerCard"]
+								if (!item){
+									Beet.workspace.addPanel("addCustomerCard", "会员卡管理", {
+										items: [
+											Ext.create("Beet.apps.AddCustomerCard")
+										]
+									})
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
 						}
 					]
 				},
@@ -129,7 +146,6 @@ registerBeetAppsMenu("customer",
 				{
 					title: "活动管理",
 					layout: "anchor",
-					width: '40%',
 					defaults: {
 						scale: 'large',
 						rowspan: 3
@@ -1791,3 +1807,120 @@ Ext.define("Beet.apps.Viewport.ActivityList", {
 		return grid;
 	}
 });
+
+
+Ext.define("Beet.apps.AddCustomerCard", {
+	extend: "Ext.form.Panel",
+	height: "100%",
+	width: "100%",
+	autoHeight: true,
+	autoScroll:true,
+	frame:true,
+	border: false,
+	bodyBorder: false,
+	plain: true,
+	initComponent: function(){
+		var me = this;
+		me.selectedCustomerId = null, me.selectedCards = {};
+		me.callParent();
+
+		me.createMainPanel();
+	},
+	createMainPanel: function(){
+		var me = this;
+		var config = {
+			autoHeight: true,
+			autoScroll: true,
+			cls: "iScroll",
+			height: "100%",
+			width: "100%",
+			anchor: "fit",	
+			border: false,
+			bodyBorder: false,
+			plain: true,
+			items: [
+				{
+					layout: {
+						type: "hbox",
+						align: "stretch"
+					},
+					height: "100%",
+					autoHeight: true,
+					autoScroll: true,
+					border: false,
+					bodyStyle: "background-color: #dfe8f5",
+					defaults: {
+						bodyStyle: "background-color: #dfe8f5",
+						border: false
+					},
+					items:[
+						{
+							layout: {
+								type: 'vbox',
+								align: 'stretch'
+							},
+							height: "100%",
+							flex: 1,
+							items: [
+								{
+									layout: {
+										type: "table",
+										columns: 1,
+										tableAttrs: {
+											cellspacing: 10,
+											style: {
+												width: "100%",
+											}
+										}
+									},
+									border: false,
+									bodyStyle: "background-color: #dfe8f5",
+									defaults: {
+										bodyStyle: "background-color: #dfe8f5",
+										width: 400
+									},
+									defaultType: "textfield",
+									fieldDefaults: {
+										msgTarget: "side",
+										labelAlign: "top",
+										labelWidth: 60
+									},
+									items: [
+										{
+											
+										},
+										{
+											fieldLabel: "余额",
+											allowBlank: false,
+											name: "balance"
+										},
+										{
+											fieldLabel: "生效日期",
+											allowBlank: false,
+											name: "startdate"
+										},
+										{
+											fieldLabel: "失效日期",
+											allowBlank: false,
+											name: "enddate"
+										},
+										{
+											fieldLabel: "注释",
+											allowBlank: false,
+											name: "descript"
+										},
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+
+		var form = Ext.widget("form", config);
+		me.form = form;
+		me.add(form);
+		me.doLayout();
+	}
+})
