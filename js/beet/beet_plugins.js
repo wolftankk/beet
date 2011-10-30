@@ -524,7 +524,7 @@ Ext.define("Beet.plugins.LiveSearch",{
 	cls: 'iScroll',
 	initComponent: function(){
 		var me = this;
-		me.tbar = me.tbar || {};
+		me.tbar = me.tbar || [];
 		Ext.Array.each([
 			'搜索', {
 				xtype: "textfield",
