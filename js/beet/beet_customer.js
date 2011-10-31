@@ -18,7 +18,7 @@ registerBeetAppsMenu("customer",
 					title: '会员管理',
 					layout: "anchor",
 					frame: true,
-					width: 260,
+					width: 300,
 					defaults: {
 						scale: "large",
 						rowspan: 3

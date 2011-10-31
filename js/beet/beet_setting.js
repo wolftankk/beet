@@ -14,7 +14,7 @@ registerBeetAppsMenu("configure",
 				{
 					title: '客户管理',
 					layout: "anchor",
-					width: 80,
+					width: 100,
 					defaults: {
 						scale: "large",
 						rowspan: 1
