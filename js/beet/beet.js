@@ -485,6 +485,9 @@ Ext.define("Beet.apps.Viewport", {
 			border: false,
 			maxTabWidth: 230,
 			minTabWidth: 150,
+			cls: "iScroll",
+			width: "100%",
+			height: "100%",
 			shadow: true,
 			layout: "anchor",
 			defaults: {
@@ -504,8 +507,6 @@ Ext.define("Beet.apps.Viewport", {
 					menuPrefixText: ""	
 				}
 			],*/
-			items: [
-			],
 			onRemove: function(item){
 				var name = item.b_name;
 				if (Beet.apps.Menu.Tabs[name]){
