@@ -28,19 +28,16 @@ Ext.define("Beet.apps.Menu.Panel", {
 		}
 
 		that.configurePanel = new Ext.tab.Panel(that.getCPanelConfig());
-		that.dockedItems = [
-			//顶部导航条
-			{
-				xtype: "BeetMenuBar",
-				configurePanel: that.configurePanel,
-				dock: "top"
-			},
-		]
 		
 		//当框体变动的时候 进行自动调整大小
 		Ext.EventManager.onWindowResize(that.fireResize, that);
 		this.callParent(arguments);
+		
 		that.add(that.configurePanel);
+		that.addDocked({
+			xtype: "BeetMenuBar",
+			configurePanel: that.configurePanel	
+		})
 		that.doLayout();
 	},
 	getOperatorList: function(__callback){
@@ -106,13 +103,12 @@ Ext.define("Beet.apps.Menu.Panel", {
 		var config = {
 			border: 1,
 			width: '100%',
-			height: 80,
+			height: 80,//fixed by ext4.0.7
 			autoHeight: true,
 			autoWidth: true,
 			autoScroll: true,
 			layout: "fit",
 			id: "configurePanel",
-			dock: "bottom",
 			plain: true,
 			minTabWidth: 100,
 			bodyStyle: "background-color: #dfe8f5",
@@ -151,11 +147,11 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 			Ext.QuickTips.init();
 		}
 
-		//导航栏toolbar
+		////导航栏toolbar
 		that.navigationToolbar = new Ext.toolbar.Toolbar(that.getNavitionConfig());
 		that.navigationToolbar.parent = that;
 
-		//username
+		////username
 		that.logoutButton = new Ext.toolbar.Toolbar(that.getLogoutButtonConfig());
 		that.helpButton = new Ext.toolbar.Toolbar(that.getHelpButtonConfig());
 		that.toggleButton = new Ext.toolbar.Toolbar(that.getToggleButtonConfig());
@@ -182,7 +178,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 				xtype: "trayclock"
 			}
 		];
-		
+		//
 		that.callParent();
 		Ext.defer(function(){
 			Ext.EventManager.on(that.configurePanel.getTabBar().body, "click", that.onTabBarClick, that);
@@ -223,16 +219,18 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 	},
 	//获取导航栏配置
 	getNavitionConfig: function(){
-		var that = this, config,
-		configurePanel = that.configurePanel, navigationTab = configurePanel.getTabBar();
-		navigationTab.ownerCt = that.parent;
-		//navigationTab.dock = "";
+		var that = this, config;
+		var configurePanel = that.configurePanel, navigationTab = configurePanel.getTabBar();
+		//remove tab from tabpanel dockeditems
+		configurePanel.removeDocked(navigationTab, false);
+		navigationTab.dock = "";
 		navigationTab.setWidth(600);
 		navigationTab.setHeight(23);
 		navigationTab.border=0;
 		config = {
 			cls: "beet-navtoolbar",
 			width: 600,
+			autoWidth: true,
 			items: [
 				"&#160;",
 				navigationTab	
