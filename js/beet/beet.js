@@ -497,6 +497,7 @@ Ext.define("Beet.apps.Viewport", {
 				bodyStyle: "background-color: #dfe8f5",
 				plain: true
 			},
+			border: false,
 			bodyStyle: "background-color: #dfe8f5",
 			/*
 			plugins: [
