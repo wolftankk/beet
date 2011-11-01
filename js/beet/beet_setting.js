@@ -8,13 +8,14 @@ registerBeetAppsMenu("configure",
 			defaultType: "buttongroup",
 			defaults: {
 				height: 100,
-				width: 250
+				width: 250,
+				autoWidth: true
 			},
 			items: [
 				{
 					title: '客户管理',
 					layout: "anchor",
-					width: 80,
+					width: 100,
 					defaults: {
 						scale: "large",
 						rowspan: 1
