@@ -129,24 +129,8 @@ registerBeetAppsMenu("configure",
 								}
 							}
 						},
-
 						{
-							text: "增加项目",
-							handler: function(){
-								var item = Beet.apps.Menu.Tabs["addItem"]
-								if (!item){
-									Beet.workspace.addPanel("addItem", "增加项目", {
-										items: [
-											Ext.create("Beet.apps.ProductsViewPort.AddItem")
-										]
-									})
-								}else{
-									Beet.workspace.workspace.setActiveTab(item);
-								}
-							}
-						},
-						{
-							text: "编辑项目",
+							text: "项目设定",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["itemList"]
 								if (!item){
@@ -160,6 +144,7 @@ registerBeetAppsMenu("configure",
 								}
 							}
 						},
+						/*
 						{
 							text: "增加套餐",
 							handler: function(){
@@ -190,6 +175,7 @@ registerBeetAppsMenu("configure",
 								}
 							}
 						},
+						*/
 						{
 							text: "增加卡项",
 							handler: function(){
