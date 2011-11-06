@@ -1717,7 +1717,7 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 	extend: "Ext.panel.Panel",
 	autoHeight: true,
 	autoScroll: true,
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT,
 	width: "100%",
 	frame: true,
 	border: false,
@@ -1731,6 +1731,12 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 		}
 
 		me.callParent();
+
+		me.add(Ext.create("Beet.apps.ProductsViewPort.AddCharge", {
+			height: "22%"
+		}))
+		me.doLayout();
+
 		me.getProductsMetaData();
 	},
 	getProductsMetaData: function(){
@@ -1875,7 +1881,7 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 			autoHeight: true,
 			border: 0,
 			selModel: sm,
-			height: !me.editable ? "95%" : "100%",
+			height: !me.editable ? "73%" : "77%",
 			columnLines: true,
 			viewConfig:{
 				trackOver: false,
@@ -2487,7 +2493,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 
 		me.itemList.store.on("load", function(){
 			if (me.itemList.store.getCount() > 0){
-				me.fireSelectGridItem();
+				//me.fireSelectGridItem();
 			}
 		})
 
@@ -2769,7 +2775,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 	onTreeItemClick: function(frame, record, item){
 		var me = this, id = record.get("id");
 		if (id != -1){
-			me.b_filter = "IID= " + id;
+			me.b_filter = "ICategoryId= " + id;
 		}else{
 			me.b_filter = "";
 		}

@@ -99,6 +99,7 @@ registerBeetAppsMenu("configure",
 								}
 							}
 						},
+						/*
 						{
 							text: "增加费用",
 							handler: function(){
@@ -113,9 +114,9 @@ registerBeetAppsMenu("configure",
 									Beet.workspace.workspace.setActiveTab(item);
 								}
 							}
-						},
+						},*/
 						{
-							text: "编辑费用",
+							text: "费用设定",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["chargeList"];
 								if (!item){
