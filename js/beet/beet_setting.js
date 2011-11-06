@@ -85,21 +85,6 @@ registerBeetAppsMenu("configure",
 					autoWidth: true,
 					items: [
 						{
-							text: "产品分类",
-							handler: function(){
-								var item = Beet.apps.Menu.Tabs["addProductCategory"]
-								if (!item){
-									Beet.workspace.addPanel("addProductCategory", "产品分类", {
-										items: [
-											Ext.create("Beet.apps.ProductsViewPort.ProductCategoryTree")
-										]
-									})
-								}else{
-									Beet.workspace.workspace.setActiveTab(item);
-								}
-							}
-						},
-						{
 							text: "编辑产品",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["productsList"];
