@@ -48,7 +48,11 @@ Beet.constants = {
 		customer_editBtn : [
 			'{D61570E6-EB82-4B22-A218-8881C71D692A}' 
 		]
-	}
+	},
+
+	WORKSPACE_WIDTH: Ext.core.Element.getViewWidth(),
+	WORKSPACE_HEIGHT: Ext.core.Element.getViewHeight(),
+	VIEWPORT_HEIGHT: Ext.core.Element.getViewHeight() - 137
 }
 if (!Beet.constants.now){
 	now = new Date();
@@ -70,3 +74,28 @@ if (!String.prototype.replaceAll){
 	}
 }
 
+
+BEET_EVENTS_BUCKET = {}
+function registerEvent(frame, event, callback){
+	if (!BEET_EVENTS_BUCKET[frame] || typeof(BEET_EVENTS_BUCKET[frame]) !== "object"){
+		BEET_EVENTS_BUCKET[frame] = {}
+	}
+	if (BEET_EVENTS_BUCKET[frame][event]){
+		throw 'This frame\'s ' + event + " has registered!";
+	}else{
+		BEET_EVENTS_BUCKET[frame][event] = callback
+		return true
+	}
+	return false
+}
+
+function unregisterEvent(frame, event, callback){
+	if (BEET_EVENTS_BUCKET[frame] && BEET_EVENTS_BUCKET[frame][event]){
+		BEET_EVENTS_BUCKET[frame][event] = undefined;
+		delete BEET_EVENTS_BUCKET[frame][event]
+		if (callback){
+			callback()
+		}
+		return true
+	}
+}
