@@ -83,56 +83,14 @@ registerBeetAppsMenu("configure",
 					title: "产品管理",
 					width: 420,
 					columns: 6,
+					defaults: {
+						scale : "large"
+					},
 					autoWidth: true,
 					items: [
-						{
-							text: "产品分类",
-							handler: function(){
-								var item = Beet.apps.Menu.Tabs["addProductCategory"]
-								if (!item){
-									Beet.workspace.addPanel("addProductCategory", "产品分类", {
-										items: [
-											Ext.create("Beet.apps.ProductsViewPort.ProductCategoryTree")
-										]
-									})
-								}else{
-									Beet.workspace.workspace.setActiveTab(item);
-								}
-							}
-						},
 						/*
 						{
-							text: "返利",
-							handler: function(){
-								var item = Beet.apps.Menu.Tabs["Rebate"];
-								if (!item){
-									Beet.workspace.addPanel("Rabate", "返利", {
-										items: [
-											Ext.create("Beet.apps.ProductsViewPort.RebateList")
-										]	
-									})
-								}else{
-								}
-							},
-						},
-						*/
-						{
-							text: "增加产品",
-							handler: function(){
-								var item = Beet.apps.Menu.Tabs["addProducts"]
-								if (!item){
-									Beet.workspace.addPanel("addProducts", "添加产品", {
-										items: [
-											Ext.create("Beet.apps.ProductsViewPort.AddProducts")
-										]
-									})
-								}else{
-									Beet.workspace.workspace.setActiveTab(item);
-								}
-							}
-						},
-						{
-							text: "编辑产品",
+							text: "产品设置",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["productsList"];
 								if (!item){
@@ -145,9 +103,8 @@ registerBeetAppsMenu("configure",
 									Beet.workspace.workspace.setActiveTab(item);
 								}
 							}
-						},
-
-
+						},*/
+						/*
 						{
 							text: "增加费用",
 							handler: function(){
@@ -162,9 +119,9 @@ registerBeetAppsMenu("configure",
 									Beet.workspace.workspace.setActiveTab(item);
 								}
 							}
-						},
+						},*/
 						{
-							text: "编辑费用",
+							text: "费用设定",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["chargeList"];
 								if (!item){
@@ -178,24 +135,8 @@ registerBeetAppsMenu("configure",
 								}
 							}
 						},
-
 						{
-							text: "增加项目",
-							handler: function(){
-								var item = Beet.apps.Menu.Tabs["addItem"]
-								if (!item){
-									Beet.workspace.addPanel("addItem", "增加项目", {
-										items: [
-											Ext.create("Beet.apps.ProductsViewPort.AddItem")
-										]
-									})
-								}else{
-									Beet.workspace.workspace.setActiveTab(item);
-								}
-							}
-						},
-						{
-							text: "编辑项目",
+							text: "项目设定",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["itemList"]
 								if (!item){
@@ -209,6 +150,7 @@ registerBeetAppsMenu("configure",
 								}
 							}
 						},
+						/*
 						{
 							text: "增加套餐",
 							handler: function(){
@@ -239,6 +181,7 @@ registerBeetAppsMenu("configure",
 								}
 							}
 						},
+						*/
 						{
 							text: "增加卡项",
 							handler: function(){
