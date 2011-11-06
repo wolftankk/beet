@@ -2512,6 +2512,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.ItemCatgoryTreeStore");
 		me.treeList = Ext.create("Ext.tree.Panel", {
 			store: store,
+			bodyStyle: "background-color: #fff",
 			frame: true,
 			lookMask: true,
 			cls: "iScroll",
@@ -2864,7 +2865,8 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 					border: false,
 					bodyStyle: "background-color: #dfe8f5",
 					defaults: {
-						border: false
+						border: false,
+						bodyStyle: "background-color: #dfe8f5"
 					},
 					items:[
 						me.treeList,
@@ -2873,10 +2875,12 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 								type: 'vbox',
 								align: 'stretch'
 							},
+							bodyPadding: "0 0 0 5",
 							height: 500,
 							flex: 2,
 							items: [
 								{
+									xtype : "panel",
 									layout: {
 										type: "table",
 										columns: 4,
