@@ -528,7 +528,8 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 							width: 200,
 							handler: function(){
 								me.processData(this)	
-							}
+							},
+							hidden: me._editType == "view"
 						},
 						{
 							xtype: "button",
@@ -536,7 +537,8 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 							width: 200,
 							handler: function(){
 								me.collapse();
-							}
+							},
+							hidden: me._editType == "view"
 						}
 					]
 				}
@@ -579,6 +581,10 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 			unit: rawData["PUnit"]
 		})
 	},
+	resetForm: function(){
+		var me = this, form = me.form.getForm();
+		form.reset();
+	},
 	processData: function(f){
 		var me = this, cardServer = Beet.constants.cardServer;
 		var form = f.up("form").getForm(), result = form.getValues();
@@ -586,8 +592,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 			result["categoryid"] = me.selectProductCategoryId;
 			delete result["category"];
 		}
-
-		console.log(result)
 
 		if (me._editType == "add"){
 			cardServer.AddProducts(Ext.JSON.encode(result), {
@@ -731,6 +735,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 			expand: function(){
 				me._isEditing = true;
 				me.updateTreeListEvent(true)
+				me.editProduct.resetForm();
 				//console.log("展开")
 			}
 		})
@@ -977,6 +982,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 					handler: function(){
 						me.editProduct.setTitle("增加产品")
 						me.editProduct._editType = "add";
+						me.editProduct.resetForm();
 						me.editProduct.expand();
 					}
 				}
@@ -1022,25 +1028,16 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 		var me = this, rawData = parentMenu.rawData || parentMenu.raw, pid = rawData["PID"], pname = rawData["PName"], cardServer = Beet.constants.cardServer;
 		if (pid && me.editable){
 			me.editProduct.setTitle("编辑 " + pname + " 资料");
-			Ext.MessageBox.show({
-				title: "编辑消费产品",
-				msg: "是否要更新 " + pname + " 的资料",
-				buttons: Ext.MessageBox.YESNO,
-				fn : function(btn){
-					if (btn == "yes"){
-						me.editProduct.expand();
-						me.editProduct._editType = "edit";
-						me.editProduct.restoreFromData(rawData)
-					}
-				}
-			})	
+			me.editProduct.expand();
+			me.editProduct.resetForm();
+			me.editProduct._editType = "edit";
+			me.editProduct.restoreFromData(rawData)
 		}else{
-			//var win = Ext.create("Beet.apps.ProductsViewPort.ViewProducts", {
-			//	editable: false,
-			//	storeProxy: me.storeProxy,
-			//	rawData: rawData	
-			//});
-			//win.show();
+			me.editProduct.setTitle("查看 " + pname + " 资料");
+			me.editProduct.expand();
+			me.editProduct.resetForm();
+			me.editProduct._editType = "view";
+			me.editProduct.restoreFromData(rawData)
 		}
 	},
 	deleteProductItem: function(parentMenu){
