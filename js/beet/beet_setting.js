@@ -85,7 +85,7 @@ registerBeetAppsMenu("configure",
 					autoWidth: true,
 					items: [
 						{
-							text: "编辑产品",
+							text: "产品设置",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["productsList"];
 								if (!item){

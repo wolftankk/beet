@@ -370,6 +370,8 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 	height: Beet.constants.VIEWPORT_HEIGHT,
 	width: Beet.constants.WORKSPACE_WIDTH,
 	frame: true,
+	height: "100%",
+	width: "100%",
 	border: false,
 	shadow: true,
 	b_filter: '',
@@ -675,7 +677,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 		});
 
 		me.addWin = Ext.create("Ext.window.Window", {
-			height: 300,
+			height: 140,
 			width: 300,
 			title: "增加分类",
 			autoHeight: true,
@@ -769,9 +771,9 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 		});
 
 		me.editWin= Ext.create("Ext.window.Window", {
-			height: 300,
+			height: 140,
 			width: 300,
-			title: "增加分类",
+			title: "编辑分类",
 			autoHeight: true,
 			autoScroll: true,
 			autoWidth: true,
@@ -951,7 +953,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 				}
 			});
 
-		me.storeProxy.loadPage(11);
+		me.storeProxy.loadPage(1);
 	},
 	editProductItem: function(parentMenu){
 		var me = this, rawData = parentMenu.rawData || parentMenu.raw, pid = rawData["PID"], pname = rawData["PName"], cardServer = Beet.constants.cardServer;
@@ -2712,6 +2714,68 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 	}
 });
 
+
+function buildProductItemCategoryTreeStore(){
+	if (!Beet.apps.ProductsViewPort.ItemCatgoryTreeStore){
+		Ext.define("Beet.apps.ProductsViewPort.ProductCatgoryTreeStore", {
+			extend: "Ext.data.TreeStore",
+			autoLoad: true,
+			root: {
+				text: "总分类",
+				id: "-1",
+				expanded: true
+			},
+			proxy: {
+				type: "b_proxy",
+				b_method: Beet.constants.cardServer.GetProductCategoryData,
+				preProcessData: function(data){
+					var originData = data["root"];
+					var bucket = [];
+					var me = this;
+					me.categoryList = [];
+					
+					var processData = function(target, cache, pid){
+						var k;
+						for (k = 0; k < target.length; ++k){
+							var _tmp = target[k];
+							var item = {};
+							if (_tmp.data && _tmp.data.length > 0){
+								item["expanded"] = false;
+								item["text"] = _tmp["name"];
+								item["id"] = _tmp["id"];
+								item["pid"] = pid;
+								item["children"] = [];
+
+								processData(_tmp.data, item["children"], item["id"]);
+							}else{
+								item = _tmp;
+								item["text"] = _tmp["name"];
+								item["leaf"] = true;
+								item["pid"] = pid;
+								//item["checked"] = false;
+							}
+							cache.push(item);
+							me.categoryList.push({
+								id: _tmp["id"],
+								text: _tmp["name"]      
+							})
+						}
+					}
+
+					processData(originData, bucket, -1);
+
+					return bucket;
+				},
+				b_scope: Beet.constants.cardServer,
+				reader: {
+					type: "json"	
+				}
+			},
+		})
+	}
+}
+
+
 Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 	extend: "Ext.panel.Panel",
 	height: "100%",
@@ -2839,6 +2903,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		var grid = me.itemList.grid = Ext.create("Beet.plugins.LiveSearch", {
 			autoHeight: true,
 			height: 480,
+			title: "系统项目列表",
 			cls:"iScroll",
 			autoScroll: true,
 			border: true,
@@ -2911,42 +2976,310 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		var me = this;
 		me.itemList.grid.fireEvent("itemdblclick", me.itemList.grid, me.itemList.store.getAt(me.selectedItemIndex), null, me.selectedItemIndex)
 	},
+	//
+	createTreeList: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		Ext.bind(buildProductCategoryTreeStore, me)();
+
+		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.ProductCatgoryTreeStore");
+		me.treeList = Ext.create("Ext.tree.Panel", {
+			store: store,
+			frame: true,
+			lookMask: true,
+			cls: "iScroll",
+			collapsible: true,
+			collapseDirection: "left",
+			width: 230,
+			height: 500,
+			border: 0,
+			useArrow: true,
+			title: "产品分类",
+			split: true,
+		});
+
+		me.treeList.on({
+			"beforeitemcontextmenu": me.treeListRClick,
+			scope: me
+		});
+
+		me.treeList.storeProxy = me.treeList.getStore();
+
+		me.updateTreeListEvent();
+	},
+	refreshTreeList: function(){
+		var me = this;
+		me.treeList.storeProxy.load();
+	},
+	treeListRClick: function(frame, record, item, index, e, options){
+		var me = this, isLeaf = record.isLeaf();
+		if (!record.contextMenu){
+			var menu = [];
+
+			if (record.isRoot()){
+				menu = [
+					{
+						text: "增加分类", 
+						handler: function(direction, e){
+							me.addTreeItem(direction, record, e)	
+						}
+					}
+				]
+			}else{
+				menu = [
+					{text: "增加分类", handler: function(direction, e){
+						me.addTreeItem(direction, record, e);	
+					}},
+					{text: "编辑", handler: function(direction, e){
+						me.editTreeItem(direction, record, e)	
+					}},
+					{text: "删除", handler: function(direction, e){
+						me.deleteItem(direction, record, e);	
+					}},
+				]
+			}
+
+			record.contextMenu = Ext.create("Ext.menu.Menu", {
+				style: {
+				   overflow: 'visible',
+				},
+				plain: true,
+				items: menu,
+				raw : record.raw,
+				leaf: isLeaf
+			});
+		}
+		e.stopEvent();
+		record.contextMenu.showAt(e.getXY());
+		return false;
+	},
+	categoryListCombo: function(){
+		var me = this;
+		me.categoryList = me.treeList.getStore().proxy.categoryList;
+		return Ext.create("Ext.data.Store", {
+			fields: ["id", "text"],
+			data: me.categoryList	
+		})
+	},
+	addTreeItem: function(widget, record, e){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var CLCombo = me.categoryListCombo();
+		if (me.addWin){
+			me.addWin.close();
+		}
+		if (me.editWin){
+			me.editWin.close()
+		}
+		me.doLayout();
+
+		var form = Ext.create("Ext.form.Panel", {
+			width: "100%",
+			height: 100,
+			bodyStyle: "background-color: #dfe8f5",
+			border: false,
+			flex: 1,
+			bodyPadding: 10,
+			items: [
+				{
+					fieldLabel: "名称",
+					xtype: "textfield",
+					allowBlank: false,
+					name: "name"
+				},
+				{
+					fieldLabel: "所属类别",
+					xtype: "combobox",
+					store: CLCombo,
+					name: "parentid",
+					queryMode: "local",
+					displayField: "text",
+					valueField: "id",
+					value: parseInt(record.get("id") == "src" ? -1 : record.get("id"))
+				}
+			],
+			buttons: [
+				{
+					xtype: "button",
+					text: "提交",
+					width: 200,
+					handler: function(){
+						var f = form.getForm(), result = f.getValues();
+						cardServer.AddProductCategory(Ext.JSON.encode(result), {
+							success: function(id){
+								if (id > 0){
+									Ext.Msg.alert("添加成功", "添加分类成功");
+									me.addWin.close();
+									me.refreshTreeList();
+								}
+							},
+							failure: function(error){
+								Ext.Error.raise(error)
+							}
+						})
+					}
+				}
+			]
+		});
+
+		me.addWin = Ext.create("Ext.window.Window", {
+			height: 140,
+			width: 300,
+			title: "增加分类",
+			autoHeight: true,
+			autoScroll: true,
+			autoWidth: true,
+		});
+		me.addWin.add(form)
+		me.addWin.doLayout();
+		me.addWin.show();
+	},
+	deleteItem: function(width, record, e){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var id = record.get("id");
+		if (id == "src"){
+			return;
+		}
+
+		Ext.Msg.alert("删除分类", "你确定需要删除 " + record.get("text") + " 吗?", function(btn){
+			cardServer.DeleteProductCategory(id, {
+				success: function(succ){
+					if (succ) {
+						Ext.Msg.alert("删除成功", "删除分类 "+ record.get("text") + " 成功");
+						me.refreshTreeList();
+					}
+				},
+				failure: function(error){
+					Ext.Error.raise(error)
+				}
+			});
+		}, me)
+	},
+	editTreeItem: function(widget, record, e){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var CLCombo = me.categoryListCombo();
+		if (me.addWin){
+			me.addWin.close();
+		}
+		if (me.editWin){
+			me.editWin.close()
+		}
+
+		var form = Ext.create("Ext.form.Panel", {
+			width: "100%",
+			height: 100,
+			bodyPadding: 10,
+			bodyStyle: "background-color: #dfe8f5",
+			border: false,
+			flex: 1,
+			items: [
+				{
+					fieldLabel: "名称",
+					xtype: "textfield",
+					allowBlank: false,
+					name: "name",
+					value: record.get("text")
+				},
+				{
+					fieldLabel: "所属类别",
+					xtype: "combobox",
+					store: CLCombo,
+					name: "parentid",
+					queryMode: "local",
+					displayField: "text",
+					valueField: "id",
+					value: parseInt(record.raw["pid"])
+				}
+			],
+			buttons: [
+				{
+					xtype: "button",
+					text: "提交",
+					width: 200,
+					handler: function(){
+						var f = form.getForm(), result = f.getValues();
+						result["id"] = record.get("id");
+						cardServer.UpdateProductCategory(Ext.JSON.encode(result), {
+							success: function(succ){
+								if (succ){
+									Ext.Msg.alert("编辑成功", "编辑分类成功");
+									me.editWin.close();
+									me.refreshTreeList();
+								}
+							},
+							failure: function(error){
+								Ext.Error.raise(error);
+							}
+						})
+					}
+				}
+			]
+		});
+
+		me.editWin= Ext.create("Ext.window.Window", {
+			height: 140,
+			width: 300,
+			title: "编辑分类",
+			autoHeight: true,
+			autoScroll: true,
+			autoWidth: true,
+		});
+		me.editWin.add(form)
+		me.editWin.doLayout();
+		me.editWin.show();
+	},
+	updateTreeListEvent: function(unregister){
+		var me = this;
+		if (unregister){
+			me.treeList.un({
+				itemClick: me.onTreeItemClick,
+				scope: me
+			})
+		}else{
+			me.treeList.on({
+				itemClick: me.onTreeItemClick,
+				scope: me
+			})
+		}
+	},
+	onTreeItemClick: function(frame, record, item){
+		var me = this, id = record.get("id");
+		if (id != -1){
+			me.b_filter = "PCategoryID = " + id;
+		}else{
+			me.b_filter = "";
+		}
+
+		me.filterProducts();
+	},
+	//
 	createMainPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
+		me.createTreeList();
 		var options = {
 			autoScroll: true,
-			height: 480,
+			autoWidth: true,
+			autoHeight: true,
 			cls: "iScroll",
+			height: 200,
 			border: true,
 			plain: true,
 			flex: 1,
+			collapsible: true,
+			collapsed: true,
 			bodyStyle: "background-color: #dfe8f5"
 		}
 
 		me.productsPanel = Ext.widget("panel", Ext.apply(options, {
-			tbar: [{
-				xtype: "button",
-				text: "绑定产品",
-				handler: function(){
-					me.selectProducts();
-				}
-			}]	
+			title: "产品列表"
 		}));
 		me.chargeTypesPanel = Ext.widget("panel", Ext.apply(options, {
-			tbar: [{
-				xtype: "button",
-				text: "绑定费用",
-				handler: function(){
-					me.selectChargeType();
-				}
-			}]	
+			title: "费用列表"
 		}));
 
 		var config = {
 			autoHeight: true,
 			autoScroll: true,
 			cls: "iScroll",
-			height: "100%",
+			height: Beet.constants.VIEWPORT_HEIGHT * 0.98,
 			width: "100%",
 			anchor: "fit",	
 			border: false,
@@ -2959,28 +3292,28 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 						type: "hbox",
 						align: "stretch"
 					},
-					height: 500,
+					height: "100%",
 					autoHeight: true,
 					autoScroll: true,
 					border: false,
 					bodyStyle: "background-color: #dfe8f5",
 					defaults: {
-						bodyStyle: "background-color: #dfe8f5",
 						border: false
 					},
 					items:[
+						me.treeList,
 						{
 							layout: {
 								type: 'vbox',
 								align: 'stretch'
 							},
 							height: 500,
-							flex: 1,
+							flex: 2,
 							items: [
 								{
 									layout: {
 										type: "table",
-										columns: 1,
+										columns: 4,
 										tableAttrs: {
 											cellspacing: 10,
 											style: {
@@ -3008,28 +3341,34 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 										{
 											fieldLabel: "注释",
 											allowBlank: true,
+											xtype: "textarea",
 											name: "descript"
 										},
+										{
+											xtype: "button",
+											text: "绑定产品",
+											handler: function(){
+												me.selectProducts();
+											}
+										},
+										{
+											xtype: "button",
+											text: "绑定费用",
+											handler: function(){
+												me.selectChargeType();
+											}
+										}
 									]
 								},
-								me.itemList.grid
-							]
-						},
-						{
-							layout: {
-								type: 'vbox',
-								align: 'stretch'
-							},
-							flex: 2,
-							height: 500,
-							items: [
+								me.itemList.grid,
 								me.productsPanel,
 								me.chargeTypesPanel
 							]
-						}
+						},
 					]
 				}
-			],
+			]
+			/*,
 			bbar:[
 				"->",
 				{
@@ -3045,7 +3384,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 						me.processData(this);
 					}
 				}
-			]
+			]*/
 		};
 		var form = Ext.widget("form", config);
 		me.form = form;
@@ -5639,7 +5978,7 @@ Ext.define("Beet.apps.ProductsViewPort.InterestsList", {
 		_actions.items.push(
 			"-", "-", "-", {
 				icon: './resources/themes/images/fam/edit.png',
-				tooltip: "编辑消耗产品",
+				tooltip: "编辑产品",
 				id: "customer_grid_edit",
 				handler:function(grid, rowIndex, colIndex){
 					var d = me.storeProxy.getAt(rowIndex)
@@ -5650,7 +5989,7 @@ Ext.define("Beet.apps.ProductsViewPort.InterestsList", {
 		
 		_actions.items.push("-", "-", "-",{
 			icon: "./resources/themes/images/fam/delete.gif",
-			tooltip: "删除消耗产品",
+			tooltip: "删除产品",
 			id: "customer_grid_delete",
 			handler: function(grid, rowIndex, colIndex){
 				var d = me.storeProxy.getAt(rowIndex)
