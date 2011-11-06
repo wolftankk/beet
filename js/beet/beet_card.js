@@ -2717,22 +2717,22 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 
 function buildProductItemCategoryTreeStore(){
 	if (!Beet.apps.ProductsViewPort.ItemCatgoryTreeStore){
-		Ext.define("Beet.apps.ProductsViewPort.ProductCatgoryTreeStore", {
+		Ext.define("Beet.apps.ProductsViewPort.ItemCatgoryTreeStore", {
 			extend: "Ext.data.TreeStore",
 			autoLoad: true,
 			root: {
-				text: "总分类",
+				text: "所有项目",
 				id: "-1",
 				expanded: true
 			},
 			proxy: {
 				type: "b_proxy",
-				b_method: Beet.constants.cardServer.GetProductCategoryData,
+				b_method: Beet.constants.cardServer.GetItemCategoryData,
 				preProcessData: function(data){
 					var originData = data["root"];
 					var bucket = [];
 					var me = this;
-					me.categoryList = [];
+					me.itemList = [];
 					
 					var processData = function(target, cache, pid){
 						var k;
@@ -2755,7 +2755,7 @@ function buildProductItemCategoryTreeStore(){
 								//item["checked"] = false;
 							}
 							cache.push(item);
-							me.categoryList.push({
+							me.itemList.push({
 								id: _tmp["id"],
 								text: _tmp["name"]      
 							})
@@ -2979,9 +2979,9 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 	//
 	createTreeList: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
-		Ext.bind(buildProductCategoryTreeStore, me)();
+		Ext.bind(buildProductItemCategoryTreeStore, me)();
 
-		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.ProductCatgoryTreeStore");
+		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.ItemCatgoryTreeStore");
 		me.treeList = Ext.create("Ext.tree.Panel", {
 			store: store,
 			frame: true,
@@ -2993,7 +2993,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 			height: 500,
 			border: 0,
 			useArrow: true,
-			title: "产品分类",
+			title: "项目分类",
 			split: true,
 		});
 
@@ -3004,7 +3004,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 
 		me.treeList.storeProxy = me.treeList.getStore();
 
-		me.updateTreeListEvent();
+		//me.updateTreeListEvent();
 	},
 	refreshTreeList: function(){
 		var me = this;
@@ -3033,7 +3033,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 						me.editTreeItem(direction, record, e)	
 					}},
 					{text: "删除", handler: function(direction, e){
-						me.deleteItem(direction, record, e);	
+						me.deleteTreeItem(direction, record, e);	
 					}},
 				]
 			}
@@ -3054,10 +3054,10 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 	},
 	categoryListCombo: function(){
 		var me = this;
-		me.categoryList = me.treeList.getStore().proxy.categoryList;
+		me.itemList = me.treeList.getStore().proxy.itemList;
 		return Ext.create("Ext.data.Store", {
 			fields: ["id", "text"],
-			data: me.categoryList	
+			data: me.itemList
 		})
 	},
 	addTreeItem: function(widget, record, e){
@@ -3103,7 +3103,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 					width: 200,
 					handler: function(){
 						var f = form.getForm(), result = f.getValues();
-						cardServer.AddProductCategory(Ext.JSON.encode(result), {
+						cardServer.AddItemCategory(Ext.JSON.encode(result), {
 							success: function(id){
 								if (id > 0){
 									Ext.Msg.alert("添加成功", "添加分类成功");
@@ -3132,7 +3132,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		me.addWin.doLayout();
 		me.addWin.show();
 	},
-	deleteItem: function(width, record, e){
+	deleteTreeItem: function(width, record, e){
 		var me = this, cardServer = Beet.constants.cardServer;
 		var id = record.get("id");
 		if (id == "src"){
@@ -3140,7 +3140,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		}
 
 		Ext.Msg.alert("删除分类", "你确定需要删除 " + record.get("text") + " 吗?", function(btn){
-			cardServer.DeleteProductCategory(id, {
+			cardServer.DeleteItemCategory(id, {
 				success: function(succ){
 					if (succ) {
 						Ext.Msg.alert("删除成功", "删除分类 "+ record.get("text") + " 成功");
@@ -3197,7 +3197,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 					handler: function(){
 						var f = form.getForm(), result = f.getValues();
 						result["id"] = record.get("id");
-						cardServer.UpdateProductCategory(Ext.JSON.encode(result), {
+						cardServer.UpdateItemCategory(Ext.JSON.encode(result), {
 							success: function(succ){
 								if (succ){
 									Ext.Msg.alert("编辑成功", "编辑分类成功");
@@ -3248,7 +3248,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 			me.b_filter = "";
 		}
 
-		me.filterProducts();
+		//me.filterProducts();
 	},
 	//
 	createMainPanel: function(){
