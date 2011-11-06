@@ -99,37 +99,6 @@ registerBeetAppsMenu("configure",
 								}
 							}
 						},
-						/*
-						{
-							text: "返利",
-							handler: function(){
-								var item = Beet.apps.Menu.Tabs["Rebate"];
-								if (!item){
-									Beet.workspace.addPanel("Rabate", "返利", {
-										items: [
-											Ext.create("Beet.apps.ProductsViewPort.RebateList")
-										]	
-									})
-								}else{
-								}
-							},
-						},
-						*/
-						{
-							text: "增加产品",
-							handler: function(){
-								var item = Beet.apps.Menu.Tabs["addProducts"]
-								if (!item){
-									Beet.workspace.addPanel("addProducts", "添加产品", {
-										items: [
-											Ext.create("Beet.apps.ProductsViewPort.AddProducts")
-										]
-									})
-								}else{
-									Beet.workspace.workspace.setActiveTab(item);
-								}
-							}
-						},
 						{
 							text: "编辑产品",
 							handler: function(){
@@ -145,8 +114,6 @@ registerBeetAppsMenu("configure",
 								}
 							}
 						},
-
-
 						{
 							text: "增加费用",
 							handler: function(){
