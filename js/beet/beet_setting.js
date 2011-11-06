@@ -82,8 +82,12 @@ registerBeetAppsMenu("configure",
 					title: "产品管理",
 					width: 420,
 					columns: 6,
+					defaults: {
+						scale : "large"
+					},
 					autoWidth: true,
 					items: [
+						/*
 						{
 							text: "产品设置",
 							handler: function(){
@@ -98,7 +102,7 @@ registerBeetAppsMenu("configure",
 									Beet.workspace.workspace.setActiveTab(item);
 								}
 							}
-						},
+						},*/
 						/*
 						{
 							text: "增加费用",
