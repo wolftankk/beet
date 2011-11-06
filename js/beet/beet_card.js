@@ -2976,6 +2976,8 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		var me = this;
 		me.itemList.grid.fireEvent("itemdblclick", me.itemList.grid, me.itemList.store.getAt(me.selectedItemIndex), null, me.selectedItemIndex)
 	},
+
+
 	//
 	createTreeList: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -3004,7 +3006,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 
 		me.treeList.storeProxy = me.treeList.getStore();
 
-		//me.updateTreeListEvent();
+		me.updateTreeListEvent();
 	},
 	refreshTreeList: function(){
 		var me = this;
@@ -3243,14 +3245,36 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 	onTreeItemClick: function(frame, record, item){
 		var me = this, id = record.get("id");
 		if (id != -1){
-			me.b_filter = "PCategoryID = " + id;
+			me.b_filter = "IID= " + id;
 		}else{
 			me.b_filter = "";
 		}
 
-		//me.filterProducts();
+		me.filterProducts();
 	},
 	//
+	filterProducts: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		me.itemList.store.setProxy({
+			type: "b_proxy",
+			b_method: cardServer.GetItemPageData,
+			startParam: "start",
+			limitParam: "limit",
+			b_params: {
+				"awhere" : me.b_filter
+			},
+			b_scope: Beet.constants.cardServer,
+			reader: {
+				type: "json",
+				root: "Data",
+				totalProperty: "TotalCount"
+			}
+		});
+
+		me.itemList.store.loadPage(1);
+	},
+
+
 	createMainPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
 		me.createTreeList();
@@ -3394,7 +3418,6 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		//update panel
 		me.initializeProductsPanel();
 		me.initializeChargeTypePanel();
-
 	},
 	initializeProductsPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
