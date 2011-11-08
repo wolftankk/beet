@@ -87,13 +87,12 @@ registerBeetAppsMenu("configure",
 					},
 					autoWidth: true,
 					items: [
-						/*
 						{
 							text: "产品设置",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["productsList"];
 								if (!item){
-									Beet.workspace.addPanel("productsList", "编辑产品", {
+									Beet.workspace.addPanel("productsList", "产品设置", {
 										items: [
 											Ext.create("Beet.apps.ProductsViewPort.UpdateProducts")
 										]
@@ -102,7 +101,7 @@ registerBeetAppsMenu("configure",
 									Beet.workspace.workspace.setActiveTab(item);
 								}
 							}
-						},*/
+						},
 						/*
 						{
 							text: "增加费用",
@@ -120,11 +119,11 @@ registerBeetAppsMenu("configure",
 							}
 						},*/
 						{
-							text: "费用设定",
+							text: "费用设置",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["chargeList"];
 								if (!item){
-									Beet.workspace.addPanel("chargeList", "编辑费用", {
+									Beet.workspace.addPanel("chargeList", "费用设置", {
 										items: [
 											Ext.create("Beet.apps.ProductsViewPort.UpdateCharge")
 										]
@@ -135,11 +134,11 @@ registerBeetAppsMenu("configure",
 							}
 						},
 						{
-							text: "项目设定",
+							text: "项目设置",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["itemList"]
 								if (!item){
-									Beet.workspace.addPanel("itemList", "编辑项目", {
+									Beet.workspace.addPanel("itemList", "项目设置", {
 										items: [
 											Ext.create("Beet.apps.ProductsViewPort.ItemList")
 										]
@@ -181,36 +180,6 @@ registerBeetAppsMenu("configure",
 							}
 						},
 						*/
-						{
-							text: "增加卡项",
-							handler: function(){
-								var item = Beet.apps.Menu.Tabs["addCard"]
-								if (!item){
-									Beet.workspace.addPanel("addCard", "增加卡项", {
-										items: [
-											Ext.create("Beet.apps.ProductsViewPort.AddCard")
-										]
-									})
-								}else{
-									Beet.workspace.workspace.setActiveTab(item);
-								}
-							}
-						},
-						{
-							text: "编辑卡项",
-							handler: function(){
-								var item = Beet.apps.Menu.Tabs["cardList"]
-								if (!item){
-									Beet.workspace.addPanel("cardList", "编辑卡项", {
-										items: [
-											Ext.create("Beet.apps.ProductsViewPort.CardList")
-										]
-									})
-								}else{
-									Beet.workspace.workspace.setActiveTab(item);
-								}
-							}
-						}
 					]
 				}
 			]
