@@ -918,6 +918,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			autoScroll: true,
 			autoHeight: true,
 			height: "100%",
+			width : Beet.constants.WORKSPACE_WIDTH,
 			border: 0,
 			columnLines: true,
 			viewConfig: {
