@@ -241,6 +241,7 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 		if (item){
 			Beet.workspace.removePanel("customeAdvanceSearchBtn");
 		}
+
 		Beet.workspace.addPanel("customeAdvanceSearchBtn", "高级搜索", {
 			items: [
 				grid

@@ -737,8 +737,6 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 });
 
 
-
-
 Ext.define("Beet.apps.Viewport.CustomerList", {
 	extend: "Ext.panel.Panel",
 	layout: "fit",

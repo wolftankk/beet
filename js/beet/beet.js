@@ -541,6 +541,7 @@ Ext.define("Beet.apps.Viewport", {
 			title: title,
 			tabTip: title
 		}, config));
+		this.workspace.doLayout();
 		//设置一个私有的name名称, 为了能直接摧毁
 		item.b_name = name;
 		Beet.apps.Menu.Tabs[name] = item;
