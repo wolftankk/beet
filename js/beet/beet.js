@@ -28,19 +28,17 @@ Ext.define("Beet.apps.Menu.Panel", {
 		}
 
 		that.configurePanel = new Ext.tab.Panel(that.getCPanelConfig());
-		that.dockedItems = [
-			//顶部导航条
-			{
-				xtype: "BeetMenuBar",
-				configurePanel: that.configurePanel,
-				dock: "top"
-			},
-			that.configurePanel
-		]
 		
 		//当框体变动的时候 进行自动调整大小
 		Ext.EventManager.onWindowResize(that.fireResize, that);
 		this.callParent(arguments);
+		
+		that.add(that.configurePanel);
+		that.addDocked({
+			xtype: "BeetMenuBar",
+			configurePanel: that.configurePanel	
+		})
+		that.doLayout();
 	},
 	getOperatorList: function(__callback){
 		//获取权限
@@ -111,7 +109,6 @@ Ext.define("Beet.apps.Menu.Panel", {
 			autoScroll: true,
 			layout: "fit",
 			id: "configurePanel",
-			dock: "bottom",
 			plain: true,
 			minTabWidth: 100,
 			bodyStyle: "background-color: #dfe8f5",
@@ -150,11 +147,11 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 			Ext.QuickTips.init();
 		}
 
-		//导航栏toolbar
+		////导航栏toolbar
 		that.navigationToolbar = new Ext.toolbar.Toolbar(that.getNavitionConfig());
 		that.navigationToolbar.parent = that;
 
-		//username
+		////username
 		that.logoutButton = new Ext.toolbar.Toolbar(that.getLogoutButtonConfig());
 		that.helpButton = new Ext.toolbar.Toolbar(that.getHelpButtonConfig());
 		that.toggleButton = new Ext.toolbar.Toolbar(that.getToggleButtonConfig());
@@ -181,7 +178,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 				xtype: "trayclock"
 			}
 		];
-		
+		//
 		that.callParent();
 		Ext.defer(function(){
 			Ext.EventManager.on(that.configurePanel.getTabBar().body, "click", that.onTabBarClick, that);
@@ -222,16 +219,18 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 	},
 	//获取导航栏配置
 	getNavitionConfig: function(){
-		var that = this, config,
-		configurePanel = that.configurePanel, navigationTab = configurePanel.getTabBar();
-		navigationTab.ownerCt = that.parent;
+		var that = this, config;
+		var configurePanel = that.configurePanel, navigationTab = configurePanel.getTabBar();
+		//remove tab from tabpanel dockeditems
+		configurePanel.removeDocked(navigationTab, false);
 		navigationTab.dock = "";
-		navigationTab.width = 600;
-		navigationTab.height=23;
+		navigationTab.setWidth(600);
+		navigationTab.setHeight(23);
 		navigationTab.border=0;
 		config = {
 			cls: "beet-navtoolbar",
 			width: 600,
+			autoWidth: true,
 			items: [
 				"&#160;",
 				navigationTab	
@@ -469,17 +468,15 @@ Ext.define("Beet.apps.Viewport", {
 		var that=this;
 		Ext.apply(this, {});
 
-		that.items = [
-			that.createMainPanel()
-		];
-
 		Ext.EventManager.onWindowResize(that.fireResize, that);
 
-		that.callParent();	
+		that.callParent();
+		that.add(that.createMainPanel());
+		that.doLayout();
 	},
 	onRender: function(){
 		var that = this, h = Ext.core.Element.getViewHeight();
-		//自动计算高度 总高度 - menu高度
+		////自动计算高度 总高度 - menu高度
 		that.setHeight(h-112);
 		that.callParent(arguments);
 	},
@@ -488,6 +485,9 @@ Ext.define("Beet.apps.Viewport", {
 			border: false,
 			maxTabWidth: 230,
 			minTabWidth: 150,
+			cls: "iScroll",
+			width: "100%",
+			height: "100%",
 			shadow: true,
 			layout: "anchor",
 			defaults: {
@@ -497,6 +497,7 @@ Ext.define("Beet.apps.Viewport", {
 				bodyStyle: "background-color: #dfe8f5",
 				plain: true
 			},
+			border: false,
 			bodyStyle: "background-color: #dfe8f5",
 			/*
 			plugins: [
@@ -507,8 +508,6 @@ Ext.define("Beet.apps.Viewport", {
 					menuPrefixText: ""	
 				}
 			],*/
-			items: [
-			],
 			onRemove: function(item){
 				var name = item.b_name;
 				if (Beet.apps.Menu.Tabs[name]){
@@ -542,6 +541,7 @@ Ext.define("Beet.apps.Viewport", {
 			title: title,
 			tabTip: title
 		}, config));
+		this.workspace.doLayout();
 		//设置一个私有的name名称, 为了能直接摧毁
 		item.b_name = name;
 		Beet.apps.Menu.Tabs[name] = item;
