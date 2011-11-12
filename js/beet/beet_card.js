@@ -306,7 +306,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 		})
 	},
 	restoreFromData: function(rawData){
-		console.log(rawData)
 		var me = this, form = me.form.getForm();
 		me.rawData = rawData;
 		form.setValues({
@@ -484,7 +483,6 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 			}
 		})
 
-		//console.log(me.editProduct)
 		me.editPanel.doLayout();
 		me.getProductsMetaData();
 	},
@@ -516,11 +514,17 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 			}
 		};
 		
-		if (Ext.isDefined("Beet.apps.ProductsViewPort.ProductsModel")){
+		if (!Ext.isDefined(Beet.apps.ProductsViewPort.ProductsModel)){
 			Ext.define("Beet.apps.ProductsViewPort.ProductsModel", {
 				extend: "Ext.data.Model",
 				fields: fields
 			});
+		}
+
+		//reset
+		if (Ext.isDefined(Beet.apps.ProductsViewPort.ProductsStore)){
+			//del?
+			Beet.apps.ProductsViewPort.ProductsStore = undefined
 		}
 
 		Ext.define("Beet.apps.ProductsViewPort.ProductsStore", {
