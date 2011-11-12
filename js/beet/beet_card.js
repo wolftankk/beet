@@ -10,7 +10,47 @@ registerBeetAppsMenu("card", {
 				width: 250
 			},
 			items: [
-
+				{
+					title: '卡项管理',
+					layout: "anchor",
+					width: 300,
+					defaults: {
+						scale: "large",
+						rowspan: 1
+					},
+					items: [
+						{
+							text: "增加卡项",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["addCard"]
+								if (!item){
+									Beet.workspace.addPanel("addCard", "增加卡项", {
+										items: [
+											Ext.create("Beet.apps.ProductsViewPort.AddCard")
+										]
+									})
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						},
+						{
+							text: "编辑卡项",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["cardList"]
+								if (!item){
+									Beet.workspace.addPanel("cardList", "编辑卡项", {
+										items: [
+											Ext.create("Beet.apps.ProductsViewPort.CardList")
+										]
+									})
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						}
+					]
+				}
 			]
 		}
 	]
@@ -81,7 +121,7 @@ function buildProductCategoryTreeStore(){
 
 Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 	extend: "Ext.form.Panel",
-	height: Beet.constants.VIEWPORT_HEIGHT * 0.33,
+	height: 170,
 	width: "100%",
 	layout: "fit",
 	bodyStyle: "background-color: #dfe8f5",
