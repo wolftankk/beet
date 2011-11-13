@@ -1981,10 +1981,10 @@ Ext.define("Beet.apps.ProductsViewPort.AddCharge", {
 		me.createTreeList();
 
 		me.updateTreeListEvent(true)
-		//me.treeList.on({
-		//	itemclick: me.treeItemClick,
-		//	scope: me
-		//})
+		me.treeList.on({
+			itemclick: me.treeItemClick,
+			scope: me
+		})
 		me.createMainPanel();
 	},
 	createMainPanel: function(){
@@ -2059,6 +2059,11 @@ Ext.define("Beet.apps.ProductsViewPort.AddCharge", {
 							}
 						},
 						{
+							fieldLabel: "分类",
+							name: "category",
+							allowBlank: false
+						},
+						{
 							fieldLabel: "是否有效",
 							name: "effective",
 							xtype: "checkbox",
@@ -2086,6 +2091,16 @@ Ext.define("Beet.apps.ProductsViewPort.AddCharge", {
 		me.form = form;
 		me.mainPanel.add(form);
 		me.mainPanel.doLayout();
+	},
+	treeItemClick: function(frame, record, item, index, e, options){
+		var me = this;
+		if (!record){return;}
+		
+		me.selectProductCategoryId = parseInt(record.get("id"));
+
+		me.form.getForm().setValues({
+			"category" : record.get("text")	
+		})
 	},
 	onUpdateForm: function(force){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -2120,6 +2135,11 @@ Ext.define("Beet.apps.ProductsViewPort.AddCharge", {
 
 		result["applyrate"] = result["applyrate"] == 1 ? true : false;
 		result["effective"] = result["effective"] == 1 ? true : false;
+
+		if (me.selectProductCategoryId){
+			result["categoryid"] = me.selectProductCategoryId;
+			delete result["category"];
+		}
 
 		cardServer.AddChargeType(Ext.JSON.encode(result), {
 			success: function(id){
