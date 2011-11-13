@@ -3196,7 +3196,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 		}, "-");
 
 		columns.push(_actions);
-		cardServer.GetProductPageData(0, 1, "", {
+		cardServer.GetItemProductData(-1, {
 			success: function(data){
 				var data = Ext.JSON.decode(data)["MetaData"];
 				var fields = me.productsPanel.__fields = [];
@@ -3229,7 +3229,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 
 			var grid = me.productsPanel.grid = Ext.create("Ext.grid.Panel", {
 				store: store,
-				height: 448,
+				height: 200,
 				cls: "iScroll",
 				autoScroll: true,
 				columnLines: true,
@@ -3374,7 +3374,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 
 		var grid = me.chargeTypesPanel.grid = Ext.create("Ext.grid.Panel", {
 			store: store,
-			height: 448,
+			height: 200,
 			cls: "iScroll",
 			autoScroll: true,
 			columnLines: true,
@@ -4000,7 +4000,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		}, "-");
 
 		columns.push(_actions);
-		cardServer.GetProductPageData(0, 1, "", {
+		cardServer.GetItemProductData(-1, {
 			success: function(data){
 				var data = Ext.JSON.decode(data)["MetaData"];
 				var fields = me.productsPanel.__fields = [];
@@ -4680,7 +4680,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 		}
 		var columns = me.productsPanel.__columns = [];
 
-		cardServer.GetProductPageData(0, 1, "", {
+		cardServer.GetItemProductData(0, 1, "", {
 			success: function(data){
 				var data = Ext.JSON.decode(data)["MetaData"];
 				var fields = me.productsPanel.__fields = [];
