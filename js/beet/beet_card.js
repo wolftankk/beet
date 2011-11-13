@@ -2926,7 +2926,6 @@ function createItemCategoryTree(){
 		}else{
 			me.b_filter = "";
 		}
-
 		me.filterProducts();
 	}
 	me.treeItemClick = function(frame, record, item, index, e, options){
@@ -2939,13 +2938,6 @@ function createItemCategoryTree(){
 		})
 	}
 }
-
-/**
- *
- *
- *
- *
- */
 
 Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 	extend: "Ext.form.Panel",
@@ -2974,6 +2966,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 		var me = this, cardServer = Beet.constants.cardServer;
 		Ext.bind(createItemCategoryTree, me)();
 		me.createTreeList();
+		me.updateTreeListEvent(true)
 
 		var options = {
 			autoScroll: true,
