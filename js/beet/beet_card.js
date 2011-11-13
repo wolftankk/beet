@@ -2885,25 +2885,9 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 							that.proxy.b_params["limit"] = options["limit"];
 
 							return that.callParent([options]);
-						},
-						proxy: {
-							type: "b_proxy",
-							b_method: cardServer.GetItemPageData,
-							startParam: "start",
-							limitParam: "limit",
-							b_params: {
-								"awhere" : me.b_filter
-							},
-							b_scope: Beet.constants.cardServer,
-							reader: {
-								type: "json",
-								root: "Data",
-								totalProperty: "TotalCount"
-							}
 						}
 					});
 				}
-
 
 				me.initializeItemGrid();
 			},
@@ -2912,10 +2896,28 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 			}
 		});
 	},
+	updateProxy: function(){
+		return {
+			type: "b_proxy",
+			b_method: cardServer.GetItemPageData,
+			startParam: "start",
+			limitParam: "limit",
+			b_params: {
+				"awhere" : me.b_filter
+			},
+			b_scope: Beet.constants.cardServer,
+			reader: {
+				type: "json",
+				root: "Data",
+				totalProperty: "TotalCount"
+			}
+		}
+	},
 	initializeItemGrid: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
 		var __fields = me.itemList.__fields;
 		var store = me.itemList.store = Ext.create("Beet.apps.ProductsViewPort.itemStore");
+		store.setProxy(me.updateProxy());
 
 		var grid = me.itemList.grid = Ext.create("Beet.plugins.LiveSearch", {
 			autoHeight: true,
