@@ -1962,7 +1962,30 @@ Ext.define("Beet.apps.ProductsViewPort.AddCharge", {
 
 		me.callParent()	
 
-		//me.createMainPanel();
+		me.mainPanel = Ext.create("Ext.panel.Panel", {
+			height: (me.b_type == "selection" ? "95%" : "100%"),
+			width: "100%",
+			autoHeight: true,
+			autoScroll: true,
+			border: false,
+			layout: {
+				type: "hbox",
+				columns: 2,
+				align: 'stretch'
+			},
+		})
+		me.add(me.mainPanel);
+		me.doLayout();
+		
+		Ext.bind(createChargeCategoryTree, me)();
+		me.createTreeList();
+
+		me.updateTreeListEvent(true)
+		//me.treeList.on({
+		//	itemclick: me.treeItemClick,
+		//	scope: me
+		//})
+		me.createMainPanel();
 	},
 	createMainPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -1970,10 +1993,10 @@ Ext.define("Beet.apps.ProductsViewPort.AddCharge", {
 		var config = {
 			autoHeight: true,
 			autoScroll: true,
-			border: false,
-			bodyBorder: false,
 			plain: true,
 			flex: 1,
+			bodyPadding: 5,
+			bodyStyle: "background-color: #dfe8f5",
 			items: [
 				{
 					layout: {
@@ -2041,7 +2064,10 @@ Ext.define("Beet.apps.ProductsViewPort.AddCharge", {
 							xtype: "checkbox",
 							checked: true,
 							inputValue: 1
-						},
+						}
+					],
+					bbar: [
+						"->",
 						{
 							xtype: "button",
 							text: "提交",
@@ -2058,8 +2084,8 @@ Ext.define("Beet.apps.ProductsViewPort.AddCharge", {
 
 		var form = Ext.widget("form", config);
 		me.form = form;
-		me.add(form);
-		me.doLayout();
+		me.mainPanel.add(form);
+		me.mainPanel.doLayout();
 	},
 	onUpdateForm: function(force){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -2171,11 +2197,7 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 		Ext.bind(createChargeCategoryTree, me)();
 		me.createTreeList();
 
-		//me.add(Ext.create("Beet.apps.ProductsViewPort.AddCharge", {
-		//	height: "22%"
-		//}))
-		//me.doLayout();
-		//me.getProductsMetaData();
+		me.getProductsMetaData();
 	},
 	getProductsMetaData: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -2324,7 +2346,7 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 			border: 0,
 			selModel: sm,
 			height: "100%",
-			width: "100%",
+			flex: 1,
 			columnLines: true,
 			viewConfig:{
 				trackOver: false,
@@ -2354,6 +2376,28 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 							}
 						});
 					}
+				},
+				"-",
+				{
+					xtype: "button",
+					text: "增加费用",
+					handler: function(){
+						var win = Ext.create("Ext.window.Window", {
+							title: "增加费用",
+							width: 1000,
+							height: 600,
+							layout: "fit",
+							autoHeight: true,
+							autoScroll: true,
+							border: false,
+						})
+
+						win.add(Ext.create("Beet.apps.ProductsViewPort.AddCharge", {
+							
+						}))
+
+						win.show();
+					}
 				}
 			],
 			bbar: Ext.create("Ext.PagingToolbar", {
@@ -2364,8 +2408,8 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 			})
 		})
 
-		me.add(me.grid);
-		me.doLayout();
+		me.mainPanel.add(me.grid);
+		me.mainPanel.doLayout();
 
 		if (me.b_type == "selection"){
 			me.add(Ext.widget("button", {
