@@ -317,7 +317,6 @@ Ext.define("Beet.plugins.proxyClient", {
 		return request;
 	},
 	processResponse: function(operation, callback, scope, data){
-		console.log(data)
 		var that = this, 
 			mc,
 			reader = that.getReader();
