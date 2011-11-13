@@ -3204,11 +3204,28 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 					var meta = data[c];
 					fields.push(meta["FieldName"])
 					if (!meta["FieldHidden"]){
-						columns.push({
+						var c = {
 							dataIndex: meta["FieldName"],
 							header: meta["FieldLabel"],
 							flex: 1
-						})
+						}
+
+						if (meta["FieldName"] == "COUNT"){
+							c.editor = {
+								xtype: "numberfield",
+								allowBlank: false,
+								type: "int"
+							}
+						}
+						if (meta["FieldName"] == "PRICE"){
+							c.editor = {
+								xtype: "numberfield",
+								allowBlank: false,
+								type: "int"
+							}
+						}
+
+						columns.push(c);
 					}
 				}
 				me.initializeProductsGrid();
@@ -3233,8 +3250,15 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 				cls: "iScroll",
 				autoScroll: true,
 				columnLines: true,
-				columns: me.productsPanel.__columns	
+				columns: me.productsPanel.__columns,
+				plugins: [
+					Ext.create('Ext.grid.plugin.CellEditing', {
+						clicksToEdit: 1
+					})
+				],
+				selType: 'cellmodel'
 			});
+
 
 			me.productsPanel.add(grid);
 			me.productsPanel.doLayout();
@@ -3495,26 +3519,11 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 		}
 		if (me.itemList.cache[itemId] == undefined){
 			me.itemList.cache[itemId] = {};
-			cardServer.GetItemProducts(itemId, {
+			cardServer.GetItemProductData(itemId, {
 				success: function(data){
-					data = Ext.JSON.decode(data)["products"];
-					var sql = [];
-					for (var c = 0; c < data.length; ++c){
-						sql.push("pid=" + data[c]);
-					}
-					var s = sql.join(" OR ");
-					if (s.length > 0){
-						cardServer.GetProductPageData(1, 1000000, s, {
-							success: function(data){
-								var data = Ext.JSON.decode(data)["Data"];
-								me.itemList.cache[itemId].products = data;
-								me.addProducts(data, true);
-							},
-							failure: function(error){
-								Ext.Error.raise(error)
-							}
-						});
-					}
+					data = Ext.JSON.decode(data)["Data"]//["products"];
+					me.itemList.cache[itemId].products = data;
+					me.addProducts(data, true)
 				},
 				failure: function(error){
 					Ext.Error.raise(error);
@@ -3575,7 +3584,23 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 		}
 
 		//name descript products charges
-		var products = Ext.Object.getKeys(selectedProducts);
+		var productstore = me.productsPanel.grid.getStore();
+		var products = [];
+		for (var c = 0; c < productstore.getCount(); ++c){
+			var data = productstore.getAt(c);
+			var count = data.get("COUNT"), price = data.get("PRICE");
+			if (count != undefined && price != undefined){
+				var pid = data.get("PID");
+				products.push({
+					id: pid,
+					count: count,
+					price: price	
+				})
+			}else{
+				Ext.MessageBox.alert("失败", "请将\"消耗数量\"以及\"消耗总价\"填写完整!");
+				return;
+			}
+		}
 		var charges = Ext.Object.getKeys(selectedChargeType);
 
 		if (products && products.length > 0){
@@ -4348,26 +4373,11 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		}
 		if (me.itemList.cache[itemId] == undefined){
 			me.itemList.cache[itemId] = {};
-			cardServer.GetItemProducts(itemId, {
+			cardServer.GetItemProductData(itemId, {
 				success: function(data){
-					data = Ext.JSON.decode(data)["products"];
-					var sql = [];
-					for (var c = 0; c < data.length; ++c){
-						sql.push("pid=" + data[c]);
-					}
-					var s = sql.join(" OR ");
-					if (s.length > 0){
-						cardServer.GetProductPageData(1, 1000000, s, {
-							success: function(data){
-								var data = Ext.JSON.decode(data)["Data"];
-								me.itemList.cache[itemId].products = data;
-								me.addProducts(data, true);
-							},
-							failure: function(error){
-								Ext.Error.raise(error)
-							}
-						});
-					}
+					data = Ext.JSON.decode(data)["Data"]//["products"];
+					me.itemList.cache[itemId].products = data;
+					me.addProducts(data, true)
 				},
 				failure: function(error){
 					Ext.Error.raise(error);
@@ -4860,26 +4870,11 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 		}
 		if (me.itemList.cache[itemId] == undefined){
 			me.itemList.cache[itemId] = {};
-			cardServer.GetItemProducts(itemId, {
+			cardServer.GetItemProductData(itemId, {
 				success: function(data){
-					data = Ext.JSON.decode(data)["products"];
-					var sql = [];
-					for (var c = 0; c < data.length; ++c){
-						sql.push("pid=" + data[c]);
-					}
-					var s = sql.join(" OR ");
-					if (s.length > 0){
-						cardServer.GetProductPageData(1, 1000000, s, {
-							success: function(data){
-								var data = Ext.JSON.decode(data)["Data"];
-								me.itemList.cache[itemId].products = data;
-								me.addProducts(data, true);
-							},
-							failure: function(error){
-								Ext.Error.raise(error)
-							}
-						});
-					}
+					data = Ext.JSON.decode(data)["Data"]//["products"];
+					me.itemList.cache[itemId].products = data;
+					me.addProducts(data, true)
 				},
 				failure: function(error){
 					Ext.Error.raise(error);
