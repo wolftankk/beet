@@ -3221,6 +3221,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 						columns.push(c);
 					}
 				}
+
 				me.initializeProductsGrid();
 			},
 			failure: function(error){
@@ -3288,7 +3289,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			}
 		}));
 		win.doLayout();
-
 	},
 	addProducts: function(records, isRaw){
 		var me = this, selectedProducts = me.selectedProducts;
@@ -4309,11 +4309,11 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 			}
 		})
 
-		f.restoreFromData(rawData);
-
-		win.add(f);
-
-		win.show();
+		Ext.defer(function(){
+			f.restoreFromData(rawData);
+			win.add(f);
+			win.show();
+		}, 500);
 	},
 	deleteItem: function(record){
 		var me = this, cardServer = Beet.constants.cardServer;
