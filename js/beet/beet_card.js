@@ -402,6 +402,11 @@ Ext.define("Beet.apps.ProductsViewPort.UpdateProducts", {
 	}
 });
 
+Ext.define("Beet.apps.ProductsViewPort.ProductCatgoryTree", {
+	
+	
+})
+
 Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 	extend: "Ext.panel.Panel",
 	autoHeight: true,
@@ -438,52 +443,53 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 		})
 		me.add(me.mainPanel);
 		me.doLayout();
+
 		me.createTreeList();
 
 		//add new panel
-		me.editPanel = Ext.create("Ext.panel.Panel", {
-			height: "100%",	
-			width: Beet.constants.WORKSPACE_WIDTH - 235,
-			lookMask: true,
-			frame: true,
-			collapsible: false,
-			rorder: false,
-			bodyBorder: false,
-			autoScroll: true,
-			autoHeight: true,
-			border: 0,
-			layout: {
-				type: "vbox",
-				columns: 2,
-				align: 'stretch'
-			},
-		})
-		me.mainPanel.add(me.editPanel);
-		me.mainPanel.doLayout();
+		//me.editPanel = Ext.create("Ext.panel.Panel", {
+		//	height: "100%",	
+		//	width: Beet.constants.WORKSPACE_WIDTH - 235,
+		//	lookMask: true,
+		//	frame: true,
+		//	collapsible: false,
+		//	rorder: false,
+		//	bodyBorder: false,
+		//	autoScroll: true,
+		//	autoHeight: true,
+		//	border: 0,
+		//	layout: {
+		//		type: "vbox",
+		//		columns: 2,
+		//		align: 'stretch'
+		//	},
+		//})
+		//me.mainPanel.add(me.editPanel);
+		//me.mainPanel.doLayout();
 
-		me.editProduct = me.editPanel.add(Ext.create("Beet.apps.ProductsViewPort.AddProducts", {
-			parent: me,
-			collapsible: true,
-			collapsed: true,
-			title: "添加/编辑产品"
-		}));
+		//me.editProduct = me.editPanel.add(Ext.create("Beet.apps.ProductsViewPort.AddProducts", {
+		//	parent: me,
+		//	collapsible: true,
+		//	collapsed: true,
+		//	title: "添加/编辑产品"
+		//}));
 
-		me.editProduct.on({
-			scope: me,
-			collapse: function(){
-				me._isEditing = false;
-				me.updateTreeListEvent(false)
-				//console.log("卷起")
-			},
-			expand: function(){
-				me._isEditing = true;
-				me.updateTreeListEvent(true)
-				me.editProduct.resetForm();
-				//console.log("展开")
-			}
-		})
+		//me.editProduct.on({
+		//	scope: me,
+		//	collapse: function(){
+		//		me._isEditing = false;
+		//		me.updateTreeListEvent(false)
+		//		//console.log("卷起")
+		//	},
+		//	expand: function(){
+		//		me._isEditing = true;
+		//		me.updateTreeListEvent(true)
+		//		me.editProduct.resetForm();
+		//		//console.log("展开")
+		//	}
+		//})
 
-		me.editPanel.doLayout();
+		//me.editPanel.doLayout();
 		me.getProductsMetaData();
 	},
 	getProductsMetaData: function(){
@@ -519,12 +525,6 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 				extend: "Ext.data.Model",
 				fields: fields
 			});
-		}
-
-		//reset
-		if (Ext.isDefined(Beet.apps.ProductsViewPort.ProductsStore)){
-			//del?
-			Beet.apps.ProductsViewPort.ProductsStore = undefined
 		}
 
 		Ext.define("Beet.apps.ProductsViewPort.ProductsStore", {
@@ -955,16 +955,16 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 					xtype: "button",
 					text: "增加产品",
 					handler: function(){
-						me.editProduct.setTitle("增加产品")
-						me.editProduct._editType = "add";
-						me.editProduct.resetForm();
-						me.editProduct.expand();
+						//me.editProduct.setTitle("增加产品")
+						//me.editProduct._editType = "add";
+						//me.editProduct.resetForm();
+						//me.editProduct.expand();
 					}
 				}
 			]
 		})
-		me.editPanel.add(me.grid);
-		me.editPanel.doLayout();
+		me.add(me.grid);
+		me.doLayout();
 
 		if (me.b_type == "selection"){
 			me.add(Ext.widget("button", {
