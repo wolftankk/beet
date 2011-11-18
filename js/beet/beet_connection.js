@@ -1,16 +1,66 @@
+/**
+ * Beet connection
+ *
+ * Special connention with MYDO server and 
+ * it handler ajax data
+ *
+ * @deps: Ext.util.Observable
+ * @author: 月色狼影(wolftankk@gmail.com)
+ */
+
 Beet_connection = {
-	
+	/**
+	 * @description The default header uses for POST transactions
+	 */
 	_default_post_header : 'application/x-www-form-urlencoded; charset=UTF-8',
+	/**
+	 * @description Determins if a default header of Content-Type of 'application/x-www-from-urlencoded'
+	 *  will be added to any client HTTP headers send for POST transactions
+	 */
 	_use_default_post_header: true,
+	/**
+	 * @description The default header value for the label "X-Requested-with".
+	 *  This is send with each transaction, by default, to identify the request
+	 *  as being make by Beet_Connection Manager
+	 */
 	_default_xhr_header: "XMLHttpRequest",
+	/**
+	 * @description The default header value for the label "X-Requested-with: XMLHttpRequest"
+	 *  will be added to each transaction
+	 */
 	_use_default_xhr_header: true,
+	/**
+	 * @description Determins if custom, default headers are set for each transaction
+	 */
 	_default_headers : {},
+	/**
+	 * @description Object literal of HTTP header(s)
+	 */
 	_http_headers: {},
+	/**
+	 * @description Determins if HTTP headers are set.
+	 */
 	_has_http_headers: false,
+	/**
+	 * @description Determins if custom, default headers are set for each transaction
+	 */
 	_has_default_headers: true,
+	/**
+	 * @description A transaction counter that idcrements the transaction id for each transaction.
+	 */
 	_transaction_id: 0,
+	/**
+	 * @description Queue of timeout values for each transaction callback with a defined timeout values
+	 */
 	_timeOut: {},
+	/**
+	 * @description Collection of polling references to the polling mechainism in handleReadyState
+	 */
 	_poll:{},
+	/**
+	 * @description The polling frequency, in milliseconds, for handleReadyState
+	 * when attemting to determine a transaction's XHR readyState. The default is 50 ms.
+	 */
 	_polling_interval: 50,
 	
 	/**
@@ -22,6 +72,10 @@ Beet_connection = {
 		}
 	},
 
+	/**
+	 * @description Instantiates a XMLHttpRequest object and returns an object with two properties:
+	 * the XMLHttpRequest instance and the transaction id.
+	 */
 	createXhrObject: function(transactionId){
 		var obj, http;
 		try {
@@ -80,6 +134,8 @@ Beet_connection = {
 				}
 				o.conn.send(postData);
 
+				//fire start event
+
 				return o;
 			}
 		}
@@ -103,7 +159,6 @@ Beet_connection = {
 				}
 
 				//fire complete event
-				//
 				oConn.handleTransactionResponse(o, callback)
 			}
 		}, this._polling_interval);
@@ -116,6 +171,8 @@ Beet_connection = {
 		try{
 			if (o.conn.status !== undefined && o.conn.status !== 0){
 				httpStatus = o.conn.status;
+			}else if (!isAbort) {
+				httpStatus = 0;	
 			}
 			else{
 				httpStatus = 13030;
@@ -196,11 +253,12 @@ Beet_connection = {
 						}
 					}
 			}
+
+			//fire failure event
 		
 		}
 		this.releaseObject(o);
 		responeObject = null;
-		
 	},
 
 	createResponseObject:function(o, callbackArg){
