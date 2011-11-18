@@ -310,10 +310,9 @@ Beet_connection = {
 
 		Ext.MessageBox.show({
 			title: "错误",
-			msg: "网络链接超时! 点击重新尝试链接. 若还不行, 请联系网络管理员",
+			msg: "网络链接超时! 请重新尝试链接. 若还不行, 请联系网络管理员",
 			buttons: Ext.MessageBox.OK,
 			fn: function(btn){
-				window.location = "main.html";
 			}
 		})
 
