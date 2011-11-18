@@ -2978,7 +2978,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			plain: true,
 			flex: 1,
 			collapsible: true,
-			//collapsed: true,
 			bodyStyle: "background-color: #dfe8f5"
 		}
 		me.productsPanel = Ext.widget("panel", Ext.apply(options, {
@@ -3203,14 +3202,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 							flex: 1
 						}
 
-						if (meta["FieldName"] == "COUNT"){
-							c.editor = {
-								xtype: "numberfield",
-								allowBlank: false,
-								type: "int"
-							}
-						}
-						if (meta["FieldName"] == "PRICE"){
+						if (meta["FieldName"] == "COUNT" || meta["FieldName"] == "PRICE"){
 							c.editor = {
 								xtype: "numberfield",
 								allowBlank: false,
@@ -3247,7 +3239,18 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 				columns: me.productsPanel.__columns,
 				plugins: [
 					Ext.create('Ext.grid.plugin.CellEditing', {
-						clicksToEdit: 1
+						clicksToEdit: 1,
+						listeners: {
+							"edit" : function(editor, e, opts){
+								// fire event when cell edit complete
+								var currField = e.field, currColIdx = e.colIdx, currRowIdx = e.rowIndex;
+								var currRecord = e.record;
+								if (currField == "COUNT"){
+									//check field "PRICE" that it exists val?
+									console.log(currRecord);
+								}
+							}
+						}
 					})
 				],
 				selType: 'cellmodel'

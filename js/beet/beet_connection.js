@@ -87,7 +87,9 @@ Beet_connection = {
 	handleReadyState: function(o, callback){
 		var oConn = this, args = (callback && callback.argument)?callback.argument:null;
 		if (callback && callback.timeout){
-			this._timeOut[o.tId] = window.setTimeout(function(){ oConn.abort(o, callback, true); }, callback.timeout);
+			this._timeOut[o.tId] = window.setTimeout(function(){ 
+				oConn.abort(o, callback, true); 
+			}, callback.timeout);
 		}
 		
 		this._poll[o.tId] = window.setInterval(function(){
@@ -305,6 +307,15 @@ Beet_connection = {
 		}else{
 			abortStatus = false;
 		}
+
+		Ext.MessageBox.show({
+			title: "错误",
+			msg: "网络链接超时! 点击重新尝试链接. 若还不行, 请联系网络管理员",
+			buttons: Ext.MessageBox.OK,
+			fn: function(btn){
+				window.location = "main.html";
+			}
+		})
 
 		if (abortStatus === true){
 			//event
