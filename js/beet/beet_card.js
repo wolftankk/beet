@@ -59,9 +59,9 @@ registerBeetAppsMenu("card", {
 
 Ext.namespace("Beet.apps.ProductsViewPort");
 
-function buildProductCategoryTreeStore(){
-	if (!Beet.apps.ProductsViewPort.ProductCatgoryTreeStore){
-		Ext.define("Beet.apps.ProductsViewPort.ProductCatgoryTreeStore", {
+function buildCategoryTreeStore(){
+	if (!Beet.apps.ProductsViewPort.CatgoryTreeStore){
+		Ext.define("Beet.apps.ProductsViewPort.CatgoryTreeStore", {
 			extend: "Ext.data.TreeStore",
 			autoLoad: true,
 			root: {
@@ -71,7 +71,7 @@ function buildProductCategoryTreeStore(){
 			},
 			proxy: {
 				type: "b_proxy",
-				b_method: Beet.constants.cardServer.GetProductCategoryData,
+				b_method: Beet.constants.cardServer.GetCategoryData,
 				preProcessData: function(data){
 					var originData = data["root"];
 					var bucket = [];
@@ -153,7 +153,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 		me.add(me.mainPanel);
 		me.doLayout();
 		
-		Ext.bind(createProductCategoryTree, me)();
+		Ext.bind(createCategoryTree, me)();
 		me.createTreeList();
 
 		me.updateTreeListEvent(true)
@@ -423,12 +423,12 @@ Ext.define("Beet.apps.ProductsViewPort.UpdateProducts", {
 	}
 });
 
-function createProductCategoryTree(){
+function createCategoryTree(){
 	var me = this, cardServer = Beet.constants.cardServer;
 	me.createTreeList = function(){
-		Ext.bind(buildProductCategoryTreeStore, me)();
+		Ext.bind(buildCategoryTreeStore, me)();
 
-		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.ProductCatgoryTreeStore");
+		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.CatgoryTreeStore");
 		me.treeList = Ext.create("Ext.tree.Panel", {
 			store: store,
 			frame: true,
@@ -567,7 +567,7 @@ function createProductCategoryTree(){
 					width: 200,
 					handler: function(){
 						var f = form.getForm(), result = f.getValues();
-						cardServer.AddProductCategory(Ext.JSON.encode(result), {
+						cardServer.AddCategory(Ext.JSON.encode(result), {
 							success: function(id){
 								if (id > 0){
 									Ext.Msg.alert("添加成功", "添加分类成功");
@@ -603,7 +603,7 @@ function createProductCategoryTree(){
 		}
 
 		Ext.Msg.alert("删除分类", "你确定需要删除 " + record.get("text") + " 吗?", function(btn){
-			cardServer.DeleteProductCategory(id, {
+			cardServer.DeleteCategory(id, {
 				success: function(succ){
 					if (succ) {
 						Ext.Msg.alert("删除成功", "删除分类 "+ record.get("text") + " 成功");
@@ -659,7 +659,7 @@ function createProductCategoryTree(){
 					handler: function(){
 						var f = form.getForm(), result = f.getValues();
 						result["id"] = record.get("id");
-						cardServer.UpdateProductCategory(Ext.JSON.encode(result), {
+						cardServer.UpdateCategory(Ext.JSON.encode(result), {
 							success: function(succ){
 								if (succ){
 									Ext.Msg.alert("编辑成功", "编辑分类成功");
@@ -750,7 +750,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 		me.doLayout();
 
 		//append new tree list
-		Ext.bind(createProductCategoryTree, me)();
+		Ext.bind(createCategoryTree, me)();
 		me.createTreeList();
 
 		me.getProductsMetaData();
@@ -1596,72 +1596,12 @@ Ext.define("Beet.apps.ProductsViewPort.RebateList", {
  * 费用
  *
  */
-function buildChargeCategoryTreeStore(){
-	if (!Beet.apps.ProductsViewPort.ChargeCatgoryTreeStore){
-		Ext.define("Beet.apps.ProductsViewPort.ChargeCatgoryTreeStore", {
-			extend: "Ext.data.TreeStore",
-			autoLoad: true,
-			root: {
-				text: "总分类",
-				id: "-1",
-				expanded: true
-			},
-			proxy: {
-				type: "b_proxy",
-				b_method: Beet.constants.cardServer.GetChargeCategoryData,
-				preProcessData: function(data){
-					var originData = data["root"];
-					var bucket = [];
-					var me = this;
-					me.categoryList = [];
-					
-					var processData = function(target, cache, pid){
-						var k;
-						for (k = 0; k < target.length; ++k){
-							var _tmp = target[k];
-							var item = {};
-							if (_tmp.data && _tmp.data.length > 0){
-								item["expanded"] = false;
-								item["text"] = _tmp["name"];
-								item["id"] = _tmp["id"];
-								item["pid"] = pid;
-								item["children"] = [];
-
-								processData(_tmp.data, item["children"], item["id"]);
-							}else{
-								item = _tmp;
-								item["text"] = _tmp["name"];
-								item["leaf"] = true;
-								item["pid"] = pid;
-								//item["checked"] = false;
-							}
-							cache.push(item);
-							me.categoryList.push({
-								id: _tmp["id"],
-								text: _tmp["name"]      
-							})
-						}
-					}
-
-					processData(originData, bucket, -1);
-
-					return bucket;
-				},
-				b_scope: Beet.constants.cardServer,
-				reader: {
-					type: "json"	
-				}
-			},
-		})
-	}
-}
-
 function createChargeCategoryTree(){
 	var me = this, cardServer = Beet.constants.cardServer;
 	me.createTreeList = function(){
-		Ext.bind(buildChargeCategoryTreeStore, me)();
+		Ext.bind(buildCategoryTreeStore, me)();
 
-		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.ChargeCatgoryTreeStore");
+		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.CatgoryTreeStore");
 		me.treeList = Ext.create("Ext.tree.Panel", {
 			store: store,
 			frame: true,
@@ -1800,7 +1740,7 @@ function createChargeCategoryTree(){
 					width: 200,
 					handler: function(){
 						var f = form.getForm(), result = f.getValues();
-						cardServer.AddChargeCategory(Ext.JSON.encode(result), {
+						cardServer.AddCategory(Ext.JSON.encode(result), {
 							success: function(id){
 								if (id > 0){
 									Ext.Msg.alert("添加成功", "添加分类成功");
@@ -1836,7 +1776,7 @@ function createChargeCategoryTree(){
 		}
 
 		Ext.Msg.alert("删除分类", "你确定需要删除 " + record.get("text") + " 吗?", function(btn){
-			cardServer.DeleteChargeCategory(id, {
+			cardServer.DeleteCategory(id, {
 				success: function(succ){
 					if (succ) {
 						Ext.Msg.alert("删除成功", "删除分类 "+ record.get("text") + " 成功");
@@ -1892,7 +1832,7 @@ function createChargeCategoryTree(){
 					handler: function(){
 						var f = form.getForm(), result = f.getValues();
 						result["id"] = record.get("id");
-						cardServer.UpdateChargeCategory(Ext.JSON.encode(result), {
+						cardServer.UpdateCategory(Ext.JSON.encode(result), {
 							success: function(succ){
 								if (succ){
 									Ext.Msg.alert("编辑成功", "编辑分类成功");
@@ -2581,72 +2521,12 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
  *
  *
  */
-function buildProductItemCategoryTreeStore(){
-	if (!Beet.apps.ProductsViewPort.ItemCatgoryTreeStore){
-		Ext.define("Beet.apps.ProductsViewPort.ItemCatgoryTreeStore", {
-			extend: "Ext.data.TreeStore",
-			autoLoad: true,
-			root: {
-				text: "所有项目",
-				id: "-1",
-				expanded: true
-			},
-			proxy: {
-				type: "b_proxy",
-				b_method: Beet.constants.cardServer.GetItemCategoryData,
-				preProcessData: function(data){
-					var originData = data["root"];
-					var bucket = [];
-					var me = this;
-					me.itemList = [];
-					
-					var processData = function(target, cache, pid){
-						var k;
-						for (k = 0; k < target.length; ++k){
-							var _tmp = target[k];
-							var item = {};
-							if (_tmp.data && _tmp.data.length > 0){
-								item["expanded"] = false;
-								item["text"] = _tmp["name"];
-								item["id"] = _tmp["id"];
-								item["pid"] = pid;
-								item["children"] = [];
-
-								processData(_tmp.data, item["children"], item["id"]);
-							}else{
-								item = _tmp;
-								item["text"] = _tmp["name"];
-								item["leaf"] = true;
-								item["pid"] = pid;
-								//item["checked"] = false;
-							}
-							cache.push(item);
-							me.itemList.push({
-								id: _tmp["id"],
-								text: _tmp["name"]      
-							})
-						}
-					}
-
-					processData(originData, bucket, -1);
-
-					return bucket;
-				},
-				b_scope: Beet.constants.cardServer,
-				reader: {
-					type: "json"	
-				}
-			},
-		})
-	}
-}
-
 function createItemCategoryTree(){
 	var me = this, cardServer = Beet.constants.cardServer;
 	me.createTreeList = function(){
-		Ext.bind(buildProductItemCategoryTreeStore, me)();
+		Ext.bind(buildCategoryTreeStore, me)();
 
-		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.ItemCatgoryTreeStore");
+		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.CatgoryTreeStore");
 		me.treeList = Ext.create("Ext.tree.Panel", {
 			store: store,
 			bodyStyle: "background-color: #fff",
@@ -2785,7 +2665,7 @@ function createItemCategoryTree(){
 					width: 200,
 					handler: function(){
 						var f = form.getForm(), result = f.getValues();
-						cardServer.AddItemCategory(Ext.JSON.encode(result), {
+						cardServer.AddCategory(Ext.JSON.encode(result), {
 							success: function(id){
 								if (id > 0){
 									Ext.Msg.alert("添加成功", "添加分类成功");
@@ -2821,7 +2701,7 @@ function createItemCategoryTree(){
 		}
 
 		Ext.Msg.alert("删除分类", "你确定需要删除 " + record.get("text") + " 吗?", function(btn){
-			cardServer.DeleteItemCategory(id, {
+			cardServer.DeleteCategory(id, {
 				success: function(succ){
 					if (succ) {
 						Ext.Msg.alert("删除成功", "删除分类 "+ record.get("text") + " 成功");
@@ -2877,7 +2757,7 @@ function createItemCategoryTree(){
 					handler: function(){
 						var f = form.getForm(), result = f.getValues();
 						result["id"] = record.get("id");
-						cardServer.UpdateItemCategory(Ext.JSON.encode(result), {
+						cardServer.UpdateCategory(Ext.JSON.encode(result), {
 							success: function(succ){
 								if (succ){
 									Ext.Msg.alert("编辑成功", "编辑分类成功");
@@ -3072,21 +2952,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 											fieldLabel: "项目折扣",
 											allowBlank: false,
 											name: "rate"
-										},
-										{
-											fieldLabel: "项目消费次数",
-											allowBlank: false,
-											name: "stepcount"
-										},
-										{
-											fieldLabel: "项目单次价格",
-											allowBlank: false,
-											name: "stepprice"
-										},
-										{
-											fieldLabel: "项目单次折扣价格",
-											allowBlank: false,
-											name: "steprealprice"
 										},
 										{
 											fieldLabel: "项目所属分类",
@@ -3501,9 +3366,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			price: rawData["IPrice"].replaceAll(",", ""),
 			rate: rawData["IRate"],
 			realprice: rawData["IRealPrice"].replaceAll(",", ""),
-			stepcount: rawData["IStepCount"],
-			steprealprice: rawData["IStepRealPrice"].replaceAll(",", ""),
-			stepprice: rawData["IStepPrice"].replaceAll(",", ""),
 			category: rawData["ICategoryName"]
 		});
 		
