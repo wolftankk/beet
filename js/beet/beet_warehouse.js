@@ -81,6 +81,9 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 		var me = this, stockServer = Beet.constants.stockServer;
 	
 		me.selectedProducts = {};
+		if (!me.branchesList){
+			me.createBranchesList();
+		}
 		me.callParent()	
 		me.mainPanel = Ext.create("Ext.panel.Panel", {
 			height: (me.b_type == "selection" ? "95%" : "100%"),
@@ -92,11 +95,10 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 				type: "hbox",
 				columns: 2,
 				align: 'stretch'
-			},
+			}
 		})
 		me.add(me.mainPanel);
 		me.doLayout();
-		
 		me.createMainPanel();
 	},
 	createMainPanel: function(){
@@ -106,27 +108,42 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 			autoWidth: true,
 			autoHeight: true,
 			cls: "iScroll",
-			height: 230,
+			height: "85%",
+			width: "100%",
 			border: true,
 			plain: true,
 			flex: 1,
-			collapsible: true,
 			bodyStyle: "background-color: #dfe8f5"
 		}
 		me.productsPanel = Ext.widget("panel", Ext.apply(options, {
-			title: "产品列表"
+			title: "入库产品列表",
+			tbar: [
+				{
+					xtype: "button",
+					text: "选择入库产品",
+					style: {
+						borderColor: "#99BBE8"
+					},
+					handler: function(){
+						me.selectProducts();
+					}
+				}
+			]
 		}));
 
 		var config = {
 			autoHeight: true,
 			autoScroll: true,
 			flex: 1,
+			width: "100%",
 			bodyStyle: "background-color: #dfe8f5",
 			bodyPadding: 5,
 			items: [
 				//fill me
 				{
-					xtype : "panel",
+					xtype : "fieldset",
+					columnWidth: .5,
+					title: "快速入库",
 					layout: {
 						type: "table",
 						columns: 2,
@@ -150,14 +167,12 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 					},
 					items: [
 						{
-							fieldLabel: "项目编号",
-							allowBlank: false,
-							name: "code"
+							fieldLabel: "条形码",
+							name: "barcode"
 						},
 						{
-							fieldLabel: "项目名称",
-							allowBlank: false,
-							name: "name"
+							fieldLabel: "产品编码",
+							name: "code"
 						},
 					]
 				},
@@ -191,13 +206,25 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 		var form = Ext.widget("form", config);
 		me.form = form;
 		me.form.setHeight("100%");
+		me.form.on("afterrender", function(){
+			var children = document.getElementsByName("barcode");
+			if (children.length > 0){
+				children[0].focus();
+			}
+		}, me, { delay: 100 });
 		me.mainPanel.add(form);
 		me.mainPanel.doLayout();
-
 		me.initializeProductsPanel();
 	},
+	createBranchesList: function(){
+		var me = this;
+		me.branchesList = Ext.create("Ext.data.Store", {
+			fields: ["attr", "name"],
+			data: Beet.cache.employee.branchesList
+		});
+	},
 	initializeProductsPanel: function(){
-		var me = this, cardServer = Beet.constants.cardServer;
+		var me = this, cardServer = Beet.constants.cardServer, stockServer = Beet.constants.stockServer;
 		if (me.productsPanel.__columns && me.productsPanel.__columns.length > 0){
 			return;
 		}
@@ -219,7 +246,7 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 		}, "-");
 
 		columns.push(_actions);
-		cardServer.GetItemProductData(-1, {
+		stockServer.GetStockPageData(0, 1, "", {
 			success: function(data){
 				var data = Ext.JSON.decode(data)["MetaData"];
 				var fields = me.productsPanel.__fields = [];
@@ -233,13 +260,55 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 							flex: 1
 						}
 
-						if (meta["FieldName"] == "COUNT" || meta["FieldName"] == "PRICE"){
-							c.editor = {
-								xtype: "numberfield",
-								allowBlank: false,
-								type: "int"
-							}
+						switch (meta["FieldName"]){
+							case 'StoreName':
+								c.editor = {
+									xtype: "combobox",
+									editable: false,
+									store: me.branchesList,
+									queryMode: "local",
+									displayField: "name",
+									valueField: "attr",
+									allowBlank: false,
+									value: Beet.cache.currentEmployStoreID
+								}
+								break;
+							case 'COUNT':
+								c.editor = {
+									xtype: "numberfield",
+									allowBlank: false,
+									minValue: 0,
+									type: "int"
+								}
+								break;
+							case "PRICE":
+								c.editor = {
+									xtype: "numberfield",
+									allowBlank: false,
+									minValue: 0,
+									type: "int"
+								}
+								break;
+							case "INDATE":
+								//c.xtype = "datecolumn";
+								//c.format = "Y/m/d";	
+								break;
+							case "ENDDATE":
+								c.edit = {
+									xtype: "datecolumn",
+									format: "Y/m/d",
+									allowBlank: false
+								}
 						}
+
+
+						//if (meta["FieldName"] == "COUNT" || meta["FieldName"] == "PRICE"){
+						//	c.editor = {
+						//		xtype: "numberfield",
+						//		allowBlank: false,
+						//		type: "int"
+						//	}
+						//}
 
 						columns.push(c);
 					}
@@ -263,35 +332,33 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 
 			var grid = me.productsPanel.grid = Ext.create("Ext.grid.Panel", {
 				store: store,
-				height: 200,
+				height: "100%",
 				cls: "iScroll",
 				autoScroll: true,
 				columnLines: true,
 				columns: me.productsPanel.__columns,
 				plugins: [
-					Ext.create('Ext.grid.plugin.CellEditing', {
+					Ext.create('Ext.grid.plugin.RowEditing', {
 						clicksToEdit: 1,
 						// cell edit event
-						listeners: {
-							"edit" : function(editor, e, opts){
-								// fire event when cell edit complete
-								var currField = e.field, currColIdx = e.colIdx, currRowIdx = e.rowIndex;
-								var currRecord = e.record;
-								var currPrice = currRecord.get("PRICE");
-								if (currField == "COUNT"){
-									//check field "PRICE" that it exists val?
-									var price = currRecord.get("PPrice"), count = currRecord.get("COUNT");
-									if (price){ price = price.replaceAll(",", ""); }
-									currRecord.set("PRICE", Ext.Number.toFixed(price * count, 2));
+						//listeners: {
+						//	"edit" : function(editor, e, opts){
+						//		// fire event when cell edit complete
+						//		var currField = e.field, currColIdx = e.colIdx, currRowIdx = e.rowIndex;
+						//		var currRecord = e.record;
+						//		var currPrice = currRecord.get("PRICE");
+						//		if (currField == "COUNT"){
+						//			//check field "PRICE" that it exists val?
+						//			var price = currRecord.get("PPrice"), count = currRecord.get("COUNT");
+						//			if (price){ price = price.replaceAll(",", ""); }
+						//			currRecord.set("PRICE", Ext.Number.toFixed(price * count, 2));
 
-									me.onUpdate();	
-								}else{
-									if (currField == "PRICE" && currPrice && currPrice > 0){
-										me.onUpdate();	
-									}
-								}
-							}
-						}
+						//		}else{
+						//			if (currField == "PRICE" && currPrice && currPrice > 0){
+						//			}
+						//		}
+						//	}
+						//}
 					})
 				],
 				selType: 'cellmodel'
@@ -306,7 +373,7 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 		var me = this, cardServer = Beet.constants.cardServer;
 		var config = {
 			extend: "Ext.window.Window",
-			title: "选择产品",
+			title: "选择入库产品",
 			width: 900,
 			height: 640,
 			autoScroll: true,
@@ -348,6 +415,20 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 				pid = record.get("PID");
 				rawData = record.raw;
 			}
+
+			rawData["PPRICE"] = (""+rawData["PPrice"]).replaceAll(",", "");
+			delete rawData["PPrice"];
+			rawData["STATETEXT"] = "申请入库";
+			rawData["INDATE"] = +new Date();
+			rawData["ENDDATE"] = +new Date();
+			//for (var c =0; c < me.branchesList.getCount(); ++c){
+			//	var _d = me.branchesList.getAt(c);
+			//	if (_d && _d.get && _d.get("attr") == parseInt(Beet.cache.currentEmployStoreID)){
+			//		rawData["StoreName"] = _d.get("name")
+			//		rawData["storeid"] = _d.get("attr");
+			//	}
+			//}
+
 			if (selectedProducts[pid] == undefined){
 				selectedProducts[pid] = []
 			}else{
@@ -360,7 +441,7 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 			}
 		}
 
-		me.updateProductsPanel(isRaw);
+		me.updateProductsPanel();
 	},
 	deleteProducts: function(record){
 		var me = this, selectedProducts = me.selectedProducts;
@@ -372,7 +453,7 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 
 		me.updateProductsPanel();
 	},
-	updateProductsPanel: function(first){
+	updateProductsPanel: function(){
 		var me = this, selectedProducts = me.selectedProducts;
 		var grid = me.productsPanel.grid, store = grid.getStore();
 		var tmp = []
@@ -380,10 +461,7 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 			tmp.push(selectedProducts[c]);
 		}
 		store.loadData(tmp);
-		if (first){return;}
-		me.onUpdate();
 	},
-
 	processData: function(){
 
 	}
@@ -653,7 +731,7 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 							layout: "fit",
 							autoHeight: true,
 							autoScroll: true,
-							title: "增加产品",
+							title: "增加入库",
 							border: false
 						});
 						win.add(Ext.create("Beet.apps.WarehouseViewPort.AddProduct", {

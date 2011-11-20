@@ -203,8 +203,11 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 						_data = Ext.JSON.decode(_data)["Data"];
 						if (_data[0] && _data[0]["EM_NAME"]){
 							me.username.setText(_data[0]["EM_NAME"]);
+							Beet.cache.currentEmployStoreID = _data[0]["EM_STOREID"];
+							Beet.cache.currentEmployStoreName = _data[0]["EM_STORENAME"];
 						}else{
 							me.username.setText(UserName);
+							Beet.cache.currentEmployStoreID = -1;
 						}
 					},
 					failure: function(error){
