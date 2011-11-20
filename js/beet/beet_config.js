@@ -11,6 +11,9 @@ Beet.config = {
 	},
 	getCardUrl: function(){
 		return this.serverUrl + ":6663";
+	},
+	getWarehouse: function(){
+		return this.serverUrl + ":6664";
 	}
 }
 
@@ -20,3 +23,4 @@ Beet.constants.privilegeServer = new MyPrivilegeSvc("http://"+Beet.config.getPri
 Beet.constants.customerServer = new MyCustomerSvc("http://"+Beet.config.getCustomerUrl() + "/JSON");
 Beet.constants.employeeServer = new MyEMSvc("http://" + Beet.config.getEmployeeUrl() + "/JSON");
 Beet.constants.cardServer = new MyCardSvc("http://" + Beet.config.getCardUrl() + "/JSON");
+Beet.constants.stockServer = new MyStockSvc("http://" + Beet.config.getWarehouse() + "/JSON");
