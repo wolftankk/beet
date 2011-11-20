@@ -52,15 +52,343 @@ Beet.constants.stockStauts = Ext.create("Ext.data.Store", {
 	fields: ["attr", "name"],
 	data: [
 		{attr: "all", name: "全部"},
-		{attr: 0, name: "正在入库"},
+		{attr: 0, name: "申请入库"},
 		{attr: -1, name: "已入库"},
-		{attr: 1, name: "正在出库"},
+		{attr: 1, name: "申请出库"},
+		{attr: 2, name: "已出库"},
 		{attr: -2, name: "结算完毕"}	
 	]	
 });
 
-//0 正在入库 -1 已入库 1 正在出库 -2 已出库
-//
+
+//storeid, pid, count, enddate
+Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
+	extend: "Ext.panel.Panel",	
+	height: "100%",
+	width: "100%",
+	layout: "fit",
+	bodyStyle: "background-color: #dfe8f5",
+	defaults: {
+	  bodyStyle: "background-color: #dfe8f5"
+	},
+	autoHeight: true,
+	autoScroll:true,
+	frame:true,
+	border: false,
+	bodyBorder: false,
+	plain: true,
+	initComponent: function(){
+		var me = this, stockServer = Beet.constants.stockServer;
+	
+		me.selectedProducts = {};
+		me.callParent()	
+		me.mainPanel = Ext.create("Ext.panel.Panel", {
+			height: (me.b_type == "selection" ? "95%" : "100%"),
+			width: "100%",
+			autoHeight: true,
+			autoScroll: true,
+			border: false,
+			layout: {
+				type: "hbox",
+				columns: 2,
+				align: 'stretch'
+			},
+		})
+		me.add(me.mainPanel);
+		me.doLayout();
+		
+		me.createMainPanel();
+	},
+	createMainPanel: function(){
+		var me = this, stockServer = Beet.constants.stockServer;
+		var options = {
+			autoScroll: true,
+			autoWidth: true,
+			autoHeight: true,
+			cls: "iScroll",
+			height: 230,
+			border: true,
+			plain: true,
+			flex: 1,
+			collapsible: true,
+			bodyStyle: "background-color: #dfe8f5"
+		}
+		me.productsPanel = Ext.widget("panel", Ext.apply(options, {
+			title: "产品列表"
+		}));
+
+		var config = {
+			autoHeight: true,
+			autoScroll: true,
+			flex: 1,
+			bodyStyle: "background-color: #dfe8f5",
+			bodyPadding: 5,
+			items: [
+				//fill me
+				{
+					xtype : "panel",
+					layout: {
+						type: "table",
+						columns: 2,
+						tableAttrs: {
+							cellspacing: 10,
+							style: {
+								width: "100%",
+							}
+						}
+					},
+					border: false,
+					bodyStyle: "background-color: #dfe8f5",
+					defaults: {
+						bodyStyle: "background-color: #dfe8f5",
+					},
+					defaultType: "textfield",
+					fieldDefaults: {
+						msgTarget: "side",
+						labelAlign: "top",
+						labelWidth: 60
+					},
+					items: [
+						{
+							fieldLabel: "项目编号",
+							allowBlank: false,
+							name: "code"
+						},
+						{
+							fieldLabel: "项目名称",
+							allowBlank: false,
+							name: "name"
+						},
+					]
+				},
+				me.productsPanel
+			],
+			bbar: [
+				"->",
+				{
+					xtype: "button",
+					text: "提交",
+					width: 200,
+					handler: function(){
+						//me.processData(this)	
+					},
+					hidden: me._editType == "view"
+				},
+				{
+					xtype: "button",
+					text: "取消",
+					width: 200,
+					handler: function(){
+						if (me.callback){
+							me.callback();
+						}
+					},
+					hidden: me._editType == "view"
+				}
+			]
+		}
+
+		var form = Ext.widget("form", config);
+		me.form = form;
+		me.form.setHeight("100%");
+		me.mainPanel.add(form);
+		me.mainPanel.doLayout();
+
+		me.initializeProductsPanel();
+	},
+	initializeProductsPanel: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		if (me.productsPanel.__columns && me.productsPanel.__columns.length > 0){
+			return;
+		}
+		var columns = me.productsPanel.__columns = [];
+		var _actions = {
+			xtype: 'actioncolumn',
+			width: 30,
+			items: [
+			]
+		}
+		_actions.items.push("-",{
+			icon: "./resources/themes/images/fam/delete.gif",
+			tooltip: "删除消耗产品",
+			id: "customer_grid_delete",
+			handler: function(grid, rowIndex, colIndex){
+				var d = grid.store.getAt(rowIndex)
+				me.deleteProducts(d);
+			}
+		}, "-");
+
+		columns.push(_actions);
+		cardServer.GetItemProductData(-1, {
+			success: function(data){
+				var data = Ext.JSON.decode(data)["MetaData"];
+				var fields = me.productsPanel.__fields = [];
+				for (var c in data){
+					var meta = data[c];
+					fields.push(meta["FieldName"])
+					if (!meta["FieldHidden"]){
+						var c = {
+							dataIndex: meta["FieldName"],
+							header: meta["FieldLabel"],
+							flex: 1
+						}
+
+						if (meta["FieldName"] == "COUNT" || meta["FieldName"] == "PRICE"){
+							c.editor = {
+								xtype: "numberfield",
+								allowBlank: false,
+								type: "int"
+							}
+						}
+
+						columns.push(c);
+					}
+				}
+
+				me.initializeProductsGrid();
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
+	},
+	initializeProductsGrid: function(){
+		var me = this, selectedProducts = me.selectedProducts;
+		var __fields = me.productsPanel.__fields;
+
+		if (me.productsPanel.grid == undefined){
+			var store = Ext.create("Ext.data.ArrayStore", {
+				fields: __fields
+			})
+
+			var grid = me.productsPanel.grid = Ext.create("Ext.grid.Panel", {
+				store: store,
+				height: 200,
+				cls: "iScroll",
+				autoScroll: true,
+				columnLines: true,
+				columns: me.productsPanel.__columns,
+				plugins: [
+					Ext.create('Ext.grid.plugin.CellEditing', {
+						clicksToEdit: 1,
+						// cell edit event
+						listeners: {
+							"edit" : function(editor, e, opts){
+								// fire event when cell edit complete
+								var currField = e.field, currColIdx = e.colIdx, currRowIdx = e.rowIndex;
+								var currRecord = e.record;
+								var currPrice = currRecord.get("PRICE");
+								if (currField == "COUNT"){
+									//check field "PRICE" that it exists val?
+									var price = currRecord.get("PPrice"), count = currRecord.get("COUNT");
+									if (price){ price = price.replaceAll(",", ""); }
+									currRecord.set("PRICE", Ext.Number.toFixed(price * count, 2));
+
+									me.onUpdate();	
+								}else{
+									if (currField == "PRICE" && currPrice && currPrice > 0){
+										me.onUpdate();	
+									}
+								}
+							}
+						}
+					})
+				],
+				selType: 'cellmodel'
+			});
+
+
+			me.productsPanel.add(grid);
+			me.productsPanel.doLayout();
+		}
+	},
+	selectProducts: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var config = {
+			extend: "Ext.window.Window",
+			title: "选择产品",
+			width: 900,
+			height: 640,
+			autoScroll: true,
+			autoHeight: true,
+			layout: "fit",
+			resizable: true,
+			border: false,
+			modal: true,
+			maximizable: true,
+			border: 0,
+			bodyBorder: false,
+			editable: false
+		}
+		
+		var win = Ext.create("Ext.window.Window", config);
+		win.show();
+		win.add(Ext.create("Beet.apps.ProductsViewPort.ProductsList", {
+			b_type: "selection",
+			b_selectionMode: "MULTI",
+			b_selectionCallback: function(records){
+				if (records.length == 0){ win.close(); return;}
+				me.addProducts(records);
+				win.close();
+			}
+		}));
+		win.doLayout();
+	},
+	addProducts: function(records, isRaw){
+		var me = this, selectedProducts = me.selectedProducts;
+		var __fields = me.productsPanel.__fields;
+		if (records == undefined){return;}
+		for (var r = 0; r < records.length; ++r){
+			var record = records[r];
+			var pid, rawData;
+			if (isRaw){
+				pid = record["PID"];
+				rawData = record;
+			}else{
+				pid = record.get("PID");
+				rawData = record.raw;
+			}
+			if (selectedProducts[pid] == undefined){
+				selectedProducts[pid] = []
+			}else{
+				selectedProducts[pid] = [];
+			}
+
+			for (var c = 0; c < __fields.length; ++c){
+				var k = __fields[c];
+				selectedProducts[pid].push(rawData[k]);
+			}
+		}
+
+		me.updateProductsPanel(isRaw);
+	},
+	deleteProducts: function(record){
+		var me = this, selectedProducts = me.selectedProducts;
+		var pid = record.get("PID");
+		if (selectedProducts[pid]){
+			selectedProducts[pid] = null;
+			delete selectedProducts[pid];
+		}
+
+		me.updateProductsPanel();
+	},
+	updateProductsPanel: function(first){
+		var me = this, selectedProducts = me.selectedProducts;
+		var grid = me.productsPanel.grid, store = grid.getStore();
+		var tmp = []
+		for (var c in selectedProducts){
+			tmp.push(selectedProducts[c]);
+		}
+		store.loadData(tmp);
+		if (first){return;}
+		me.onUpdate();
+	},
+
+	processData: function(){
+
+	}
+})
+
 Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 	extend: "Ext.panel.Panel",
 	autoHeight: true,
@@ -312,6 +640,30 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 								Ext.Error.raise(error);
 							}
 						});
+					}
+				},
+				"-",
+				{
+					xtype: "button",
+					text: "申请入库",
+					handler: function(){
+						var win = Ext.create("Ext.window.Window", {
+							width: 1000,
+							height: 600,
+							layout: "fit",
+							autoHeight: true,
+							autoScroll: true,
+							title: "增加产品",
+							border: false
+						});
+						win.add(Ext.create("Beet.apps.WarehouseViewPort.AddProduct", {
+							_editType: "add",
+							callback: function(){
+								win.close();
+								me.storeProxy.loadPage(me.storeProxy.currentPage);
+							}
+						}));
+						win.show();
 					}
 				}
 			]
