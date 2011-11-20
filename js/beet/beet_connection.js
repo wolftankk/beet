@@ -164,6 +164,46 @@ Beet_connection = {
 		}, this._polling_interval);
 	},
 
+	restoreResponeObject: function(responeObject){
+		var responseText = responeObject.responseText, jsondata = Ext.JSON.decode(responseText);
+		
+		//console.log(responeObject)
+		try {
+			var resultData = JSON.parse(jsondata["result"]);
+		}catch (e){
+			return responeObject
+		}
+
+		//console.log(resultData)
+		var Data = resultData["Data"], MetaData = resultData["MetaData"];
+		if (MetaData == undefined){
+			return responeObject;
+		}
+		//
+		var keys = []
+		for (var c = 0; c < MetaData.length; ++c){
+			var _d = MetaData[c];
+			keys.push(_d["FieldName"]);
+		}
+		
+		var newData = [];
+		Ext.Array.each(Data, function(values){
+			var n = {}
+			for (var c = 0; c < values.length; ++c){
+				n[keys[c]] = values[c]
+			}
+			newData.push(n);
+		})
+
+		//update jsondata
+		resultData["Data"] = newData;
+
+		jsondata["result"] = Ext.JSON.encode(resultData);
+		responeObject.responseText = Ext.JSON.encode(jsondata);
+		
+		return responeObject
+	},
+
 	handleTransactionResponse:function(o, callback, isAbort){
 		var httpStatus, responeObject,
 			args = (callback && callback.argument) ? callback.argument: null;
@@ -219,6 +259,8 @@ Beet_connection = {
 						})
 					}
 				}
+
+				responeObject = this.restoreResponeObject(responeObject);
 								
 				if (!callback.scope){
 					callback.success(responeObject);

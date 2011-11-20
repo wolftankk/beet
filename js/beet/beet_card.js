@@ -3210,6 +3210,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			tmp.push(selectedProducts[c]);
 		}
 		store.loadData(tmp);
+		me.onUpdate();
 	},
 	initializeChargeTypePanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -3357,6 +3358,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			tmp.push(selectedChargeType[c]);
 		}
 		store.loadData(tmp);
+		me.onUpdate(force)
 	},
 	restoreFromData: function(rawData){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -3364,7 +3366,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 		me.selectedChargeType = {};
 		var itemId = rawData["IID"];
 		me.selectedItemId = itemId;
-		//me.selectedItemIndex = index;
 		me.form.getForm().setValues({
 			code: rawData["ICode"],
 			name: rawData["IName"],
@@ -3437,6 +3438,19 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			delete me.itemList.cache[me.selectedItemId];
 		}
 		me.itemList.store.loadPage(me.itemList.store.currentPage);
+	},
+	//auto computing value
+	onUpdate: function(force){
+		var me = this, cardServer = Beet.constants.cardServer;
+		//me.form.getForm().setValues({
+		//	code: rawData["ICode"],
+		//	name: rawData["IName"],
+		//	descript: rawData["IDescript"],
+		//	price: rawData["IPrice"].replaceAll(",", ""),
+		//	rate: rawData["IRate"],
+		//	realprice: rawData["IRealPrice"].replaceAll(",", ""),
+		//	category: rawData["ICategoryName"]
+		//});
 	},
 	processData: function(f){
 		var me = this, cardServer = Beet.constants.cardServer,
