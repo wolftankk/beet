@@ -499,6 +499,7 @@ Ext.define("Beet.apps.Viewport", {
 			},
 			border: false,
 			bodyStyle: "background-color: #dfe8f5",
+			autoDestroy: true,
 			/*
 			plugins: [
 				{
@@ -513,7 +514,7 @@ Ext.define("Beet.apps.Viewport", {
 				if (Beet.apps.Menu.Tabs[name]){
 					Beet.apps.Menu.Tabs[name] = null;
 				}
-			}
+			},
 		})
 		this.workspace = panel;
 		return panel

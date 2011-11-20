@@ -55,12 +55,10 @@ registerBeetAppsMenu("customer",
 								var item = Beet.apps.Menu.Tabs["editCustomer"];
 								var customerServer = Beet.constants.customerServer;
 								if (!item){
-									Beet.apps.Viewport.getColumnsData(function(){
-										Beet.workspace.addPanel("editCustomer", "编辑会员", {
-											items: [
+									Beet.workspace.addPanel("editCustomer", "编辑会员", {
+										items: [
 											Ext.create("Beet.apps.Viewport.CustomerList")
 										]	
-										});
 									});
 								}else{
 									Beet.workspace.workspace.setActiveTab(item);
@@ -737,6 +735,10 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 });
 
 
+/**
+ * 构建客户列表
+ *
+ */
 Ext.define("Beet.apps.Viewport.CustomerList", {
 	extend: "Ext.panel.Panel",
 	layout: "fit",
@@ -757,15 +759,12 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 		Ext.apply(this, {});
 		that.callParent(arguments);
 
-		that.buildStoreAndModel();
-
-		that.createCustomerGrid();
+		Beet.apps.Viewport.getColumnsData(function(){
+			that.buildStoreAndModel();
+		});
 	},
 	buildStoreAndModel: function(){
 		var me = this;
-		if (Beet.apps.Viewport.CustomerListStore){
-			Beet.apps.Viewport.CustomerListStore = null;
-		}
 		
 		if (!Beet.apps.Viewport.CustomerListModel){
 			Ext.define("Beet.apps.Viewport.CustomerListModel", {
@@ -796,52 +795,58 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			});
 		}
 
+		if (!Ext.isDefined(Beet.apps.Viewport.CustomerListStore)){
+			Ext.define("Beet.apps.Viewport.CustomerListStore", {
+				extend: "Ext.data.Store",
+				model: Beet.apps.Viewport.CustomerListModel,
+				autoLoad: true,
+				pageSize: Beet.constants.PageSize,
+				b_filter: "",
+				load: function(options){
+					var me = this;
+					options = options || {};
+					if (Ext.isFunction(options)) {
+						options = {
+							callback: options
+						};
+					}
 
-		Ext.define("Beet.apps.Viewport.CustomerListStore", {
-			extend: "Ext.data.Store",
-			model: Beet.apps.Viewport.CustomerListModel,
-			autoLoad: true,
-			pageSize: Beet.constants.PageSize,
-			b_filter: "",
-			load: function(options){
-				var me = this;
-				options = options || {};
-				if (Ext.isFunction(options)) {
-					options = {
-						callback: options
-					};
+					Ext.applyIf(options, {
+						groupers: me.groupers.items,
+						page: me.currentPage,
+						start: (me.currentPage - 1) * me.pageSize,
+						limit: me.pageSize,
+						addRecords: false
+					});      
+					me.proxy.b_params["start"] = options["start"];
+					me.proxy.b_params["limit"] = options["limit"]
+
+					return me.callParent([options]);
 				}
-
-				Ext.applyIf(options, {
-					groupers: me.groupers.items,
-					page: me.currentPage,
-					start: (me.currentPage - 1) * me.pageSize,
-					limit: me.pageSize,
-					addRecords: false
-				});      
-				me.proxy.b_params["start"] = options["start"];
-				me.proxy.b_params["limit"] = options["limit"]
-
-				return me.callParent([options]);
-			},
-			proxy: {
-				type: "b_proxy",
-				b_method: Beet.constants.customerServer.GetCustomerPageData,
-				startParam: "start",
-				limitParam: "limit",
-				b_params: {
-					"filter": me.b_filter
-				},
-				b_scope: Beet.constants.customerServer,
-				reader: {
-					type: "json",
-					root: "Data",
-					totalProperty: "TotalCount"
-				}
-			}
-		});
+			});
+		}
 
 		me.storeProxy = Ext.create("Beet.apps.Viewport.CustomerListStore");
+		me.storeProxy.setProxy(me.updateProxy());
+		me.createCustomerGrid();
+	},
+	updateProxy: function(){
+		var me = this;
+		return {
+			 type: "b_proxy",
+			 b_method: Beet.constants.customerServer.GetCustomerPageData,
+			 startParam: "start",
+			 limitParam: "limit",
+			 b_params: {
+				 "filter": me.b_filter
+			 },
+			 b_scope: Beet.constants.customerServer,
+			 reader: {
+				 type: "json",
+				 root: "Data",
+				 totalProperty: "TotalCount"
+			 }
+		}
 	},
 	createCustomerGrid: function(){
 		var that = this, grid = that.grid, store = that.storeProxy, actions, __columns = [], columnsData = Beet.cache["customerColumns"];
@@ -913,6 +918,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			autoScroll: true,
 			autoHeight: true,
 			height: "100%",
+			width : Beet.constants.WORKSPACE_WIDTH,
 			border: 0,
 			columnLines: true,
 			viewConfig: {
@@ -932,21 +938,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 									searchData: Ext.JSON.decode(data),
 									b_callback: function(where){
 										that.b_filter = where;
-										that.storeProxy.setProxy({
-											type: "b_proxy",
-											b_method: customerServer.GetCustomerPageData,
-											startParam: "start",
-											limitParam: "limit",
-											b_params: {
-												"awhere" : that.b_filter
-											},
-											b_scope: Beet.constants.customerServer,
-											reader: {
-												type: "json",
-											root: "Data",
-											totalProperty: "TotalCount"
-											}
-										});
+										that.storeProxy.setProxy(that.updateProxy());
 										that.storeProxy.loadPage(1);
 									}
 								});

@@ -211,26 +211,12 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 
 					return that.callParent([options]);
 				},
-				proxy: {
-					type: "b_proxy",
-					b_method: Beet.constants.customerServer.GetCustomerPageData,
-					startParam: "start",
-					limitParam: "limit",
-					b_params: {
-						filter: where == undefined ? "" : where
-					},
-					b_scope: Beet.constants.customerServer,
-					reader: {
-						type: "json",
-						root: "Data",
-						totalProperty: "TotalCount"
-					}
-				}
 			});
 		}
 
 		var store = Ext.create("Beet.apps.CustomerSearchEngine.Store");
 		me.storeProxy = store;
+		me.storeProxy.setProxy(me.updateProxy(where));
 
 		var grid = Ext.create("Beet.apps.CustomerSearchEngine.GridList", {
 			store: store,
@@ -247,8 +233,24 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 				grid
 			]
 		});
-		Beet.apps.CustomerSearchEngine.Store = null;
 		Beet.cache.AdvanceSearchWin.close();
+	},
+	updateProxy: function(where){
+		return {
+			type: "b_proxy",
+			b_method: Beet.constants.customerServer.GetCustomerPageData,
+			startParam: "start",
+			limitParam: "limit",
+			b_params: {
+				filter: where == undefined ? "" : where
+			},
+			b_scope: Beet.constants.customerServer,
+			reader: {
+				type: "json",
+				root: "Data",
+				totalProperty: "TotalCount"
+			}
+		}
 	},
 	editCustomerFn: function(parentMenu){
 		var that = this, rawData = parentMenu.rawData || parentMenu.raw, CTGUID = rawData.CTGUID, CTName = rawData.CTName;
