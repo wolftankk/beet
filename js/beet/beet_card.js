@@ -3104,18 +3104,24 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 				columns: me.productsPanel.__columns,
 				plugins: [
 					Ext.create('Ext.grid.plugin.CellEditing', {
-						clicksToEdit: 1
+						clicksToEdit: 1,
 						// cell edit event
-						//listeners: {
-						//	"edit" : function(editor, e, opts){
-						//		// fire event when cell edit complete
-						//		var currField = e.field, currColIdx = e.colIdx, currRowIdx = e.rowIndex;
-						//		var currRecord = e.record;
-						//		if (currField == "COUNT"){
-						//			//check field "PRICE" that it exists val?
-						//		}
-						//	}
-						//}
+						listeners: {
+							"edit" : function(editor, e, opts){
+								// fire event when cell edit complete
+								var currField = e.field, currColIdx = e.colIdx, currRowIdx = e.rowIndex;
+								var currRecord = e.record;
+								if (currField == "COUNT"){
+									//check field "PRICE" that it exists val?
+									var currPrice = currRecord.get("PRICE");
+									//if (currPrice == undefined){
+									var price = currRecord.get("PPrice"), count = currRecord.get("COUNT");
+									if (price){ price = price.replaceAll(",", ""); }
+									currRecord.set("PRICE", Ext.Number.toFixed(price * count, 2));
+									//}
+								}
+							}
+						}
 					})
 				],
 				selType: 'cellmodel'
