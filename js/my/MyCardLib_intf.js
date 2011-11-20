@@ -1144,40 +1144,6 @@ MyCardSvc.prototype.GetChargeTypePageData = function(Start, Limit, AWhere, __cal
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyCardSvc.prototype.AddChargeCategory = function(ChargeCategoryJSON, __callback) {
-  var __message = {
-    "method" : "MyCardSvc.AddChargeCategory",
-    "params" : {
-      "ChargeCategoryJSON": ChargeCategoryJSON
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
 MyCardSvc.prototype.AddItem = function(ItemJSON, __callback) {
   var __message = {
     "method" : "MyCardSvc.AddItem",
