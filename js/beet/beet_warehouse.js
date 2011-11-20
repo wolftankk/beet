@@ -25,8 +25,18 @@ registerBeetAppsMenu("warehouse",
 					items: [
 						{
 							xtype: "button",
-							text: "出入历史",
+							text: "库存管理",
 							handler: function(){
+								var item = Beet.apps.Menu.Tabs["warehouseList"];
+								if (!item){
+									Beet.workspace.addPanel("warehouseList", "库存管理", {
+										items: [
+											Ext.create("Beet.apps.WarehouseViewPort.warehouseList")
+										]
+									});
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
 							}
 						},
 					]
@@ -38,9 +48,20 @@ registerBeetAppsMenu("warehouse",
 
 Ext.ns("Beet.apps.WarehouseViewPort");
 
+Beet.constants.stockStauts = Ext.create("Ext.data.Store", {
+	fields: ["attr", "name"],
+	data: [
+		{attr: "all", name: "全部"},
+		{attr: 0, name: "正在入库"},
+		{attr: -1, name: "已入库"},
+		{attr: 1, name: "正在出库"},
+		{attr: -2, name: "结算完毕"}	
+	]	
+});
+
 //0 正在入库 -1 已入库 1 正在出库 -2 已出库
 //
-Ext.define("Beet.apps.WarehouseViewPort.ProductsList", {
+Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 	extend: "Ext.panel.Panel",
 	autoHeight: true,
 	autoScroll: true,
@@ -51,14 +72,15 @@ Ext.define("Beet.apps.WarehouseViewPort.ProductsList", {
 	width: "100%",
 	border: false,
 	shadow: true,
-	b_filter: '',
+	b_filter: ' states = -1',
 	initComponent: function(){
-		var me = this, cardServer = Beet.constants.cardServer;
+		var me = this, stockServer = Beet.constants.stockServer;
 		if (me.b_type == "selection"){
 			me.editable = false;
 		}else{
 			me.editable = true;
 		}
+		me.currentStockStatus = 0;
 		
 		me.callParent();
 		me.mainPanel = Ext.create("Ext.panel.Panel", {
@@ -79,9 +101,9 @@ Ext.define("Beet.apps.WarehouseViewPort.ProductsList", {
 		me.getProductsMetaData();
 	},
 	getProductsMetaData: function(){
-		var me = this, cardServer = Beet.constants.cardServer;
+		var me = this, stockServer = Beet.constants.stockServer;
 
-		cardServer.GetProductPageData(0, 1, "", {
+		stockServer.GetStockPageData(0, 1, "", {
 			success: function(data){
 				var data = Ext.JSON.decode(data);
 				me.buildStoreAndModel(data["MetaData"]);
@@ -92,7 +114,7 @@ Ext.define("Beet.apps.WarehouseViewPort.ProductsList", {
 		});
 	},
 	buildStoreAndModel: function(metaData){
-		var fields = [], me = this, cardServer = Beet.constants.cardServer;
+		var fields = [], me = this, stockServer = Beet.constants.stockServer;
 		me.columns = [];
 		for (var c = 0; c < metaData.length; ++c){
 			var d = metaData[c];
@@ -106,17 +128,17 @@ Ext.define("Beet.apps.WarehouseViewPort.ProductsList", {
 			}
 		};
 		
-		if (!Ext.isDefined(Beet.apps.ProductsViewPort.ProductsModel)){
-			Ext.define("Beet.apps.ProductsViewPort.ProductsModel", {
+		if (!Ext.isDefined(Beet.apps.WarehouseViewPort.warehouseModel)){
+			Ext.define("Beet.apps.WarehouseViewPort.warehouseModel", {
 				extend: "Ext.data.Model",
 				fields: fields
 			});
 		}
 
-		if (!Ext.isDefined(Beet.apps.ProductsViewPort.ProductsStore)){
-			Ext.define("Beet.apps.ProductsViewPort.ProductsStore", {
+		if (!Ext.isDefined(Beet.apps.WarehouseViewPort.warehouseStore)){
+			Ext.define("Beet.apps.WarehouseViewPort.warehouseStore", {
 				extend: "Ext.data.Store",
-				model: Beet.apps.ProductsViewPort.ProductsModel,
+				model: Beet.apps.WarehouseViewPort.warehouseModel,
 				autoLoad: true,
 				pageSize: Beet.constants.PageSize,
 				load: function(options){
@@ -147,16 +169,16 @@ Ext.define("Beet.apps.WarehouseViewPort.ProductsList", {
 		me.createGrid();
 	},
 	updateProxy: function(){
-		var me = this, cardServer = Beet.constants.cardServer;
+		var me = this, stockServer = Beet.constants.stockServer;
 		return {
 			type: "b_proxy",
-			b_method: cardServer.GetProductPageData,
+			b_method: stockServer.GetStockPageData,
 			startParam: "start",
 			limitParam: "limit",
 			b_params: {
 				"awhere" : me.b_filter
 			},
-			b_scope: Beet.constants.cardServer,
+			b_scope: stockServer,
 			reader: {
 				type: "json",
 				root: "Data",
@@ -173,7 +195,7 @@ Ext.define("Beet.apps.WarehouseViewPort.ProductsList", {
 			me.selModel = sm;
 		}
 		Ext.apply(this, {
-			storeProxy: Ext.create("Beet.apps.ProductsViewPort.ProductsStore")
+			storeProxy: Ext.create("Beet.apps.WarehouseViewPort.warehouseStore")
 		});
 		var store = me.storeProxy, actions;
 		store.setProxy(me.updateProxy());
@@ -193,7 +215,7 @@ Ext.define("Beet.apps.WarehouseViewPort.ProductsList", {
 				id: "customer_grid_edit",
 				handler:function(grid, rowIndex, colIndex){
 					var d = me.storeProxy.getAt(rowIndex)
-					me.editProductItem(d);
+					//me.editProductItem(d);
 				}
 			}
 		);
@@ -206,7 +228,7 @@ Ext.define("Beet.apps.WarehouseViewPort.ProductsList", {
 				id: "customer_grid_delete",
 				handler: function(grid, rowIndex, colIndex){
 					var d = me.storeProxy.getAt(rowIndex)
-					me.deleteProductItem(d);
+					//me.deleteProductItem(d);
 				}
 			}, "-","-","-");
 		}
@@ -244,17 +266,44 @@ Ext.define("Beet.apps.WarehouseViewPort.ProductsList", {
 			tbar: [
 				"-",
 				{
+					fieldLabel: "库存状态",
+					labelWidth: 60,
+					allowBlank: false,
+					xtype: "combo",
+					store: Beet.constants.stockStauts,
+					editable: false,
+					queryMode: "local",
+					displayField: "name",
+					valueField: "attr",
+					value: me.currentStockStatus,
+					listeners: {
+						change: function(field, newValue, oldValue){
+							if (newValue == oldValue) { return ;}
+							if (newValue == null ) { return;}
+							var sql = ""
+							if (newValue == "all"){
+								sql = "";
+							}else{
+								sql = " states = " + newValue;
+							}
+							me.b_filter = sql;
+							me.filterProducts();
+						}
+					}
+				},
+				"-",
+				{
 					xtype: "button",
 					text: "高级搜索",
 					handler: function(){
-						var cardServer = Beet.constants.cardServer;
-						cardServer.GetProductPageData(0, 1, "", {
+						var stockServer = Beet.constants.stockServer;
+						stockServer.GetStockPageData(0, 1, "", {
 							success: function(data){
 								var win = Ext.create("Beet.apps.AdvanceSearch", {
 									searchData: Ext.JSON.decode(data),
 									b_callback: function(where){
 										me.b_filter = where;
-										me.filterProducts();
+										//me.filterProducts();
 									}
 								});
 								win.show();
@@ -263,14 +312,6 @@ Ext.define("Beet.apps.WarehouseViewPort.ProductsList", {
 								Ext.Error.raise(error);
 							}
 						});
-					}
-				},
-				"-",
-				{
-					xtype: "button",
-					text: "增加产品",
-					handler: function(){
-						me.addProductItem();
 					}
 				}
 			]
@@ -292,102 +333,102 @@ Ext.define("Beet.apps.WarehouseViewPort.ProductsList", {
 		}
 	},
 	filterProducts: function(){
-		var me = this, cardServer = Beet.constants.cardServer;
+		var me = this;
 		me.storeProxy.setProxy(me.updateProxy());
 
 		me.storeProxy.loadPage(1);
 	},
-	addProductItem: function(){
-		var me = this;
-		var win = Ext.create("Ext.window.Window", {
-			width: 1000,
-			height: 600,
-			layout: "fit",
-			autoHeight: true,
-			autoScroll: true,
-			title: "增加产品",
-			border: false
-		});
-		win.add(Ext.create("Beet.apps.ProductsViewPort.AddProducts", {
-			_editType: "add",
-			callback: function(){
-				win.close();
-				me.storeProxy.loadPage(me.storeProxy.currentPage);
-			}
-		}));
-		win.show();
-	},
-	editProductItem: function(parentMenu){
-		var me = this, rawData = parentMenu.rawData || parentMenu.raw, pid = rawData["PID"], pname = rawData["PName"], cardServer = Beet.constants.cardServer;
-		var win = Ext.create("Ext.window.Window", {
-			width: 1000,
-			height: 600,
-			layout: "fit",
-			autoHeight: true,
-			autoScroll: true,
-			title: "增加产品",
-			border: false
-		});
-		var config;
-		if (pid && me.editable){
-			win.setTitle("编辑 " + pname + " 资料");
-			config = {
-				_editType: "edit",
-				callback: function(){
-					win.close();
-					me.storeProxy.loadPage(me.storeProxy.currentPage);
-				}
-			}
-		}else{
-			win.setTitle("查看 " + pname + " 资料");
-			config = {
-				_editType: "view",
-				callback: function(){
-					win.close();
-					me.storeProxy.loadPage(me.storeProxy.currentPage);
-				}
-			}
-		}
-		var f = Ext.create("Beet.apps.ProductsViewPort.AddProducts", config);
-		f.restoreFromData(rawData);
-		win.add(f);
-		win.doLayout();
+	//addProductItem: function(){
+	//	var me = this;
+	//	var win = Ext.create("Ext.window.Window", {
+	//		width: 1000,
+	//		height: 600,
+	//		layout: "fit",
+	//		autoHeight: true,
+	//		autoScroll: true,
+	//		title: "增加产品",
+	//		border: false
+	//	});
+	//	win.add(Ext.create("Beet.apps.ProductsViewPort.AddProducts", {
+	//		_editType: "add",
+	//		callback: function(){
+	//			win.close();
+	//			me.storeProxy.loadPage(me.storeProxy.currentPage);
+	//		}
+	//	}));
+	//	win.show();
+	//},
+	//editProductItem: function(parentMenu){
+	//	var me = this, rawData = parentMenu.rawData || parentMenu.raw, pid = rawData["PID"], pname = rawData["PName"], cardServer = Beet.constants.cardServer;
+	//	var win = Ext.create("Ext.window.Window", {
+	//		width: 1000,
+	//		height: 600,
+	//		layout: "fit",
+	//		autoHeight: true,
+	//		autoScroll: true,
+	//		title: "增加产品",
+	//		border: false
+	//	});
+	//	var config;
+	//	if (pid && me.editable){
+	//		win.setTitle("编辑 " + pname + " 资料");
+	//		config = {
+	//			_editType: "edit",
+	//			callback: function(){
+	//				win.close();
+	//				me.storeProxy.loadPage(me.storeProxy.currentPage);
+	//			}
+	//		}
+	//	}else{
+	//		win.setTitle("查看 " + pname + " 资料");
+	//		config = {
+	//			_editType: "view",
+	//			callback: function(){
+	//				win.close();
+	//				me.storeProxy.loadPage(me.storeProxy.currentPage);
+	//			}
+	//		}
+	//	}
+	//	var f = Ext.create("Beet.apps.ProductsViewPort.AddProducts", config);
+	//	f.restoreFromData(rawData);
+	//	win.add(f);
+	//	win.doLayout();
 
-		win.show();
-	},
-	deleteProductItem: function(parentMenu){
-		var me = this, rawData = parentMenu.rawData || parentMenu.raw, pid = rawData["PID"], pname = rawData["PName"], cardServer = Beet.constants.cardServer;
-		if (pid){
-			Ext.MessageBox.show({
-				title: "删除产品",
-				msg: "是否要删除产品 " + pname + " ? ", 
-				buttons: Ext.MessageBox.YESNO,
-				fn: function(btn){
-					if (btn == "yes"){
-						cardServer.DeleteProducts(pid, {
-							success: function(succ){
-								if (succ){
-									Ext.MessageBox.show({
-										title: "删除成功",
-										msg: "删除产品: " + pname + " 成功",
-										buttons: Ext.MessageBox.OK,
-										fn: function(){
-											me.storeProxy.loadPage(me.storeProxy.currentPage);
-										}
-									})
-								}else{
-									Ext.Error.raise("删除消费产品失败");
-								}
-							},
-							failure: function(error){
-								Ext.Error.raise(error);
-							}
-						})
-					}
-				}
-			});
-		}else{
-			Ext.Error.raise("删除产品失败");
-		}
-	}
+	//	win.show();
+	//},
+	//deleteProductItem: function(parentMenu){
+	//	var me = this, rawData = parentMenu.rawData || parentMenu.raw, pid = rawData["PID"], pname = rawData["PName"], cardServer = Beet.constants.cardServer;
+	//	if (pid){
+	//		Ext.MessageBox.show({
+	//			title: "删除产品",
+	//			msg: "是否要删除产品 " + pname + " ? ", 
+	//			buttons: Ext.MessageBox.YESNO,
+	//			fn: function(btn){
+	//				if (btn == "yes"){
+	//					cardServer.DeleteProducts(pid, {
+	//						success: function(succ){
+	//							if (succ){
+	//								Ext.MessageBox.show({
+	//									title: "删除成功",
+	//									msg: "删除产品: " + pname + " 成功",
+	//									buttons: Ext.MessageBox.OK,
+	//									fn: function(){
+	//										me.storeProxy.loadPage(me.storeProxy.currentPage);
+	//									}
+	//								})
+	//							}else{
+	//								Ext.Error.raise("删除消费产品失败");
+	//							}
+	//						},
+	//						failure: function(error){
+	//							Ext.Error.raise(error);
+	//						}
+	//					})
+	//				}
+	//			}
+	//		});
+	//	}else{
+	//		Ext.Error.raise("删除产品失败");
+	//	}
+	//}
 });
