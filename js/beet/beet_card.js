@@ -2941,17 +2941,36 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 										{
 											fieldLabel: "项目总价",
 											allowBlank: false,
-											name: "price"
+											name: "price",
+											listeners: {
+												scope: me,
+												blur: function(){
+													me.onUpdate();
+												}
+											},
 										},
 										{
 											fieldLabel: "项目折扣总价",
 											allowBlank: false,
-											name: "realprice"
+											name: "realprice",
+											listeners: {
+												scope: me,
+												blur: function(){
+													me.onUpdate(true);
+												}
+											},
 										},
 										{
 											fieldLabel: "项目折扣",
 											allowBlank: false,
-											name: "rate"
+											name: "rate",
+											value: 1.00,
+											listeners: {
+												scope: me,
+												blur: function(){
+													me.onUpdate();
+												}
+											},
 										},
 										{
 											fieldLabel: "项目所属分类",
@@ -3111,14 +3130,18 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 								// fire event when cell edit complete
 								var currField = e.field, currColIdx = e.colIdx, currRowIdx = e.rowIndex;
 								var currRecord = e.record;
+								var currPrice = currRecord.get("PRICE");
 								if (currField == "COUNT"){
 									//check field "PRICE" that it exists val?
-									var currPrice = currRecord.get("PRICE");
-									//if (currPrice == undefined){
 									var price = currRecord.get("PPrice"), count = currRecord.get("COUNT");
 									if (price){ price = price.replaceAll(",", ""); }
 									currRecord.set("PRICE", Ext.Number.toFixed(price * count, 2));
-									//}
+
+									me.onUpdate();	
+								}else{
+									if (currField == "PRICE" && currPrice && currPrice > 0){
+										me.onUpdate();	
+									}
 								}
 							}
 						}
@@ -3190,7 +3213,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			}
 		}
 
-		me.updateProductsPanel();
+		me.updateProductsPanel(isRaw);
 	},
 	deleteProducts: function(record){
 		var me = this, selectedProducts = me.selectedProducts;
@@ -3202,7 +3225,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 
 		me.updateProductsPanel();
 	},
-	updateProductsPanel: function(){
+	updateProductsPanel: function(first){
 		var me = this, selectedProducts = me.selectedProducts;
 		var grid = me.productsPanel.grid, store = grid.getStore();
 		var tmp = []
@@ -3210,6 +3233,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			tmp.push(selectedProducts[c]);
 		}
 		store.loadData(tmp);
+		if (first){return;}
 		me.onUpdate();
 	},
 	initializeChargeTypePanel: function(){
@@ -3337,7 +3361,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			}
 		}
 
-		me.updateChargeTypePanel();
+		me.updateChargeTypePanel(isRaw);
 	},
 	deleteChargeType: function(record){
 		var me = this, selectedChargeType = me.selectedChargeType;
@@ -3349,7 +3373,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 
 		me.updateChargeTypePanel();
 	},
-	updateChargeTypePanel: function(){
+	updateChargeTypePanel: function(first){
 		var me = this, selectedChargeType = me.selectedChargeType;
 		var grid = me.chargeTypesPanel.grid, store = grid.getStore();
 		var __fields = me.chargeTypesPanel.__fields;
@@ -3358,7 +3382,9 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			tmp.push(selectedChargeType[c]);
 		}
 		store.loadData(tmp);
-		me.onUpdate(force)
+
+		if (first){return;}
+		me.onUpdate()
 	},
 	restoreFromData: function(rawData){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -3370,9 +3396,9 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			code: rawData["ICode"],
 			name: rawData["IName"],
 			descript: rawData["IDescript"],
-			price: rawData["IPrice"].replaceAll(",", ""),
+			price: (""+rawData["IPrice"]).replaceAll(",", ""),
 			rate: rawData["IRate"],
-			realprice: rawData["IRealPrice"].replaceAll(",", ""),
+			realprice: (rawData["IRealPrice"]+"").replaceAll(",", ""),
 			category: rawData["ICategoryName"]
 		});
 		
@@ -3441,16 +3467,43 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 	},
 	//auto computing value
 	onUpdate: function(force){
-		var me = this, cardServer = Beet.constants.cardServer;
-		//me.form.getForm().setValues({
-		//	code: rawData["ICode"],
-		//	name: rawData["IName"],
-		//	descript: rawData["IDescript"],
-		//	price: rawData["IPrice"].replaceAll(",", ""),
-		//	rate: rawData["IRate"],
-		//	realprice: rawData["IRealPrice"].replaceAll(",", ""),
-		//	category: rawData["ICategoryName"]
-		//});
+		var me = this, cardServer = Beet.constants.cardServer, form = me.form.getForm(),
+			values = form.getValues(),
+			_price = (""+values["price"]).replaceAll(",", ""),
+			_rate = values["rate"],
+			_realprice = ("" + values["realprice"]).replaceAll(",", "");
+		var selectedProducts = me.selectedProducts, selectedChargeType = me.selectedChargeType;
+		
+		var __price = 0;//每次都会进行重新计算
+
+		if (selectedProducts && Ext.Object.getKeys(selectedProducts).length > 0){
+			var productstore = me.productsPanel.grid.getStore();
+			for (var c = 0; c < productstore.getCount(); ++c){
+				var data = productstore.getAt(c);
+				var count = data.get("COUNT"), price = data.get("PRICE");
+				if (count != undefined && price != undefined){
+					__price += parseFloat(price);
+				}
+			}
+		}
+
+		if (selectedChargeType && Ext.Object.getKeys(selectedChargeType).length> 0){
+			for (var c in selectedChargeType){
+				var p = selectedChargeType[c];
+				__price += parseFloat((""+p[2]).replaceAll(",", ""), 2)
+			}
+		}
+
+		if (force) {
+			_rate = _realprice / _price;
+		}else{
+			_realprice = _price * _rate;
+		}
+		me.form.getForm().setValues({
+			price: Ext.Number.toFixed(__price, 2), 	
+			rate: Ext.Number.toFixed(_rate, 2),
+			realprice: Ext.Number.toFixed(_realprice, 2)
+		});
 	},
 	processData: function(f){
 		var me = this, cardServer = Beet.constants.cardServer,

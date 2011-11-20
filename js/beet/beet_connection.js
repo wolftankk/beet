@@ -174,7 +174,6 @@ Beet_connection = {
 			return responeObject
 		}
 
-		//console.log(resultData)
 		var Data = resultData["Data"], MetaData = resultData["MetaData"];
 		if (MetaData == undefined){
 			return responeObject;
