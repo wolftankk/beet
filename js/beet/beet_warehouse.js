@@ -289,26 +289,15 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 									type: "int"
 								}
 								break;
-							case "INDATE":
-								//c.xtype = "datecolumn";
-								//c.format = "Y/m/d";	
-								break;
 							case "ENDDATE":
-								c.edit = {
-									xtype: "datecolumn",
+								c.editor = {
+									xtype: "datefield",
 									format: "Y/m/d",
 									allowBlank: false
 								}
+								break;
 						}
 
-
-						//if (meta["FieldName"] == "COUNT" || meta["FieldName"] == "PRICE"){
-						//	c.editor = {
-						//		xtype: "numberfield",
-						//		allowBlank: false,
-						//		type: "int"
-						//	}
-						//}
 
 						columns.push(c);
 					}
@@ -339,31 +328,44 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 				columns: me.productsPanel.__columns,
 				plugins: [
 					Ext.create('Ext.grid.plugin.RowEditing', {
-						clicksToEdit: 1,
-						// cell edit event
-						//listeners: {
-						//	"edit" : function(editor, e, opts){
-						//		// fire event when cell edit complete
-						//		var currField = e.field, currColIdx = e.colIdx, currRowIdx = e.rowIndex;
-						//		var currRecord = e.record;
-						//		var currPrice = currRecord.get("PRICE");
-						//		if (currField == "COUNT"){
-						//			//check field "PRICE" that it exists val?
-						//			var price = currRecord.get("PPrice"), count = currRecord.get("COUNT");
-						//			if (price){ price = price.replaceAll(",", ""); }
-						//			currRecord.set("PRICE", Ext.Number.toFixed(price * count, 2));
-
-						//		}else{
-						//			if (currField == "PRICE" && currPrice && currPrice > 0){
-						//			}
-						//		}
-						//	}
-						//}
+						clicksToEdit: 1
 					})
 				],
 				selType: 'cellmodel'
 			});
 
+			grid.on("validateedit", function(editor, e){
+				var currField = e.field, currColIdx = e.colIdx, currRowIdx = e.rowIndex;
+				var currRecord = e.record;
+				var newValues = {},
+				originalValues = {};
+				editor.editor.items.each(function(item){
+					var name = item.name;
+					newValues[name] = item.getValue();	
+					originalValues[name] = currRecord.get(name)
+				})
+
+				//console.log(originalValues, newValues)
+				//if (originalValues[currField] == undefined || originalValues[currField] == null){
+				//	originalValues[currField] = newValues[currField];
+
+					if (currField == "COUNT"){
+						var count = parseFloat(newValues["COUNT"], 2);
+						var pprice = parseFloat(newValues["PPRICE"], 2);
+						currRecord.set("PRICE", Ext.Number.toFixed((pprice * count),2));
+						document.getElementsByName("PRICE")[0].value = currRecord.get("PRICE");
+					}
+
+					//if (currField == "PRICE"){
+					//	var price= parseFloat(newValues["PRICE"], 2);//库存总价
+					//	var pprice = parseFloat(newValues["PPRICE"], 2);//产品售价
+					//	console.log(price, pprice)
+					//	currRecord.set("COUNT", (price / pprice));
+					//	document.getElementsByName("COUNT")[0].value = currRecord.get("COUNT");
+					//}
+				//}
+
+			})
 
 			me.productsPanel.add(grid);
 			me.productsPanel.doLayout();
@@ -419,8 +421,8 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 			rawData["PPRICE"] = (""+rawData["PPrice"]).replaceAll(",", "");
 			delete rawData["PPrice"];
 			rawData["STATETEXT"] = "申请入库";
-			rawData["INDATE"] = +new Date();
-			rawData["ENDDATE"] = +new Date();
+			rawData["INDATE"] = Ext.Date.format(new Date(), "Y/m/d");
+			//rawData["ENDDATE"] = Ext.Date.format(new Date(), "Y/m/d");
 			//for (var c =0; c < me.branchesList.getCount(); ++c){
 			//	var _d = me.branchesList.getAt(c);
 			//	if (_d && _d.get && _d.get("attr") == parseInt(Beet.cache.currentEmployStoreID)){
