@@ -871,9 +871,9 @@ MyCardSvc.prototype.GetProductPageData = function(Start, Limit, AWhere, __callba
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyCardSvc.prototype.AddProductCategory = function(ProductCategoryJSON, __callback) {
+MyCardSvc.prototype.AddCategory = function(ProductCategoryJSON, __callback) {
   var __message = {
-    "method" : "MyCardSvc.AddProductCategory",
+    "method" : "MyCardSvc.AddCategory",
     "params" : {
       "ProductCategoryJSON": ProductCategoryJSON
       }
@@ -905,9 +905,9 @@ MyCardSvc.prototype.AddProductCategory = function(ProductCategoryJSON, __callbac
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyCardSvc.prototype.UpdateProductCategory = function(ProductCategoryJSON, __callback) {
+MyCardSvc.prototype.UpdateCategory = function(ProductCategoryJSON, __callback) {
   var __message = {
-    "method" : "MyCardSvc.UpdateProductCategory",
+    "method" : "MyCardSvc.UpdateCategory",
     "params" : {
       "ProductCategoryJSON": ProductCategoryJSON
       }
@@ -939,9 +939,9 @@ MyCardSvc.prototype.UpdateProductCategory = function(ProductCategoryJSON, __call
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyCardSvc.prototype.DeleteProductCategory = function(PCategoryID, __callback) {
+MyCardSvc.prototype.DeleteCategory = function(PCategoryID, __callback) {
   var __message = {
-    "method" : "MyCardSvc.DeleteProductCategory",
+    "method" : "MyCardSvc.DeleteCategory",
     "params" : {
       "PCategoryID": PCategoryID
       }
@@ -973,9 +973,9 @@ MyCardSvc.prototype.DeleteProductCategory = function(PCategoryID, __callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyCardSvc.prototype.GetProductCategoryData = function(__callback) {
+MyCardSvc.prototype.GetCategoryData = function(__callback) {
   var __message = {
-    "method" : "MyCardSvc.GetProductCategoryData",
+    "method" : "MyCardSvc.GetCategoryData",
     "params" : {
       }
   }
@@ -1115,141 +1115,6 @@ MyCardSvc.prototype.GetChargeTypePageData = function(Start, Limit, AWhere, __cal
       "Start": Start,
       "Limit": Limit,
       "AWhere": AWhere
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
-MyCardSvc.prototype.GetChargeCategoryData = function(__callback) {
-  var __message = {
-    "method" : "MyCardSvc.GetChargeCategoryData",
-    "params" : {
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
-MyCardSvc.prototype.AddChargeCategory = function(ChargeCategoryJSON, __callback) {
-  var __message = {
-    "method" : "MyCardSvc.AddChargeCategory",
-    "params" : {
-      "ChargeCategoryJSON": ChargeCategoryJSON
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
-MyCardSvc.prototype.UpdateChargeCategory = function(ChargeCategoryJSON, __callback) {
-  var __message = {
-    "method" : "MyCardSvc.UpdateChargeCategory",
-    "params" : {
-      "ChargeCategoryJSON": ChargeCategoryJSON
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
-MyCardSvc.prototype.DeleteChargeCategory = function(PCategoryID, __callback) {
-  var __message = {
-    "method" : "MyCardSvc.DeleteChargeCategory",
-    "params" : {
-      "PCategoryID": PCategoryID
       }
   }
   var __callbacks = null;
@@ -1490,141 +1355,6 @@ MyCardSvc.prototype.GetItemCharges = function(AItemID, __callback) {
     "method" : "MyCardSvc.GetItemCharges",
     "params" : {
       "AItemID": AItemID
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
-MyCardSvc.prototype.AddItemCategory = function(ItemCategoryJSON, __callback) {
-  var __message = {
-    "method" : "MyCardSvc.AddItemCategory",
-    "params" : {
-      "ItemCategoryJSON": ItemCategoryJSON
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
-MyCardSvc.prototype.UpdateItemCategory = function(ItemCategoryJSON, __callback) {
-  var __message = {
-    "method" : "MyCardSvc.UpdateItemCategory",
-    "params" : {
-      "ItemCategoryJSON": ItemCategoryJSON
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
-MyCardSvc.prototype.DeleteItemCategory = function(PCategoryID, __callback) {
-  var __message = {
-    "method" : "MyCardSvc.DeleteItemCategory",
-    "params" : {
-      "PCategoryID": PCategoryID
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
-MyCardSvc.prototype.GetItemCategoryData = function(__callback) {
-  var __message = {
-    "method" : "MyCardSvc.GetItemCategoryData",
-    "params" : {
       }
   }
   var __callbacks = null;

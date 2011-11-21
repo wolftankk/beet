@@ -397,7 +397,14 @@ Ext.define("Beet.plugins.proxyClient", {
 
 		return request;
 	},
-	/*
+	/**
+	 * @description Handler data from the server. and restore data
+	 *
+	 * @param data form server json data
+	 *
+	 * @return JSON stringfy str
+	 */
+	/**
 	 *
 	 * @param {}operation
 	 * @param {Function} callback
@@ -609,7 +616,6 @@ Ext.define("Beet.plugins.LiveSearch",{
 		me.view.refresh();
 
 		me.searchValue = me.getSearchValue();
-		console.log(me.searchValue);
 		me.indexes = [];
 
 		me.currentIndex = null;
