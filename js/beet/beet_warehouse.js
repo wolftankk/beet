@@ -185,7 +185,7 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 					text: "提交",
 					width: 200,
 					handler: function(){
-						//me.processData(this)	
+						me.processData(this)	
 					},
 					hidden: me._editType == "view"
 				},
@@ -270,7 +270,14 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 									displayField: "name",
 									valueField: "attr",
 									allowBlank: false,
-									value: Beet.cache.currentEmployStoreID
+									listeners: {
+										blur: function(f){
+											//get the form of current editor
+											var form = f.up("form").getForm(), values = form.getValues(), record = form.getRecord();
+											var storeId = values["StoreName"];
+											record.set("storeId", storeId);
+										}
+									}
 								}
 								break;
 							case 'COUNT':
@@ -278,7 +285,21 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 									xtype: "numberfield",
 									allowBlank: false,
 									minValue: 0,
-									type: "int"
+									type: "int",
+									listeners: {
+										blur: function(f){
+											var form = f.up("form").getForm(), values = form.getValues(), record = form.getRecord();
+											var count = values["COUNT"], price = values["PRICE"];
+											var pprice = record.get("PPRICE");
+											if (count > 0){
+												price = Ext.Number.toFixed(pprice * count, 2);
+												form.setValues({
+													PRICE: price	
+												})
+												record.set("PRICE", price);
+											}
+										}
+									}
 								}
 								break;
 							case "PRICE":
@@ -286,7 +307,21 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 									xtype: "numberfield",
 									allowBlank: false,
 									minValue: 0,
-									type: "int"
+									type: "int",
+									listeners: {
+										blur: function(f){
+											var form = f.up("form").getForm(), values = form.getValues(), record = form.getRecord();
+											var count = values["COUNT"], price = values["PRICE"];
+											var pprice = record.get("PPRICE"), _originprice = record.get("PRICE")
+											if (price > 0 && price != _originprice){//防止唔改
+												count = Ext.Number.toFixed(price / pprice, 2);
+												form.setValues({
+													COUNT: count
+												})
+												record.set("count", count);
+											}
+										}
+									}
 								}
 								break;
 							case "ENDDATE":
@@ -333,39 +368,6 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 				],
 				selType: 'cellmodel'
 			});
-
-			grid.on("validateedit", function(editor, e){
-				var currField = e.field, currColIdx = e.colIdx, currRowIdx = e.rowIndex;
-				var currRecord = e.record;
-				var newValues = {},
-				originalValues = {};
-				editor.editor.items.each(function(item){
-					var name = item.name;
-					newValues[name] = item.getValue();	
-					originalValues[name] = currRecord.get(name)
-				})
-
-				//console.log(originalValues, newValues)
-				//if (originalValues[currField] == undefined || originalValues[currField] == null){
-				//	originalValues[currField] = newValues[currField];
-
-					if (currField == "COUNT"){
-						var count = parseFloat(newValues["COUNT"], 2);
-						var pprice = parseFloat(newValues["PPRICE"], 2);
-						currRecord.set("PRICE", Ext.Number.toFixed((pprice * count),2));
-						document.getElementsByName("PRICE")[0].value = currRecord.get("PRICE");
-					}
-
-					//if (currField == "PRICE"){
-					//	var price= parseFloat(newValues["PRICE"], 2);//库存总价
-					//	var pprice = parseFloat(newValues["PPRICE"], 2);//产品售价
-					//	console.log(price, pprice)
-					//	currRecord.set("COUNT", (price / pprice));
-					//	document.getElementsByName("COUNT")[0].value = currRecord.get("COUNT");
-					//}
-				//}
-
-			})
 
 			me.productsPanel.add(grid);
 			me.productsPanel.doLayout();
@@ -422,6 +424,8 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 			delete rawData["PPrice"];
 			rawData["STATETEXT"] = "申请入库";
 			rawData["INDATE"] = Ext.Date.format(new Date(), "Y/m/d");
+			rawData["OperatorName"] = Beet.cache.currentEmployName;
+			rawData["Operator"] = Beet.cache.currentEmployGUID;
 			//rawData["ENDDATE"] = Ext.Date.format(new Date(), "Y/m/d");
 			//for (var c =0; c < me.branchesList.getCount(); ++c){
 			//	var _d = me.branchesList.getAt(c);
@@ -437,10 +441,10 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 				selectedProducts[pid] = [];
 			}
 
-			for (var c = 0; c < __fields.length; ++c){
-				var k = __fields[c];
-				selectedProducts[pid].push(rawData[k]);
-			}
+			//for (var c = 0; c < __fields.length; ++c){
+			//	var k = __fields[c];
+			selectedProducts[pid] = rawData;
+			//}
 		}
 
 		me.updateProductsPanel();
@@ -465,7 +469,26 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 		store.loadData(tmp);
 	},
 	processData: function(){
+		var me = this, stockServer = Beet.constants.stockServer,
+			selectedProducts = me.selectedProducts;
+		//storeid  pid  count enddate userid
+		var data = [];
+		var productstore = me.productsPanel.grid.getStore();
+		for (var c = 0; c < productstore.getCount(); ++c){
+			var product = productstore.getAt(c);
+			if (product && product.data){
+				product = product.data;
+				data.push({
+					storeid: product["storeId"],
+					pid: product["PID"],
+					count: product["COUNT"],
+					enddate: +(new Date(product["ENDDATE"])) / 1000,
+					userid:	product["Operator"]
+				})
+			}
+		}
 
+		data = Ext.JSON.encode(data);
 	}
 })
 

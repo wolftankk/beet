@@ -103,7 +103,7 @@ Ext.define("Beet.apps.Menu.Panel", {
 		var config = {
 			border: 1,
 			width: '100%',
-			height: 80,
+			height: 80,//fixed by ext4.0.7
 			autoHeight: true,
 			autoWidth: true,
 			autoScroll: true,
@@ -198,6 +198,8 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 				data = data["Data"];
 				var guid = data[0]["UserGUID"];
 				var UserName = data[0]["UserName"];
+
+				Beet.cache.currentEmployGUID = guid;
 				employeeServer.GetEmployeeData(0, 1, "em_userid='" + guid + "'", false, {
 					success: function(_data){
 						_data = Ext.JSON.decode(_data)["Data"];
@@ -205,9 +207,11 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 							me.username.setText(_data[0]["EM_NAME"]);
 							Beet.cache.currentEmployStoreID = _data[0]["EM_STOREID"];
 							Beet.cache.currentEmployStoreName = _data[0]["EM_STORENAME"];
+							Beet.cache.currentEmployName = _data[0]["EM_NAME"];
 						}else{
 							me.username.setText(UserName);
 							Beet.cache.currentEmployStoreID = -1;
+							Beet.cache.currentEmployName = UserName;
 						}
 					},
 					failure: function(error){
