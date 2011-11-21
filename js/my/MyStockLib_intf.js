@@ -803,12 +803,11 @@ MyStockSvc.prototype.InStock = function(InStockJSON, __callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyStockSvc.prototype.EndInStock = function(StoreID, PID, __callback) {
+MyStockSvc.prototype.EndInStock = function(EndInStockJSON, __callback) {
   var __message = {
     "method" : "MyStockSvc.EndInStock",
     "params" : {
-      "StoreID": StoreID,
-      "PID": PID
+      "EndInStockJSON": EndInStockJSON
       }
   }
   var __callbacks = null;
@@ -838,12 +837,11 @@ MyStockSvc.prototype.EndInStock = function(StoreID, PID, __callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyStockSvc.prototype.OutStock = function(AOutStoreID, APID, __callback) {
+MyStockSvc.prototype.OutStock = function(OutStockJSON, __callback) {
   var __message = {
     "method" : "MyStockSvc.OutStock",
     "params" : {
-      "AOutStoreID": AOutStoreID,
-      "APID": APID
+      "OutStockJSON": OutStockJSON
       }
   }
   var __callbacks = null;
