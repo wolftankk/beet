@@ -41,7 +41,7 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 			allowBlank: false,
 			anchor: '90%',
 			enableKeyEvents: true,
-			listen: {
+			listeners: {
 				keypress: function(field, e){
 					var keyCode = e.getKey();
 					if (keyCode == e.ENTER){
@@ -58,7 +58,7 @@ Ext.define("Beet.apps.Login.LoginFormPanel", {
 			allowBlank: false,
 			anchor: '90%',
 			enableKeyEvents: true,
-			listen: {
+			listeners: {
 				keypress: function(field, e){
 					if (e.getKey() == e.ENTER){
 						this.nextSibling().focus()
