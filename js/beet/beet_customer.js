@@ -759,39 +759,36 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 		Ext.apply(this, {});
 		that.callParent(arguments);
 
-		Beet.apps.Viewport.getColumnsData(function(){
-			that.buildStoreAndModel();
-		});
+		Beet.constants.customerServer.GetCustomerToJSON("", true, {
+			success: function(data){
+				var data = Ext.JSON.decode(data);
+				that.buildStoreAndModel(data["MetaData"]);
+			},
+			failure: function(error){
+				Ext.Error.raise(error)
+			}
+		})
 	},
-	buildStoreAndModel: function(){
-		var me = this;
-		
+	buildStoreAndModel: function(metaData){
+		var me = this, customerServer = Beet.constants.customerServer, fields = [];
+		me.columns = [];
+
+		for (var c = 0; c < metaData.length; ++c){
+			var d = metaData[c];
+			fields.push(d["FieldName"]);
+			if (!d["FieldHidden"]) {
+				me.columns.push({
+					flex: 1,
+					header: d["FieldLabel"],
+					dataIndex: d["FieldName"]	
+				})
+			}
+		};
+
 		if (!Beet.apps.Viewport.CustomerListModel){
 			Ext.define("Beet.apps.Viewport.CustomerListModel", {
 				extend: "Ext.data.Model",
-				fields: [
-					"CTGUID",
-					"CTID",
-					"CTCardNo",
-					"CTName",
-					"CTNickName",
-					"CTSexName",
-					"CTMarryName",
-					"CTProvince",
-					"CTEducationName",
-					"CTEMail",
-					"CTEnjoyMode",
-					"CTUpdateModeName",
-					"CTBirthdayMonth",
-					"CTBirthdayDay",
-					"CTMobile",
-					"CTPhone",
-					"CTJob",
-					"CTIM",
-					"CTAddress",
-					"CTDescript",
-					"CTStoreName"
-				]
+				fields: fields
 			});
 		}
 
@@ -849,7 +846,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 		}
 	},
 	createCustomerGrid: function(){
-		var that = this, grid = that.grid, store = that.storeProxy, actions, __columns = [], columnsData = Beet.cache["customerColumns"];
+		var that = this, grid = that.grid, store = that.storeProxy, actions;
 		var customerServer = Beet.constants.customerServer;
 		
 		var _actions = {
@@ -888,25 +885,8 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 				}
 			}
 		}
-		__columns.push(_actions);
-		
-		for (var columnIndex in columnsData){
-			var columnData = columnsData[columnIndex], column;
-			if (!columnData["FieldHidden"]){
-				var column = {
-					flex: 1	
-				};
-				for (var k in columnData){
-					if (k == "FieldLabel"){
-						column["header"] = columnData[k];
-					}else if(k == "FieldName"){
-						column["dataIndex"] = columnData[k];
-					}
-				}
 
-				__columns.push(column);
-			}
-		}
+		that.columns.splice(0, 0, _actions);
 
 		that.grid = Ext.create("Beet.plugins.LiveSearch", {
 			store: store,
@@ -925,7 +905,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 				trackOver: false,
 				stripeRows: true
 			},
-			columns: __columns,
+			columns: that.columns,
 			tbar: [
 				"-",
 				{
