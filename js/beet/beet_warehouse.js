@@ -703,7 +703,7 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 			}, "-","-","-");
 		}
 		
-		me.columns.splice(0, 0, _actions);
+		//me.columns.splice(0, 0, _actions);
 
 		me.grid = Ext.create("Beet.plugins.LiveSearch", {
 			store: store,
