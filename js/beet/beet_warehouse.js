@@ -60,6 +60,14 @@ Beet.constants.stockStauts = Ext.create("Ext.data.Store", {
 	]	
 });
 
+Beet.constants.checkStauts = Ext.create("Ext.data.Store", {
+	fields: ["attr", "name"],
+	data: [
+		{attr: 1, name: "审核通过"},
+		{attr: 0, name: "退回入库"}
+	]	
+});
+
 
 //storeid, pid, count, enddate
 Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
@@ -488,8 +496,17 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 			}
 		}
 
-		data = Ext.JSON.encode(data);
+		console.log(data)
+		data = Ext.JSON.encode(data[0]);
 		//submit to the server
+		stockServer.InStock(data, {
+			success: function(r){
+				console.log(r);
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		})
 	}
 })
 
@@ -549,16 +566,37 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 		var fields = [], me = this, stockServer = Beet.constants.stockServer;
 		me.columns = [];
 		for (var c = 0; c < metaData.length; ++c){
-			var d = metaData[c];
+			var d = metaData[c], _field;
 			fields.push(d["FieldName"]);
 			if (!d["FieldHidden"]) {
-				me.columns.push({
+				_field = {
 					flex: 1,
 					header: d["FieldLabel"],
 					dataIndex: d["FieldName"]	
-				})
+				}
+				
+				//console.log(d["FieldName"])
+
+				me.columns.push(_field);
 			}
 		};
+
+		//add
+		me.columns.push(
+		{
+			flex: 1,
+			header: "审核库存",
+			dataIndex: "checkStatus",
+			editor : {
+				xtype: "combobox",
+				editable: false,
+				store: Beet.constants.checkStauts,
+				queryMode: "local",
+				displayField: "name",
+				valueField: "attr",
+				allowBlank: false
+			}
+		})
 		
 		if (!Ext.isDefined(Beet.apps.WarehouseViewPort.warehouseModel)){
 			Ext.define("Beet.apps.WarehouseViewPort.warehouseModel", {
@@ -619,7 +657,7 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 		}
 	},
 	createGrid: function(){
-		var me = this, grid = me.grid, sm = null;
+		var me = this, grid = me.grid, sm = null, stockServer = Beet.constants.stockServer;
 		if (me.b_type == "selection"){
 			sm = Ext.create("Ext.selection.CheckboxModel", {
 				mode: me.b_selectionMode ? me.b_selectionMode : "SINGLE"
@@ -770,7 +808,59 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 						win.show();
 					}
 				}
-			]
+			],
+			plugins: [
+				Ext.create('Ext.grid.plugin.CellEditing', {
+					clicksToEdit: 1,
+					listeners: {
+						beforeedit: function(e){
+							var record = e.record, currField = e.field;
+							if (currField == "checkStatus"){
+								var status = record.get("STATES");
+								//check 权限
+								if (status == 0){
+									return true
+								}
+								return false
+							}
+						},
+						edit: function(editor, e){
+							var record = e.record, currField = e.field;
+							if (currField == "checkStatus"){
+								//storeid  pid  count  enddate allow userid
+								var storeid = record.get("STOREID"), pid = record.get("PID"),
+									count = record.get("COUNT"), enddate = record.get("ENDDATE"),
+									allow = record.get("checkStatus") == 1 ? true : false,
+									userid = Beet.cache.currentEmployGUID;
+									//console.log(editor, e)
+									//auto submit
+								var needSubmitData = {
+									storeid: storeid,
+									pid:pid,
+									count: count,
+									enddate : (Date.parse(enddate)) / 1000,
+									allow: allow,
+									userid : userid
+								}
+
+								stockServer.EndInStock(Ext.JSON.encode(needSubmitData), {
+									success: function(r){
+										if (r){
+
+										}else{
+											//false
+										}
+									},
+									failure: function(error){
+										Ext.Error.raise(error)
+									}
+								})
+							}
+						}
+					}
+				})
+			],
+			selType: 'cellmodel'
 		})
 		me.mainPanel.add(me.grid);
 		me.mainPanel.doLayout();
