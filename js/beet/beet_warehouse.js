@@ -521,7 +521,7 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 	width: "100%",
 	border: false,
 	shadow: true,
-	b_filter: ' states = -1',
+	b_filter: ' states = 0',
 	initComponent: function(){
 		var me = this, stockServer = Beet.constants.stockServer;
 		if (me.b_type == "selection"){
@@ -552,7 +552,7 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 	getProductsMetaData: function(){
 		var me = this, stockServer = Beet.constants.stockServer;
 
-		stockServer.GetStockPageData(0, 1, "", {
+		stockServer.GetStockPageData(0, -1, "", {
 			success: function(data){
 				var data = Ext.JSON.decode(data);
 				me.buildStoreAndModel(data["MetaData"]);
