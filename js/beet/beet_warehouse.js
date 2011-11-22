@@ -489,6 +489,7 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 		}
 
 		data = Ext.JSON.encode(data);
+		//submit to the server
 	}
 })
 
