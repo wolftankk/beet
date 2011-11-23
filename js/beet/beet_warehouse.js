@@ -1,3 +1,10 @@
+/**
+ *
+ * @file beet_warehouse.js
+ * @description MYDO warehouse control tools
+ * @author wolftankk@gmail.com
+ *
+ */
 registerBeetAppsMenu("warehouse", 
 {
 	title: "库存管理",
@@ -80,10 +87,9 @@ Beet.constants.checkStauts = Ext.create("Ext.data.Store", {
 	fields: ["attr", "name"],
 	data: [
 		{attr: 1, name: "审核通过"},
-		{attr: 0, name: "退回入库"}
+		{attr: 0, name: "退回"}
 	]	
 });
-
 
 //storeid, pid, count, enddate
 Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
@@ -796,7 +802,9 @@ Ext.define("Beet.apps.WarehouseViewPort.Exwarehouse", {
 							allowBlank: false,
 							listeners: {
 								blur: function(f){
-									//get the form of current editor
+									/**
+									 * @TODO: 这里需要显示成中文
+									 */
 									var form = f.up("form").getForm(), values = form.getValues(), record = form.getRecord();
 									var storeId = values["exstore"];
 									record.set("exstore", storeId)
@@ -838,6 +846,8 @@ Ext.define("Beet.apps.WarehouseViewPort.Exwarehouse", {
 				],
 				selType: 'cellmodel'
 			});
+
+			me.grid = grid;
 
 			me.productsPanel.add(grid);
 			me.productsPanel.doLayout();
@@ -942,6 +952,7 @@ Ext.define("Beet.apps.WarehouseViewPort.Exwarehouse", {
 					count: product["excount"],
 					enddate: +(new Date(product["ENDDATE"])) / 1000,
 					userid:	Beet.cache.currentEmployGUID,
+					inuserid: product["OPERATOR"],
 					index: product["index"],
 					instoreid: product["exstore"]
 				})
@@ -951,8 +962,27 @@ Ext.define("Beet.apps.WarehouseViewPort.Exwarehouse", {
 		data = Ext.JSON.encode(data);
 		//submit to the server
 		stockServer.OutStock(data, {
-			success: function(r){
-				console.log(r);
+			success: function(results){
+				 results = Ext.JSON.decode(results);
+				 //items.get(0).getStore().data.items[0]
+				 if (results && Ext.isArray(results) && results.length > 0){
+					var pass = true;
+					for (var c = 0; c < results.length; ++c){
+						var r = results[c], index = r["index"], msg = r["message"];
+						pass = pass && r["result"];
+						console.log(index, msg)
+						//msg = r["message"]
+					}
+					if (!pass){
+						Ext.MessageBox.show({
+							title: "错误",
+							msg: "添加失败, 请检查后重新提交!",
+							buttons: Ext.MessageBox.OK,
+							fn: function(btn){
+							}
+						});
+					}
+				 }
 			},
 			failure: function(error){
 				Ext.Error.raise(error);
@@ -1037,7 +1067,7 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 		me.columns.push(
 		{
 			flex: 1,
-			header: "审核库存",
+			header: "审核操作",
 			dataIndex: "checkStatus",
 			editor : {
 				xtype: "combobox",
@@ -1296,7 +1326,9 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 							if (currField == "checkStatus"){
 								var status = record.get("STATES");
 								//check 权限
-								if (status == 0){
+								if (status == 0){//申请入库
+									return true
+								}else if (status == 1){
 									return true
 								}
 								return false
@@ -1304,13 +1336,13 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 						},
 						edit: function(editor, e){
 							var record = e.record, currField = e.field;
-							console.log(e)
 							if (currField == "checkStatus"){
 								//storeid  pid  count  enddate allow userid
 								var storeid = record.get("STOREID"), pid = record.get("PID"),
 									count = record.get("COUNT"), enddate = record.get("ENDDATE"),
 									allow = record.get("checkStatus") == 1 ? true : false,
-									userid = Beet.cache.currentEmployGUID;
+									userid = Beet.cache.currentEmployGUID,
+									states = record.get("STATES"), method;
 									//console.log(editor, e)
 									//auto submit
 								record.set("index", e.rowIdx);
@@ -1321,28 +1353,38 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 									enddate : (Date.parse(enddate)) / 1000,
 									allow: allow,
 									userid : userid,
+									inuserid: record.get("OPERATOR"),
 									index: e.rowIdx
 								}
 
-								stockServer.EndInStock(Ext.JSON.encode([needSubmitData]), {
-									success: function(r){
-										if (r && Ext.isArray(r) && r.length == 1){
-											if (r[0] && ! r[0]["result"]){
-												var _index = r[0]["index"], msg = r[0]["message"];
-												//提示失败
-												//Ext.MessageBox.show({
-												//	
-												//});
-											}else{
-												//提示成功
+								if (states == 0){
+									method = stockServer.EndInStock;
+								}else if (states == 1){
+									method = stockServer.EndOutStock;
+								}
 
+								Ext.Function.bind(method, stockServer)(Ext.JSON.encode([needSubmitData]),
+									{
+										success: function(r){
+											console.log(Ext.JSON.decode(r))
+											if (r && Ext.isArray(r) && r.length == 1){
+												if (r[0] && ! r[0]["result"]){
+													var _index = r[0]["index"], msg = r[0]["message"];
+													//提示失败
+													//Ext.MessageBox.show({
+													//	
+													//});
+												}else{
+													//提示成功
+
+												}
 											}
+										},
+										failure: function(error){
+											Ext.Error.raise(error)
 										}
-									},
-									failure: function(error){
-										Ext.Error.raise(error)
 									}
-								})
+								)
 							}
 						}
 					}
