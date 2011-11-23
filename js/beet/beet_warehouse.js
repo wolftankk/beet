@@ -39,6 +39,22 @@ registerBeetAppsMenu("warehouse",
 								}
 							}
 						},
+						{
+							xtype: "button",
+							text: "库存历史查询",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["stockHistory"];
+								if (!item){
+									Beet.workspace.addPanel("stockHistory", "库存历史查询", {
+										items: [
+											Ext.create("Beet.apps.WarehouseViewPort.stockHistory")
+										]
+									});
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						}
 					]
 				}
 			]
@@ -85,6 +101,7 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 	border: false,
 	bodyBorder: false,
 	plain: true,
+	_index: 0,
 	initComponent: function(){
 		var me = this, stockServer = Beet.constants.stockServer;
 	
@@ -434,14 +451,7 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 			rawData["INDATE"] = Ext.Date.format(new Date(), "Y/m/d");
 			rawData["OperatorName"] = Beet.cache.currentEmployName;
 			rawData["Operator"] = Beet.cache.currentEmployGUID;
-			//rawData["ENDDATE"] = Ext.Date.format(new Date(), "Y/m/d");
-			//for (var c =0; c < me.branchesList.getCount(); ++c){
-			//	var _d = me.branchesList.getAt(c);
-			//	if (_d && _d.get && _d.get("attr") == parseInt(Beet.cache.currentEmployStoreID)){
-			//		rawData["StoreName"] = _d.get("name")
-			//		rawData["storeid"] = _d.get("attr");
-			//	}
-			//}
+			rawData["index"] = me._index;
 
 			if (selectedProducts[pid] == undefined){
 				selectedProducts[pid] = []
@@ -449,10 +459,8 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 				selectedProducts[pid] = [];
 			}
 
-			//for (var c = 0; c < __fields.length; ++c){
-			//	var k = __fields[c];
 			selectedProducts[pid] = rawData;
-			//}
+			me._index++
 		}
 
 		me.updateProductsPanel();
@@ -491,14 +499,14 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 					pid: product["PID"],
 					count: product["COUNT"],
 					enddate: +(new Date(product["ENDDATE"])) / 1000,
-					userid:	product["Operator"]
+					userid:	product["Operator"],
+					index: product["index"]
 				})
 			}
 		}
 
-		console.log(data)
-		data = Ext.JSON.encode(data[0]);
-		//submit to the server
+		data = Ext.JSON.encode(data);
+		////submit to the server
 		stockServer.InStock(data, {
 			success: function(r){
 				console.log(r);
@@ -826,6 +834,7 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 						},
 						edit: function(editor, e){
 							var record = e.record, currField = e.field;
+							console.log(e)
 							if (currField == "checkStatus"){
 								//storeid  pid  count  enddate allow userid
 								var storeid = record.get("STOREID"), pid = record.get("PID"),
@@ -834,21 +843,30 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 									userid = Beet.cache.currentEmployGUID;
 									//console.log(editor, e)
 									//auto submit
+								record.set("index", e.rowIdx);
 								var needSubmitData = {
 									storeid: storeid,
 									pid:pid,
 									count: count,
 									enddate : (Date.parse(enddate)) / 1000,
 									allow: allow,
-									userid : userid
+									userid : userid,
+									index: e.rowIdx
 								}
 
-								stockServer.EndInStock(Ext.JSON.encode(needSubmitData), {
+								stockServer.EndInStock(Ext.JSON.encode([needSubmitData]), {
 									success: function(r){
-										if (r){
+										if (r && Ext.isArray(r) && r.length == 1){
+											if (r[0] && ! r[0]["result"]){
+												var _index = r[0]["index"], msg = r[0]["message"];
+												//提示失败
+												//Ext.MessageBox.show({
+												//	
+												//});
+											}else{
+												//提示成功
 
-										}else{
-											//false
+											}
 										}
 									},
 									failure: function(error){
@@ -977,4 +995,283 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 	//		Ext.Error.raise("删除产品失败");
 	//	}
 	//}
+});
+
+
+Ext.define("Beet.apps.WarehouseViewPort.stockHistory", {
+	extend: "Ext.panel.Panel",
+	autoHeight: true,
+	autoScroll: true,
+	height: Beet.constants.VIEWPORT_HEIGHT,
+	width: Beet.constants.WORKSPACE_WIDTH,
+	frame: true,
+	height: "100%",
+	width: "100%",
+	border: false,
+	shadow: true,
+	b_filter: '',
+	initComponent: function(){
+		var me = this, stockServer = Beet.constants.stockServer;
+		if (me.b_type == "selection"){
+			me.editable = false;
+		}else{
+			me.editable = true;
+		}
+		me.currentStockStatus = 0;
+		
+		me.callParent();
+		me.mainPanel = Ext.create("Ext.panel.Panel", {
+			height: (me.b_type == "selection" ? "95%" : "100%"),
+			width: "100%",
+			autoHeight: true,
+			autoScroll: true,
+			border: false,
+			layout: {
+				type: "hbox",
+				columns: 2,
+				align: 'stretch'
+			},
+		})
+		me.add(me.mainPanel);
+		me.doLayout();
+
+		me.getProductsMetaData();
+	},
+	getProductsMetaData: function(){
+		var me = this, stockServer = Beet.constants.stockServer;
+
+		stockServer.GetStockHistoryPageData(0, -1, "", {
+			success: function(data){
+				var data = Ext.JSON.decode(data);
+				me.buildStoreAndModel(data["MetaData"]);
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
+	},
+	buildStoreAndModel: function(metaData){
+		var fields = [], me = this, stockServer = Beet.constants.stockServer;
+		me.columns = [];
+		for (var c = 0; c < metaData.length; ++c){
+			var d = metaData[c], _field;
+			fields.push(d["FieldName"]);
+			if (!d["FieldHidden"]) {
+				_field = {
+					flex: 1,
+					header: d["FieldLabel"],
+					dataIndex: d["FieldName"]	
+				}
+				
+				me.columns.push(_field);
+			}
+		};
+
+		if (!Ext.isDefined(Beet.apps.WarehouseViewPort.stockHistoryModel)){
+			Ext.define("Beet.apps.WarehouseViewPort.stockHistoryModel", {
+				extend: "Ext.data.Model",
+				fields: fields
+			});
+		}
+
+		if (!Ext.isDefined(Beet.apps.WarehouseViewPort.stockHistoryStore)){
+			Ext.define("Beet.apps.WarehouseViewPort.stockHistoryStore", {
+				extend: "Ext.data.Store",
+				model: Beet.apps.WarehouseViewPort.stockHistoryModel,
+				autoLoad: true,
+				pageSize: Beet.constants.PageSize,
+				load: function(options){
+					var that = this, options = options || {};
+					if (Ext.isFunction(options)){
+						options = {
+							callback: options
+						};
+					}
+
+					Ext.applyIf(options, {
+						groupers: that.groupers.items,
+						page: that.currentPage,
+						start: (that.currentPage - 1) * Beet.constants.PageSize,
+						limit: Beet.constants.PageSize,
+						addRecords: false
+					});
+					
+
+					that.proxy.b_params["start"] = options["start"];
+					that.proxy.b_params["limit"] = options["limit"];
+
+					return that.callParent([options]);
+				}
+			});
+		}
+
+		me.createGrid();
+	},
+	updateProxy: function(){
+		var me = this, stockServer = Beet.constants.stockServer;
+		return {
+			type: "b_proxy",
+			b_method: stockServer.GetStockHistoryPageData,
+			startParam: "start",
+			limitParam: "limit",
+			b_params: {
+				"awhere" : me.b_filter
+			},
+			b_scope: stockServer,
+			reader: {
+				type: "json",
+				root: "Data",
+				totalProperty: "TotalCount"
+			}
+		}
+	},
+	createGrid: function(){
+		var me = this, grid = me.grid, sm = null, stockServer = Beet.constants.stockServer;
+		if (me.b_type == "selection"){
+			sm = Ext.create("Ext.selection.CheckboxModel", {
+				mode: me.b_selectionMode ? me.b_selectionMode : "SINGLE"
+			});
+			me.selModel = sm;
+		}
+		Ext.apply(this, {
+			storeProxy: Ext.create("Beet.apps.WarehouseViewPort.stockHistoryStore")
+		});
+		var store = me.storeProxy, actions;
+		store.setProxy(me.updateProxy());
+
+		var _actions = {
+			xtype: 'actioncolumn',
+			width: 50,
+			items: [
+			]
+		}
+
+		//这里需要权限判断
+		_actions.items.push(
+			"-", "-", "-", {
+				icon: './resources/themes/images/fam/edit.png',
+				tooltip: "编辑消耗产品",
+				id: "customer_grid_edit",
+				handler:function(grid, rowIndex, colIndex){
+					var d = me.storeProxy.getAt(rowIndex)
+					//me.editProductItem(d);
+				}
+			}
+		);
+		
+		if (me.b_type == "selection") {
+		}else{
+			_actions.items.push("-", "-", "-",{
+				icon: "./resources/themes/images/fam/delete.gif",
+				tooltip: "删除消耗产品",
+				id: "customer_grid_delete",
+				handler: function(grid, rowIndex, colIndex){
+					var d = me.storeProxy.getAt(rowIndex)
+					//me.deleteProductItem(d);
+				}
+			}, "-","-","-");
+		}
+		
+		//me.columns.splice(0, 0, _actions);
+
+		me.grid = Ext.create("Beet.plugins.LiveSearch", {
+			store: store,
+			lookMask: true,
+			frame: true,
+			collapsible: false,
+			rorder: false,
+			bodyBorder: false,
+			autoScroll: true,
+			autoHeight: true,
+			autoWidth: true,
+			border: 0,
+			flex: 1,
+			cls: "iScroll",
+			selModel: sm,
+			width: "100%",
+			height: me.editable ? "100%" : "95%",
+			columnLines: true,
+			viewConfig:{
+				trackOver: false,
+				stripeRows: true
+			},
+			columns: me.columns,
+			bbar: Ext.create("Ext.PagingToolbar", {
+				store: store,
+				displayInfo: true,
+				displayMsg: '当前显示 {0} - {1} 到 {2}',
+				emptyMsg: "没有数据"
+			}),
+			tbar: [
+				"-",
+				{
+					xtype: "button",
+					text: "高级搜索",
+					handler: function(){
+						var stockServer = Beet.constants.stockServer;
+						stockServer.GetStockPageData(0, 1, "", {
+							success: function(data){
+								var win = Ext.create("Beet.apps.AdvanceSearch", {
+									searchData: Ext.JSON.decode(data),
+									b_callback: function(where){
+										me.b_filter = where;
+										//me.filterProducts();
+									}
+								});
+								win.show();
+							},
+							failure: function(error){
+								Ext.Error.raise(error);
+							}
+						});
+					}
+				},
+				//"-",
+				//{
+				//	xtype: "button",
+				//	text: "申请入库",
+				//	handler: function(){
+				//		var win = Ext.create("Ext.window.Window", {
+				//			width: 1000,
+				//			height: 600,
+				//			layout: "fit",
+				//			autoHeight: true,
+				//			autoScroll: true,
+				//			title: "增加入库",
+				//			border: false
+				//		});
+				//		win.add(Ext.create("Beet.apps.WarehouseViewPort.AddProduct", {
+				//			_editType: "add",
+				//			callback: function(){
+				//				win.close();
+				//				me.storeProxy.loadPage(me.storeProxy.currentPage);
+				//			}
+				//		}));
+				//		win.show();
+				//	}
+				//}
+			]
+		})
+		me.mainPanel.add(me.grid);
+		me.mainPanel.doLayout();
+
+		if (me.b_type == "selection"){
+			me.add(Ext.widget("button", {
+				text: "确定",
+				floating: false,
+				handler: function(){
+					if (me.b_selectionCallback){
+						me.b_selectionCallback(me.selModel.getSelection());
+					}
+				}
+			}))
+			me.doLayout();
+		}
+	},
+	filterProducts: function(){
+		var me = this;
+		me.storeProxy.setProxy(me.updateProxy());
+
+		me.storeProxy.loadPage(1);
+	}
 });
