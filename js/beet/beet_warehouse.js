@@ -290,7 +290,8 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 							header: meta["FieldLabel"],
 							flex: 1
 						}
-
+						
+						//console.log(meta["FieldName"])
 						switch (meta["FieldName"]){
 							case 'StoreName':
 								c.editor = {
@@ -392,7 +393,7 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 				height: "100%",
 				cls: "iScroll",
 				autoScroll: true,
-				columnLines: true,
+				columnLines: false,
 				columns: me.productsPanel.__columns,
 				plugins: [
 					Ext.create('Ext.grid.plugin.RowEditing', {
@@ -497,11 +498,31 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 			selectedProducts = me.selectedProducts;
 		//storeid  pid  count enddate userid
 		var data = [];
+		var grid = me.productsPanel.grid, store = grid.getStore();
+
 		var productstore = me.productsPanel.grid.getStore();
+
 		for (var c = 0; c < productstore.getCount(); ++c){
 			var product = productstore.getAt(c);
 			if (product && product.data){
 				product = product.data;
+				var storeid = product["storeId"],
+					pid = product["PID"],
+					count = product["COUNT"],
+					enddate = product["ENDDATE"],
+					index = product["index"],
+					pname = product["PName"]	
+				//check
+				if (storeid == undefined || count == undefined || enddate == undefined){
+					var rowIdx = updateGridRowBackgroundColor(grid, "#ffe2e2", index);
+					Ext.MessageBox.show({
+						title: "错误",
+						msg: "第"+ rowIdx +"行: \"" + pname + "\"的分店或者数量或者过期日期没填写!",
+						buttons: Ext.MessageBox.OK	
+					})
+					return;
+				}
+
 				data.push({
 					storeid: product["storeId"],
 					pid: product["PID"],
@@ -514,10 +535,37 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 		}
 
 		data = Ext.JSON.encode(data);
-		////submit to the server
+		
 		stockServer.InStock(data, {
 			success: function(r){
-				console.log(r);
+				r = Ext.JSON.decode(r);
+				if (r.length == 0) { 
+					me.callback()
+				}
+
+				var str = [], pass = true;
+				for (var c = 0; c < r.length; ++c){
+					var info = r[c];
+					//true
+					if (info["result"]){
+						updateGridRowBackgroundColor(grid, "#e2e2ff", info["index"]);
+					}else{
+						var rowIdx = updateGridRowBackgroundColor(grid, "#ffe2e2", info["index"]);
+						str.push("第" + rowIdx + "行 :" + info["message"]);
+					}
+
+					pass = pass && info["result"];
+				}
+
+				if (pass){
+					me.callback();
+				}else{
+					Ext.MessageBox.show({
+						title: "错误",
+						msg: str.join("<br/>"),
+						buttons: Ext.MessageBox.OK	
+					})
+				}
 			},
 			failure: function(error){
 				Ext.Error.raise(error);
@@ -525,6 +573,30 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 		})
 	}
 })
+
+function updateGridRowBackgroundColor(grid, color, index){
+	var view = grid.getView();
+	if (! view){ 
+		throw "updateGridRowBackgroundColor: Not fount view!"
+		return
+	}
+	var nodes = view.getNodes();
+	if (!nodes || (nodes && nodes.length == 0) ){
+		throw "updateGridRowBackgroundColor: Nodes include node maybe 0"
+		return
+	}
+	for (var c = 0; c < nodes.length; ++c){
+		var node = nodes[c], 
+			record = view.getRecord(node),
+			recordIndex = record.get("index"),
+			rowIdx = grid.store.indexOf(record);
+		if (recordIndex == index){
+			node.className.replace("x-grid-row-alt", "");
+			node.style.backgroundColor = color;
+			return rowIdx + 1;
+		}
+	}
+}
 
 //storeid pid  enddate userid count instoreid(出库产品到达的分店)
 Ext.define("Beet.apps.WarehouseViewPort.Exwarehouse", {
@@ -847,8 +919,6 @@ Ext.define("Beet.apps.WarehouseViewPort.Exwarehouse", {
 				selType: 'cellmodel'
 			});
 
-			me.grid = grid;
-
 			me.productsPanel.add(grid);
 			me.productsPanel.doLayout();
 		}
@@ -940,12 +1010,26 @@ Ext.define("Beet.apps.WarehouseViewPort.Exwarehouse", {
 			selectedProducts = me.selectedProducts;
 
 		var data = [];
+		var grid = me.productsPanel.grid, store = grid.getStore();
 		var productstore = me.productsPanel.grid.getStore();
 		//storeid pid  enddate userid count instoreid(出库产品到达的分店)
 		for (var c = 0; c < productstore.getCount(); ++c){
 			var product = productstore.getAt(c);
 			if (product && product.data){
 				product = product.data;
+				
+				var count = product["excount"], instoreid = product["exstore"], pname = product["PName"]
+				
+				if (count == undefined || instoreid == undefined){
+					var rowIdx = updateGridRowBackgroundColor(grid, "#ffe2e2", product["index"]);
+					Ext.MessageBox.show({
+						title: "错误",
+						msg: "第" + rowIdx + "行: \"" + pname +"\"的数量或者调入分店没有填写!",
+						buttons: Ext.MessageBox.OK	
+					})
+					return;
+				}
+
 				data.push({
 					storeid: product["STOREID"],//原分店
 					pid: product["PID"],
@@ -962,27 +1046,35 @@ Ext.define("Beet.apps.WarehouseViewPort.Exwarehouse", {
 		data = Ext.JSON.encode(data);
 		//submit to the server
 		stockServer.OutStock(data, {
-			success: function(results){
-				 results = Ext.JSON.decode(results);
-				 //items.get(0).getStore().data.items[0]
-				 if (results && Ext.isArray(results) && results.length > 0){
-					var pass = true;
-					for (var c = 0; c < results.length; ++c){
-						var r = results[c], index = r["index"], msg = r["message"];
-						pass = pass && r["result"];
-						console.log(index, msg)
-						//msg = r["message"]
+			success: function(r){
+				r = Ext.JSON.decode(r);
+				if (r.length == 0) { 
+					me.callback()
+				}
+
+				var str = [], pass = true;
+				for (var c = 0; c < r.length; ++c){
+					var info = r[c];
+					//true
+					if (info["result"]){
+						updateGridRowBackgroundColor(grid, "#e2e2ff", info["index"]);
+					}else{
+						var rowIdx = updateGridRowBackgroundColor(grid, "#ffe2e2", info["index"]);
+						str.push("第" + rowIdx + "行 :" + info["message"]);
 					}
-					if (!pass){
-						Ext.MessageBox.show({
-							title: "错误",
-							msg: "添加失败, 请检查后重新提交!",
-							buttons: Ext.MessageBox.OK,
-							fn: function(btn){
-							}
-						});
-					}
-				 }
+
+					pass = pass && info["result"];
+				}
+
+				if (pass){
+					me.callback();
+				}else{
+					Ext.MessageBox.show({
+						title: "错误",
+						msg: str.join("<br/>"),
+						buttons: Ext.MessageBox.OK	
+					})
+				}
 			},
 			failure: function(error){
 				Ext.Error.raise(error);
@@ -1335,7 +1427,7 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 							}
 						},
 						edit: function(editor, e){
-							var record = e.record, currField = e.field;
+							var record = e.record, currField = e.field, grid = e.grid;
 							if (currField == "checkStatus"){
 								//storeid  pid  count  enddate allow userid
 								var storeid = record.get("STOREID"), pid = record.get("PID"),
@@ -1366,18 +1458,31 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 								Ext.Function.bind(method, stockServer)(Ext.JSON.encode([needSubmitData]),
 									{
 										success: function(r){
-											console.log(Ext.JSON.decode(r))
-											if (r && Ext.isArray(r) && r.length == 1){
-												if (r[0] && ! r[0]["result"]){
-													var _index = r[0]["index"], msg = r[0]["message"];
-													//提示失败
-													//Ext.MessageBox.show({
-													//	
-													//});
-												}else{
-													//提示成功
+											r = Ext.JSON.decode(r);
+											if (r.length == 0) { 
+											}
 
+											var str = [], pass = true;
+											for (var c = 0; c < r.length; ++c){
+												var info = r[c];
+												//true
+												if (info["result"]){
+													updateGridRowBackgroundColor(grid, "#e2e2ff", info["index"]);
+												}else{
+													var rowIdx = updateGridRowBackgroundColor(grid, "#ffe2e2", info["index"]);
+													str.push("第" + rowIdx + "行 :" + info["message"]);
 												}
+
+												pass = pass && info["result"];
+											}
+
+											if (pass){
+											}else{
+												Ext.MessageBox.show({
+													title: "错误",
+													msg: str.join("<br/>"),
+													buttons: Ext.MessageBox.OK	
+												})
 											}
 										},
 										failure: function(error){
