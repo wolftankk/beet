@@ -17,6 +17,7 @@ Ext.define("Beet.apps.Menu.Panel", {
 		var that = this;
 		//目录设置面板
 		that.getOperatorList();
+		//将所有的子panel加入到此列表中
 		Beet.cache.containerList = {};
 		if (Beet.cache.MenuItems){
 			Beet.apps.Menu.Items = [];
@@ -124,7 +125,6 @@ Ext.define("Beet.apps.Menu.Panel", {
 		Beet.constants.WORKSPACE_HEIGHT = h;
 		Beet.constants.WORKSPACE_WIDTH = w;
 		Beet.constants.VIEWPORT_HEIGHT = h - 137;
-
 
 		if (w < 960){
 			//donothing
