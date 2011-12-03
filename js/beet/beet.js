@@ -17,7 +17,7 @@ Ext.define("Beet.apps.Menu.Panel", {
 		var that = this;
 		//目录设置面板
 		that.getOperatorList();
-
+		Beet.cache.containerList = {};
 		if (Beet.cache.MenuItems){
 			Beet.apps.Menu.Items = [];
 			for (var item in Beet.cache.MenuItems){
@@ -121,6 +121,11 @@ Ext.define("Beet.apps.Menu.Panel", {
 		return config;
 	},
 	fireResize: function(w, h){
+		Beet.constants.WORKSPACE_HEIGHT = h;
+		Beet.constants.WORKSPACE_WIDTH = w;
+		Beet.constants.VIEWPORT_HEIGHT = h - 137;
+
+
 		if (w < 960){
 			//donothing
 		}else{
@@ -367,8 +372,11 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 		parent.suspendLayout=null;
 
 		var h = Ext.core.Element.getViewHeight();
+		Beet.constants.VIEWPORT_HEIGHT = h - 137;
 		if (Beet.workspace){
-			Beet.workspace.setHeight(h - 112);
+			Beet.workspace.setAutoScroll(false);
+			Beet.workspace.setHeight(h - 112)
+			Beet.workspace.setAutoScroll(true);
 		}
 
 		if (parent.ownerCt){
@@ -377,6 +385,14 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 		that.fireEvent("expand", that);
 		if (that.collapseTool){
 			that.collapseTool.enable();
+		}
+
+		//update children
+		for (var childName in Beet.cache.containerList){
+			var child = Beet.cache.containerList[childName];
+			if (child && child.setHeight){
+				child.setHeight(Beet.constants.VIEWPORT_HEIGHT - 1);
+			}
 		}
 	},
 	getOppositeDirection: function(direction){
@@ -442,14 +458,24 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 		var that = this, configurePanel = that.configurePanel;
 		var h = Ext.core.Element.getViewHeight();
 		that.b_collapsed = true;
+		Beet.constants.VIEWPORT_HEIGHT = h - 57;
 		if (Beet.workspace){
+			Beet.workspace.setAutoScroll(false);
 			Beet.workspace.setHeight(h - 32);
+			Beet.workspace.setAutoScroll(true);
 		}
 		if (that.collapseTool){
 			that.collapseTool.setType("expand-"+that.b_expandDirection);
 		}
 		if (that.collapseTool){
 			that.collapseTool.enable();
+		}
+		//update children
+		for (var childName in Beet.cache.containerList){
+			var child = Beet.cache.containerList[childName];
+			if (child && child.setHeight){
+				child.setHeight(Beet.constants.VIEWPORT_HEIGHT - 1);
+			}
 		}
 	},
 	onTabBarClick: function(){
@@ -494,34 +520,58 @@ Ext.define("Beet.apps.Viewport", {
 			minTabWidth: 150,
 			cls: "iScroll",
 			width: "100%",
-			height: "100%",
+			id: "beet_workspace",
+			height: Beet.constants.VIEWPORT_HEIGHT,
 			shadow: true,
 			layout: "anchor",
 			defaults: {
 				autoScroll: true,
 				border: 0,
 				closable: true,
+				height: Beet.constants.VIEWPORT_HEIGHT,//child height
 				bodyStyle: "background-color: #dfe8f5",
 				plain: true
 			},
 			border: false,
 			bodyStyle: "background-color: #dfe8f5",
 			autoDestroy: true,
-			/*
-			plugins: [
-				{
-					ptype: "tabscrollmenu",
-					maxText: 15,
-					pageSize: 5,
-					menuPrefixText: ""	
+			listeners: {
+				remove: function(container, item,opts){
+					var name = item.b_name;
+					if (!!name){
+						if (Beet.apps.Menu.Tabs[name]){
+							Beet.apps.Menu.Tabs[name] = null;
+							//remove
+							Beet.cache.containerList[name] = null;
+						}
+					}
+				},
+				add: function(component, item){
+					setTimeout(function(){
+						var name = item.b_name;
+						if (!!name){
+							var items = item.items;
+							var realPanel = items.getAt(0);
+							if (realPanel){
+								realPanel.setWidth(Beet.constants.WORKSPACE_WIDTH);
+								realPanel.setHeight(Beet.constants.VIEWPORT_HEIGHT - 1);
+								Beet.cache.containerList[name] = realPanel;
+
+								//force reset width & height
+								realPanel.addListener({
+									resize: function(f, adjWidth, adjHeight, opts){
+										f.setAutoScroll(false);
+										f.setWidth(adjWidth);
+										f.setHeight(adjHeight);
+										f.doLayout();
+										f.setAutoScroll(true)
+									}
+								})
+							}
+						}
+					}, 100);
 				}
-			],*/
-			onRemove: function(item){
-				var name = item.b_name;
-				if (Beet.apps.Menu.Tabs[name]){
-					Beet.apps.Menu.Tabs[name] = null;
-				}
-			},
+			}
 		})
 		this.workspace = panel;
 		return panel
@@ -532,6 +582,15 @@ Ext.define("Beet.apps.Viewport", {
 		}
 		if (h > 300){
 			this.setHeight(h - 112);
+		}
+
+		//update children
+		for (var childName in Beet.cache.containerList){
+			var child = Beet.cache.containerList[childName];
+			if (child && child.setHeight && child.setWidth){
+				child.setHeight(Beet.constants.VIEWPORT_HEIGHT - 1);
+				child.setWidth(Beet.constants.WORKSPACE_WIDTH);
+			}
 		}
 	},
 	removePanel: function(name){
@@ -550,7 +609,7 @@ Ext.define("Beet.apps.Viewport", {
 			tabTip: title
 		}, config));
 		this.workspace.doLayout();
-		//设置一个私有的name名称, 为了能直接摧毁
+		////设置一个私有的name名称, 为了能直接摧毁
 		item.b_name = name;
 		Beet.apps.Menu.Tabs[name] = item;
 		this.workspace.setActiveTab(item);

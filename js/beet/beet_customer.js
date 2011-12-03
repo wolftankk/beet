@@ -743,7 +743,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 	extend: "Ext.panel.Panel",
 	layout: "fit",
 	width: "100%",
-	height: Beet.constants.VIEWPORT_HEIGHT - 5,
+	height: "100%",
 	bodyBorder: false,
 	autoHeight: true,
 	autoScroll: true,
