@@ -1157,8 +1157,10 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
 			plain: true,
 			height: "100%",
 			bodyBorder: false,
+			bodyStyle: 'background-color:#dfe8f5;',
 			defaults: {
 				border: 0,
+				bodyStyle: 'background-color:#dfe8f5;',
 				frame: true,
 				autoScroll: true,
 				autoHeight: true
@@ -1169,8 +1171,10 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
 		var advanceformConfig = {
 			frame: true,
 			border: false,
+			bodyStyle: 'background-color:#dfe8f5;',
 			defaults: {
-				margin: "0 0 10 0"
+				margin: "0 0 10 0",
+				bodyStyle: 'background-color:#dfe8f5;'
 			},
 			plain: true,
 			height: "100%",

@@ -953,9 +953,11 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 					if (btn == "yes"){
 						var win = Ext.create("Beet.plugins.ViewCustomerInfo", {
 							editable: true,
+							maximized: true,
 							storeProxy: that.storeProxy,
 							rawData: rawData	
 						});
+						win.doLayout();
 						win.show();
 					}
 				}
