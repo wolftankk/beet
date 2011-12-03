@@ -411,8 +411,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 
 Ext.define("Beet.apps.ProductsViewPort.UpdateProducts", {
 	extend: "Ext.panel.Panel",
-	height: Beet.constants.VIEWPORT_HEIGHT - 5,
-	width: "100%",
 	border: false,
 	plain: true,
 	initComponent: function(){
@@ -718,8 +716,8 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 	autoHeight: true,
 	autoScroll: true,
 	height: Beet.constants.VIEWPORT_HEIGHT - 5,
-	frame: true,
 	width: "100%",
+	frame: true,
 	border: false,
 	shadow: true,
 	b_filter: '',
