@@ -22,7 +22,11 @@ Ext.define("Beet.apps.Menu.Panel", {
 		if (Beet.cache.MenuItems){
 			Beet.apps.Menu.Items = [];
 			for (var item in Beet.cache.MenuItems){
-				Beet.apps.Menu.Items.push(Beet.cache.MenuItems[item]);
+				Beet.apps.Menu.Items.push(Ext.apply({
+					tabConfig: {
+						minWidth: 100	
+					}
+				},Beet.cache.MenuItems[item]));
 			}
 
 			delete Beet.cache.MenuItems;
@@ -239,6 +243,7 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 		navigationTab.setWidth(600);
 		navigationTab.setHeight(23);
 		navigationTab.border=0;
+
 		config = {
 			cls: "beet-navtoolbar",
 			width: 600,

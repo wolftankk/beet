@@ -435,7 +435,6 @@ function createCategoryTree(){
 			collapsible: true,
 			collapseDirection: "left",
 			width: 230,
-			height: 500,
 			border: 0,
 			useArrow: true,
 			title: "产品分类",
