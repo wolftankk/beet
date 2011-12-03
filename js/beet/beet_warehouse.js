@@ -166,6 +166,7 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 			autoHeight: true,
 			autoScroll: true,
 			flex: 1,
+			height: "100%",
 			width: "100%",
 			bodyStyle: "background-color: #dfe8f5",
 			bodyPadding: 5,
@@ -236,7 +237,8 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 
 		var form = Ext.widget("form", config);
 		me.form = form;
-		me.form.setHeight("100%");
+		//THIS BUG RESET FOR 4.0.7
+		me.form.setHeight(100);//reset
 		me.form.on("afterrender", function(){
 			var children = document.getElementsByName("barcode");
 			if (children.length > 0){
@@ -742,7 +744,7 @@ Ext.define("Beet.apps.WarehouseViewPort.Exwarehouse", {
 
 		var form = Ext.widget("form", config);
 		me.form = form;
-		me.form.setHeight("100%");
+		me.form.setHeight(100);
 		me.form.on("afterrender", function(){
 			var children = document.getElementsByName("barcode");
 			if (children.length > 0){
