@@ -930,8 +930,6 @@ Ext.define("Beet.apps.EmployeeSettingViewPort.Viewport", {
 		type: "hbox",
 		align: "stretch"
 	},
-	width: "100%",
-	height: "100%",
 	shadow: true,
 	frame: true,
 	defaults: {
@@ -969,7 +967,7 @@ Ext.define("Beet.apps.EmployeeSettingViewPort.Viewport", {
 			store: store,
 			lookMask: true,
 			width: 230,
-			height: 500,
+			height: "100%",
 			border: 0,
 			useArrow: true,
 			split: true,
@@ -1194,8 +1192,8 @@ Ext.define("Beet.apps.EmployeeSettingViewPort.Viewport", {
 	createDetailPanel: function(){
 		var me = this;
 		me.detailPanel = Ext.create("Ext.tab.Panel",{
-			minWidth: 800,
-			height: 400,
+			width: Beet.constants.WORKSPACE_WIDTH - 245,
+			height: "100%",
 			layout: "card",
 			frame: true,
 			border: 0,
@@ -1264,8 +1262,6 @@ Ext.define("Beet.apps.ShopSettingViewPort.Viewport", {
 		type: "hbox",
 		align: "stretch"
 	},
-	width: "100%",
-	height: "100%",
 	shadow: true,
 	frame: true,
 	defaults: {
@@ -1306,7 +1302,7 @@ Ext.define("Beet.apps.ShopSettingViewPort.Viewport", {
 			store: store,
 			lookMask: true,
 			width: 230,
-			height: 500,
+			height: "100%",
 			border: 0,
 			useArrow: true,
 			split: true,
@@ -1531,8 +1527,8 @@ Ext.define("Beet.apps.ShopSettingViewPort.Viewport", {
 	createDetailPanel: function(){
 		var me = this;
 		me.detailPanel = Ext.create("Ext.tab.Panel",{
-			minWidth: 800,
-			height: 400,
+			minWidth: Beet.constants.WORKSPACE_WIDTH - 245,
+			height: "100%",
 			layout: "card",
 			frame: true,
 			border: 0,

@@ -254,8 +254,6 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 		type: "hbox",
 		align: "stretch",
 	},
-	height: "100%",
-	width: "100%",
 	shadow: true,
 	cls: "iScroll",
 	frame: true,
@@ -289,7 +287,6 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 		//update
 		Beet.apps.Viewport.getCTTypeData(callback, true);
 	},
-
 	createTreeList: function(){
 		var that = this, store = that.storeProxy, customerServer = Beet.constants.customerServer;
 		that.treeList = Ext.create("Ext.tree.Panel", {
@@ -297,7 +294,7 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 			frame: true,
 			lookMask: true,
 			width: 230,
-			height: 500,
+			height: "100%",
 			border: 0,
 			useArrow: true,
 			split: true,
@@ -892,7 +889,8 @@ Ext.define("Beet.apps.Viewport.SettingViewPort", {
 		var that = this, customerServer = Beet.constants.customerServer;
 		that.detailPanel = Ext.create("Ext.tab.Panel", {
 			minWidth: 800,
-			height: 400,
+			width: Beet.constants.WORKSPACE_WIDTH - 240,
+			height: "100%",
 			layout: "card",
 			frame: true,
 			border: 0,
