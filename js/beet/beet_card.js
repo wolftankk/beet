@@ -433,7 +433,7 @@ function createCategoryTree(){
 			lookMask: true,
 			cls: "iScroll",
 			collapsible: true,
-			collapseDirection: "left",
+			collapseDirection: Ext.Component.DIRECTION_LEFT,
 			width: 230,
 			border: 0,
 			useArrow: true,
@@ -461,6 +461,19 @@ function createCategoryTree(){
 			"beforeitemcontextmenu": me.treeListRClick,
 			scope: me
 		});
+
+		//FIXED FOR 4.0.7
+		me.treeList.addListener({
+			collapse: function(p){
+				if (p && p.collapsed && p.reExpander){
+					var reExpander = p.reExpander;
+					setTimeout(function(){
+						reExpander.el.applyStyles({top: 0, left: 0});
+						reExpander.setHeight(me.getHeight())
+					}, 50);
+				}
+			}
+		})
 
 		me.treeList.storeProxy = me.treeList.getStore();
 
@@ -714,7 +727,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 	extend: "Ext.panel.Panel",
 	autoHeight: true,
 	autoScroll: true,
-	height: Beet.constants.VIEWPORT_HEIGHT - 5,
+	height: Beet.constants.VIEWPORT_HEIGHT - 1,
 	width: "100%",
 	frame: true,
 	border: false,
@@ -1632,6 +1645,19 @@ function createChargeCategoryTree(){
 			"beforeitemcontextmenu": me.treeListRClick,
 			scope: me
 		});
+
+		//FIXED FOR 4.0.7
+		me.treeList.addListener({
+			collapse: function(p){
+				if (p && p.collapsed && p.reExpander){
+					var reExpander = p.reExpander;
+					setTimeout(function(){
+						reExpander.el.applyStyles({top: 0, left: 0});
+						reExpander.setHeight(me.getHeight())
+					}, 50);
+				}
+			}
+		})
 
 		me.treeList.storeProxy = me.treeList.getStore();
 
@@ -2561,6 +2587,19 @@ function createItemCategoryTree(){
 		me.treeList.on({
 			itemclick: me.treeItemClick,
 			scope: me
+		})
+		
+		//FIXED FOR 4.0.7
+		me.treeList.addListener({
+			collapse: function(p){
+				if (p && p.collapsed && p.reExpander){
+					var reExpander = p.reExpander;
+					setTimeout(function(){
+						reExpander.el.applyStyles({top: 0, left: 0});
+						reExpander.setHeight(me.getHeight())
+					}, 50);
+				}
+			}
 		})
 
 		me.treeList.storeProxy = me.treeList.getStore();
