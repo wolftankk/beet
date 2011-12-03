@@ -343,7 +343,7 @@ Ext.define("Beet.apps.CustomerSearchEngine.GridList", {
 	extend: "Ext.grid.Panel",
 	layout: "fit",
 	width: "100%",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	lookMask: true,
 	frame: true,
 	rorder: false,

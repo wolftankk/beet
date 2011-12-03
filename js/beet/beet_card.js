@@ -121,7 +121,7 @@ function buildCategoryTreeStore(){
 
 Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 	extend: "Ext.form.Panel",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	width: "100%",
 	layout: "fit",
 	bodyStyle: "background-color: #dfe8f5",
@@ -411,7 +411,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 
 Ext.define("Beet.apps.ProductsViewPort.UpdateProducts", {
 	extend: "Ext.panel.Panel",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	width: "100%",
 	border: false,
 	plain: true,
@@ -717,10 +717,8 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
 	extend: "Ext.panel.Panel",
 	autoHeight: true,
 	autoScroll: true,
-	height: Beet.constants.VIEWPORT_HEIGHT,
-	width: Beet.constants.WORKSPACE_WIDTH,
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	frame: true,
-	height: "100%",
 	width: "100%",
 	border: false,
 	shadow: true,
@@ -1076,7 +1074,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
  */ 
 Ext.define("Beet.apps.ProductsViewPort.AddRebate", {
 	extend: "Ext.form.Panel",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	width: "100%",
 	autoHeight: true,
 	autoScroll: true,
@@ -1264,7 +1262,7 @@ Ext.define("Beet.apps.ProductsViewPort.RebateList", {
 	extend: "Ext.panel.Panel",	
 	autoHeight: true,
 	autoScroll: true,
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	width: "100%",
 	frame: true,
 	border: false,
@@ -1888,7 +1886,7 @@ function createChargeCategoryTree(){
 
 Ext.define("Beet.apps.ProductsViewPort.AddCharge", {
 	extend: "Ext.form.Panel",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	width: "100%",
 	autoHeight: true,
 	autoScroll:true,
@@ -2156,7 +2154,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddCharge", {
 
 Ext.define("Beet.apps.ProductsViewPort.UpdateCharge", {
 	extend: "Ext.panel.Panel",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	width: "100%",
 	border: false,
 	plain: true,
@@ -2172,7 +2170,7 @@ Ext.define("Beet.apps.ProductsViewPort.ChargeList", {
 	extend: "Ext.panel.Panel",
 	autoHeight: true,
 	autoScroll: true,
-	height: Beet.constants.VIEWPORT_HEIGHT,
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	width: "100%",
 	frame: true,
 	border: false,
@@ -2821,7 +2819,7 @@ function createItemCategoryTree(){
 
 Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 	extend: "Ext.form.Panel",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	width: "100%",
 	autoWidth: true,
 	autoHeight: true,
@@ -3598,7 +3596,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 
 Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 	extend: "Ext.panel.Panel",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	width: "100%",
 	autoHeight: true,
 	autoScroll:true,
@@ -4845,7 +4843,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 
 Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 	extend: "Ext.form.Panel",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	width: "100%",
 	autoHeight: true,
 	autoScroll:true,
@@ -5435,7 +5433,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 
 Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 	extend: "Ext.panel.Panel",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	width: "100%",
 	autoHeight: true,
 	autoScroll:true,
@@ -6355,7 +6353,7 @@ Ext.define("Beet.apps.ProductsViewPort.InterestsList", {
 	autoHeight: true,
 	autoScroll: true,
 	autoDestory: true,
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	width: "100%",
 	frame: true,
 	border: false,
@@ -6750,7 +6748,7 @@ Ext.define("Beet.apps.ProductsViewPort.InterestsList", {
 
 Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 	extend: "Ext.form.Panel",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	width: "100%",
 	autoHeight: true,
 	autoScroll:true,
@@ -7633,7 +7631,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 
 Ext.define("Beet.apps.ProductsViewPort.CardList", {
 	extend: "Ext.form.Panel",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	width: "100%",
 	autoHeight: true,
 	autoScroll:true,

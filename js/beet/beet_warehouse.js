@@ -1088,10 +1088,8 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 	extend: "Ext.panel.Panel",
 	autoHeight: true,
 	autoScroll: true,
-	height: Beet.constants.VIEWPORT_HEIGHT,
-	width: Beet.constants.WORKSPACE_WIDTH,
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	frame: true,
-	height: "100%",
 	width: "100%",
 	border: false,
 	shadow: true,
@@ -1379,6 +1377,7 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 								me.storeProxy.loadPage(me.storeProxy.currentPage);
 							}
 						}));
+						win.doLayout();
 						win.show();
 					},
 					hidden: me.b_type == "selection" 
@@ -1526,10 +1525,8 @@ Ext.define("Beet.apps.WarehouseViewPort.stockHistory", {
 	extend: "Ext.panel.Panel",
 	autoHeight: true,
 	autoScroll: true,
-	height: Beet.constants.VIEWPORT_HEIGHT,
-	width: Beet.constants.WORKSPACE_WIDTH,
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	frame: true,
-	height: "100%",
 	width: "100%",
 	border: false,
 	shadow: true,

@@ -194,7 +194,7 @@ registerBeetAppsMenu("customer",
 Ext.define("Beet.apps.Viewport.AddUser", {
 	extend: "Ext.panel.Panel",
 	layout: "anchor",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	width: "100%",
 	autoScroll: true,
 	autoHeight: true,
@@ -743,7 +743,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 	extend: "Ext.panel.Panel",
 	layout: "fit",
 	width: "100%",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	bodyBorder: false,
 	autoHeight: true,
 	autoScroll: true,
@@ -898,7 +898,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 			autoScroll: true,
 			autoHeight: true,
 			height: "100%",
-			width : Beet.constants.WORKSPACE_WIDTH,
+			width : "100%",
 			border: 0,
 			columnLines: true,
 			viewConfig: {
@@ -1021,7 +1021,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 Ext.define("Beet.apps.Viewport.SendMessages", {
 	extend: "Ext.panel.Panel",
 	layout: "anchor",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5, 
 	width: "100%",
 	defaults:{
 		border: 0
@@ -1164,7 +1164,7 @@ Ext.define("Beet.apps.Viewport.SMSHistory", {
 Ext.define("Beet.apps.Viewport.VIPActivity", {
 	extend: "Ext.panel.Panel",
 	layout: "anchor",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	width: "100%",
 	autoHeight: true,
 	defaults:{
@@ -1490,7 +1490,7 @@ Ext.define("Beet.apps.Viewport.ActivityList.Store", {
 Ext.define("Beet.apps.Viewport.ActivityList", {
 	extend: "Ext.panel.Panel",
 	frame: true,
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	width: "100%",
 	autoHeight: true,
 	autoScroll: true,
@@ -1780,7 +1780,7 @@ Ext.define("Beet.apps.Viewport.ActivityList", {
 
 Ext.define("Beet.apps.AddCustomerCard", {
 	extend: "Ext.form.Panel",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	width: "100%",
 	autoHeight: true,
 	autoScroll:true,

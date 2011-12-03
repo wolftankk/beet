@@ -86,7 +86,8 @@ registerBeetAppsMenu("employee",
 Ext.define("Beet.apps.Viewport.AddEmployee", {
 	extend: "Ext.panel.Panel",
 	layout: "anchor",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
+	width : "100%",
 	defaults: {
 		border: 0
 	},
@@ -420,7 +421,7 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 	extend: "Ext.panel.Panel",
 	layout: "fit",
 	width: "100%",
-	height: "100%",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	bodyBorder: false,
 	autoHeight: true,
 	minHeight: 400,
