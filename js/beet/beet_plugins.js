@@ -1886,6 +1886,7 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 		var basicformConfig = {
 			autoHeight: true,
 			autoScroll: true,
+			width: "100%",
 			border: false,
 			collapsible: true,
 			title: "会员基本资料",
