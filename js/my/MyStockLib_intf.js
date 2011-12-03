@@ -769,6 +769,42 @@ MyStockSvc.prototype.GetStockPageData = function(Start, Limit, AWhere, __callbac
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
+MyStockSvc.prototype.GetStockHistoryPageData = function(Start, Limit, AWhere, __callback) {
+  var __message = {
+    "method" : "MyStockSvc.GetStockHistoryPageData",
+    "params" : {
+      "Start": Start,
+      "Limit": Limit,
+      "AWhere": AWhere
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
 MyStockSvc.prototype.InStock = function(InStockJSON, __callback) {
   var __message = {
     "method" : "MyStockSvc.InStock",
@@ -842,6 +878,40 @@ MyStockSvc.prototype.OutStock = function(OutStockJSON, __callback) {
     "method" : "MyStockSvc.OutStock",
     "params" : {
       "OutStockJSON": OutStockJSON
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyStockSvc.prototype.EndOutStock = function(EndOutStockJSON, __callback) {
+  var __message = {
+    "method" : "MyStockSvc.EndOutStock",
+    "params" : {
+      "EndOutStockJSON": EndOutStockJSON
       }
   }
   var __callbacks = null;
