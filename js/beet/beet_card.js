@@ -7656,6 +7656,8 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		}
 		me.callParent();	
 		me.getCardMetaData();
+
+		me.queue = new Beet_Queue("cardList");
 		//me.createCardPanel();
 	},
 	getCardMetaData: function(){
@@ -7922,69 +7924,64 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 				wait: true,
 				waitConfig: {interval: 800},
 				closable: false
-			})
-			setTimeout(function(){
+			});
+
+			me.queue.Add("getcarddetail", "initInterspanel,initChargepanel,initRebatespanel,initPackagepanel", function(){
 				cardServer.GetCardDetailData(record.get("ID"), {
 					success: function(data){
 						var data = Ext.JSON.decode(data);
 						me.onSelectItem(record, data);
+						me.queue.triggle("getcarddetail", "success");
 					},
 					failure: function(error){
 						Ext.MessageBox.hide();
 						Ext.Error.raise(error);
 					}
 				})
-			}, 2000);
-			setTimeout(function(){
+			});
+			me.queue.Add("processBar", "getcarddetail", function(){
 				Ext.MessageBox.hide();
-			}, 8000);
+			})
 		}else{
-			Ext.MessageBox.show({
-				title: "编辑卡项",
-				msg: "你确定需要编辑 " + record.get("Name") + " 吗?",
-				buttons: Ext.MessageBox.YESNO,
-				fn: function(btn){
-					if (btn == "yes"){
-						var win = Ext.create("Ext.window.Window", {
-							height: 670,
-							width: 1100,
-							maximized: true,
-							autoScroll: true,
-							autoHeight: true,
-							autoDestory: true,
-							plain: true,
-							title: "编辑 " + record.get("Name"),
-							border: false
-						});
+			var win = Ext.create("Ext.window.Window", {
+				height: 670,
+				width: 1100,
+				maximized: true,
+				autoScroll: true,
+				autoHeight: true,
+				autoDestory: true,
+				plain: true,
+				title: "编辑 " + record.get("Name"),
+				border: false
+			});
 
-						me.cardInfo = win;
-						win.show();
-						me.createCardPanel();
-						Ext.MessageBox.show({
-							msg: "正在载入卡项数据...",
-							progressText: "载入中...",
-							width: 300,
-							wait: true,
-							waitConfig: {interval: 800},
-							closable: false
-						})
-						setTimeout(function(){
-							cardServer.GetCardDetailData(record.get("ID"), {
-								success: function(data){
-									var data = Ext.JSON.decode(data);
-									me.onSelectItem(record, data);
-								},
-								failure: function(error){
-									Ext.MessageBox.hide();
-									Ext.Error.raise(error);
-								}
-							})
-						}, 2000);
-						setTimeout(function(){
-							Ext.MessageBox.hide();
-						}, 8000);
+			me.cardInfo = win;
+			win.show();
+			me.createCardPanel();
+			Ext.MessageBox.show({
+				msg: "正在载入卡项数据...",
+				progressText: "载入中...",
+				width: 300,
+				wait: true,
+				waitConfig: {interval: 1000, increment: 3 },
+				closable: false
+			})
+			me.queue.Add("getcarddetail", "initInterspanel,initChargepanel,initRebatespanel,initPackagepanel", function(){
+				cardServer.GetCardDetailData(record.get("ID"), {
+					success: function(data){
+						var data = Ext.JSON.decode(data);
+						me.onSelectItem(record, data);
+						me.queue.triggle("getcarddetail", "success");
+					},
+					failure: function(error){
+						Ext.MessageBox.hide();
+						Ext.Error.raise(error);
 					}
-				}
+				})
+			});
+			
+			me.queue.Add("processBar", "getcarddetail", function(){
+				Ext.MessageBox.hide();
 			})
 		}
 	},
@@ -8180,10 +8177,18 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		me.cardInfo.doLayout();
 
 		//update panel
-		me.initializeInterestsPanel();
-		me.initializeChargeTypePanel();
-		me.initializeRebatesPanel();
-		me.initializePackagePanel();
+		me.queue.Add("initInterspanel", function(){
+			me.initializeInterestsPanel();
+		});
+		me.queue.Add("initChargepanel", function(){
+			me.initializeChargeTypePanel();
+		});
+		me.queue.Add("initRebatespanel", function(){
+			me.initializeRebatesPanel();
+		});
+		me.queue.Add("initPackagepanel", function(){
+			me.initializePackagePanel();
+		});
 	},
 	initializeInterestsPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -8249,6 +8254,8 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 
 		me.interestsPanel.add(grid);
 		me.interestsPanel.doLayout();
+
+		me.queue.triggle("initInterspanel", "success");
 	},
 	selectInterest: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -8396,6 +8403,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 
 		me.chargeTypesPanel.add(grid);
 		me.chargeTypesPanel.doLayout();
+		me.queue.triggle("initChargepanel", "success");
 	},
 	selectChargeType: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -8539,6 +8547,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 
 		me.rebatesPanel.add(grid);
 		me.rebatesPanel.doLayout();
+		me.queue.triggle("initRebatespanel", "success");
 	},
 	selectRebate: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -8686,6 +8695,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 
 		me.packagesPanel.add(grid);
 		me.packagesPanel.doLayout();
+		me.queue.triggle("initPackagepanel", "success");
 	},
 	selectPackage: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
