@@ -4879,7 +4879,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 
 Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 	extend: "Ext.form.Panel",
-	height: Beet.constants.VIEWPORT_HEIGHT - 5,
+	height: "100%",
 	width: "100%",
 	autoHeight: true,
 	autoScroll:true,
@@ -4901,7 +4901,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 		var me = this, cardServer = Beet.constants.cardServer;
 		var options = {
 			autoScroll: true,
-			height: 460,
+			height: 560,
 			cls: "iScroll",
 			border: true,
 			plain: true,
@@ -4932,106 +4932,83 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 			items: [
 				{
 					layout: {
-						type: "hbox",
-						align: "stretch"
+						type: 'vbox',
+						align: 'stretch'
 					},
-					height: 490,
-					autoHeight: true,
-					autoScroll: true,
-					border: false,
-					bodyStyle: "background-color: #dfe8f5",
-					defaults: {
-						bodyStyle: "background-color: #dfe8f5",
-						border: false
-					},
-					items:[
+					width: "100%",
+					height: "100%",
+					items: [
 						{
 							layout: {
-								type: 'vbox',
-								align: 'stretch'
+								type: "table",
+								columns: 2,
+								tableAttrs: {
+									cellspacing: 10,
+									style: {
+										width: "100%",
+									}
+								}
 							},
-							height: 480,
-							flex: 1,
+							border: false,
+							bodyStyle: "background-color: #dfe8f5",
+							bodyPadding: 5,
+							defaults: {
+								bodyStyle: "background-color: #dfe8f5",
+								width: 400,
+								listeners: {
+									scope: me,
+									blur: function(){
+										me.onUpdateForm();
+									}
+								}
+							},
+							defaultType: "textfield",
+							fieldDefaults: {
+								msgTarget: "side",
+								labelAlign: "top",
+								labelWidth: 60
+							},
 							items: [
 								{
-									layout: {
-										type: "table",
-										columns: 1,
-										tableAttrs: {
-											cellspacing: 10,
-											style: {
-												width: "100%",
-											}
+									fieldLabel: "名称",
+									allowBlank: false,
+									name: "name"
+								},
+								{
+									fieldLabel: "总价",
+									allowBlank: false,
+									name: "price"
+								},
+								{
+									fieldLabel: "折扣",
+									allowBlank: false,
+									value: 1,
+									name: "rate"
+								},
+								{
+									fieldLabel: "折扣总价",
+									allowBlank: false,
+									name: "realprice",
+									listeners: {
+										scope: me,
+										blur: function(){
+											me.onUpdateForm(true);
 										}
-									},
-									border: false,
-									bodyStyle: "background-color: #dfe8f5",
-									defaults: {
-										bodyStyle: "background-color: #dfe8f5",
-										width: 400,
-										listeners: {
-											scope: me,
-											blur: function(){
-												me.onUpdateForm();
-											}
-										}
-									},
-									defaultType: "textfield",
-									fieldDefaults: {
-										msgTarget: "side",
-										labelAlign: "top",
-										labelWidth: 60
-									},
-									items: [
-										{
-											fieldLabel: "名称",
-											allowBlank: false,
-											name: "name"
-										},
-										{
-											fieldLabel: "总价",
-											allowBlank: false,
-											name: "price"
-										},
-										{
-											fieldLabel: "折扣",
-											allowBlank: false,
-											value: 1,
-											name: "rate"
-										},
-										{
-											fieldLabel: "折扣总价",
-											allowBlank: false,
-											name: "realprice",
-											listeners: {
-												scope: me,
-												blur: function(){
-													me.onUpdateForm(true);
-												}
-											}
-										},
-										{
-											fieldLabel: "注释",
-											xtype: "textarea",
-											height: 230,
-											allowBlank: true,
-											name: "descript"
-										},
-									]
-								}
+									}
+								},
+								{
+									fieldLabel: "注释",
+									xtype: "textarea",
+									height: 100,
+									width: 885,
+									colspan: 2,
+									cols: 2,
+									allowBlank: true,
+									name: "descript"
+								},
 							]
 						},
-						me.itemsPanel,
-						//{
-						//	layout: {
-						//		type: 'vbox',
-						//		align: 'stretch'
-						//	},
-						//	flex: 2,
-						//	height: 500,
-						//	items: [
-						//	]
-						//}
+						me.itemsPanel
 					]
 				}
 			],
@@ -5119,7 +5096,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 
 			var grid = me.itemsPanel.grid = Ext.create("Ext.grid.Panel", {
 				store: store,
-				height: 215,
+				height: 315,
 				cls: "iScroll",
 				autoScroll: true,
 				columnLines: true,
