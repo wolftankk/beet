@@ -165,12 +165,13 @@ registerBeetAppsMenu("configure",
 								}
 							}
 						},
+						*/
 						{
-							text: "编辑套餐",
+							text: "套餐设置",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["packageList"]
 								if (!item){
-									Beet.workspace.addPanel("packageList", "编辑套餐", {
+									Beet.workspace.addPanel("packageList", "套餐设置", {
 										items: [
 											Ext.create("Beet.apps.ProductsViewPort.PackageList")
 										]
@@ -180,7 +181,6 @@ registerBeetAppsMenu("configure",
 								}
 							}
 						},
-						*/
 					]
 				}
 			]
