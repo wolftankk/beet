@@ -6383,7 +6383,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 			chargesCount : 0,
 			rebatesCount: 0,
 			packagesCount : 0,
-			itemCount: 0,
+			itemsCount: 0,
 			productsCount: 0
 		}
 		me.callParent();	
@@ -6919,10 +6919,16 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 		var grid = me.chargeTypesPanel.grid, store = grid.getStore();
 		var __fields = me.chargeTypesPanel.__fields;
 		var tmp = []
+		me.count.chargesCount = 0;
 		for (var c in selectedChargeType){
+			var charge = selectedChargeType[c];
+			if (!!charge[2]){
+				me.count.chargesCount = charge[2].replaceAll(",", "") * charge[4];
+			}
 			tmp.push(selectedChargeType[c]);
 		}
 		store.loadData(tmp);
+		me.onUpdate()
 	},
 	initializeRebatesPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -7065,9 +7071,15 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 		var grid = me.rebatesPanel.grid, store = grid.getStore();
 		var __fields = me.rebatesPanel.__fields;
 		var tmp = []
+		me.count.rebatesCount = 0;
 		for (var c in selectedRebates){
+			var rebate = selectedRebates[c];
+			if (!!rebate[2]){
+				me.count.rebatesCount += rebate[2].replaceAll(",", "") * 1;
+			}
 			tmp.push(selectedRebates[c]);
 		}
+		me.onUpdate();
 		store.loadData(tmp);
 	},
 
@@ -7212,10 +7224,16 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 		var grid = me.packagesPanel.grid, store = grid.getStore();
 		var __fields = me.packagesPanel.__fields;
 		var tmp = []
+		me.count.packagesCount = 0;
 		for (var c in selectedPackages){
+			var package = selectedPackages[c];
+			if (!!package[3]){
+				me.count.packagesCount += package[3].replaceAll(",", "") * 1;
+			}
 			tmp.push(selectedPackages[c]);
 		}
 		store.loadData(tmp);
+		me.onUpdate();
 	},
 	initializeItemsPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -7359,9 +7377,15 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 		var me = this, selectedItems = me.selectedItems;
 		var grid = me.itemsPanel.grid, store = grid.getStore();
 		var tmp = []
+		me.count.itemsCount = 0;
 		for (var c in selectedItems){
+			var item = selectedItems[c];
+			if (!!item[5]){
+				me.count.itemsCount += item[5].replaceAll(",", "") * 1;
+			}
 			tmp.push(selectedItems[c]);
 		}
+		me.onUpdate();
 		store.loadData(tmp);
 	},
 	initializeProductsPanel: function(){
@@ -7506,12 +7530,26 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 		var me = this, selectedProducts = me.selectedProducts;
 		var grid = me.productsPanel.grid, store = grid.getStore();
 		var tmp = []
+		me.count.productsCount = 0;
 		for (var c in selectedProducts){
+			var product = selectedProducts[c];
+			if (!!product[4]){
+				me.count.productsCount += product[4].replaceAll(",", "") * 1;
+			}
 			tmp.push(selectedProducts[c]);
 		}
+		me.onUpdate();
 		store.loadData(tmp);
 	},
-
+	onUpdate: function(){
+		var me = this, count = 0, f = me.form.getForm();
+		for (var k in me.count){
+			count += me.count[k];
+		}
+		f.setValues({
+			"par" : count		
+		})
+	},
 	resetAll: function(){
 		var me = this;
 
@@ -8129,7 +8167,15 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 											name: "name"
 										},
 										{
-											fieldLabel: "面值金额",
+											fieldLabel: "面值原始金额",
+											allowBlank: false,
+											editable: false,
+											readOnly: true,
+											disabled: true,
+											name: "oldpar"
+										},
+										{
+											fieldLabel: "面值修改金额",
 											allowBlank: false,
 											name: "par"
 										},
@@ -8165,6 +8211,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 											xtype: "button",
 											scale: "large",
 											width: 200,
+											margin: "0 0 0 200",
 											text: "更新",
 											hidden: me.b_type == "selection",
 											handler: function(){
@@ -8361,7 +8408,6 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		}
 		store.loadData(tmp);
 	},
-
 	initializeChargeTypePanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
 		if (me.chargeTypesPanel.__columns && me.chargeTypesPanel.__columns.length > 0){
@@ -8501,10 +8547,17 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		var grid = me.chargeTypesPanel.grid, store = grid.getStore();
 		var __fields = me.chargeTypesPanel.__fields;
 		var tmp = []
+		me.count.chargesCount = 0;
 		for (var c in selectedChargeType){
+			var charge = selectedChargeType[c];
+			if (!!charge[2]){
+				me.count.chargesCount = charge[2].replaceAll(",", "") * charge[4];
+			}
+			
 			tmp.push(selectedChargeType[c]);
 		}
 		store.loadData(tmp);
+		me.onUpdate();
 	},
 	initializeRebatesPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -8647,11 +8700,18 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		var me = this, selectedRebates = me.selectedRebates;
 		var grid = me.rebatesPanel.grid, store = grid.getStore();
 		var __fields = me.rebatesPanel.__fields;
-		var tmp = []
+		var tmp = [];
+		me.count.rebatesCount = 0;
 		for (var c in selectedRebates){
+			var rebate = selectedRebates[c];
+			if (!!rebate[2]){
+				me.count.rebatesCount += rebate[2].replaceAll(",", "") * 1;
+			}
+			
 			tmp.push(selectedRebates[c]);
 		}
 		store.loadData(tmp);
+		me.onUpdate();
 	},
 
 	initializePackagePanel: function(){
@@ -8796,10 +8856,17 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		var grid = me.packagesPanel.grid, store = grid.getStore();
 		var __fields = me.packagesPanel.__fields;
 		var tmp = []
+		me.count.packagesCount = 0;
 		for (var c in selectedPackages){
+			var package = selectedPackages[c];
+			if (!!package[3]){
+				me.count.packagesCount += package[3].replaceAll(",", "") * 1;
+			}
+			
 			tmp.push(selectedPackages[c]);
 		}
 		store.loadData(tmp);
+		me.onUpdate();
 	},
 	initializeItemsPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -8944,10 +9011,17 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		var me = this, selectedItems = me.selectedItems;
 		var grid = me.itemsPanel.grid, store = grid.getStore();
 		var tmp = []
+		me.count.itemsCount = 0;
 		for (var c in selectedItems){
+			var item = selectedItems[c];
+			if (!!item[5]){
+				me.count.itemsCount += item[5].replaceAll(",", "") * 1;
+			}
+			
 			tmp.push(selectedItems[c]);
 		}
 		store.loadData(tmp);
+		me.onUpdate();
 	},
 	initializeProductsPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -9092,10 +9166,26 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		var me = this, selectedProducts = me.selectedProducts;
 		var grid = me.productsPanel.grid, store = grid.getStore();
 		var tmp = []
+		me.count.productsCount = 0;
 		for (var c in selectedProducts){
+			var product = selectedProducts[c];
+			if (!!product[4]){
+				me.count.productsCount += product[4].replaceAll(",", "") * 1;
+			}
+			
 			tmp.push(selectedProducts[c]);
 		}
 		store.loadData(tmp);
+		me.onUpdate();
+	},
+	onUpdate: function(){
+		var me = this, count = 0, f = me.cardInfo.form.getForm();
+		for (var k in me.count){
+			count += me.count[k];
+		}
+		f.setValues({
+			"par" : count		
+		})
 	},
 	onSelectItem: function(record, detailData){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -9106,7 +9196,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		var form = me.cardInfo.form.getForm();
 		form.setValues({
 			name: record.get("Name"),
-			par: record.get("Par").replace(/,/g, ""),
+			oldpar: record.get("Par").replace(/,/g, ""),
 			insure: record.get("Insure").replace(/,/g, ""),
 			validdate: record.get("ValidDate"),
 			validunit: parseInt(record.get("ValidUnit")),
@@ -9120,24 +9210,30 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 			items = detailData["items"],
 			products = detailData["products"];
 
-		if (charges && charges.length > 0){
-			var sql = [];
-			for (var c = 0; c < charges.length; ++c){
-				sql.push("cid=" + charges[c]);
+		me.queue.Add("updatecharges", function(){
+			if (charges && charges.length > 0){
+				var sql = [];
+				for (var c = 0; c < charges.length; ++c){
+					sql.push("cid=" + charges[c]);
+				}
+				var s = sql.join(" OR ");
+				if (s.length > 0){
+					cardServer.GetChargeTypePageData(1, charges.length, s, {
+						success: function(data){
+							var data = Ext.JSON.decode(data)["Data"];
+							me.addChargeType(data, true);
+							me.queue.triggle("updatecharges", "success");
+						},
+						failure: function(error){
+							Ext.Error.raise(error);
+						}
+					})
+				}
+			}else{
+				me.queue.triggle("updatecharges", "success");
 			}
-			var s = sql.join(" OR ");
-			if (s.length > 0){
-				cardServer.GetChargeTypePageData(1, charges.length, s, {
-					success: function(data){
-						var data = Ext.JSON.decode(data)["Data"];
-						me.addChargeType(data, true);
-					},
-					failure: function(error){
-						Ext.Error.raise(error);
-					}
-				})
-			}
-		}
+		});
+
 		if (interests && interests.length > 0){
 			var sql = [];
 			for (var c = 0; c < interests.length; ++c){
@@ -9156,80 +9252,111 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 				})
 			}
 		}
-		if (rebates && rebates.length > 0){
-			var sql = [];
-			for (var c = 0; c < rebates.length; ++c){
-				sql.push("rid=" + rebates[c]);
-			}
-			var s = sql.join(" OR ");
-			if (s.length > 0){
-				cardServer.GetRebatePageData(1, rebates.length, s, {
-					success: function(data){
-						var data = Ext.JSON.decode(data)["Data"];
-						me.addRebate(data, true);
-					},
-					failure: function(error){
-						Ext.Error.raise(error);
-					}
-				})
-			}
-		}
-		if (packages && packages.length > 0){
-			var sql = [];
-			for (var c = 0; c < packages.length; ++c){
-				sql.push("id=" + packages[c]);
-			}
-			var s = sql.join(" OR ");
-			if (s.length > 0){
-				cardServer.GetPackagesPageDataToJSON(1, packages.length, s, {
-					success: function(data){
-						var data = Ext.JSON.decode(data)["Data"];
-						me.addPackage(data, true);
-					},
-					failure: function(error){
-						Ext.Error.raise(error);
-					}
-				})
-			}
-		}
 
-		if (items && items.length > 0){
-			var sql = [];
-			for (var c = 0; c < items.length; ++c){
-				sql.push("id=" + items[c]);
+		me.queue.Add("updaterebates", function(){
+			if (rebates && rebates.length > 0){
+				var sql = [];
+				for (var c = 0; c < rebates.length; ++c){
+					sql.push("rid=" + rebates[c]);
+				}
+				var s = sql.join(" OR ");
+				if (s.length > 0){
+					cardServer.GetRebatePageData(1, rebates.length, s, {
+						success: function(data){
+							var data = Ext.JSON.decode(data)["Data"];
+							me.addRebate(data, true);
+							me.queue.triggle("updaterebates", "success");
+						},
+						failure: function(error){
+							Ext.Error.raise(error);
+						}
+					})
+				}
+			}else{
+				me.queue.triggle("updaterebates", "success");
 			}
-			var s = sql.join(" OR ");
-			if (s.length > 0){
-				cardServer.GetItemPageData(1, items.length, s, {
-					success: function(data){
-						var data = Ext.JSON.decode(data)["Data"];
-						me.addItems(data, true);
-					},
-					failure: function(error){
-						Ext.Error.raise(error);
-					}
-				})
-			}
-		}
+		});
 
-		if (products && products.length > 0){
-			var sql = [];
-			for (var c = 0; c < products.length; ++c){
-				sql.push("id=" + products[c]);
+		me.queue.Add("updatepackages", function(){
+			if (packages && packages.length > 0){
+				var sql = [];
+				for (var c = 0; c < packages.length; ++c){
+					sql.push("id=" + packages[c]);
+				}
+				var s = sql.join(" OR ");
+				if (s.length > 0){
+					cardServer.GetPackagesPageDataToJSON(1, packages.length, s, {
+						success: function(data){
+							var data = Ext.JSON.decode(data)["Data"];
+							me.addPackage(data, true);
+							me.queue.triggle("updatepackages", "success");
+						},
+						failure: function(error){
+							Ext.Error.raise(error);
+						}
+					})
+				}
+			}else{
+				me.queue.triggle("updatepackages", "success");
 			}
-			var s = sql.join(" OR ");
-			if (s.length > 0){
-				cardServer.GetProductPageData(1, products.length, s, {
-					success: function(data){
-						var data = Ext.JSON.decode(data)["Data"];
-						me.addProducts(data, true);
-					},
-					failure: function(error){
-						Ext.Error.raise(error);
-					}
-				})
+		})
+
+		me.queue.Add("updateitems", function(){
+			if (items && items.length > 0){
+				var sql = [];
+				for (var c = 0; c < items.length; ++c){
+					sql.push("id=" + items[c]);
+				}
+				var s = sql.join(" OR ");
+				if (s.length > 0){
+					cardServer.GetItemPageData(1, items.length, s, {
+						success: function(data){
+							var data = Ext.JSON.decode(data)["Data"];
+							me.addItems(data, true);
+							me.queue.triggle("updateitems", "success");
+						},
+						failure: function(error){
+							Ext.Error.raise(error);
+						}
+					})
+				}
+			}else{
+				me.queue.triggle("updateitems", "success");
 			}
-		}
+		})
+
+		me.queue.Add("updateproducts", function(){
+			if (products && products.length > 0){
+				var sql = [];
+				for (var c = 0; c < products.length; ++c){
+					sql.push("id=" + products[c]);
+				}
+				var s = sql.join(" OR ");
+				if (s.length > 0){
+					cardServer.GetProductPageData(1, products.length, s, {
+						success: function(data){
+							var data = Ext.JSON.decode(data)["Data"];
+							me.addProducts(data, true);
+							me.queue.triggle("updateproducts", "success");
+						},
+						failure: function(error){
+							Ext.Error.raise(error);
+						}
+					})
+				}
+			}else{
+				me.queue.triggle("updateproducts", "success");
+			}
+		});
+
+		me.queue.Add("resetpar", "updatecharges,updateproducts,updaterebates,updateitems,updatepackages", function(){
+			setTimeout(function(){
+				form.setValues({
+					par: record.get("Par").replace(/,/g, ""),
+				});
+				me.queue.triggle("updatepar", "success");
+			}, 500);
+		})
 	},
 	resetAll: function(){
 		var me = this;
