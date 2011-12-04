@@ -4590,33 +4590,24 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 						type: "hbox",
 						align: "stretch"
 					},
+					width: "100%",
 					height: 550,
 					autoHeight: true,
 					autoScroll: true,
 					border: false,
-					bodyStyle: "background-color: #dfe8f5",
 					defaults: {
-						bodyStyle: "background-color: #dfe8f5",
 						border: false
 					},
 					items:[
+						me.itemList.grid,
 						{
 							layout: {
 								type: 'vbox',
 								align: 'stretch'
 							},
-							height: 550,
+							//collapsible: true,
+							//collapseDirection: "right",
 							flex: 1,
-							items: [
-								me.itemList.grid
-							]
-						},
-						{
-							layout: {
-								type: 'vbox',
-								align: 'stretch'
-							},
-							flex: 2,
 							height: 550,
 							items: [
 								me.productsPanel,
@@ -4655,7 +4646,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 		}
 		var columns = me.productsPanel.__columns = [];
 
-		cardServer.GetItemProductData(0, 1, "", {
+		cardServer.GetItemProductData(1,{
 			success: function(data){
 				var data = Ext.JSON.decode(data)["MetaData"];
 				var fields = me.productsPanel.__fields = [];
@@ -5174,14 +5165,15 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 		var grid = me.itemsPanel.grid, store = grid.getStore();
 		var tmp = []
 		var count = 0;
+		console.log(me.selectedItems)
 		for (var c in selectedItems){
-			count = count + parseFloat(selectedItems[c][0].replace(",", ""));
+			count = count + parseFloat(selectedItems[c][5].replace(",", ""));
 			tmp.push(selectedItems[c]);
 		}
 		store.loadData(tmp);
 		//update
 		me.count.itemsCount = count;
-		me.form.getForm().setValues({"price" : (me.count.itemsCount + me.count.chargesCount)});
+		me.form.getForm().setValues({"price" : (me.count.itemsCount)});
 		me.onUpdateForm();
 	},
 	resetAll: function(){
