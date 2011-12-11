@@ -630,7 +630,7 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 		me.doLayout();
 
 		if (me.b_type == "selection"){
-			console.log(me.add(Ext.widget("button", {
+			me.add(Ext.widget("button", {
 				text: "确定",
 				floating: false,
 				style: {
@@ -642,10 +642,9 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 						me.b_selectionCallback(me.grid.selModel.getSelection());
 					}
 				}
-			})))
+			}));
 			me.doLayout();
 		}
-
 	},
 	filterEmployee: function(){
 		var me = this;
