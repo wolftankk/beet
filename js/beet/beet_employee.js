@@ -585,11 +585,42 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 				displayInfo: true,
 				displayMsg: '当前显示 {0} - {1} 到 {2}',
 				emptyMsg: "没有数据"
-			})
+			}),
+			tbar: [
+				"-",
+				{
+					xtype: "button",
+					text: "高级搜索",
+					handler: function(){
+						var employeeServer = Beet.constants.employeeServer;
+						employeeServer.GetEmployeeData(0, 1, "", true, {
+							success: function(data){
+								var win = Ext.create("Beet.apps.AdvanceSearch", {
+									searchData: Ext.JSON.decode(data),
+									b_callback: function(where){
+										me.b_filter = where;
+										me.filterEmployee();
+									}
+								});
+								win.show();
+							},
+							failure: function(error){
+								Ext.Error.raise(error);
+							}
+						});
+					}
+				}
+			]
 		});
 
 		me.add(me.grid);
 		me.doLayout();
+	},
+	filterEmployee: function(){
+		var me = this;
+		me.storeProxy.setProxy(me.updateProxy());
+
+		me.storeProxy.loadPage(1);
 	},
 	editEmployeeFn: function(parentMenu){
 		var me = this, rawData = parentMenu.rawData || parentMenu.raw, guid = rawData.EM_UserID , EmName= rawData.EM_NAME, employeeServer = Beet.constants.employeeServer;
