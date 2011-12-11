@@ -47,30 +47,12 @@ registerBeetAppsMenu("employee",
 							tooltip:"编辑或者删除员工",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["employeeList"];
-								var employeeServer = Beet.constants.employeeServer;
 								if (!item){
-									employeeServer.GetEmployeeData(0, 1, "", true, {
-										success: function(data){
-											var win = Ext.create("Beet.apps.AdvanceSearch", {
-												searchData: Ext.JSON.decode(data),
-												b_callback: function(where){
-													Beet.apps.Viewport.getEmployeeColumnsData(function(){
-														Beet.workspace.addPanel("employeeList", "编辑员工", {
-															items: [
-																Ext.create("Beet.apps.Viewport.EmployeeList", {
-																	b_filter: where
-																})
-															]	
-														})
-													})
-												}
-											});
-											win.show();
-										},
-										failure: function(error){
-											Ext.Error.raise(error);
-										}
-									});
+									Beet.workspace.addPanel("employeeList", "编辑员工", {
+										items: [
+											Ext.create("Beet.apps.Viewport.EmployeeList")
+										]	
+									})
 								}else{
 									Beet.workspace.workspace.setActiveTab(item);
 								}
@@ -423,8 +405,6 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 	width: "100%",
 	bodyBorder: false,
 	autoHeight: true,
-	minHeight: 400,
-	minWidth: 800,
 	frame: true,
 	b_filter: "",
 	defaults:{
@@ -437,90 +417,101 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 		me.createBranchesList();
 
 		me.callParent(arguments);
-		me.buildStoreAndModel();
+		Beet.constants.employeeServer.GetEmployeeData(0, 1, "", true, {
+			success: function(data){
+				var data = Ext.JSON.decode(data);
+				me.buildStoreAndModel(data["MetaData"]);
+			},
+			failure: function(error){
+				Ext.Error.raise(error)
+			}
+		})
 	},
-	buildStoreAndModel: function(){
-		var me = this;
+	buildStoreAndModel: function(metaData){
+		var me = this, fields = [], columns = [];
+		me.columns = columns;
+		for (var c = 0; c < metaData.length; ++c){
+			var d = metaData[c];
+			if (d["FieldName"] == "EM_INDATE"){
+				fields.push({ 
+					name: "EM_INDATE", 
+					convert: function(value, record){
+						 var date = new Date(value * 1000);
+						 if (date){
+							 return Ext.Date.format(date, "Y/m/d");
+						 }
+					 }
+				});
+			}else{
+				fields.push(d["FieldName"]);
+			}
+			if (!d["FieldHidden"]) {
+				columns.push({
+					flex: 1,
+					header: d["FieldLabel"],
+					dataIndex: d["FieldName"]	
+				})
+			}
+		};
 		if (!Beet.apps.Viewport.EmployeeListModel){
 			Ext.define("Beet.apps.Viewport.EmployeeListModel", {
 				extend: "Ext.data.Model",
-				fields: [
-					"EM_UserId",
-					"EM_NAME",
-					"EM_DEP",
-					"EM_DEPNAME",
-					"EM_PID",
-					"EM_STOREID",
-					"EM_STORENAME",
-					"EM_EXT",
-					"EM_ADDR",
-					"EM_IM",
-					"EM_MOBILE",
-					"EM_PHONE",
-					"EM_BIRTHMONTH",
-					"EM_BIRTHDAY",
-					"EM_DESCRIPT",
-					{ name: "EM_INDATE", 
-					  convert: function(value, record){
-						var date = new Date(value * 1000);
-						if (date){
-							return Ext.Date.format(date, "Y/m/d");
-						}
-					  }
-					}
-				]
+				fields: fields
 			});
 		}
 
-		if (Beet.apps.Viewport.EmployeeListStore){
-			Beet.apps.Viewport.EmployeeListStore = undefined;
-		}
-		Ext.define("Beet.apps.Viewport.EmployeeListStore", {
-			extend: "Ext.data.Store",
-			model: Beet.apps.Viewport.EmployeeListModel,
-			autoLoad: true,
-			pageSize: Beet.constants.PageSize,
-			load: function(options){
-				var me = this;
-				options = options || {};
-				if (Ext.isFunction(options)) {
-					options = {
-						callback: options
-					};
-				}
+		if (!Ext.isDefined(Beet.apps.Viewport.EmployeeListStore)){
+			Ext.define("Beet.apps.Viewport.EmployeeListStore", {
+				extend: "Ext.data.Store",
+				model: Beet.apps.Viewport.EmployeeListModel,
+				autoLoad: true,
+				pageSize: Beet.constants.PageSize,
+				load: function(options){
+					var me = this;
+					options = options || {};
+					if (Ext.isFunction(options)) {
+						options = {
+							callback: options
+						};
+					}
 
-				Ext.applyIf(options, {
-					groupers: me.groupers.items,
-					page: me.currentPage,
-					start: (me.currentPage - 1) * me.pageSize,
-					limit: me.pageSize,
-					addRecords: false
-				});      
-				me.proxy.b_params["start"] = options["start"];
-				me.proxy.b_params["limit"] = options["limit"]
+					Ext.applyIf(options, {
+						groupers: me.groupers.items,
+						page: me.currentPage,
+						start: (me.currentPage - 1) * me.pageSize,
+						limit: me.pageSize,
+						addRecords: false
+					});      
+					me.proxy.b_params["start"] = options["start"];
+					me.proxy.b_params["limit"] = options["limit"]
 
-				return me.callParent([options]);
-			},
-			proxy: {
-				type: "b_proxy",
-				b_method: Beet.constants.employeeServer.GetEmployeeData,
-				startParma: "start",
-				limitParma: "limit",
-				b_params: {
-					"filter" : me.b_filter,
-					"b_onlySchema": false
+					return me.callParent([options]);
 				},
-				b_scope: Beet.constants.employeeServer,
-				reader: {
-					type: "json",
-					root: "Data",
-					totalProperty: "TotalCount"
-				}
-			}
-		});
+			});
+		};
 		
 		me.storeProxy = Ext.create("Beet.apps.Viewport.EmployeeListStore");
+		me.storeProxy.setProxy(me.updateProxy());
 		me.createEmployeeGrid();
+	},
+	updateProxy: function(){
+		var me = this, employeeServer = Beet.constants.employeeServer;
+		return {
+			type: "b_proxy",
+			b_method: Beet.constants.employeeServer.GetEmployeeData,
+			startParma: "start",
+			limitParma: "limit",
+			b_params: {
+				"filter" : me.b_filter,
+				"b_onlySchema": false
+			},
+			b_scope: Beet.constants.employeeServer,
+			reader: {
+				type: "json",
+				root: "Data",
+				totalProperty: "TotalCount"
+			}
+		}
 	},
 	createDeparentList: function(){
 		var me = this;
@@ -537,7 +528,7 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 		});
 	},
 	createEmployeeGrid: function(){
-		var me = this, grid = me.grid, store = me.storeProxy, actions, __columns=[], columnsData = Beet.cache.employeeColumns;
+		var me = this, grid = me.grid, store = me.storeProxy, actions;
 
 		var _actions = {
 			xtype: "actioncolumn",
@@ -568,31 +559,15 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 			} 
 		);
 
-		__columns.push(_actions);
-		for (var a in columnsData){
-			var item = columnsData[a];
-			if (!item["FieldHidden"]){
-				var column = {
-					flex: 1
-				}
-				for (var k in item){
-					if (k == "FieldLabel"){
-						column["header"] = item[k];
-					}else if(k == "FieldName"){
-						column["dataIndex"] = item[k];
-					}
-				}
+		me.columns.splice(0, 0, _actions);
 
-				__columns.push(column);
-			}
-		}
-
-		me.grid = Ext.create("Ext.grid.Panel", {
+		me.grid = Ext.create("Beet.plugins.LiveSearch", {
 			store: store,
 			lookMask: true,
 			frame: true,
 			width: "100%",
 			height: "100%",
+			cls: "iScroll",
 			collapsible: false,
 			rorder: false,
 			bodyBorder: 0,
@@ -604,7 +579,7 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 				trackOver: false,
 				stripeRows: true	
 			},
-			columns: __columns,
+			columns: me.columns,
 			bbar: Ext.create("Ext.PagingToolbar", {
 				store: store,
 				displayInfo: true,
