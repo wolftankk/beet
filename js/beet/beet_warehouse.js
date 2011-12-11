@@ -577,6 +577,9 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 })
 
 function updateGridRowBackgroundColor(grid, color, index){
+	if (color == "#ffe2e2"){
+		color = "#ff3232";
+	}
 	var view = grid.getView();
 	if (! view){ 
 		throw "updateGridRowBackgroundColor: Not fount view!"
