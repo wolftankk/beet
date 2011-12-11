@@ -119,7 +119,7 @@ Beet_Queue.prototype.getProcess = function(indexName){
 Beet_Queue.prototype.triggle = function(indexName, status, response){
 	var process = this.getProcess(indexName);
 	if (!!!process || process == undefined){
-		throw processName + " not found!";
+		throw indexName + " not found!";
 		return;
 	}
 	process.setStatus(status, response);

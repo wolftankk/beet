@@ -6683,6 +6683,11 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 											name: "name"
 										},
 										{
+											fieldLabel: "编码",
+											allowBlank: false,
+											name: "code"
+										},
+										{
 											fieldLabel: "面值金额",
 											allowBlank: false,
 											name: "par"
@@ -6691,6 +6696,12 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 											fieldLabel: "保值金额",
 											allowBlank: false,
 											name: "insure"
+										},
+										{
+											fieldLabel: "最大消费次数",
+											allowBlank: true,
+											value: 0,
+											name: "maxcount"
 										},
 										{
 											fieldLabel: "有效日期",
@@ -8295,6 +8306,11 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 											name: "name"
 										},
 										{
+											fieldLabel: "编码",
+											allowBlank: false,
+											name: "code"
+										},
+										{
 											fieldLabel: "面值原始金额",
 											allowBlank: false,
 											editable: false,
@@ -8311,6 +8327,12 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 											fieldLabel: "保值金额",
 											allowBlank: false,
 											name: "insure"
+										},
+										{
+											fieldLabel: "最大消费次数",
+											allowBlank: false,
+											name: "maxcount",
+											value: 0
 										},
 										{
 											fieldLabel: "有效日期",
@@ -9328,7 +9350,9 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 			insure: record.get("Insure").replace(/,/g, ""),
 			validdate: record.get("ValidDate"),
 			validunit: parseInt(record.get("ValidUnit")),
-			descript: record.get("Descript")
+			descript: record.get("Descript"),
+			code: record.get("Code"),
+			maxcount: record.get("MaxCount")
 		});
 		
 		var charges = detailData["charges"],
@@ -9482,7 +9506,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 				form.setValues({
 					par: record.get("Par").replace(/,/g, ""),
 				});
-				me.queue.triggle("updatepar", "success");
+				me.queue.triggle("resetpar", "success");
 			}, 500);
 		})
 	},
