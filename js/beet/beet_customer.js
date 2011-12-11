@@ -2075,7 +2075,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 											onTriggerClick: function(){
 												var win = Ext.create("Ext.window.Window", {
 													title: "选择专属顾问",
-													width: 650,
+													width: 750,
 													height: 550,
 													minHeight: 450,
 													autoDestroy: true,
@@ -2088,10 +2088,10 @@ Ext.define("Beet.apps.AddCustomerCard", {
 													maximizable: true,
 													border: 0,
 													bodyBorder: false,
-													//b_selectionMode: "SINGLE",
-														//_callback: Ext.bind(me.onSelectCustomer, me)
+													//_callback: Ext.bind(me.onSelectCustomer, me)
 												});
 												win.add(Ext.create("Beet.apps.Viewport.EmployeeList", {
+													b_type: "selection",
 													b_selectionMode: "SINGLE",
 													height: "100%",
 													width: "100%"	

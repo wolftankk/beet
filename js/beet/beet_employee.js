@@ -407,6 +407,8 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 	autoHeight: true,
 	frame: true,
 	b_filter: "",
+	b_selectionMode: "MULTI",
+	b_type: "list", 
 	defaults:{
 		border: 0
 	},
@@ -416,7 +418,8 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 		me.createDeparentList();
 		me.createBranchesList();
 
-		me.callParent(arguments);
+		me.callParent();
+		
 		Beet.constants.employeeServer.GetEmployeeData(0, 1, "", true, {
 			success: function(data){
 				var data = Ext.JSON.decode(data);
@@ -530,43 +533,53 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 	createEmployeeGrid: function(){
 		var me = this, grid = me.grid, store = me.storeProxy, actions;
 
-		var _actions = {
-			xtype: "actioncolumn",
-			widget: 50,
-			items: []
-		}
+		if (me.b_type == "list"){
+			var _actions = {
+				xtype: "actioncolumn",
+				widget: 20,
+				items: []
+			}
 
-		_actions.items.push(
-			"-","-","-", {
-				icon: './resources/themes/images/fam/user_edit.png',
-				tooltip: "编辑员工",
-				id: "employee_grid_edit",
+			_actions.items.push(
+				"-","-","-", {
+					icon: './resources/themes/images/fam/user_edit.png',
+					tooltip: "编辑员工",
+					id: "employee_grid_edit",
+					handler: function(grid, rowIndex, colIndex){
+						var d = me.storeProxy.getAt(rowIndex)
+						me.editEmployeeFn(d);
+					}
+				}, "-", "-"
+			);
+
+			_actions.items.push("-", {
+				icon: "./resources/themes/images/fam/delete.gif",	
+				tooltip: "删除员工",
+				id: "employee_grid_delete",
 				handler: function(grid, rowIndex, colIndex){
 					var d = me.storeProxy.getAt(rowIndex)
-					me.editEmployeeFn(d);
+					me.deleteEmployeeFn(d);
 				}
-			}, "-", "-"
-		);
+				} 
+			);
 
-		_actions.items.push("-", {
-			icon: "./resources/themes/images/fam/delete.gif",	
-			tooltip: "删除员工",
-			id: "employee_grid_delete",
-			handler: function(grid, rowIndex, colIndex){
-				var d = me.storeProxy.getAt(rowIndex)
-				me.deleteEmployeeFn(d);
-			}
-			} 
-		);
+			me.columns.splice(0, 0, _actions);
+		}
 
-		me.columns.splice(0, 0, _actions);
+		var sm;
+		if (me.b_type == "selection"){
+			sm = Ext.create("Ext.selection.CheckboxModel", {
+				mode: me.b_selectionMode ? me.b_selectionMode : "SINGLE"
+			});
+		}
 
 		me.grid = Ext.create("Beet.plugins.LiveSearch", {
 			store: store,
 			lookMask: true,
 			frame: true,
 			width: "100%",
-			height: "100%",
+			height: me.b_type == "list" ? "100%" : "95%",
+			selModel: sm,
 			cls: "iScroll",
 			collapsible: false,
 			rorder: false,
@@ -615,6 +628,24 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 
 		me.add(me.grid);
 		me.doLayout();
+
+		if (me.b_type == "selection"){
+			console.log(me.add(Ext.widget("button", {
+				text: "确定",
+				floating: false,
+				style: {
+					float: "right"
+				},
+				width: 100,
+				handler: function(){
+					if (me.b_selectionCallback){
+						me.b_selectionCallback(me.grid.selModel.getSelection());
+					}
+				}
+			})))
+			me.doLayout();
+		}
+
 	},
 	filterEmployee: function(){
 		var me = this;
