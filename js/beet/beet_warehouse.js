@@ -370,9 +370,14 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 						}
 
 
+
 						columns.push(c);
 					}
 				}
+				columns.push({
+					dataIndex: "_state",
+					header: "状态"	
+				})
 
 				me.initializeProductsGrid();
 			},
@@ -552,7 +557,7 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 					if (info["result"]){
 						updateGridRowBackgroundColor(grid, "#e2e2ff", info["index"]);
 					}else{
-						var rowIdx = updateGridRowBackgroundColor(grid, "#ffe2e2", info["index"]);
+						var rowIdx = updateGridRowBackgroundColor(grid, "#ffe2e2", info["index"], info["message"]);
 						str.push("第" + rowIdx + "行 :" + info["message"]);
 					}
 
@@ -576,7 +581,7 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 	}
 })
 
-function updateGridRowBackgroundColor(grid, color, index){
+function updateGridRowBackgroundColor(grid, color, index, msg){
 	if (color == "#ffe2e2"){
 		color = "#ff3232";
 	}
@@ -590,18 +595,34 @@ function updateGridRowBackgroundColor(grid, color, index){
 		throw "updateGridRowBackgroundColor: Nodes include node maybe 0"
 		return
 	}
+	grid.view.addListener({
+		itemupdate: function(record, index, f, opts){
+			f.className.replace("x-grid-row-alt", "");
+			f.style.backgroundColor = color;
+			if (f && f.nodeName == "TR") {
+				Ext.Array.each(f.childNodes, function(c){
+					if (c && c.nodeName == "TD") {
+						c.style.backgroundColor = color;	
+					}
+				})
+			}
+		}
+	});
+
 	for (var c = 0; c < nodes.length; ++c){
 		var node = nodes[c], 
 			record = view.getRecord(node),
 			recordIndex = record.get("index"),
 			rowIdx = grid.store.indexOf(record);
+		if (!!msg){
+			record.set("_state", msg);
+		}
 		if (recordIndex == index){
-			console.log(node)
 			node.className.replace("x-grid-row-alt", "");
 			node.style.backgroundColor = color;
-			if (node && node.nodeName == "TR"){
+			if (node && node.nodeName == "TR") {
 				Ext.Array.each(node.childNodes, function(c){
-					if (c && c.nodeName == "TD"){
+					if (c && c.nodeName == "TD") {
 						c.style.backgroundColor = color;	
 					}
 				})
@@ -901,6 +922,11 @@ Ext.define("Beet.apps.WarehouseViewPort.Exwarehouse", {
 					columns.push(r);
 				});
 
+				columns.push({
+					header: "状态",
+					dataIndex: "_state"	
+				})
+
 				me.initializeProductsGrid();
 			},
 			failure: function(error){
@@ -1072,7 +1098,7 @@ Ext.define("Beet.apps.WarehouseViewPort.Exwarehouse", {
 					if (info["result"]){
 						updateGridRowBackgroundColor(grid, "#e2e2ff", info["index"]);
 					}else{
-						var rowIdx = updateGridRowBackgroundColor(grid, "#ffe2e2", info["index"]);
+						var rowIdx = updateGridRowBackgroundColor(grid, "#ffe2e2", info["index"], info["message"]);
 						str.push("第" + rowIdx + "行 :" + info["message"]);
 					}
 
@@ -1181,6 +1207,12 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 				valueField: "attr",
 				allowBlank: false
 			}
+		});
+
+		me.columns.push({
+			dataIndex: "_state",
+			flex:1,
+			header: "状态"	
 		})
 		
 		if (!Ext.isDefined(Beet.apps.WarehouseViewPort.warehouseModel)){
@@ -1481,7 +1513,7 @@ Ext.define("Beet.apps.WarehouseViewPort.warehouseList", {
 												if (info["result"]){
 													updateGridRowBackgroundColor(grid, "#e2e2ff", info["index"]);
 												}else{
-													var rowIdx = updateGridRowBackgroundColor(grid, "#ffe2e2", info["index"]);
+													var rowIdx = updateGridRowBackgroundColor(grid, "#ffe2e2", info["index"], info["message"]);
 													str.push("第" + rowIdx + "行 :" + info["message"]);
 												}
 

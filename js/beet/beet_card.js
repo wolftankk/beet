@@ -3698,6 +3698,13 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 						})
 					}
 				}
+
+				columns.push({
+					dataIndex: "_state",
+					header: "状态",
+					flex: 1,
+					hidden: true
+				})
 				
 				if (!Beet.apps.ProductsViewPort.itemModel){
 					Ext.define("Beet.apps.ProductsViewPort.itemModel", {
@@ -3905,13 +3912,14 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 											grid.selModel.deselectAll();
 											grid.down("textfield[name=allupdates]").reset();
 											var str = [], pass = true;
+											
 											for (var c = 0; c < r.length; ++c){
 												var info = r[c];
 												//true
 												if (info["result"]){
 													updateGridRowBackgroundColor(grid, "#e2e2ff", info["index"]);
 												}else{
-													var rowIdx = updateGridRowBackgroundColor(grid, "#ffe2e2", info["index"]);
+													var rowIdx = updateGridRowBackgroundColor(grid, "#ffe2e2", info["index"], info["message"]);
 													str.push("第" + rowIdx + "行 :" + info["message"]);
 												}
 
@@ -3920,12 +3928,17 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 
 											if (pass){
 												Ext.MessageBox.alert("成功", "修改成功");
-												grid.store.loadPage(grid.store.currentPage);	
+												grid.store.loadPage(grid.store.currentPage);
 											}else{
 												Ext.MessageBox.show({
 													title: "错误",
 													msg: str.join("<br/>"),
 													buttons: Ext.MessageBox.OK	
+												})
+												Ext.Array.each(grid.columns, function(c){
+													if (c.dataIndex == "_state"){
+														c.show();	
+													}
 												})
 											}
 										},
@@ -4878,6 +4891,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 		var grid = me.chargeTypesPanel.grid = Ext.create("Ext.grid.Panel", {
 			store: store,
 			height: 239,
+			flex: 1,
 			cls: "iScroll",
 			autoScroll: true,
 			columnLines: true,
