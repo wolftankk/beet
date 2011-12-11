@@ -1901,7 +1901,8 @@ Ext.define("Beet.apps.AddCustomerCard", {
 											allowBlank: false
 										},
 										{
-											fieldLabel: "会员级别"
+											fieldLabel: "会员级别",
+											name: "level"
 										},
 										{
 											fieldLabel: "余额",
@@ -1971,7 +1972,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 										{
 											xtype: "button",
 											scale: "medium",
-											text: "增加",
+											text: "开卡",
 											handler: function(){
 												me.processData(this);
 											}
@@ -2141,9 +2142,20 @@ Ext.define("Beet.apps.AddCustomerCard", {
 						})
 					}
 				}
+				fields.push("raterate")
 				fields.push("startdate");
 				fields.push("enddate");
 				me.cardPanel.__columns = columns.concat([
+				{
+					header: "折上折",
+					dataIndex: "raterate",
+					flex: 1,
+					editor: {
+						xtype: "textfield",
+						type: "int",
+						allowBlank: false
+					}
+				},
 				{
 					header: "生效日期",
 					dataIndex: "startdate",
@@ -2192,7 +2204,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			columnLines: true,
 			columns: me.cardPanel.__columns,
 			plugins: [
-				Ext.create('Ext.grid.plugin.CellEditing', {
+				Ext.create('Ext.grid.plugin.RowEditing', {
 					clicksToEdit: 1
 				})
 			],
@@ -2259,6 +2271,34 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			}else{
 				selectedCards[cid] = [];
 			}
+
+			//auto computer
+			//console.log(rawData);
+			if (rawData["raterate"] == undefined){
+				rawData["raterate"] = 1;
+			}
+
+			if (rawData["startdate"] == undefined){
+				rawData["startdate"] = new Date();
+			}
+
+			if (rawData["enddate"] == undefined){
+				// 0 year 1 month 2 day
+				var d = 0;
+				switch (rawData["ValidUnit"]){
+					case 0:
+						d = rawData["ValidDate"] * 365 * 86400;
+						break;
+					case 1:
+						d = rawData["ValidDate"] * 30 * 86400;
+						break;
+					case 2:
+						d = rawData["ValidDate"] * 86400;
+						break;
+				}
+				rawData["enddate"] = new Date(+new Date() + d * 1000);
+			}
+
 			for (var c = 0; c < __fields.length; ++c){
 				var k = __fields[c];
 				selectedCards[cid].push(rawData[k]);
@@ -2285,7 +2325,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		for (var c in selectedCards){
 			tmp.push(selectedCards[c]);
 		}
-		
+
 		store.loadData(tmp);
 	},
 	processData: function(f, isUpdate){
@@ -2299,34 +2339,42 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			return;
 		}
 
+		if (!me.selectedEmpolyeeId){
+			Ext.MessageBox.alert("失败", "请选择顾问!");
+			return;
+		}
+
 		results["id"] = customerId;
+		results["emid"] = me.selectedEmpolyeeId;
 
 		//check 
-		//var cards = [];
-		//cardStore = me.cardPanel.grid.getStore();
-		//for (var c = 0; c < cardStore.getCount(); ++c){
-		//	var data = cardStore.getAt(c);
-		//	var startdate = data.get("startdate"), enddate = data.get("enddate");
-		//	if (startdate && enddate){
-		//		startdate = +new Date(startdate) / 1000;
-		//		enddate = +new Date(enddate) / 1000;
-		//		if (startdate > enddate){
-		//			Ext.MessageBox.alert("失败","失效日期必须比生效日期大!")
-		//			return;
-		//		}else{
-		//			cards.push({
-		//				id: data.get("ID"),
-		//				startdate: startdate,
-		//				enddate: enddate	
-		//			})
-		//		}
-		//	}else{
-		//		Ext.MessageBox.alert("失败","生效日期与失效日期必须填写!")
-		//		return;
-		//	}
-		//}
-		//
-		//results["cards"] = cards;
+		var cards = [];
+		cardStore = me.cardPanel.grid.getStore();
+		for (var c = 0; c < cardStore.getCount(); ++c){
+			var data = cardStore.getAt(c);
+			var startdate = data.get("startdate"), enddate = data.get("enddate");
+			if (startdate && enddate){
+				startdate = +new Date(startdate) / 1000;
+				enddate = +new Date(enddate) / 1000;
+				if (startdate > enddate){
+					Ext.MessageBox.alert("失败","失效日期必须比生效日期大!")
+					return;
+				}else{
+					cards.push({
+						id: data.get("ID"),
+						startdate: startdate,
+						enddate: enddate,
+						rate: data.get("raterate")
+					})
+				}
+			}else{
+				Ext.MessageBox.alert("失败","生效日期与失效日期必须填写!")
+				return;
+			}
+		}
+		results["cards"] = cards;
+		
+		console.log(results);
 		//if (isUpdate){
 		//	cardServer.UpdateCustomerCard(Ext.JSON.encode(results), {
 		//		success: function(succ){
@@ -2343,30 +2391,31 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		//	});
 		//	
 		//}else{
-		//	cardServer.AddCustomerCard(Ext.JSON.encode(results), {
-		//		success: function(succ){
-		//			if (succ){
-		//				Ext.MessageBox.show({
-		//					title: "增加成功",
-		//					msg: "是否需要继续添加?",
-		//					buttons: Ext.MessageBox.YESNO,
-		//					fn: function(btn){
-		//						if (btn == "yes"){
-		//							me.selectedCustomerId = null
-		//							me.selectedCards = {};
-		//							form.reset();
-		//							me.updateCardPanel();
-		//						}
-		//					}
-		//				})
-		//			}else{
-		//				Ext.MessageBox.alert("失败", "添加失败!");
-		//			}
-		//		},
-		//		failure: function(error){
-		//			Ext.Error.raise(error);
-		//		}
-		//	});
+	//		cardServer.AddCustomerCard(Ext.JSON.encode(results), {
+	//			success: function(succ){
+	//				if (succ){
+	//					Ext.MessageBox.show({
+	//						title: "增加成功",
+	//						msg: "是否需要继续添加?",
+	//						buttons: Ext.MessageBox.YESNO,
+	//						fn: function(btn){
+	//							if (btn == "yes"){
+	//								me.selectedCustomerId = null
+	//								me.selectedEmpolyeeId = null;
+	//								me.selectedCards = {};
+	//								form.reset();
+	//								me.updateCardPanel();
+	//							}
+	//						}
+	//					})
+	//				}else{
+	//					Ext.MessageBox.alert("失败", "添加失败!");
+	//				}
+	//			},
+	//			failure: function(error){
+	//				Ext.Error.raise(error);
+	//			}
+	//		});
 		//}
 	}
 })

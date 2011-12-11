@@ -8033,6 +8033,9 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 			me.add(Ext.widget("button", {
 				text: "确定",
 				width: 200,
+				style: {
+					float: "right"
+				},
 				handler: function(){
 					if (me.b_selectionCallback){
 						me.b_selectionCallback(me.selModel.getSelection());
