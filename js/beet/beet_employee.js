@@ -421,7 +421,6 @@ Ext.define("Beet.apps.Viewport.EmployeeList", {
 	extend: "Ext.panel.Panel",
 	layout: "fit",
 	width: "100%",
-	height: Beet.constants.VIEWPORT_HEIGHT - 5,
 	bodyBorder: false,
 	autoHeight: true,
 	minHeight: 400,

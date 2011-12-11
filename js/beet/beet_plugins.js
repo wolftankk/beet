@@ -1389,13 +1389,6 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
 									},
 									items: [
 										{
-											fieldLabel: "会员卡号",
-											name: "cardno",
-											value: rawData.CTCardNo,
-											dataIndex: "CTCardNo",
-											allowBlank: false
-										},
-										{
 											fieldLabel: "会员姓名",
 											name: "name",
 											allowBlank: false,
@@ -1919,13 +1912,6 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
 						labelWidth: 75,
 					},
 					items:[
-						{
-							fieldLabel: "会员卡号",
-							name: "cardno",
-							value: rawData.CTCardNo,
-							dataIndex: "CTCardNo",
-							allowBlank: false
-						},
 						{
 							fieldLabel: "会员姓名",
 							name: "name",

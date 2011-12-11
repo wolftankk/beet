@@ -70,7 +70,7 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 		if (Beet.cache.advanceProfile){
 		}
 		
-		customerServer.GetCustomerToJSON("", true, {
+		customerServer.GetCustomerPageData(0, 1, "", {
 			success: function(data){
 				var data = Ext.JSON.decode(data);
 				var metaData = data["MetaData"];
@@ -281,7 +281,8 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 			autoWidth: true,
 			defaults: {
 				hideLabel: true,
-				margin: "0 5 0 0"
+				margin: "0 5 0 0",
+				padding: "5 0 5 0"
 			},
 			columnWidth: 0.5,
 			id: "customerFilter" + me.currentIndex,

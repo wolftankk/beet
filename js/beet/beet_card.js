@@ -3917,7 +3917,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 												var info = r[c];
 												//true
 												if (info["result"]){
-													updateGridRowBackgroundColor(grid, "#e2e2ff", info["index"]);
+													updateGridRowBackgroundColor(grid, "#e2e2ff", info["index"], info["message"], info["hint"]);
 												}else{
 													var rowIdx = updateGridRowBackgroundColor(grid, "#ffe2e2", info["index"], info["message"]);
 													str.push("第" + rowIdx + "行 :" + info["message"]);
@@ -6688,6 +6688,19 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 											name: "code"
 										},
 										{
+											fieldLabel: "卡项级别",
+											allowBlank: false,
+											name: "level",
+											value: 0,
+											validator: function(value){
+												var r = /^\d+/;
+												if (!r.test(value)){
+													return "只能为正数"
+												}
+												return true
+											}
+										},
+										{
 											fieldLabel: "面值金额",
 											allowBlank: false,
 											name: "par"
@@ -8311,6 +8324,19 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 											name: "code"
 										},
 										{
+											fieldLabel: "卡项级别",
+											allowBlank: false,
+											name: "level",
+											value: 0,
+											validator: function(value){
+												var r = /^\d+/;
+												if (!r.test(value)){
+													return "只能为正数"
+												}
+												return true
+											}
+										},
+										{
 											fieldLabel: "面值原始金额",
 											allowBlank: false,
 											editable: false,
@@ -9347,6 +9373,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		form.setValues({
 			name: record.get("Name"),
 			oldpar: record.get("Par").replace(/,/g, ""),
+			level: record.get("Level"),
 			insure: record.get("Insure").replace(/,/g, ""),
 			validdate: record.get("ValidDate"),
 			validunit: parseInt(record.get("ValidUnit")),

@@ -581,7 +581,7 @@ Ext.define("Beet.apps.WarehouseViewPort.AddProduct", {
 	}
 })
 
-function updateGridRowBackgroundColor(grid, color, index, msg){
+function updateGridRowBackgroundColor(grid, color, index, msg, hint){
 	if (color == "#ffe2e2"){
 		color = "#ff3232";
 	}

@@ -78,11 +78,11 @@ registerBeetAppsMenu("customer",
 						},
 						{
 							xtype: "button",
-							text: "会员卡管理",
+							text: "会员开卡",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["addCustomerCard"]
 								if (!item){
-									Beet.workspace.addPanel("addCustomerCard", "会员卡管理", {
+									Beet.workspace.addPanel("addCustomerCard", "会员开卡", {
 										items: [
 											Ext.create("Beet.apps.AddCustomerCard")
 										]
@@ -277,11 +277,6 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 										labelWidth: 75
 									},
 									items: [
-										{
-											fieldLabel: "会员卡号",
-											name: "cardno",
-											allowBlank: false
-										},
 										{
 											fieldLabel: "会员姓名",
 											name: "name",
@@ -759,7 +754,7 @@ Ext.define("Beet.apps.Viewport.CustomerList", {
 		Ext.apply(this, {});
 		that.callParent(arguments);
 
-		Beet.constants.customerServer.GetCustomerToJSON("", true, {
+		Beet.constants.customerServer.GetCustomerPageData(0, 1, "", {
 			success: function(data){
 				var data = Ext.JSON.decode(data);
 				that.buildStoreAndModel(data["MetaData"]);
@@ -1800,7 +1795,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		me.callParent();
 
 		me.createMainPanel();
-		me.getCardMetaData();
+		//me.getCardMetaData();
 	},
 	getCardMetaData: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -1989,7 +1984,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			autoHeight: true,
 			autoScroll: true,
 			cls: "iScroll",
-			height: "50%",
+			height: 270,
 			width: "100%",
 			anchor: "fit",	
 			border: false,
@@ -2057,7 +2052,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 											name: "customername",
 											onTriggerClick: function(){
 												//这里需要一个高级查询
-												win = Ext.create("Beet.plugins.selectCustomerWindow", {
+												var win = Ext.create("Beet.plugins.selectCustomerWindow", {
 													b_selectionMode: "SINGLE",
 													_callback: Ext.bind(me.onSelectCustomer, me)
 												});
@@ -2065,9 +2060,45 @@ Ext.define("Beet.apps.AddCustomerCard", {
 											}
 										},
 										{
+											fieldLabel: "会员级别"
+										},
+										{
 											fieldLabel: "余额",
 											allowBlank: false,
 											name: "balance"
+										},
+										{
+											fieldLabel: "专属顾问",
+											xtype: "trigger",
+											width: 400,
+											name: "employeename",
+											onTriggerClick: function(){
+												var win = Ext.create("Ext.window.Window", {
+													title: "选择专属顾问",
+													width: 650,
+													height: 550,
+													minHeight: 450,
+													autoDestroy: true,
+													autoHeight: true,
+													autoScroll: true,
+													layout: "fit",
+													resizable: true,
+													border: false,
+													modal: false,
+													maximizable: true,
+													border: 0,
+													bodyBorder: false,
+													//b_selectionMode: "SINGLE",
+														//_callback: Ext.bind(me.onSelectCustomer, me)
+												});
+												win.add(Ext.create("Beet.apps.Viewport.EmployeeList", {
+													b_selectionMode: "SINGLE",
+													height: "100%",
+													width: "100%"	
+												}));
+												win.doLayout();
+												win.show();
+											}
 										},
 										{
 											fieldLabel: "注释",
