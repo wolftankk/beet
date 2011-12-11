@@ -3766,10 +3766,21 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		var __fields = me.itemList.__fields;
 		var store = me.itemList.store = Ext.create("Beet.apps.ProductsViewPort.itemStore");
 		store.setProxy(me.updateProxy());
+		var grid;
+		var sm = Ext.create("Ext.selection.CheckboxModel", {
+			mode: "MULTI",
+			listeners: {
+				selectionchange: function(){
+					Ext.bind(me.updateButtonState, grid)(grid.getView());
+				},
+			}
+		});
 
-		var grid = me.itemList.grid = Ext.create("Beet.plugins.LiveSearch", {
+		grid = me.itemList.grid = Ext.create("Beet.plugins.LiveSearch", {
 			autoHeight: true,
 			height: 480,
+			minHeight: 200,
+			selModel: sm,
 			title: "系统项目列表",
 			cls:"iScroll",
 			autoScroll: true,
@@ -3841,6 +3852,62 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 						win.show();
 					}
 				},
+				"-",
+				{ xtype: 'tbspacer', width: 50 },
+				"批量修改",
+				{
+					xtype: "textfield",
+					name: "allupdates",
+					validator: function(value){
+						var rtest = /^\d+[\.]?[\d+]?/;
+						if (!rtest.test(value)){
+							return "请输入数字";
+						}
+						return true	
+					},
+					listeners: {
+						change: function(){
+							Ext.bind(me.updateButtonState, grid)(grid.getView());
+						}
+					}
+				},
+				{
+					text: "修改!",
+					xtype: "button",
+					name: "update_btn",
+					border: 1,
+					disabled: true,
+					style: {
+						borderColor: "#99BBE8"
+					},
+					handler: function(){
+						Ext.MessageBox.show({
+							title: "警告",
+							msg: "你确认需要批量修改项目折扣吗?",
+							buttons: Ext.MessageBox.YESNO,
+							fn: function(btn){
+								if (btn == "yes"){
+									var list = grid.selModel.getSelection();
+									var t = grid.down("textfield[name=allupdates]").getValue();
+									var list2 = [];
+									Ext.Array.each(list, function(a){
+										if (a && a.get && a.get("IID")){
+											list2.push({id: a.get("IID"), rate: t, index: a.index})
+										}
+									});
+									cardServer.BatchChangItemRate(Ext.JSON.encode(list2), {
+										success: function(d){
+											console.log(d)
+										},
+										failure: function(error){
+											Ext.Error.raise(error)
+										}
+									})
+								}
+							}
+						})
+					}
+				}
 			],
 			bbar: Ext.create("Ext.PagingToolbar", {
 				store: store,
@@ -3851,6 +3918,9 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 			listeners: {
 				itemdblclick: function(grid, record, item, index, e){
 					me.onSelectItem(grid, record, item, index, e);	
+				},
+				itemclick: function(grid){
+					Ext.bind(me.updateButtonState, this)(grid);
 				}
 			}
 		});
@@ -3862,6 +3932,20 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		})
 
 		me.createMainPanel();
+	},
+	updateButtonState: function(grid){
+	   var me = this;
+	   if (grid && grid.selModel){
+			var list = grid.selModel.getSelection();
+			var t = me.down("textfield[name=allupdates]");
+			var b = me.down("button[name=update_btn]");
+			var rtest = /^\d+[\.]?[\d+]?/;
+			if (list.length > 0 && (t && t.getValue() && rtest.test(t.getValue()))){
+				b.enable();
+			}else{
+				b.disable();
+			}
+	   }
 	},
 	fireSelectGridItem: function(){
 		var me = this;
