@@ -593,8 +593,16 @@ function updateGridRowBackgroundColor(grid, color, index){
 			recordIndex = record.get("index"),
 			rowIdx = grid.store.indexOf(record);
 		if (recordIndex == index){
+			console.log(node)
 			node.className.replace("x-grid-row-alt", "");
 			node.style.backgroundColor = color;
+			if (node && node.nodeName == "TR"){
+				Ext.Array.each(node.childNodes, function(c){
+					if (c && c.nodeName == "TD"){
+						c.style.backgroundColor = color;	
+					}
+				})
+			}
 			return rowIdx + 1;
 		}
 	}

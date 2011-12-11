@@ -3892,12 +3892,42 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 									var list2 = [];
 									Ext.Array.each(list, function(a){
 										if (a && a.get && a.get("IID")){
+											a.set("index", a.index)
 											list2.push({id: a.get("IID"), rate: t, index: a.index})
 										}
 									});
 									cardServer.BatchChangItemRate(Ext.JSON.encode(list2), {
-										success: function(d){
-											console.log(d)
+										success: function(r){
+											r = Ext.JSON.decode(r);
+											if (r.length == 0) { 
+												return;
+											}
+											grid.selModel.deselectAll();
+											grid.down("textfield[name=allupdates]").reset();
+											var str = [], pass = true;
+											for (var c = 0; c < r.length; ++c){
+												var info = r[c];
+												//true
+												if (info["result"]){
+													updateGridRowBackgroundColor(grid, "#e2e2ff", info["index"]);
+												}else{
+													var rowIdx = updateGridRowBackgroundColor(grid, "#ffe2e2", info["index"]);
+													str.push("第" + rowIdx + "行 :" + info["message"]);
+												}
+
+												pass = pass && info["result"];
+											}
+
+											if (pass){
+												Ext.MessageBox.alert("成功", "修改成功");
+												grid.store.loadPage(grid.store.currentPage);	
+											}else{
+												Ext.MessageBox.show({
+													title: "错误",
+													msg: str.join("<br/>"),
+													buttons: Ext.MessageBox.OK	
+												})
+											}
 										},
 										failure: function(error){
 											Ext.Error.raise(error)
