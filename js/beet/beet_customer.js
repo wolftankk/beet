@@ -78,11 +78,11 @@ registerBeetAppsMenu("customer",
 						},
 						{
 							xtype: "button",
-							text: "会员开卡",
+							text: "会员卡编辑",
 							handler: function(){
 								var item = Beet.apps.Menu.Tabs["addCustomerCard"]
 								if (!item){
-									Beet.workspace.addPanel("addCustomerCard", "会员开卡", {
+									Beet.workspace.addPanel("addCustomerCard", "会员卡编辑", {
 										items: [
 											Ext.create("Beet.apps.AddCustomerCard")
 										]
@@ -1797,7 +1797,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		me.queue = new Beet_Queue("customerCard");
 	},
 	createMainPanel: function(){
-		var me = this;
+		var me = this, cardServer = Beet.constants.cardServer;
 
 		var options = {
 			autoScroll: true,
@@ -1967,12 +1967,14 @@ Ext.define("Beet.apps.AddCustomerCard", {
 									items: [
 										{
 											xtype: "component",
-											width: 150
+											width: 100
 										},
 										{
 											xtype: "button",
 											scale: "medium",
 											text: "开卡",
+											name: "activebtn",
+											disabled: true,
 											handler: function(){
 												me.processData(this);
 											}
@@ -1985,8 +1987,52 @@ Ext.define("Beet.apps.AddCustomerCard", {
 											xtype: "button",
 											scale: "medium",
 											text: "更新",
+											disabled: true,
+											name: "updatebtn",
 											handler: function(){
 												me.processData(this, true);
+											}
+										},
+										{
+											xtype: "component",
+											width: 100
+										},
+										{
+											xtype: "button",
+											scale: "medium",
+											text: "销卡",
+											style: {
+												borderColor: "#ff5252"
+											},
+											handler: function(){
+												Ext.MessageBox.show({
+													title: "警告",
+													msg: "确定需要销毁当前用户的卡?",
+													buttons: Ext.MessageBox.YESNO,
+													fn: function(btn){
+														if (btn == "yes"){
+															cardServer.DeleteCustomerAccount(me.selectedCustomerId, {
+																success: function(succ){
+																	if (succ){
+																		Ext.MessageBox.alert("成功", "销卡成功");
+																		var form = me.form.getForm();
+																		//reset all
+																		me.selectedCustomerId = null
+																		me.selectedEmpolyeeId = null;
+																		me.selectedCards = {};
+																		form.reset();
+																		me.down("button[name=updatebtn]").disable();
+																		me.down("button[name=activebtn]").disable();
+																		me.updateCardPanel();
+																	}
+																},
+																failure: function(error){
+																	Ext.Error.raise(error);
+																}
+															})
+														}
+													}
+												})
 											}
 										}
 									]
@@ -2062,8 +2108,11 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		var me = this, form = me.form.getForm(), cardServer = Beet.constants.cardServer;
 		//reset all
 		me.selectedCustomerId = null
+		me.selectedEmpolyeeId = null;
 		me.selectedCards = {};
 		form.reset();
+		me.down("button[name=updatebtn]").disable();
+		me.down("button[name=activebtn]").disable();
 		me.updateCardPanel();
 		if (records && records.length == 1){
 			var record = records[0];
@@ -2073,6 +2122,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			})
 			me.selectedCustomerId = CTGUID;
 			
+			var customerData;
 			me.queue.Add("queryCustomer", "", function(){
 				Ext.MessageBox.show({
 					msg: "正在查询当前客户数据中...",
@@ -2086,10 +2136,19 @@ Ext.define("Beet.apps.AddCustomerCard", {
 				cardServer.GetCustomerAccountData(false, "CustomerID='"+CTGUID+"'", {
 					success: function(data){
 						data = Ext.JSON.decode(data);
+						data = data["Data"];
+						console.log(data);
 						if (data.length > 0){
-							//已开过卡, 需要载入相关数据
+							customerData = data[0];
+							//restoreForm
+							me.restoreFromData(customerData);
+							me.down("button[name=updatebtn]").enable();
+						}else{
+							customerData = null;
+							me.down("button[name=activebtn]").enable();
 						}
 						me.queue.triggle("queryCustomer", "success");
+						me.queue.triggle("queryCustomerCard", "success");
 					},
 					failure: function(error){
 						Ext.Error.raise(error)
@@ -2097,12 +2156,74 @@ Ext.define("Beet.apps.AddCustomerCard", {
 				})
 			});
 
-			me.queue.Add("waitingFeedback", "queryCustomer", function(){
+			me.queue.Add("queryCustomerCard", "queryCustomer", function(){
+				if (customerData){
+					cardServer.GetAccountCards(customerData["CustomerID"], {
+						success: function(data){
+							data = Ext.JSON.decode(data);
+							var cards = data["cards"];
+							var str = [];
+							var list = {};
+							for (var c = 0; c < cards.length; ++c){
+								var d = cards[c];
+								list[d["id"]] = d;
+								str.push("id='" + d["id"] + "'");
+							}
+							var cardServer = Beet.constants.cardServer;
+							cardServer.GetCardPageData(0, cards.length, str.join(" OR "), {
+								success: function(_data){
+									_data = Ext.JSON.decode(_data)["Data"];
+									var records = []
+									for (var c = 0; c < _data.length; ++c){
+										var d = _data[c];
+										var cardId = d["ID"];
+										if (list[cardId]){
+											var record = d;
+											record["enddate"] = new Date(list[cardId]["endtime"] * 1000)
+											record["rate"] = list[cardId]["rate"]
+											record["MaxCount"] = list[cardId]["expensecount"]
+											//处理并且合并相关数据, 然后使用addCard方法传入
+											records.push(record);
+										}
+									}
+
+									me.addCard(records, true);
+									me.queue.triggle("queryCustomerCard", "success");
+								},
+								failure: function(error){
+									Ext.Error.raise(error)	
+								}
+							})
+						},
+						failure: function(error){
+							Ext.Error.raise(error)
+						}
+					});
+				}else{
+					//if (customerData == null){
+					//	me.queue.triggle("queryCustomer", "success");
+					//}
+				}
+			})
+
+			me.queue.Add("waitingFeedback", "queryCustomer,queryCustomerCard", function(){
 				Ext.MessageBox.hide();
 				me.queue.triggle("waitingFeedback", "success");
 				me.queue.reset();
 			})
 		}
+	},
+	restoreFromData: function(data){
+		var me = this, cardServer = Beet.constants.cardServer, form = me.form.getForm();
+		me.selectedCustomerId = data["CustomerID"];
+		me.selectedEmpolyeeId = data["EID"];
+		form.setValues({
+			cardno: data["CardNo"],
+			"level" : data["Level"],
+			employeename: data["EName"],
+			balance: (data["Balance"] ? data["Balance"].replaceAll(",", "") : 0),
+			descript: data["Descript"]
+		})
 	},
 	initializeCardPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -2135,16 +2256,26 @@ Ext.define("Beet.apps.AddCustomerCard", {
 					var meta = data[c];
 					fields.push(meta["FieldName"])
 					if (!meta["FieldHidden"]){
-						columns.push({
+						var column = {
 							dataIndex: meta["FieldName"],
 							header: meta["FieldLabel"],
 							flex: 1,
-						})
+						}
+
+						if (meta["FieldName"] == "MaxCount"){
+							column.editor = {
+								xtype: "textfield",
+								allowBlank: false
+							}
+						}
+
+						columns.push(column);
 					}
 				}
 				fields.push("raterate")
 				fields.push("startdate");
 				fields.push("enddate");
+
 				me.cardPanel.__columns = columns.concat([
 				{
 					header: "折上折",
@@ -2344,8 +2475,8 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			return;
 		}
 
-		results["id"] = customerId;
-		results["emid"] = me.selectedEmpolyeeId;
+		results["customerid"] = customerId;
+		results["eid"] = me.selectedEmpolyeeId;
 
 		//check 
 		var cards = [];
@@ -2362,9 +2493,10 @@ Ext.define("Beet.apps.AddCustomerCard", {
 				}else{
 					cards.push({
 						id: data.get("ID"),
-						startdate: startdate,
-						enddate: enddate,
-						rate: data.get("raterate")
+						endtime: enddate,
+						rate: data.get("raterate"),
+						expensecount: data.get("MaxCount"),
+						stepprice: data.get("MaxCount") == 0 ? 0 : data.get("Par").replaceAll(",", "") / data.get("MaxCount")
 					})
 				}
 			}else{
@@ -2374,48 +2506,47 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		}
 		results["cards"] = cards;
 		
-		console.log(results);
-		//if (isUpdate){
-		//	cardServer.UpdateCustomerCard(Ext.JSON.encode(results), {
-		//		success: function(succ){
-		//			if (succ){
-		//				Ext.MessageBox.alert("成功", "更新成功!");
-		//				me.storeProxy.loadPage(1);
-		//			}else{
-		//				Ext.MessageBox.alert("失败", "更新失败!");
-		//			}
-		//		},
-		//		failure: function(error){
-		//			Ext.Error.raise(error);
-		//		}
-		//	});
-		//	
-		//}else{
-	//		cardServer.AddCustomerCard(Ext.JSON.encode(results), {
-	//			success: function(succ){
-	//				if (succ){
-	//					Ext.MessageBox.show({
-	//						title: "增加成功",
-	//						msg: "是否需要继续添加?",
-	//						buttons: Ext.MessageBox.YESNO,
-	//						fn: function(btn){
-	//							if (btn == "yes"){
-	//								me.selectedCustomerId = null
-	//								me.selectedEmpolyeeId = null;
-	//								me.selectedCards = {};
-	//								form.reset();
-	//								me.updateCardPanel();
-	//							}
-	//						}
-	//					})
-	//				}else{
-	//					Ext.MessageBox.alert("失败", "添加失败!");
-	//				}
-	//			},
-	//			failure: function(error){
-	//				Ext.Error.raise(error);
-	//			}
-	//		});
-		//}
+		if (isUpdate){
+			console.log(results);
+			cardServer.UpdateCustomerAccount(Ext.JSON.encode(results), {
+				success: function(succ){
+					if (succ){
+						Ext.MessageBox.alert("成功", "更新成功!");
+						me.storeProxy.loadPage(1);
+					}else{
+						Ext.MessageBox.alert("失败", "更新失败!");
+					}
+				},
+				failure: function(error){
+					Ext.Error.raise(error);
+				}
+			});
+		}else{
+			cardServer.AddCustomerAccount(Ext.JSON.encode(results), {
+				success: function(succ){
+					if (succ){
+						Ext.MessageBox.show({
+							title: "增加成功",
+							msg: "是否需要继续添加?",
+							buttons: Ext.MessageBox.YESNO,
+							fn: function(btn){
+								if (btn == "yes"){
+									me.selectedCustomerId = null
+									me.selectedEmpolyeeId = null;
+									me.selectedCards = {};
+									form.reset();
+									me.updateCardPanel();
+								}
+							}
+						})
+					}else{
+						Ext.MessageBox.alert("失败", "添加失败!");
+					}
+				},
+				failure: function(error){
+					Ext.Error.raise(error);
+				}
+			});
+		}
 	}
 })
