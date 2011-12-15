@@ -790,6 +790,14 @@ Beet.constants.DateType = Ext.create("Ext.data.Store", {
 	]	
 });
 
+Beet.constants.RaterType= Ext.create("Ext.data.Store", {
+	fields: ["attr", "name"],
+	data: [
+		{attr: 0, name: "面值"},
+		{attr: 1, name: "实耗"},
+	]	
+});
+
 Beet.constants.EducationList = Ext.create("Ext.data.Store", {
 	fields: ["attr", "name"],
 	data: [

@@ -1084,7 +1084,7 @@ Ext.define("Beet.apps.ProductsViewPort.ProductsList", {
  */ 
 Ext.define("Beet.apps.ProductsViewPort.AddRebate", {
 	extend: "Ext.form.Panel",
-	height: Beet.constants.VIEWPORT_HEIGHT - 5,
+	height: "100%",
 	width: "100%",
 	autoHeight: true,
 	autoScroll: true,
@@ -1142,10 +1142,31 @@ Ext.define("Beet.apps.ProductsViewPort.AddRebate", {
 							allowBlank: false
 						},
 						{
-							fieldLabel: "是否折扣",
+							fieldLabel: "是否金额",
 							name: "ismoney",
 							xtype: "checkbox",
-							inputValue: 1
+							inputValue: 1,
+							listeners: {
+								change: function(f, newValue){
+									var raterCombox = me.form.down("combobox[name=rater]");
+									if (newValue){
+										raterCombox.enable();
+									}else{
+										raterCombox.disable();
+									}
+								}
+							},
+						},
+						{
+							fieldLabel: "折扣单位",
+							disabled: true,
+							name: "rater",
+							xtype: "combo",
+							store: Beet.constants.RaterType,
+							editable: false,
+							queryMode: "local",
+							displayField: "name",
+							valueField: "attr"
 						},
 						{
 							fieldLabel: "起始日期",
@@ -1211,6 +1232,11 @@ Ext.define("Beet.apps.ProductsViewPort.AddRebate", {
 		var me = this, cardServer = Beet.constants.cardServer;
 		var form = me.form.getForm(), results = form.getValues();
 		results["ismoney"] = results["ismoney"] == 1 ? true : false;
+
+		if (results["ismoney"]){
+			//remove rater
+			delete results["rater"];
+		}
 
 		if (me.b_editMode){
 			var rid = me.b_rawData["RID"];

@@ -2005,6 +2005,41 @@ MyCardSvc.prototype.GetCardDetailData = function(AID, __callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
+MyCardSvc.prototype.GetCardCost = function(CustomerID, CardID, __callback) {
+  var __message = {
+    "method" : "MyCardSvc.GetCardCost",
+    "params" : {
+      "CustomerID": CustomerID,
+      "CardID": CardID
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
 MyCardSvc.prototype.BatchChangItemRate = function(ItemRateJSON, __callback) {
   var __message = {
     "method" : "MyCardSvc.BatchChangItemRate",
@@ -2181,6 +2216,74 @@ MyCardSvc.prototype.DeleteCustomerAccount = function(ACustomerID, __callback) {
     "method" : "MyCardSvc.DeleteCustomerAccount",
     "params" : {
       "ACustomerID": ACustomerID
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyCardSvc.prototype.AddConsumer = function(ConsumerJSON, __callback) {
+  var __message = {
+    "method" : "MyCardSvc.AddConsumer",
+    "params" : {
+      "ConsumerJSON": ConsumerJSON
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyCardSvc.prototype.DeleteConsumer = function(ConsumerJSON, __callback) {
+  var __message = {
+    "method" : "MyCardSvc.DeleteConsumer",
+    "params" : {
+      "ConsumerJSON": ConsumerJSON
       }
   }
   var __callbacks = null;

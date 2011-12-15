@@ -18,7 +18,7 @@ registerBeetAppsMenu("customer",
 					title: '会员管理',
 					layout: "anchor",
 					frame: true,
-					width: 300,
+					width: 400,
 					defaults: {
 						scale: "large",
 						rowspan: 3
@@ -86,6 +86,22 @@ registerBeetAppsMenu("customer",
 										items: [
 											Ext.create("Beet.apps.AddCustomerCard")
 										]
+									})
+								}else{
+									Beet.workspace.workspace.setActiveTab(item);
+								}
+							}
+						},
+						{
+							xtype: "button",
+							text: "下单",
+							handler: function(){
+								var item = Beet.apps.Menu.Tabs["createOrder"];
+								if (!item){
+									Beet.workspace.addPanel("createOrder", "下单", {
+										items: [
+											Ext.create("Beet.apps.CreateOrder")
+										]	
 									})
 								}else{
 									Beet.workspace.workspace.setActiveTab(item);
@@ -2548,5 +2564,227 @@ Ext.define("Beet.apps.AddCustomerCard", {
 				}
 			});
 		}
+	}
+})
+
+//下单部分
+Ext.define("Beet.apps.CreateOrder", {
+	extend: "Ext.form.Panel",
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
+	width: "100%",
+	autoHeight: true,
+	autoScroll:true,
+	autoDestory: true,
+	frame:true,
+	border: false,
+	bodyBorder: false,
+	plain: true,
+	initComponent: function(){
+		var me = this;
+
+		me.callParent();
+		me.createMainPanel();
+	},
+	createMainPanel: function(){
+		var me = this;
+		
+		//left panel
+
+		//right panel info panel
+
+		var config = {
+			layout: {
+				type: "hbox",
+				align: "stretch"
+			},
+			height: "100%",
+			autoHeight: true,
+			autoScroll: true,
+			border: false,
+			bodyStyle: "background-color: #dfe8f5",
+			defaults: {
+				bodyStyle: "background-color: #dfe8f5",
+				border: false
+			},
+			items: [
+				{
+					xtype: "panel",
+					flex: 1,
+					height: "100%",
+					autoScroll: true,
+					autoHeight: true,
+					name: "leftPanel",
+					items: [
+						{
+							xtype: "fieldset",
+							title: "快速定位",
+							collapsible: true,
+							layout: "anchor",
+							items: [
+								{
+									layout: {
+										type: "table",
+										columns: 2,
+										tableAttrs: {
+											cellspacing: 10,
+											style: {
+												width: "100%",
+											}
+										}
+									},
+									border: false,
+									bodyStyle: "background-color: #dfe8f5",
+									defaults: {
+										bodyStyle: "background-color: #dfe8f5",
+										width: 260
+									},
+									defaultType: "textfield",
+									fieldDefaults: {
+										msgTarget: "side",
+										labelAlign: "left",
+										labelWidth: 30
+									},
+									items: [
+										{
+											fieldLabel: "卡号",
+											xtype: "textfield"
+										},
+										{
+											fieldLabel: "会员名",
+											xtype: "trigger"
+										},
+										{
+											fieldLabel: "手机号",
+											xtype: "textfield"
+										},
+										{
+											xtype: "button",
+											text: "搜索"
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					xtype: "component",
+					width: 5
+				},
+				{
+					xtype: "panel",
+					flex: 1,
+					height: "100%",
+					name: "rightPanel"
+				},
+			]
+		}
+		me.mainPanel = Ext.create("Ext.panel.Panel", config);
+		me.add(me.mainPanel);
+		me.doLayout();
+
+		me.leftPanel = me.mainPanel.down("panel[name=leftPanel]");
+		me.rightPanel = me.mainPanel.down("panel[name=rightPanel]");
+
+		//订单区域
+		me.createNewOrderPanel();
+		//详情
+		me.createCustomerInfoPanel();
+		//历史记录
+		me.createConsumeHistoryPanel();
+	},
+	createNewOrderPanel: function(){
+		var me = this;
+		me.newOrderPanel = Ext.create("Ext.panel.Panel", {
+			width: Beet.constants.WORKSPACE_WIDTH * 0.5 - 10,
+			height: Beet.constants.VIEWPORT_HEIGHT - 110,
+			border: false,
+			bodyStyle: "background-color: #dfe8f5",
+			bodyPadding: "0 0 0 10",
+			items: [
+				{
+					layout: {
+						type: "table",
+						columns: 2,
+						tableAttrs: {
+							cellspacing: 10,
+							style: {
+								width: "100%",
+							}
+						}
+					},
+					border: false,
+					bodyStyle: "background-color: #dfe8f5",
+					defaults: {
+						bodyStyle: "background-color: #dfe8f5",
+						width: 260
+					},
+					defaultType: "textfield",
+					fieldDefaults: {
+						msgTarget: "side",
+						labelAlign: "left",
+						labelWidth: 30
+					},
+					items:[
+						{
+							fieldLabel: "订单号"
+						},
+						{
+							fieldLabel: "服务项目"
+						},
+						{
+							fieldLabel: "服务员工"
+						},
+						{
+							fieldLabel: "服务项目",
+						}
+					]
+				}
+			]
+		})
+
+		me.leftPanel.add(me.newOrderPanel);
+		me.leftPanel.doLayout();
+	},
+	createCustomerInfoPanel: function(){
+		var me = this;
+		me.customerInfoPanel = Ext.widget("panel", {
+			title: "用户信息",
+			width: Beet.constants.WORKSPACE_WIDTH * 0.5 - 10,
+			height:	Beet.constants.VIEWPORT_HEIGHT - 50,
+			collapsible: true,
+			//hidden: true,
+			listeners: {
+				beforeexpand: function(){
+					me.onRightPanelExpand();
+				}
+			}
+		});
+		me.rightPanel.add(me.customerInfoPanel);
+		me.rightPanel.doLayout();
+	},
+	createConsumeHistoryPanel: function(){
+		var me = this;
+		me.consumeHistoryPanel = Ext.widget("panel", {
+			title: "消费历史",
+			width: Beet.constants.WORKSPACE_WIDTH * 0.5 - 10,
+			height:	Beet.constants.VIEWPORT_HEIGHT - 50,
+			collapsible: true,
+			collapsed: true,
+			//hidden: true,
+			listeners: {
+				beforeexpand: function(){
+					me.onRightPanelExpand();
+				}
+			}
+		});
+		me.rightPanel.add(me.consumeHistoryPanel);
+		me.rightPanel.doLayout();
+	},
+	onRightPanelExpand: function(){
+		var me = this;
+		//auto collapse
+		me.customerInfoPanel.collapse();
+		me.consumeHistoryPanel.collapse();
 	}
 })
