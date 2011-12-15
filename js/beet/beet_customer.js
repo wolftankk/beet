@@ -2589,7 +2589,6 @@ Ext.define("Beet.apps.CreateOrder", {
 		var me = this;
 		
 		//left panel
-
 		//right panel info panel
 
 		var config = {
@@ -2647,24 +2646,115 @@ Ext.define("Beet.apps.CreateOrder", {
 									items: [
 										{
 											fieldLabel: "卡号",
-											xtype: "textfield"
+											xtype: "textfield",
+											enableKeyEvents: true,
+											listeners: {
+												keydown: function(f, e){
+													if (e.getKey() == Ext.EventObject.ENTER){
+														var v = f.getValue();
+														if (v.length > 0){
+															me.quickQueryCustom(v, "cardno")
+														}
+														e.stopEvent();
+														e.stopPropagation();
+														return false;
+													}
+												}
+											}
 										},
 										{
 											fieldLabel: "会员名",
-											xtype: "trigger"
+											xtype: "trigger",
+											editable: false,
+											name: "customername",
+											onTriggerClick: function(){
+												//这里需要一个高级查询
+												var win = Ext.create("Beet.plugins.selectCustomerWindow", {
+													b_selectionMode: "SINGLE",
+													_callback: function(r){
+														me.onSelectCustomer(r);
+														win.hide();
+													}
+												});
+												win.show();
+											}
 										},
 										{
 											fieldLabel: "手机号",
 											xtype: "textfield"
 										},
 										{
-											xtype: "button",
-											text: "搜索"
+											xtype: "toolbar",
+											ui: "",
+											border: 0,
+											style: {
+												border: "0"
+											},
+											onBeforeAdd: function(component){
+												//hack it!!!
+												//console.log(component)
+											},
+											items: [
+											"->",
+											//{//button group
+											//	xtype: "button",
+											//	text: "高级搜索"
+											//},
+											{
+												xtype: "button",
+												text: "会员卡详情",
+												disabled: true
+											}
+											]
 										}
 									]
 								}
 							]
-						}
+						},
+						{
+							xtype: "fieldset",
+							title: "订单金额",
+							collapsible: true,
+							layout: "anchor",
+							items: [
+								{
+									layout: {
+										type: "table",
+										columns: 2,
+										tableAttrs: {
+											cellspacing: 10,
+											style: {
+												width: "100%",
+											}
+										}
+									},
+									border: false,
+									bodyStyle: "background-color: #dfe8f5",
+									defaults: {
+										bodyStyle: "background-color: #dfe8f5",
+										width: 260
+									},
+									defaultType: "textfield",
+									fieldDefaults: {
+										msgTarget: "side",
+										labelAlign: "left",
+										labelWidth: 30
+									},
+									items: [
+										{
+											fieldLabel: "面值",
+											xtype: "textfield",
+											readOnly: true
+										},
+										{
+											fieldLabel: "实耗",
+											xtype: "textfield",
+											readOnly: true
+										}
+									]
+								}
+							]
+						},
 					]
 				},
 				{
@@ -2686,105 +2776,185 @@ Ext.define("Beet.apps.CreateOrder", {
 		me.leftPanel = me.mainPanel.down("panel[name=leftPanel]");
 		me.rightPanel = me.mainPanel.down("panel[name=rightPanel]");
 
-		//订单区域
-		me.createNewOrderPanel();
-		//详情
-		me.createCustomerInfoPanel();
 		//历史记录
 		me.createConsumeHistoryPanel();
+		//订单区域
+		me.createNewOrderPanel();
+	},
+	quickQueryCustom: function(value, type){
+		var me = this, customerServer = Beet.constants.customerServer, _sql = "";
+		var waitBox = Ext.MessageBox.show({
+			msg: "正在查询中...",
+			progressText: "查询中...",
+			width: 300,
+			wait: true,
+			waitConfig: {interval: 800},
+			closable: false
+		});
+		
+		//XXX
+		if (type == "cardno"){
+			_sql = "CTCardNo='" + value + "'";
+		}else{
+			if (type == "mobile"){
+				_sql = "";
+			}
+		}
+
+		customerServer.GetCustomerPageData(0, 30, _sql, {
+			success: function(data){
+				var data = Ext.JSON.decode(data), a = {};
+				waitBox.hide();
+				data = data["Data"];
+				if (data.length > 0){
+					a.raw = data[0];
+				}
+				me.onSelectCustomer(a);
+			},
+			failure: function(error){
+				waitBox.hide();
+				Ext.Error.raise(error)
+			}
+		})
+	},
+	onSelectCustomer: function(records){
+		var record, me = this, cardServer = Beet.constants.cardServer;
+		if (Ext.isArray(records) && records.length > 0){
+			record = records[0]
+		}else{
+			if (records && (records.data || records.raw)){
+				record = record;
+			}else{
+				Ext.MessageBox.alert("错误", "该用户不存在, 请重新查找!");
+				return;
+			}
+		}
+		//get
+		var rawData = record.raw;
+		if (rawData.CTCardNo == ""){
+			Ext.MessageBox.alert("警告", "当前用户没有开卡, 请重新选择或为此用户开卡!");
+			return;
+		};
+
+		me.selectedCustomerId = rawData.CTGUID;
+		var form = me.getForm();
+		form.setValues({
+			customername: rawData.CTName
+		});
+		
+		//开始查询他的卡项, 套餐, 费用
 	},
 	createNewOrderPanel: function(){
 		var me = this;
+		var options = {
+			autoScroll: true,
+			autoHeight: true,
+			height: Beet.constants.VIEWPORT_HEIGHT - 150,
+			width: Beet.constants.WORKSPACE_WIDTH * 0.5 - 10,
+			cls: "iScroll",
+			border: true,
+			plain: true,
+			collapsible: true,
+			collapseDirection: "top",
+			collapsed: true,
+			listeners: {
+				beforeexpand: function(p){
+					for (var c = 0; c < me.childrenList.length; ++c){
+						var child = me.childrenList[c];
+						if (child !== p){
+							child.collapse();
+						}
+					}
+				},
+				expand: function(p){
+					if (p && p.setHeight){
+						p.setHeight(Beet.constants.VIEWPORT_HEIGHT - 150);//reset && update
+					}
+				}
+			}
+		}
+		me.packagesPanel = Ext.widget("panel", Ext.apply(options, {
+			title: "套餐列表",
+			tbar: [{
+				xtype: "button",
+				text: "绑定套餐",
+				handler: function(){
+					//me.selectPackage();
+				},
+			}]
+		}));
+
+		me.itemsPanel= Ext.widget("panel", Ext.apply(options, {
+			title: "项目列表",
+			tbar: [{
+				xtype: "button",
+				text: "绑定项目",
+				handler: function(){
+					//me.selectItems();
+				},
+			}]
+		}));
+
+		me.chargeTypesPanel = Ext.widget("panel", Ext.apply(options, {
+			title: "费用列表",
+			tbar: [{
+				xtype: "button",
+				text: "绑定费用",
+				handler: function(){
+					//me.selectChargeType();
+				}
+			}]	
+		}));
+
+		me.childrenList = [
+			me.itemsPanel,
+			me.packagesPanel,
+			me.chargeTypesPanel,
+		]
+
 		me.newOrderPanel = Ext.create("Ext.panel.Panel", {
 			width: Beet.constants.WORKSPACE_WIDTH * 0.5 - 10,
-			height: Beet.constants.VIEWPORT_HEIGHT - 110,
+			height: Beet.constants.VIEWPORT_HEIGHT - 15,
 			border: false,
 			bodyStyle: "background-color: #dfe8f5",
-			bodyPadding: "0 0 0 10",
-			items: [
+			items: me.childrenList,
+			buttons: [
 				{
-					layout: {
-						type: "table",
-						columns: 2,
-						tableAttrs: {
-							cellspacing: 10,
-							style: {
-								width: "100%",
-							}
-						}
-					},
-					border: false,
-					bodyStyle: "background-color: #dfe8f5",
-					defaults: {
-						bodyStyle: "background-color: #dfe8f5",
-						width: 260
-					},
-					defaultType: "textfield",
-					fieldDefaults: {
-						msgTarget: "side",
-						labelAlign: "left",
-						labelWidth: 30
-					},
-					items:[
-						{
-							fieldLabel: "订单号"
-						},
-						{
-							fieldLabel: "服务项目"
-						},
-						{
-							fieldLabel: "服务员工"
-						},
-						{
-							fieldLabel: "服务项目",
-						}
-					]
+					text: "下单",
+					scale: "large"
+				},
+				{
+					text: "取消",
+					scale: "large"
 				}
 			]
 		})
 
-		me.leftPanel.add(me.newOrderPanel);
-		me.leftPanel.doLayout();
-	},
-	createCustomerInfoPanel: function(){
-		var me = this;
-		me.customerInfoPanel = Ext.widget("panel", {
-			title: "用户信息",
-			width: Beet.constants.WORKSPACE_WIDTH * 0.5 - 10,
-			height:	Beet.constants.VIEWPORT_HEIGHT - 50,
-			collapsible: true,
-			//hidden: true,
-			listeners: {
-				beforeexpand: function(){
-					me.onRightPanelExpand();
-				}
-			}
-		});
-		me.rightPanel.add(me.customerInfoPanel);
+		me.rightPanel.add(me.newOrderPanel);
 		me.rightPanel.doLayout();
+
+		Ext.defer(function(){
+			me.itemsPanel.expand()	
+		}, 500)
+		//项目
+		//me.initItemsPanel()
+		//套餐
+		//费用
+	},
+	initItemsPanel: function(){
+
 	},
 	createConsumeHistoryPanel: function(){
 		var me = this;
 		me.consumeHistoryPanel = Ext.widget("panel", {
 			title: "消费历史",
 			width: Beet.constants.WORKSPACE_WIDTH * 0.5 - 10,
-			height:	Beet.constants.VIEWPORT_HEIGHT - 50,
-			collapsible: true,
-			collapsed: true,
+			height:	Beet.constants.VIEWPORT_HEIGHT - 170,
 			//hidden: true,
-			listeners: {
-				beforeexpand: function(){
-					me.onRightPanelExpand();
-				}
-			}
 		});
-		me.rightPanel.add(me.consumeHistoryPanel);
-		me.rightPanel.doLayout();
-	},
-	onRightPanelExpand: function(){
-		var me = this;
-		//auto collapse
-		me.customerInfoPanel.collapse();
-		me.consumeHistoryPanel.collapse();
+		me.leftPanel.add(me.consumeHistoryPanel);
+		me.leftPanel.doLayout();
+
+		//初始化grid
 	}
 })
