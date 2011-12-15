@@ -1199,6 +1199,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddRebate", {
 							width: 200,
 							formBind: true,
 							disabled: true,
+							hidden: me.b_viewMode,
 							handler: function(btn, widget){
 								me.processData(this)	
 							}
@@ -1213,6 +1214,10 @@ Ext.define("Beet.apps.ProductsViewPort.AddRebate", {
 		me.doLayout();
 		if (me.b_editMode && me.b_rawData){
 			me.restoreFromData()
+		}else{
+			if (me.b_rawData){
+				me.restoreFromData();
+			}
 		}
 	},
 	restoreFromData: function(){
@@ -1232,12 +1237,11 @@ Ext.define("Beet.apps.ProductsViewPort.AddRebate", {
 		var me = this, cardServer = Beet.constants.cardServer;
 		var form = me.form.getForm(), results = form.getValues();
 		results["ismoney"] = results["ismoney"] == 1 ? true : false;
-
-		if (results["ismoney"]){
+		if (!results["ismoney"]){
 			//remove rater
 			delete results["rater"];
 		}
-
+		
 		if (me.b_editMode){
 			var rid = me.b_rawData["RID"];
 			results["id"] = rid;
@@ -1580,11 +1584,25 @@ Ext.define("Beet.apps.ProductsViewPort.RebateList", {
 				}
 			})	
 		}else{
-			var win = Ext.create("Beet.apps.ProductsViewPort.ViewChargeType", {
-				editable: false,
-				storeProxy: me.storeProxy,
-				rawData: rawData	
+			var win = Ext.create("Ext.window.Window", {
+				height: 300,
+				width: 300,
+				title: "编辑返利",
+				autoHeight: true,
+				autoScroll: true,
+				autoWidth: true
 			});
+			console.log(rawData)
+			win.add(Ext.create("Beet.apps.ProductsViewPort.AddRebate", {
+				b_rawData: rawData,
+				b_editMode: false,
+				b_viewMode: true,
+				b_callback: function(){
+					me.storeProxy.loadPage(me.storeProxy.currentPage);
+					win.close();
+				}
+			}));
+			win.doLayout();
 			win.show();
 		}
 	},
