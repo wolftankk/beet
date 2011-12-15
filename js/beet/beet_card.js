@@ -1149,7 +1149,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddRebate", {
 							listeners: {
 								change: function(f, newValue){
 									var raterCombox = me.form.down("combobox[name=rater]");
-									if (newValue){
+									if (!newValue){
 										raterCombox.enable();
 									}else{
 										raterCombox.disable();
@@ -1159,7 +1159,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddRebate", {
 						},
 						{
 							fieldLabel: "折扣单位",
-							disabled: true,
 							name: "rater",
 							xtype: "combo",
 							store: Beet.constants.RaterType,
@@ -1237,7 +1236,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddRebate", {
 		var me = this, cardServer = Beet.constants.cardServer;
 		var form = me.form.getForm(), results = form.getValues();
 		results["ismoney"] = results["ismoney"] == 1 ? true : false;
-		if (!results["ismoney"]){
+		if (results["ismoney"]){
 			//remove rater
 			delete results["rater"];
 		}
