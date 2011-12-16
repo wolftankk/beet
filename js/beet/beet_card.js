@@ -4579,6 +4579,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 	bodyBorder: false,
 	plain: true,
 	b_filter: "",
+	b_advanceSearch: true,//是否需要使用高级搜索
 	initComponent: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
 		me.selectedProducts = {};
@@ -4589,21 +4590,25 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 		me.selectedItemIndex = 0;
 		me.callParent()	
 
-		cardServer.GetItemPageData(0, 1, "", {
-			success: function(data){
-				var win = Ext.create("Beet.apps.AdvanceSearch", {
-					searchData: Ext.JSON.decode(data),
-					b_callback: function(where){
-						me.b_filter = where;
-						me.buildStoreAndModel();
-					}
-				});
-				win.show();
-			},
-			failure: function(error){
-				Ext.Error.raise(error);
-			}
-		});
+		if (me.b_advanceSearch){
+			cardServer.GetItemPageData(0, 1, "", {
+				success: function(data){
+					var win = Ext.create("Beet.apps.AdvanceSearch", {
+						searchData: Ext.JSON.decode(data),
+						b_callback: function(where){
+							me.b_filter = where;
+							me.buildStoreAndModel();
+						}
+					});
+					win.show();
+				},
+				failure: function(error){
+					Ext.Error.raise(error);
+				}
+			});
+		}else{
+			me.initializeItemGrid();
+		}
 	},
 	buildStoreAndModel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -4687,8 +4692,23 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 	},
 	initializeItemGrid: function(){
 		var me = this;
-		var __fields = me.itemList.__fields;
-		var store = me.itemList.store = Ext.create("Beet.apps.ProductsViewPort.itemStore");
+
+		var __fields, store;
+		//使用自定义的model以及columns
+
+		if (me.b_customerFields && me.b_customerColumns){
+			store = me.itemList.store = Ext.create("Ext.data.ArrayStore", {
+				fields: me.b_customerFields
+			});
+
+			__fields = me.itemList.__fields = me.b_customerFields;
+			__columns = me.itemList.__columns = me.b_customerColumns;
+			
+		}else{
+			__fields = me.itemList.__fields;
+			store = me.itemList.store = Ext.create("Beet.apps.ProductsViewPort.itemStore");
+		}
+
 		if (me.b_type == "selection"){
 			var sm = Ext.create("Ext.selection.CheckboxModel", {
 				mode: me.b_selectionMode ? me.b_selectionMode : "SINGLE"
@@ -4720,6 +4740,10 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 				}
 			}
 		});
+
+		if (me.b_customerStoreData){
+			store.loadData(me.b_customerStoreData);
+		}
 
 		me.createMainPanel();
 	},

@@ -2153,7 +2153,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 					success: function(data){
 						data = Ext.JSON.decode(data);
 						data = data["Data"];
-						console.log(data);
+						//console.log(data);
 						if (data.length > 0){
 							customerData = data[0];
 							//restoreForm
@@ -2174,42 +2174,45 @@ Ext.define("Beet.apps.AddCustomerCard", {
 
 			me.queue.Add("queryCustomerCard", "queryCustomer", function(){
 				if (customerData){
-					cardServer.GetAccountCards(customerData["CustomerID"], {
+					cardServer.GetCustomerCardData(false, "CustomerID='"+customerData["CustomerID"]+"'", {
 						success: function(data){
 							data = Ext.JSON.decode(data);
-							var cards = data["cards"];
-							var str = [];
-							var list = {};
-							for (var c = 0; c < cards.length; ++c){
-								var d = cards[c];
-								list[d["id"]] = d;
-								str.push("id='" + d["id"] + "'");
-							}
-							var cardServer = Beet.constants.cardServer;
-							cardServer.GetCardPageData(0, cards.length, str.join(" OR "), {
-								success: function(_data){
-									_data = Ext.JSON.decode(_data)["Data"];
-									var records = []
-									for (var c = 0; c < _data.length; ++c){
-										var d = _data[c];
-										var cardId = d["ID"];
-										if (list[cardId]){
-											var record = d;
-											record["enddate"] = new Date(list[cardId]["endtime"] * 1000)
-											record["rate"] = list[cardId]["rate"]
-											record["MaxCount"] = list[cardId]["expensecount"]
-											//处理并且合并相关数据, 然后使用addCard方法传入
-											records.push(record);
-										}
-									}
+							data = data["Data"];
+							var records = []
+							console.log(data);
+							//for (var c = 0; c < data.length; ++c){
+							//	var d = data[c];
+							//	var cardId = d["ID"];
+							//	if (list[cardId]){
+							//		var record = d;
+							//		record["enddate"] = new Date(list[cardId]["endtime"] * 1000)
+							//		record["rate"] = list[cardId]["rate"]
+							//		record["MaxCount"] = list[cardId]["expensecount"]
+							//		//处理并且合并相关数据, 然后使用addCard方法传入
+							//		records.push(record);
+							//	}
+							//}
 
-									me.addCard(records, true);
-									me.queue.triggle("queryCustomerCard", "success");
-								},
-								failure: function(error){
-									Ext.Error.raise(error)	
-								}
-							})
+							//me.addCard(records, true);
+							//me.queue.triggle("queryCustomerCard", "success");
+
+					//		var cards = data["cards"];
+					//		var str = [];
+					//		var list = {};
+					//		for (var c = 0; c < cards.length; ++c){
+					//			var d = cards[c];
+					//			list[d["id"]] = d;
+					//			str.push("id='" + d["id"] + "'");
+					//		}
+					//		var cardServer = Beet.constants.cardServer;
+					//		cardServer.GetCardPageData(false, cards.length, str.join(" OR "), {
+					//			success: function(_data){
+					//				_data = Ext.JSON.decode(_data)["Data"];
+					//			},
+					//			failure: function(error){
+					//				Ext.Error.raise(error)	
+					//			}
+					//		})
 						},
 						failure: function(error){
 							Ext.Error.raise(error)
@@ -2264,7 +2267,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		}, "-");
 
 		columns.push(_actions);
-		cardServer.GetCardPageData(0, 1, "", {
+		cardServer.GetCustomerCardData(true, "", {
 			success: function(data){
 				var data = Ext.JSON.decode(data)["MetaData"];
 				var fields = me.cardPanel.__fields = [];
@@ -2283,33 +2286,51 @@ Ext.define("Beet.apps.AddCustomerCard", {
 							flex: 1,
 						}
 
-						if (meta["FieldName"] == "MaxCount"){
-							column.editor = {
-								xtype: "textfield",
-								allowBlank: false
-							}
+						switch (meta["FieldName"]){
+							case "Balance":	
+								column.editor = {
+									xtype: "textfield",
+									type: "int",
+									allowBlank: false
+								}
+								break;
+							case "StartTime":
+								column.editor = {
+									xtype: "datefield",
+									format: "Y/m/d",
+									allowBlank: false
+								}
+								break;
+							case "EndTime":
+								column.editor = {
+									xtype: "datefield",
+									format: "Y/m/d",
+									allowBlank: false
+								}
+								break
 						}
 
 						columns.push(column);
 					}
 				}
 				fields.push("raterate");
-				fields.push("blance");
-				fields.push("startdate");
-				fields.push("enddate");
+				fields.push("ID");
+				//fields.push("blance");
+				//fields.push("startdate");
+				//fields.push("enddate");
 
 				me.cardPanel.__columns = columns.concat([
+				/*
 				{
 					header: "折上折",
 					dataIndex: "raterate",
 					hidden: true,
 					flex: 1,
-					/*
 					editor: {
 						xtype: "textfield",
 						type: "int",
 						allowBlank: false
-					}*/
+					}
 				},
 				{
 					header: "余额",
@@ -2342,7 +2363,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 						format: "Y/m/d",
 						allowBlank: false
 					}
-				},
+				},*/
 				]);
 
 				me.initializeCardGrid();
@@ -2374,17 +2395,17 @@ Ext.define("Beet.apps.AddCustomerCard", {
 					listeners: {
 						validateedit: function(editor, e){
 							var record = e.record, newvalues = e.newValues;
-							var par = parseFloat(newvalues.Par.replaceAll(",", "")), blance = parseFloat(newvalues.blance);
-							console.log(editor, e)
-							if (blance && blance >= par){
+							var price = parseFloat(record.data.Price.replaceAll(",", "")), blance = parseFloat(newvalues.Balance);
+							//console.log(editor, e)
+							if (blance && blance >= price){
 								e.cancel = false;
 							}else{
 								e.cancel = true;
 								//check blance
-								var blance = editor.getEditor().down("textfield[name=blance]");
-								if (blance){
+								//var blance = editor.getEditor().down("textfield[name=Balance]");
+								//if (blance){
 									//TODO: 这里需要显示错误
-								}
+								//}
 							}
 						}
 					}
@@ -2439,6 +2460,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		}
 		for (var r = 0; r < records.length; ++r){
 			var record = records[r];
+			//console.log(record)
 			var cid, rawData;
 			if (isRaw){
 				cid = record["ID"];
@@ -2460,11 +2482,11 @@ Ext.define("Beet.apps.AddCustomerCard", {
 				rawData["raterate"] = 1;
 			}
 
-			if (rawData["startdate"] == undefined){
-				rawData["startdate"] = new Date();
+			if (rawData["StartTime"] == undefined){
+				rawData["StartTime"] = new Date();
 			}
 
-			if (rawData["enddate"] == undefined){
+			if (rawData["EndTime"] == undefined){
 				// 0 year 1 month 2 day
 				var d = 0;
 				switch (rawData["ValidUnit"]){
@@ -2478,13 +2500,21 @@ Ext.define("Beet.apps.AddCustomerCard", {
 						d = rawData["ValidDate"] * 86400;
 						break;
 				}
-				rawData["enddate"] = new Date(+new Date() + d * 1000);
+				rawData["EndTime"] = new Date(+new Date() + d * 1000);
 			}
 
+			rawData["ExpenseCount"] = rawData["MaxCount"];
+			rawData["StepPrice"] = rawData["MaxCount"] == 0 ? 0 : rawData["Price"].replaceAll(",", "") / rawData["MaxCount"]
+			if (rawData["Balance"] == undefined || rawData["Balance"] == ""){
+				rawData["Balance"] = rawData["Price"].replace(/,/g, "");
+			}
+
+			//console.log(__fields, rawData)
 			for (var c = 0; c < __fields.length; ++c){
 				var k = __fields[c];
 				selectedCards[cid].push(rawData[k]);
 			}
+			//console.log(selectedCards)
 		}
 
 		me.updateCardPanel();
@@ -2534,7 +2564,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		cardStore = me.cardPanel.grid.getStore();
 		for (var c = 0; c < cardStore.getCount(); ++c){
 			var data = cardStore.getAt(c);
-			var startdate = data.get("startdate"), enddate = data.get("enddate");
+			var startdate = data.get("StartTime"), enddate = data.get("EndTime");
 			if (startdate && enddate){
 				startdate = +new Date(startdate) / 1000;
 				enddate = +new Date(enddate) / 1000;
@@ -2544,10 +2574,12 @@ Ext.define("Beet.apps.AddCustomerCard", {
 				}else{
 					cards.push({
 						id: data.get("ID"),
+						starttime: startdate,
 						endtime: enddate,
 						rate: data.get("raterate"),
-						expensecount: data.get("MaxCount"),
-						stepprice: data.get("MaxCount") == 0 ? 0 : data.get("Par").replaceAll(",", "") / data.get("MaxCount")
+						expensecount: data.get("ExpenseCount"),
+						stepprice: data.get("StepPrice"),
+						balance: data.get("Balance")
 					})
 				}
 			}else{
@@ -2558,7 +2590,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		results["cards"] = cards;
 		
 		if (isUpdate){
-			console.log(results);
+			//console.log(results);
 			cardServer.UpdateCustomerAccount(Ext.JSON.encode(results), {
 				success: function(succ){
 					if (succ){
@@ -2616,6 +2648,8 @@ Ext.define("Beet.apps.CreateOrder", {
 	plain: true,
 	initComponent: function(){
 		var me = this;
+		me.selectedItemIndex = 0;//init index
+		me.selectedItems = {};
 
 		me.callParent();
 		me.createMainPanel();
@@ -2683,6 +2717,7 @@ Ext.define("Beet.apps.CreateOrder", {
 											fieldLabel: "卡号",
 											xtype: "textfield",
 											enableKeyEvents: true,
+											name: "ccardno",
 											listeners: {
 												keydown: function(f, e){
 													if (e.getKey() == Ext.EventObject.ENTER){
@@ -2718,6 +2753,7 @@ Ext.define("Beet.apps.CreateOrder", {
 											fieldLabel: "手机号",
 											xtype: "textfield",
 											enableKeyEvents: true,
+											name: "mobile",
 											listeners: {
 												keydown: function(f, e){
 													if (e.getKey() == Ext.EventObject.ENTER){
@@ -2752,6 +2788,7 @@ Ext.define("Beet.apps.CreateOrder", {
 											{
 												xtype: "button",
 												text: "会员卡详情",
+												name: "customerInfoBtn",
 												disabled: true
 											}
 											]
@@ -2791,6 +2828,15 @@ Ext.define("Beet.apps.CreateOrder", {
 									},
 									items: [
 										{
+											fieldLabel: "流水号",
+											xtype: "textfield",
+											readOnly: true,
+										},
+										{
+											fieldLabel: "订单号",
+											xtype: "textfield"
+										},
+										{
 											fieldLabel: "面值",
 											xtype: "textfield",
 											readOnly: true
@@ -2824,14 +2870,31 @@ Ext.define("Beet.apps.CreateOrder", {
 
 		me.leftPanel = me.mainPanel.down("panel[name=leftPanel]");
 		me.rightPanel = me.mainPanel.down("panel[name=rightPanel]");
+		me.customerInfoBtn = me.mainPanel.down("button[name=customerInfoBtn]");
 
-		//历史记录
-		me.createConsumeHistoryPanel();
+		//指定服务人员
+		me.createListTabPanel();
 		//订单区域
 		me.createNewOrderPanel();
 	},
+	resetAll: function(){
+		var me = this, form = me.getForm();
+		form.setValues({
+			"customername" : "",
+			"ccardno" : "",
+			"mobile" : ""
+		})
+		me.selectedCustomerId = null;
+		me.customerInfoBtn.disable();
+	},
 	quickQueryCustom: function(value, type){
 		var me = this, customerServer = Beet.constants.customerServer, _sql = "";
+		var form = me.getForm();
+		form.setValues({
+			"customername" : "",
+			"ccardno" : "",
+			"mobile" : ""
+		})
 		var waitBox = Ext.MessageBox.show({
 			msg: "正在查询中...",
 			progressText: "查询中...",
@@ -2846,7 +2909,7 @@ Ext.define("Beet.apps.CreateOrder", {
 			_sql = "CTCardNo='" + value + "'";
 		}else{
 			if (type == "mobile"){
-				_sql = "";
+				_sql = "CTMobile='" + value + "'";
 			}
 		}
 
@@ -2868,11 +2931,13 @@ Ext.define("Beet.apps.CreateOrder", {
 	},
 	onSelectCustomer: function(records){
 		var record, me = this, cardServer = Beet.constants.cardServer;
+		var form = me.getForm();
+		me.resetAll();
 		if (Ext.isArray(records) && records.length > 0){
 			record = records[0]
 		}else{
 			if (records && (records.data || records.raw)){
-				record = record;
+				record = records;
 			}else{
 				Ext.MessageBox.alert("错误", "该用户不存在, 请重新查找!");
 				return;
@@ -2880,25 +2945,42 @@ Ext.define("Beet.apps.CreateOrder", {
 		}
 		//get
 		var rawData = record.raw;
-		if (rawData.CTCardNo == ""){
-			Ext.MessageBox.alert("警告", "当前用户没有开卡, 请重新选择或为此用户开卡!");
-			return;
-		};
+		var CTGUID = rawData.CTGUID;
 
-		me.selectedCustomerId = rawData.CTGUID;
-		var form = me.getForm();
-		form.setValues({
-			customername: rawData.CTName
-		});
+		cardServer.GetCustomerAccountData(false, "CustomerID='"+CTGUID+"'", {
+			success: function(data){
+				data = Ext.JSON.decode(data)["Data"];
+				if (data.length == 0){
+					Ext.MessageBox.alert("警告", "当前用户没有开卡, 请重新选择或为此用户开卡!");
+					return;
+				}else{
+					me.selectedCustomerId = CTGUID;
+					data = data[0];
+					if (data.State == 1){
+						//Ext.MessageBox.alert("警告", "当前用户已经销卡, 请重新选择或为此用户重新开卡!");
+						return;
+					}
+					form.setValues({
+						customername: data.CustomerName,
+						mobile: rawData.CTMobile,
+						ccardno: data.CardNo
+					});
+					//开始查询他的卡项, 套餐, 费用
+					me.customerInfoBtn.enable();
+				}
+			},
+			failure: function(error){
+				Ext.Error.raise(error)
+			}
+		})
 		
-		//开始查询他的卡项, 套餐, 费用
 	},
 	createNewOrderPanel: function(){
 		var me = this;
 		var options = {
 			autoScroll: true,
 			autoHeight: true,
-			height: Beet.constants.VIEWPORT_HEIGHT - 150,
+			height: Beet.constants.VIEWPORT_HEIGHT - 100,
 			width: Beet.constants.WORKSPACE_WIDTH * 0.5 - 10,
 			cls: "iScroll",
 			border: true,
@@ -2917,11 +2999,12 @@ Ext.define("Beet.apps.CreateOrder", {
 				},
 				expand: function(p){
 					if (p && p.setHeight){
-						p.setHeight(Beet.constants.VIEWPORT_HEIGHT - 150);//reset && update
+						p.setHeight(Beet.constants.VIEWPORT_HEIGHT - 100);//reset && update
 					}
 				}
 			}
 		}
+		/*
 		me.packagesPanel = Ext.widget("panel", Ext.apply(options, {
 			title: "套餐列表",
 			tbar: [{
@@ -2932,16 +3015,27 @@ Ext.define("Beet.apps.CreateOrder", {
 				},
 			}]
 		}));
+		*/
 
 		me.itemsPanel= Ext.widget("panel", Ext.apply(options, {
-			title: "项目列表",
-			tbar: [{
-				xtype: "button",
-				text: "绑定项目",
-				handler: function(){
-					//me.selectItems();
+			title: "消费项目列表",
+			tbar: [
+				{
+					xtype: "button",
+					text: "指定卡项项目",
+					handler: function(){
+						me.selectItems();
+					},
 				},
-			}]
+				"-",
+				{
+					xtype: "button",
+					text: "指定其他项目",
+					handler: function(){
+						me.selectGiffItems();
+					}
+				}
+			]
 		}));
 
 		me.chargeTypesPanel = Ext.widget("panel", Ext.apply(options, {
@@ -2957,8 +3051,8 @@ Ext.define("Beet.apps.CreateOrder", {
 
 		me.childrenList = [
 			me.itemsPanel,
-			me.packagesPanel,
-			me.chargeTypesPanel,
+			//me.packagesPanel,
+			//me.chargeTypesPanel,
 		]
 
 		me.newOrderPanel = Ext.create("Ext.panel.Panel", {
@@ -2986,24 +3080,309 @@ Ext.define("Beet.apps.CreateOrder", {
 			me.itemsPanel.expand()	
 		}, 500)
 		//项目
-		//me.initItemsPanel()
-		//套餐
+		me.initializeItemsPanel();
 		//费用
+		//me.initializeChargeTypePanel();
 	},
-	initItemsPanel: function(){
+	//{{{
+		//费用grid
+	///}}}
+	//{{{
+	initializeItemsPanel: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		if (me.itemsPanel.__columns && me.itemsPanel.__columns.length > 0){
+			return;
+		}
+		var columns = me.itemsPanel.__columns = [];
+		var _actions = {
+			xtype: 'actioncolumn',
+			width: 30,
+			header: "操作",
+			items: [
+			]
+		}
+		_actions.items.push("-",{
+			icon: "./resources/themes/images/fam/delete.gif",
+			tooltip: "删除项目",
+			id: "customer_grid_delete",
+			handler: function(grid, rowIndex, colIndex){
+				var d = grid.store.getAt(rowIndex)
+				me.deleteItem(d);
+			}
+		}, "-");
 
-	},
-	createConsumeHistoryPanel: function(){
-		var me = this;
-		me.consumeHistoryPanel = Ext.widget("panel", {
-			title: "消费历史",
-			width: Beet.constants.WORKSPACE_WIDTH * 0.5 - 10,
-			height:	Beet.constants.VIEWPORT_HEIGHT - 170,
-			//hidden: true,
+		columns.push(_actions);
+		cardServer.GetItemPageData(0, 1, "", {
+			success: function(data){
+				var data = Ext.JSON.decode(data)["MetaData"];
+				var fields = me.itemsPanel.__fields = [];
+				for (var c in data){
+					var meta = data[c];
+					if (meta["FieldName"] == "IDescript"){
+						meta["FieldHidden"] = true;
+					}
+					if (!meta["FieldHidden"]){
+						fields.push(meta["FieldName"])
+						columns.push({
+							dataIndex: meta["FieldName"],
+							header: meta["FieldLabel"],
+							flex: 1
+						})
+					}
+				};
+				me.itemsPanel.__fields = fields.concat(["cardname", {name: "isgiff", type: "bool"}, "__index"]);
+				me.itemsPanel.__columns = columns.concat([
+					{
+						dataIndex: "cardname",
+						header: "所属卡项",
+						flex: 1
+					},
+					{
+						dataIndex: "isgiff",
+						xtype: "checkcolumn",
+						header: "赠送?",
+						width: 35
+					},
+					{
+						dataIndex: "__index",
+						hidden: true
+					}
+				]);
+				me.initializeItemsGrid();
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
 		});
-		me.leftPanel.add(me.consumeHistoryPanel);
-		me.leftPanel.doLayout();
+	},
+	initializeItemsGrid: function(){
+		var me = this, selectedItems = me.selectedItems;
+		var __fields = me.itemsPanel.__fields;
 
-		//初始化grid
+		if (me.itemsPanel.grid == undefined){
+			var store = Ext.create("Ext.data.ArrayStore", {
+				fields: __fields
+			})
+
+			var grid = me.itemsPanel.grid = Ext.create("Ext.grid.Panel", {
+				store: store,
+				width: "100%",
+				height: "100%",
+				cls: "iScroll",
+				autoScroll: true,
+				columnLines: true,
+				columns: me.itemsPanel.__columns,
+				plugins: [
+					Ext.create('Ext.grid.plugin.CellEditing', {
+						clicksToEdit: 1
+					})
+				],
+				listeners: {
+					itemdblclick: function(grid,record,item,index, e){
+						//add or select existed tab
+						me.tapTabPanel(grid, record, item, index, e)
+					}
+				}
+			});
+
+			me.itemsPanel.add(grid);
+			me.itemsPanel.doLayout();
+		}
+	},
+	//选增已存在的卡项
+	selectItems: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var waitBox = Ext.MessageBox.show({
+			msg: "正在查询中...",
+			progressText: "查询中...",
+			width: 300,
+			wait: true,
+			waitConfig: {interval: 800},
+			closable: false
+		});
+
+
+		var config = {
+			extend: "Ext.window.Window",
+			title: "选择卡项项目",
+			width: 1000,
+			height: 640,
+			autoScroll: true,
+			autoHeight: true,
+			layout: "fit",
+			resizable: true,
+			border: false,
+			modal: true,
+			maximizable: true,
+			border: 0,
+			bodyBorder: false,
+			editable: false
+		}
+		var win = Ext.create("Ext.window.Window", config);
+		win.show();
+
+		//create fields
+		var __fields = ["IID", "ICode", "IName", "IPrice", "IRate", "IRealPrice", "ICategoryID", "IDescript", "CardNo", "CardName"];
+		var __columns = [
+			{
+				dataIndex: "ICode",
+				flex: 1,
+				header: "项目编号"
+			},
+			{
+				dataIndex: "IName",
+				flex: 1,
+				header: "项目名称"
+			},
+			{
+				dataIndex: "IPrice",
+				flex: 1,
+				header: "价格总价"
+			},
+			{
+				dataIndex: "IRate",
+				flex: 1,
+				header: "项目折扣"
+			},
+			{
+				dataIndex: "IRealPrice",
+				flex: 1,
+				header: "项目折扣总价"
+			},
+			{
+				dataIndex: "IDescript",
+				flex: 1,
+				header: "项目注释"
+			},
+			{
+				dataIndex: "CardName",
+				flex: 1,
+				header: "所属卡项"
+			}
+		]
+
+		
+		win.add(Ext.create("Beet.apps.ProductsViewPort.ItemListWindow", {
+			b_type: "selection",
+			b_advanceSearch: false,
+			b_selectionMode: "MULTI",
+			b_customerFields: __fields,
+			b_customerColumns: __columns,
+			b_customeStoreData: [],
+			//需要指定fields 和 columns
+			b_selectionCallback: function(records){
+				//if (records.length == 0){ win.close(); return;}
+				//me.addItems(records);
+				//win.close();
+			}
+		}));
+		win.doLayout();
+	},
+	//选择其他卡项
+	selectGiffItems: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var config = {
+			extend: "Ext.window.Window",
+			title: "选择其他项目",
+			width: 1000,
+			height: 640,
+			autoScroll: true,
+			autoHeight: true,
+			layout: "fit",
+			resizable: true,
+			border: false,
+			modal: true,
+			maximizable: true,
+			border: 0,
+			bodyBorder: false,
+			editable: false
+		}
+		var win = Ext.create("Ext.window.Window", config);
+		win.show();
+
+		win.add(Ext.create("Beet.apps.ProductsViewPort.ItemListWindow", {
+			b_type: "selection",
+			b_selectionMode: "MULTI",
+			b_selectionCallback: function(records){
+				if (records.length == 0){ win.close(); return;}
+				me.addItems(records);
+				win.close();
+			}
+		}));
+		win.doLayout();
+	},
+	addItems: function(records, isRaw){
+		var me = this, selectedItems = me.selectedItems;
+		var __fields = me.itemsPanel.__fields;
+		if (records == undefined){
+			return;
+		}
+		for (var r = 0; r < records.length; ++r){
+			var record = records[r];
+			var id = "item-" + (me.selectedItemIndex++), rawData;
+			if (isRaw){
+				//id = record["IID"];
+				record["__index"] = id;
+				rawData = record;
+			}else{
+				//id = record.get("IID");
+				//record.set("__index", id);
+				rawData = record.raw;
+				rawData["__index"] = id;
+			}
+			if (selectedItems[id] == undefined){
+				selectedItems[id] = []
+			}else{
+				selectedItems[id] = [];
+			}
+			for (var c = 0; c < __fields.length; ++c){
+				var k = __fields[c];
+				selectedItems[id].push(rawData[k]);
+			}
+		}
+		me.updateItemsPanel();
+	},
+	deleteItem: function(record){
+		var me = this, selectedItems = me.selectedItems;
+		//var id = record.get("IID");
+		var id = record.get("__index");
+		if (selectedItems[id]){
+			selectedItems[id] = null;
+			delete selectedItems[id];
+		}
+
+		me.updateItemsPanel();
+	},
+	updateItemsPanel: function(){
+		var me = this, selectedItems = me.selectedItems;
+		var grid = me.itemsPanel.grid, store = grid.getStore();
+		var tmp = []
+		for (var c in selectedItems){
+			var item = selectedItems[c];
+			tmp.push(selectedItems[c]);
+		}
+		store.loadData(tmp);
+	},
+	//}}}
+	createListTabPanel: function(){
+		var me = this;
+		var options = {
+			autoScroll: true,
+			autoHeight: true,
+			height: Beet.constants.VIEWPORT_HEIGHT - 190,
+			width: Beet.constants.WORKSPACE_WIDTH * 0.5 - 10,
+			cls: "iScroll",
+			border: true,
+			plain: true,
+			title: "指定项目服务人员"
+		}
+
+		me.listTabPanel = Ext.create("Ext.tab.Panel", options);
+
+		me.leftPanel.add(me.listTabPanel);
+		me.leftPanel.doLayout();
+	},
+	tapTabPanel: function(grid, record, item, index, e){
+		console.log(grid, record, item, index, e)
 	}
 })
