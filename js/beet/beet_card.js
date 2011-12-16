@@ -6759,6 +6759,11 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 											name: "insure"
 										},
 										{
+											fieldLabel: "折扣金额",
+											allowBlank: false,
+											name: "price"
+										},
+										{
 											fieldLabel: "最大消费次数",
 											allowBlank: true,
 											value: 0,
@@ -7805,7 +7810,8 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 		}
 
 		f.setValues({
-			"par" : _par + parseFloat(_rebate) 
+			"par" : _par + parseFloat(_rebate),
+			"price": _real + parseFloat(_rebate)
 		})
 	},
 	resetAll: function(){
@@ -7919,6 +7925,11 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		me.selectedItems = {};
 		me.selectedProducts = {};
 
+		//面值
+		me._par = {};
+		//实耗
+		me._real = {};
+		/*
 		me.count = {
 			interestsCount : 0,
 			chargesCount : 0,
@@ -7926,7 +7937,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 			packagesCount : 0,
 			itemsCount : 0,
 			productsCount : 0
-		}
+		}*/
 		me.queue = new Beet_Queue("cardList");
 
 		me.callParent();	
@@ -8450,13 +8461,12 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 											allowBlank: false,
 											editable: false,
 											readOnly: true,
-											disabled: true,
-											name: "oldpar"
+											name: "par"
 										},
 										{
-											fieldLabel: "面值修改金额",
+											fieldLabel: "折扣金额",
 											allowBlank: false,
-											name: "par"
+											name: "price"
 										},
 										{
 											fieldLabel: "保值金额",
@@ -8832,6 +8842,19 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		var grid = me.chargeTypesPanel.grid, store = grid.getStore();
 		var __fields = me.chargeTypesPanel.__fields;
 		var tmp = []
+		me._par.charges = 0;
+		me._real.charges = 0;
+		for (var c in selectedChargeType){
+			var charge = selectedChargeType[c];
+			if (!!charge[2]){
+				var price = charge[2].replaceAll(",", ""), r = charge[4];
+				me._par.charges += price;//面值
+				me._real.charges += price * r;//实耗
+			//	me.count.chargesCount = charge[2].replaceAll(",", "") * charge[4];
+			}
+			tmp.push(selectedChargeType[c]);
+		}
+		/*
 		me.count.chargesCount = 0;
 		for (var c in selectedChargeType){
 			var charge = selectedChargeType[c];
@@ -8840,7 +8863,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 			}
 			
 			tmp.push(selectedChargeType[c]);
-		}
+		}*/
 		store.loadData(tmp);
 		me.onUpdate();
 	},
@@ -8986,13 +9009,31 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		var grid = me.rebatesPanel.grid, store = grid.getStore();
 		var __fields = me.rebatesPanel.__fields;
 		var tmp = [];
-		me.count.rebatesCount = 0;
+		//me.count.rebatesCount = 0;
+		me._rebateList = [];
+		/**
+		 * 使用公式模式
+		 * {par} 面值总值
+		 * {real} 实耗总值
+		 */
 		for (var c in selectedRebates){
 			var rebate = selectedRebates[c];
-			if (!!rebate[2]){
-				me.count.rebatesCount += rebate[2].replaceAll(",", "") * 1;
+			//value ismoney rater
+			var v = rebate[2].replaceAll(",", ""), ismoney = rebate[3], rater = rebate[8];
+			if (ismoney == "True"){
+				//面值 - 值
+				me._rebateList.push(" - " + v);
+			}else{
+				if (rater == 0){
+					//面值 - (面值 * v)
+					me._rebateList.push("  - ( {par} * " + v + ")");
+				}else{
+					if (rater == 1){
+						// 面值 - (实耗 * v)
+						me._rebateList.push( "  - ( {real} * " + v + ")" );
+					}
+				}
 			}
-			
 			tmp.push(selectedRebates[c]);
 		}
 		store.loadData(tmp);
@@ -9141,13 +9182,18 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		var grid = me.packagesPanel.grid, store = grid.getStore();
 		var __fields = me.packagesPanel.__fields;
 		var tmp = []
-		me.count.packagesCount = 0;
+		me._par.packages = 0;
+		me._real.packages = 0;
 		for (var c in selectedPackages){
 			var package = selectedPackages[c];
 			if (!!package[3]){
-				me.count.packagesCount += package[3].replaceAll(",", "") * 1;
+				//console.log(package);
+				var price = package[2].replaceAll(",", ""),
+					r = package[3].replaceAll(",", "");
+				me._par.packages += price * 1;
+				me._real.packages += r * 1;
+			//	me.count.packagesCount += package[3].replaceAll(",", "") * 1;
 			}
-			
 			tmp.push(selectedPackages[c]);
 		}
 		store.loadData(tmp);
@@ -9296,16 +9342,20 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		var me = this, selectedItems = me.selectedItems;
 		var grid = me.itemsPanel.grid, store = grid.getStore();
 		var tmp = []
-		me.count.itemsCount = 0;
+		me._par.items = 0;
+		me._real.items = 0;
 		for (var c in selectedItems){
 			var item = selectedItems[c];
 			if (!!item[5]){
-				me.count.itemsCount += item[5].replaceAll(",", "") * 1;
+				var price = item[3].replaceAll(",", "");
+					r = item[5].replaceAll(",", "");
+
+				me._par.items += price * 1;
+				me._real.items += r * 1;
+			//	me.count.itemsCount += item[5].replaceAll(",", "") * 1;
 			}
-			
 			tmp.push(selectedItems[c]);
 		}
-		store.loadData(tmp);
 		me.onUpdate();
 	},
 	initializeProductsPanel: function(){
@@ -9451,25 +9501,46 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		var me = this, selectedProducts = me.selectedProducts;
 		var grid = me.productsPanel.grid, store = grid.getStore();
 		var tmp = []
-		me.count.productsCount = 0;
+		me._par.products = 0;
+		me._real.products = 0;
 		for (var c in selectedProducts){
 			var product = selectedProducts[c];
 			if (!!product[4]){
-				me.count.productsCount += product[4].replaceAll(",", "") * 1;
+				var price = product[4].replaceAll(",", "") * 1;
+				me._par.products += price;
+				me._real.products += price;
+				//me.count.productsCount += product[4].replaceAll(",", "") * 1;
 			}
-			
 			tmp.push(selectedProducts[c]);
 		}
 		store.loadData(tmp);
 		me.onUpdate();
 	},
 	onUpdate: function(){
-		var me = this, count = 0, f = me.cardInfo.form.getForm();
-		for (var k in me.count){
-			count += me.count[k];
+		var me = this, _par = 0, _real = 0, f = me.cardInfo.form.getForm();
+		for (var k in me._par){
+			_par += parseFloat(me._par[k]);
 		}
+		for (var k in me._real){
+			_real += parseFloat(me._real[k]);
+		}
+		//开始计算
+		
+		_par = parseFloat(_par);
+		_real = parseFloat(_real);
+		var _rebate = 0;
+		if (me._rebateList && me._rebateList.length > 0){
+			for (var c = 0; c < me._rebateList.length; ++c){
+				var r = me._rebateList[c].replaceAll("{par}", _par).replaceAll("{real}", _real);
+				_rebate += eval(r);
+			}
+		}
+
+		//console.log(_rebate, _par, _real)
+
 		f.setValues({
-			"par" : count		
+			"par" : _par + parseFloat(_rebate),
+			"price": _real + parseFloat(_rebate)
 		})
 	},
 	onSelectItem: function(record, detailData){
@@ -9481,7 +9552,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		var form = me.cardInfo.form.getForm();
 		form.setValues({
 			name: record.get("Name"),
-			oldpar: record.get("Par").replace(/,/g, ""),
+			par: record.get("Par").replace(/,/g, ""),
 			level: record.get("Level"),
 			insure: record.get("Insure").replace(/,/g, ""),
 			validdate: record.get("ValidDate"),
@@ -9641,6 +9712,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 			setTimeout(function(){
 				form.setValues({
 					par: record.get("Par").replace(/,/g, ""),
+					price: record.get("Price").replace(/,/g, ""),
 				});
 				me.queue.triggle("resetpar", "success");
 			}, 500);
@@ -9655,14 +9727,8 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		me.selectedPackages = {};
 		me.selectedItems = {};
 		me.selectedProducts = {};
-		me.count = {
-			interestsCount : 0,
-			chargesCount : 0,
-			rebatesCount: 0,
-			packagesCount : 0,
-			itemsCount: 0,
-			productsCount : 0
-		}
+		me._par = {}
+		me._real = {}
 
 		me.updateInterestsPanel();
 		me.updateChargeTypePanel();

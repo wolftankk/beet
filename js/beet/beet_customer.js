@@ -1,7 +1,7 @@
 //register menu
 registerBeetAppsMenu("customer", 
 {
-	title: "客户管理",
+	title: "会员管理",
 	items: [
 		{
 			xtype: "container",
@@ -2271,6 +2271,11 @@ Ext.define("Beet.apps.AddCustomerCard", {
 				for (var c in data){
 					var meta = data[c];
 					fields.push(meta["FieldName"])
+					
+					//隐藏有效日期
+					if (meta["FieldName"] == "ValidDate"){
+						meta["FieldHidden"] = true;
+					}
 					if (!meta["FieldHidden"]){
 						var column = {
 							dataIndex: meta["FieldName"],
@@ -2288,7 +2293,8 @@ Ext.define("Beet.apps.AddCustomerCard", {
 						columns.push(column);
 					}
 				}
-				fields.push("raterate")
+				fields.push("raterate");
+				fields.push("blance");
 				fields.push("startdate");
 				fields.push("enddate");
 
@@ -2296,6 +2302,18 @@ Ext.define("Beet.apps.AddCustomerCard", {
 				{
 					header: "折上折",
 					dataIndex: "raterate",
+					hidden: true,
+					flex: 1,
+					/*
+					editor: {
+						xtype: "textfield",
+						type: "int",
+						allowBlank: false
+					}*/
+				},
+				{
+					header: "余额",
+					dataIndex: "blance",
 					flex: 1,
 					editor: {
 						xtype: "textfield",
@@ -2304,7 +2322,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 					}
 				},
 				{
-					header: "生效日期",
+					header: "购买日期",
 					dataIndex: "startdate",
 					flex: 1,
 					xtype: 'datecolumn',
@@ -2352,7 +2370,24 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			columns: me.cardPanel.__columns,
 			plugins: [
 				Ext.create('Ext.grid.plugin.RowEditing', {
-					clicksToEdit: 1
+					clicksToEdit: 1,
+					listeners: {
+						validateedit: function(editor, e){
+							var record = e.record, newvalues = e.newValues;
+							var par = parseFloat(newvalues.Par.replaceAll(",", "")), blance = parseFloat(newvalues.blance);
+							console.log(editor, e)
+							if (blance && blance >= par){
+								e.cancel = false;
+							}else{
+								e.cancel = true;
+								//check blance
+								var blance = editor.getEditor().down("textfield[name=blance]");
+								if (blance){
+									//TODO: 这里需要显示错误
+								}
+							}
+						}
+					}
 				})
 			],
 		});
@@ -2681,7 +2716,21 @@ Ext.define("Beet.apps.CreateOrder", {
 										},
 										{
 											fieldLabel: "手机号",
-											xtype: "textfield"
+											xtype: "textfield",
+											enableKeyEvents: true,
+											listeners: {
+												keydown: function(f, e){
+													if (e.getKey() == Ext.EventObject.ENTER){
+														var v = f.getValue();
+														if (v.length > 0){
+															me.quickQueryCustom(v, "mobile")
+														}
+														e.stopEvent();
+														e.stopPropagation();
+														return false;
+													}
+												}
+											}
 										},
 										{
 											xtype: "toolbar",
