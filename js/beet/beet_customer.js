@@ -2179,49 +2179,29 @@ Ext.define("Beet.apps.AddCustomerCard", {
 							data = Ext.JSON.decode(data);
 							data = data["Data"];
 							var records = []
-							console.log(data);
-							//for (var c = 0; c < data.length; ++c){
-							//	var d = data[c];
-							//	var cardId = d["ID"];
-							//	if (list[cardId]){
-							//		var record = d;
-							//		record["enddate"] = new Date(list[cardId]["endtime"] * 1000)
-							//		record["rate"] = list[cardId]["rate"]
-							//		record["MaxCount"] = list[cardId]["expensecount"]
-							//		//处理并且合并相关数据, 然后使用addCard方法传入
-							//		records.push(record);
-							//	}
-							//}
+							for (var c = 0; c < data.length; ++c){
+								var d = data[c];
+								var cardId = d["CID"];
+								if (cardId){
+									var record = d;
+									record["StartTime"] = new Date(record["StartTime"])
+									record["EndTime"] = new Date(record["EndTime"])
+									//处理并且合并相关数据, 然后使用addCard方法传入
+									records.push(record);
+								}
+							}
 
-							//me.addCard(records, true);
-							//me.queue.triggle("queryCustomerCard", "success");
-
-					//		var cards = data["cards"];
-					//		var str = [];
-					//		var list = {};
-					//		for (var c = 0; c < cards.length; ++c){
-					//			var d = cards[c];
-					//			list[d["id"]] = d;
-					//			str.push("id='" + d["id"] + "'");
-					//		}
-					//		var cardServer = Beet.constants.cardServer;
-					//		cardServer.GetCardPageData(false, cards.length, str.join(" OR "), {
-					//			success: function(_data){
-					//				_data = Ext.JSON.decode(_data)["Data"];
-					//			},
-					//			failure: function(error){
-					//				Ext.Error.raise(error)	
-					//			}
-					//		})
+							me.addCard(records, true);
+							me.queue.triggle("queryCustomerCard", "success");
 						},
 						failure: function(error){
 							Ext.Error.raise(error)
 						}
 					});
 				}else{
-					//if (customerData == null){
-					//	me.queue.triggle("queryCustomer", "success");
-					//}
+					if (customerData == null){
+						me.queue.triggle("queryCustomer", "success");
+					}
 				}
 			})
 
@@ -2463,10 +2443,10 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			//console.log(record)
 			var cid, rawData;
 			if (isRaw){
-				cid = record["ID"];
+				cid = record["ID"] || record["CID"];
 				rawData = record;
 			}else{
-				cid = record.get("ID");
+				cid = record.get("ID") || record.get("CID");
 				rawData = record.raw;
 			}
 
@@ -3383,6 +3363,16 @@ Ext.define("Beet.apps.CreateOrder", {
 		me.leftPanel.doLayout();
 	},
 	tapTabPanel: function(grid, record, item, index, e){
+		var me = this, tabId, itemId = record.get("__index");
+		tabId = "tab"+itemId;
+		if (me.tabCache == undefined){
+			me.tabCache = {};
+		}
+		if (me.tabCache[tabId]){
+		}else{
+			//从模板中创建一个 并且加入panel
+		}
 		console.log(grid, record, item, index, e)
 	}
+	
 })
