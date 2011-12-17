@@ -2872,20 +2872,18 @@ Ext.define("Beet.apps.CreateOrder", {
 	cleanup: function(){
 		var me = this;
 		me.resetAll();
-		//destory all!!
-		//me.newOrderPanel.removeAll(true);
-		//me.itemsPanel.destory();
-		//me.newOrderPanel.destory();
 
-		//me.listTabPanel.removeAll(true);
-		//me.listTabPanel.destory();
 
-		Ext.defer(function(){
-			//指定服务人员
-			//me.createListTabPanel();
-			//订单区域
-			//me.createNewOrderPanel();
-		}, 200)
+		me.itemsPanel.grid.getStore().loadData([])
+		me.newOrderPanel.disable();
+
+		for (var k in me.tabCache){
+			me.listTabPanel.remove(me.tabCache[k], true);
+			me.tabCache[k].close();
+		}
+		//remove all child
+		me.listTabPanel.disable();
+		me.tabCache = {};
 	},
 	quickQueryCustom: function(value, type){
 		var me = this, customerServer = Beet.constants.customerServer, _sql = "";
@@ -3452,7 +3450,7 @@ Ext.define("Beet.apps.CreateOrder", {
 			height: Beet.constants.VIEWPORT_HEIGHT - 190,
 			width: Beet.constants.WORKSPACE_WIDTH * 0.5 - 10,
 			cls: "iScroll",
-			border: true,
+			border: false,
 			plain: true,
 			title: "指定项目服务人员"
 		}
