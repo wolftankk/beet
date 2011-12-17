@@ -1829,6 +1829,8 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			tbar: [{
 				xtype: "button",
 				text: "绑定卡项",
+				name: "bindingCard",
+				disabled: true,
 				handler: function(){
 					me.selectCard();
 				}
@@ -1921,9 +1923,28 @@ Ext.define("Beet.apps.AddCustomerCard", {
 											name: "level"
 										},
 										{
+											fieldLabel: "充值金额",
+											readOnly: true,
+											value: 99999999,
+											type: "float",
+											name: "_payvalue"
+										},
+										{
 											fieldLabel: "余额",
 											allowBlank: false,
-											name: "balance"
+											readOnly: true,
+											name: "balance",
+											type: "float",
+											listeners: {
+												blur: function(){
+													var v = this.getValue();
+													if (parseFloat(v) > 0){
+														me.down("button[name=bindingCard]").enable();
+													}else{
+														me.down("button[name=bindingCard]").disable();
+													}
+												}
+											}
 										},
 										{
 											fieldLabel: "专属顾问",
@@ -2011,7 +2032,24 @@ Ext.define("Beet.apps.AddCustomerCard", {
 										},
 										{
 											xtype: "component",
-											width: 100
+											width: 30
+										},
+										{
+											xtype: "button",
+											scale: "medium",
+											text: "充值",
+											handler: function(){
+												var form = this.up("form").getForm();
+												var values = form.getValues();
+												if (values["_payvalue"] > 0){
+													me.down("button[name=bindingCard]").enable();
+												}
+												form.setValues({"balance" : values["_payvalue"]})
+											}
+										},
+										{
+											xtype: "component",
+											width: 30
 										},
 										{
 											xtype: "button",
@@ -2377,8 +2415,66 @@ Ext.define("Beet.apps.AddCustomerCard", {
 							var record = e.record, newvalues = e.newValues;
 							var price = parseFloat(record.data.Price.replaceAll(",", "")), blance = parseFloat(newvalues.Balance);
 							//console.log(editor, e)
+							var selectedCards = me.selectedCards;
+							var __fields = me.cardPanel.__fields;
+
+							var _v = me.form.getForm().getValues(), balance = _v["balance"];
+
 							if (blance && blance >= price){
+								//修改成功!
 								e.cancel = false;
+
+								var cid = record.get("ID") || record.get("CID");
+								if (!selectedCards[cid]){return}
+
+								var rawData = record.data;
+								if (rawData["raterate"] == undefined){
+									rawData["raterate"] = 1;
+								}
+
+								if (rawData["StartTime"] == undefined){
+									rawData["StartTime"] = new Date();
+								}
+
+								if (rawData["EndTime"] == undefined){
+									// 0 year 1 month 2 day
+									var d = 0;
+									switch (rawData["ValidUnit"]){
+										case 0:
+											d = rawData["ValidDate"] * 365 * 86400;
+											break;
+										case 1:
+											d = rawData["ValidDate"] * 30 * 86400;
+											break;
+										case 2:
+											d = rawData["ValidDate"] * 86400;
+											break;
+									}
+									rawData["EndTime"] = new Date(+new Date() + d * 1000);
+								}
+
+								rawData["ExpenseCount"] = rawData["MaxCount"];
+								rawData["StepPrice"] = rawData["MaxCount"] == 0 ? 0 : rawData["Price"].replaceAll(",", "") / rawData["MaxCount"]
+									if (rawData["Balance"] == undefined || rawData["Balance"] == ""){
+										rawData["Balance"] = rawData["Price"].replace(/,/g, "");
+									}
+
+								//hook
+								if (parseFloat(rawData["Balance"]) > parseFloat(balance)){
+									Ext.MessageBox.alert("警告", "改卡项面值超出当前余额");
+									return;
+								}
+
+								selectedCards[cid] = [];
+
+								Ext.defer(function(){
+									for (var c = 0; c < __fields.length; ++c){
+										var k = __fields[c];
+										selectedCards[cid].push(rawData[k]);
+									}
+									me.updateCardPanel();
+								}, 100);
+
 							}else{
 								e.cancel = true;
 								//check blance
@@ -2438,6 +2534,8 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		if (records == undefined){
 			return;
 		}
+		var _v = me.form.getForm().getValues(), balance = _v["balance"];
+
 		for (var r = 0; r < records.length; ++r){
 			var record = records[r];
 			//console.log(record)
@@ -2489,6 +2587,15 @@ Ext.define("Beet.apps.AddCustomerCard", {
 				rawData["Balance"] = rawData["Price"].replace(/,/g, "");
 			}
 
+			//hook
+			if (parseFloat(rawData["Balance"]) > parseFloat(balance)){
+				Ext.MessageBox.alert("警告", "改卡项面值超出当前余额");
+				return;
+			}else{
+				balance -= parseFloat(rawData["Balance"]);	
+			}
+
+
 			//console.log(__fields, rawData)
 			for (var c = 0; c < __fields.length; ++c){
 				var k = __fields[c];
@@ -2513,10 +2620,19 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		var me = this, selectedCards = me.selectedCards;
 		var grid = me.cardPanel.grid, store = grid.getStore();
 		var __fields = me.cardPanel.__fields;
-		var tmp = []
+		var tmp = [];
+
+		var _v = me.form.getForm().getValues(), balance = _v["_payvalue"];
+
+		var totalBalance = 0; //卡项总价
 		for (var c in selectedCards){
+			totalBalance += selectedCards[c][5] || 0;
 			tmp.push(selectedCards[c]);
 		}
+
+		me.form.getForm().setValues({
+			"balance" : (balance - totalBalance)
+		})
 
 		store.loadData(tmp);
 	},
@@ -3695,7 +3811,7 @@ Ext.define("Beet.apps.CreateOrder", {
 			items: items
 		}
 
-		console.log(results);
+		//console.log(results);
 		cardServer.AddConsumer(Ext.JSON.encode(results), {
 			success: function(succ){
 				if (succ){
