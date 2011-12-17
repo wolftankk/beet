@@ -4802,7 +4802,6 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 									if (me.b_customerCardsList){
 										return {
 											fieldLabel: "选择卡项",
-											name: "sex",
 											xtype: "combobox",
 											editable: false,
 											store: me.b_customerCardsList,
@@ -4812,8 +4811,9 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 											listeners: {
 												change: function(f, newValue){
 													//newValue
-													if (newValue && me.b_customerHanlerStoreData){
-														me.b_customerHanlerStoreData(newValue, me.itemList.store);	
+													if (newValue && me.b_customerHandlerStoreData){
+														//get cardName
+														me.b_customerHandlerStoreData(newValue, me.itemList.store, this.rawValue);	
 													}
 												},
 												afterRender: function(){
@@ -9729,7 +9729,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 			if (items && items.length > 0){
 				var sql = [];
 				for (var c = 0; c < items.length; ++c){
-					sql.push("id=" + items[c]);
+					sql.push("iid=" + items[c]);
 				}
 				var s = sql.join(" OR ");
 				if (s.length > 0){
