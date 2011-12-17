@@ -4792,7 +4792,45 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 						border: false
 					},
 					items:[
-						me.itemList.grid,
+						{
+							bodyStyle: "background-color: #dfe8f5",
+							layout: "anchor",
+							flex: 1,
+							height: 550,
+							items: [
+								(function(){
+									if (me.b_customerCardsList){
+										return {
+											fieldLabel: "选择卡项",
+											name: "sex",
+											xtype: "combobox",
+											editable: false,
+											store: me.b_customerCardsList,
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr",
+											listeners: {
+												change: function(f, newValue){
+													//newValue
+													if (newValue && me.b_customerHanlerStoreData){
+														me.b_customerHanlerStoreData(newValue, me.itemList.store);	
+													}
+												},
+												afterRender: function(){
+													//select 1
+													this.select(this.getStore().first().get("attr"))
+												}
+											}
+										}
+									}else{
+										return {
+											xtype: "component"
+										}
+									}
+								})(),
+								me.itemList.grid,
+							]
+						},
 						{
 							layout: {
 								type: 'vbox',
@@ -9382,6 +9420,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 			}
 			tmp.push(selectedItems[c]);
 		}
+		store.loadData(tmp);
 		me.onUpdate();
 	},
 	initializeProductsPanel: function(){

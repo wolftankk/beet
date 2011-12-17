@@ -2807,11 +2807,13 @@ Ext.define("Beet.apps.CreateOrder", {
 										labelWidth: 30
 									},
 									items: [
+										/*
 										{
 											fieldLabel: "流水号",
 											xtype: "textfield",
 											readOnly: true,
 										},
+										*/
 										{
 											fieldLabel: "订单号",
 											xtype: "textfield"
@@ -2947,6 +2949,7 @@ Ext.define("Beet.apps.CreateOrder", {
 					});
 					//开始查询他的卡项, 套餐, 费用
 					me.customerInfoBtn.enable();
+					me.newOrderPanel.enable();
 				}
 			},
 			failure: function(error){
@@ -3039,6 +3042,7 @@ Ext.define("Beet.apps.CreateOrder", {
 			width: Beet.constants.WORKSPACE_WIDTH * 0.5 - 10,
 			height: Beet.constants.VIEWPORT_HEIGHT - 15,
 			border: false,
+			disabled: true,
 			bodyStyle: "background-color: #dfe8f5",
 			items: me.childrenList,
 			buttons: [
@@ -3101,8 +3105,8 @@ Ext.define("Beet.apps.CreateOrder", {
 					if (meta["FieldName"] == "IDescript"){
 						meta["FieldHidden"] = true;
 					}
+					fields.push(meta["FieldName"])
 					if (!meta["FieldHidden"]){
-						fields.push(meta["FieldName"])
 						columns.push({
 							dataIndex: meta["FieldName"],
 							header: meta["FieldLabel"],
@@ -3240,23 +3244,62 @@ Ext.define("Beet.apps.CreateOrder", {
 				header: "所属卡项"
 			}
 		]
-
 		
-		win.add(Ext.create("Beet.apps.ProductsViewPort.ItemListWindow", {
-			b_type: "selection",
-			b_advanceSearch: false,
-			b_selectionMode: "MULTI",
-			b_customerFields: __fields,
-			b_customerColumns: __columns,
-			b_customeStoreData: [],
-			//需要指定fields 和 columns
-			b_selectionCallback: function(records){
-				//if (records.length == 0){ win.close(); return;}
-				//me.addItems(records);
-				//win.close();
+		cardServer.GetCustomerCardData(false, "CustomerID='" + me.selectedCustomerId + "'", {
+			success: function(data){
+				data = Ext.JSON.decode(data)["Data"];
+				var cards = [];
+				waitBox.hide();
+				if (data.length == 0){
+					win.hide();
+					Ext.MessageBox.alert("警告", "没有可用卡项");	
+				}else{
+					for (var c = 0; c < data.length; ++c){
+						cards.push({
+							attr: data[c]["CID"],
+							name: data[c]["Name"]	
+						})
+					}
+					var customerCardList = Ext.create("Ext.data.Store", {
+						fields: ["attr", "name"],
+						data: cards	
+					})
+		
+					win.add(Ext.create("Beet.apps.ProductsViewPort.ItemListWindow", {
+						b_type: "selection",
+						b_advanceSearch: false,
+						b_selectionMode: "MULTI",
+						b_customerFields: __fields,
+						b_customerColumns: __columns,
+						b_customerStoreData: [],
+						b_customerCardsList: customerCardList,
+						b_customerHanlerStoreData: function(cid, store){
+							store.loadData([]);
+							cardServer.GetCardDetailData(cid, {
+								success: function(data){
+									data = Ext.JSON.decode(data);
+									console.log(data)
+								},
+								failure: function(error){
+									Ext.Error.raise(error)
+								}
+							});
+						}
+					//	//需要指定fields 和 columns
+					//	b_selectionCallback: function(records){
+					//		//if (records.length == 0){ win.close(); return;}
+					//		//me.addItems(records);
+					//		//win.close();
+					//	}
+					}));
+					win.doLayout();
+				}
+			},
+			failure: function(error){
+				Ext.Error.raise(error)
 			}
-		}));
-		win.doLayout();
+		})
+		
 	},
 	//选择其他卡项
 	selectGiffItems: function(){
@@ -3349,6 +3392,7 @@ Ext.define("Beet.apps.CreateOrder", {
 		var options = {
 			autoScroll: true,
 			autoHeight: true,
+			disabled: true,
 			height: Beet.constants.VIEWPORT_HEIGHT - 190,
 			width: Beet.constants.WORKSPACE_WIDTH * 0.5 - 10,
 			cls: "iScroll",
@@ -3362,17 +3406,179 @@ Ext.define("Beet.apps.CreateOrder", {
 		me.leftPanel.add(me.listTabPanel);
 		me.leftPanel.doLayout();
 	},
-	tapTabPanel: function(grid, record, item, index, e){
+	tapTabPanel: function(grid, record, item, index, e, cardid){
 		var me = this, tabId, itemId = record.get("__index");
 		tabId = "tab"+itemId;
 		if (me.tabCache == undefined){
 			me.tabCache = {};
+			me.listTabPanel.enable();
 		}
+
 		if (me.tabCache[tabId]){
+			me.listTabPanel.setActiveTab(me.tabCache[tabId])
 		}else{
 			//从模板中创建一个 并且加入panel
+			var tab = me.tabCache[tabId] = me.listTabPanel.add({
+				title: record.get("IName"),
+				inTab: true,
+				_cardid : cardid,
+				_itemId: record.get("IID"),
+				_cost: record.get("IRealPrice").replaceAll(",", ""),
+				_isgiff: record.get("isgiff"),
+				_itemRecord : record,
+				items: [
+					{
+						xtype: "panel",
+						border: false,
+						plain: true,
+						name: "_egrid",
+						tbar: [
+							{
+								text: "指派员工",
+								xtype: "button",
+								handler: function(){
+									tab.popupEmpolyee();
+								}
+							}
+						]
+					}
+				]
+			})
+
+			me.listTabPanel.setActiveTab(tab)
+			tab.panel = tab.down("panel[name=_egrid]");
+			tab.panel.add(me.createEmpolyeeTempalte(tab));
+			tab.panel.doLayout();
 		}
-		console.log(grid, record, item, index, e)
+		//console.log(grid, record, item, index, e)
+	},
+	createEmpolyeeTempalte: function(tab){
+		var me = this;
+		//init;
+		tab.selectedEmpolyees = {};
+
+		var __fields = tab.__fields = [
+			"employeename", "employeeId", "employeeTime"	
+		]
+		var store = tab.store = Ext.create("Ext.data.ArrayStore", {
+			//名字, id, 工时, 
+			fields: tab.__fields
+		});
+		var _actions = {
+			xtype: 'actioncolumn',
+			width: 30,
+			header: "操作",
+			items: [
+			]
+		}
+		_actions.items.push("-",{
+			icon: "./resources/themes/images/fam/delete.gif",
+			tooltip: "移除",
+			handler: function(grid, rowIndex, colIndex){
+				var d = grid.store.getAt(rowIndex)
+				tab.removeEmpolyee(d);
+			}
+		}, "-");
+		var columns = tab.__columns = [
+			_actions,
+			{
+				dataIndex: "employeename",
+				header: "员工名",
+				flex: 1
+			},
+			{
+				dataIndex: "employeeTime",
+				header: "工时",
+				flex:1,
+				hidden: true
+			}
+		];
+		tab.grid = Ext.create("Ext.grid.Panel", {
+			store: store,
+			height: tab.getHeight() - 29,
+			width: "100%",
+			cls: "iScroll",
+			autoScroll: true,
+			columnLines: true,
+			columns: columns	
+		});
+
+		tab.popupEmpolyee = function(){
+			var win = Ext.create("Ext.window.Window", {
+				title: "选择专属顾问",
+				width: 750,
+				height: 550,
+				minHeight: 450,
+				autoDestroy: true,
+				autoHeight: true,
+				autoScroll: true,
+				layout: "fit",
+				resizable: true,
+				border: false,
+				modal: false,
+				maximizable: true,
+				border: 0,
+				bodyBorder: false,
+			});
+			win.add(Ext.create("Beet.apps.Viewport.EmployeeList", {
+				b_type: "selection",
+				b_selectionMode: "MULTI",
+				height: "100%",
+				width: "100%",
+				b_selectionCallback: function(r){
+					tab.addEmpolyee(r);
+					win.hide();
+				}
+			}));
+			win.doLayout();
+			win.show();
+		}
+		tab.addEmpolyee = function(records){
+			var selectedEmpolyees = tab.selectedEmpolyees;
+			if (records == undefined){return;}
+			for (var r = 0; r < records.length; ++r){
+				var record = records[r];
+				var eid, rawData;
+				//if (isRaw){
+				//	eid = record["PID"];
+				//	rawData = record;
+				//}else{
+					eid = record.get("EM_UserID");
+					rawData = record.raw;
+				//}
+				if (selectedEmpolyees[eid] == undefined){
+					selectedEmpolyees[eid] = []
+				}else{
+					selectedEmpolyees[eid] = [];
+				}
+
+				selectedEmpolyees[eid] = [rawData["EM_NAME"], rawData["EM_UserID"], 0]
+				//for (var c = 0; c < __fields.length; ++c){
+				//	var k = __fields[c];
+				//	selectedEmpolyees[eid].push(rawData[k]);
+				//}
+			}
+			tab.updatePanel();
+		}
+		tab.removeEmpolyee = function(record){
+			var selectedEmpolyees = tab.selectedEmpolyees;
+			var eid = record.get("employeeId");
+			if (selectedEmpolyees[eid]){
+				selectedEmpolyees[eid] = null;
+				delete selectedEmpolyees[eid];
+			}
+
+			tab.updatePanel();
+		}
+		tab.updatePanel = function(){
+			var selectedEmpolyees = tab.selectedEmpolyees;
+			var tmp = []
+			for (var c in selectedEmpolyees){
+				tmp.push(selectedEmpolyees[c]);
+			}
+			store.loadData(tmp);
+		}
+
+		return tab.grid
 	}
-	
 })
