@@ -903,6 +903,40 @@ MyCardSvc.prototype.AddCustomerAccount = function(ACustomerAccountJSON, __callba
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
+MyCardSvc.prototype.AddCustomerPay = function(ACusomterPayJSON, __callback) {
+  var __message = {
+    "method" : "MyCardSvc.AddCustomerPay",
+    "params" : {
+      "ACusomterPayJSON": ACusomterPayJSON
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
 MyCardSvc.prototype.AddInterests = function(AName, __callback) {
   var __message = {
     "method" : "MyCardSvc.AddInterests",
@@ -1282,6 +1316,41 @@ MyCardSvc.prototype.DeleteCustomerAccount = function(ACustomerID, __callback) {
     "method" : "MyCardSvc.DeleteCustomerAccount",
     "params" : {
       "ACustomerID": ACustomerID
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyCardSvc.prototype.DeleteCustomerPay = function(ACustomerID, APayID, __callback) {
+  var __message = {
+    "method" : "MyCardSvc.DeleteCustomerPay",
+    "params" : {
+      "ACustomerID": ACustomerID,
+      "APayID": APayID
       }
   }
   var __callbacks = null;
@@ -1797,6 +1866,41 @@ MyCardSvc.prototype.GetCustomerAccountData = function(OnlySchema, AWhere, __call
 MyCardSvc.prototype.GetCustomerCardData = function(OnlySchema, AWhere, __callback) {
   var __message = {
     "method" : "MyCardSvc.GetCustomerCardData",
+    "params" : {
+      "OnlySchema": OnlySchema,
+      "AWhere": AWhere
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyCardSvc.prototype.GetCustomerPayData = function(OnlySchema, AWhere, __callback) {
+  var __message = {
+    "method" : "MyCardSvc.GetCustomerPayData",
     "params" : {
       "OnlySchema": OnlySchema,
       "AWhere": AWhere

@@ -3580,7 +3580,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 		}else{
 			_realprice = _price * _rate;
 		}
-
 		me.form.getForm().setValues({
 			price: Ext.Number.toFixed(__price, 2), 	
 			rate: Ext.Number.toFixed(_rate, 2),

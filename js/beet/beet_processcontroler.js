@@ -118,11 +118,35 @@ Beet_Queue.prototype.getProcess = function(indexName){
  */
 Beet_Queue.prototype.triggle = function(indexName, status, response){
 	var process = this.getProcess(indexName);
-	if (!!!process || process == undefined){
+	if (!process || process == undefined){
 		throw indexName + " not found!";
 		return;
+	}else{
+		process.setStatus(status, response);
 	}
-	process.setStatus(status, response);
+}
+//alice
+Beet_Queue.prototype.trigger = Beet_Queue.prototype.triggle;
+/**
+ * @description 获取当前正在执行的进程
+ */
+Beet_Queue.prototype.getCurrentNumProcesses = function(){
+	var list = [];
+	for (var k in this.queueByName){
+		list.push(this.queueByName[k]);
+	}
+	if (list.length == 0){
+		return 0;
+	}
+
+	var processCount = 0;//正在执行的进程数量, 初始化为0
+	for (var c = 0; c < list.length; ++c){
+		var p = list[c];
+		if (p.getStatus() != "success"){
+			processCount++;
+		}
+	}
+	return processCount;
 }
 /**
  * @description 重置队列
