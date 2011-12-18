@@ -3253,17 +3253,17 @@ Ext.define("Beet.apps.CreateOrder", {
 												//console.log(component)
 											},
 											items: [
-											"->",
-											//{//button group
-											//	xtype: "button",
-											//	text: "高级搜索"
-											//},
-											{
-												xtype: "button",
-												text: "会员卡详情",
-												name: "customerInfoBtn",
-												disabled: true
-											}
+												{
+													xtype: "label",
+													name: "currentCardBalance"
+												},
+												"->",
+												{
+													xtype: "button",
+													text: "会员卡详情",
+													name: "customerInfoBtn",
+													disabled: true
+												}
 											]
 										}
 									]
@@ -3349,6 +3349,7 @@ Ext.define("Beet.apps.CreateOrder", {
 		me.leftPanel = me.mainPanel.down("panel[name=leftPanel]");
 		me.rightPanel = me.mainPanel.down("panel[name=rightPanel]");
 		me.customerInfoBtn = me.mainPanel.down("button[name=customerInfoBtn]");
+		me.currentCardBalanceLable = me.mainPanel.down("label[name=currentCardBalance]")
 
 		//指定服务人员
 		me.createListTabPanel();
@@ -3467,6 +3468,7 @@ Ext.define("Beet.apps.CreateOrder", {
 					me.bindOtherItemsBtn.enable();
 					me.bindCardItemsBtn.enable();
 					me.createOrderBtn.enable();
+					me.currentCardBalanceLable.setText('卡内余额: <span style="color:black;font-weight:bolder">' + data["Balance"] + "</span>", false)
 				}
 			},
 			failure: function(error){
