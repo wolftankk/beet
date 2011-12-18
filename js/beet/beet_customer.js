@@ -2915,6 +2915,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 
 		for (var r = 0; r < records.length; ++r){
 			var record = records[r];
+			console.log(record)
 			var cid, rawData;
 			if (isRaw){
 				cid = record["ID"] || record["CID"];
@@ -2926,6 +2927,9 @@ Ext.define("Beet.apps.AddCustomerCard", {
 
 			//重新设置一次
 			rawData["ID"] = cid;
+			//if (!!rawData["Par"] && rawData["CardPrice"] == undefined){
+			//	rawData["CardPrice"] = rawData["Par"];
+			//}
 
 			if (selectedCards[cid] == undefined){
 				selectedCards[cid] = []
@@ -3004,7 +3008,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 
 		var totalBalance = 0; //卡项总价
 		for (var c in selectedCards){
-			var m = (selectedCards[c][6] || "0").replaceAll(",", "");
+			var m = (selectedCards[c][7] || "0").replaceAll(",", "");
 			totalBalance += parseFloat(m);
 			tmp.push(selectedCards[c]);
 		}
@@ -3430,7 +3434,7 @@ Ext.define("Beet.apps.CreateOrder", {
 	onSelectCustomer: function(records){
 		var record, me = this, cardServer = Beet.constants.cardServer;
 		var form = me.getForm();
-		me.resetAll();
+		me.cleanup();
 		if (Ext.isArray(records) && records.length > 0){
 			record = records[0]
 		}else{
@@ -3618,7 +3622,7 @@ Ext.define("Beet.apps.CreateOrder", {
 		var columns = me.itemsPanel.__columns = [];
 		var _actions = {
 			xtype: 'actioncolumn',
-			width: 30,
+			width: 40,
 			header: "操作",
 			items: [
 			]
@@ -3634,6 +3638,20 @@ Ext.define("Beet.apps.CreateOrder", {
 		}, "-");
 
 		columns.push(_actions);
+		columns = columns.concat([
+			{
+				dataIndex: "isgiff",
+				xtype: "checkcolumn",
+				header: "赠送?",
+				width: 40
+			},
+			{
+				dataIndex: "isturn",
+				xtype: "checkcolumn",
+				header: "转扣?",
+				width: 40
+			},
+		])
 		cardServer.GetItemPageData(0, 1, "", {
 			success: function(data){
 				var data = Ext.JSON.decode(data)["MetaData"];
@@ -3652,7 +3670,7 @@ Ext.define("Beet.apps.CreateOrder", {
 						})
 					}
 				};
-				me.itemsPanel.__fields = fields.concat(["CardName", "CardNo" , "ExpenseCount", {name: "isgiff", type: "bool"}, {name: "isturn", type: "bool"}, "__index"]);
+				me.itemsPanel.__fields = fields.concat(["CardName", "CardNo", "StepPrice", "ExpenseCount", "Balance", {name: "isgiff", type: "bool"}, {name: "isturn", type: "bool"}, "__index"]);
 				me.itemsPanel.__columns = columns.concat([
 					{
 						dataIndex: "ExpenseCount",
@@ -3660,21 +3678,19 @@ Ext.define("Beet.apps.CreateOrder", {
 						flex: 1
 					},
 					{
-						dataIndex: "CardName",
-						header: "所属卡项",
+						dataIndex: "StepPrice",
+						header: "单次消费价格",
 						flex: 1
 					},
 					{
-						dataIndex: "isgiff",
-						xtype: "checkcolumn",
-						header: "赠送?",
-						width: 35
+						dataIndex: "Balance",
+						header: "卡项余额",
+						flex: 1
 					},
 					{
-						dataIndex: "isturn",
-						xtype: "checkcolumn",
-						header: "转扣?",
-						width: 35
+						dataIndex: "CardName",
+						header: "所属卡项",
+						flex: 1
 					},
 					{
 						dataIndex: "__index",
@@ -3756,7 +3772,7 @@ Ext.define("Beet.apps.CreateOrder", {
 		win.show();
 
 		//create fields
-		var __fields = ["IID", "ICode", "IName", "IPrice", "IRate", "IRealPrice", "ICategoryID", "IDescript", "CardNo", "CardName", "ExpenseCount"];
+		var __fields = ["IID", "ICode", "IName", "IPrice", "IRate", "IRealPrice", "ICategoryID", "IDescript", "CardNo", "CardName", "ExpenseCount", "Balance", "StepPrice"];
 		var __columns = [
 			{
 				dataIndex: "ICode",
@@ -3814,7 +3830,9 @@ Ext.define("Beet.apps.CreateOrder", {
 						})
 						list[data[c]["CID"]] = {
 							name: data[c]["Name"],
-							expensecount: data[c]["ExpenseCount"]
+							expensecount: data[c]["ExpenseCount"],
+							balance: data[c]["Balance"],
+							stepprice: data[c]["StepPrice"]
 						}
 					}
 					var customerCardList = Ext.create("Ext.data.Store", {
@@ -3851,7 +3869,10 @@ Ext.define("Beet.apps.CreateOrder", {
 														item["CardNo"] = cid;
 														item["CardName"] = cardName;
 														item["ExpenseCount"] = list[cid]["expensecount"]
+														item["Balance"] = list[cid]["balance"]
+														item["StepPrice"] = list[cid]["stepprice"]
 														var _new = [];
+														//console.log(item, __fields)
 														for (var k in __fields){
 															_new.push(item[__fields[k]]);
 														}
