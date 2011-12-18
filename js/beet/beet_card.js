@@ -3210,7 +3210,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 								if (currField == "COUNT"){
 									//check field "PRICE" that it exists val?
 									var price = currRecord.get("PPrice"), count = currRecord.get("COUNT");
-									if (price){ price = price.replaceAll(",", ""); }
+									if (price){ price = parseFloat(price.replaceAll(",", "")); }
 									currRecord.set("PRICE", Ext.Number.toFixed(price * count, 2));
 
 									me.onUpdate();	
@@ -3549,6 +3549,11 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			_rate = values["rate"],
 			_realprice = ("" + values["realprice"]).replaceAll(",", "");
 		var selectedProducts = me.selectedProducts, selectedChargeType = me.selectedChargeType;
+
+		//force convert to number
+		_price = parseFloat(_price);
+		_rate = parseFloat(_rate);
+		_realprice = parseFloat(_realprice);
 		
 		var __price = 0;//每次都会进行重新计算
 
@@ -3575,6 +3580,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 		}else{
 			_realprice = _price * _rate;
 		}
+
 		me.form.getForm().setValues({
 			price: Ext.Number.toFixed(__price, 2), 	
 			rate: Ext.Number.toFixed(_rate, 2),

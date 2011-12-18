@@ -2331,58 +2331,9 @@ Ext.define("Beet.apps.AddCustomerCard", {
 						columns.push(column);
 					}
 				}
+
 				fields.push("raterate");
 				fields.push("ID");
-				//fields.push("blance");
-				//fields.push("startdate");
-				//fields.push("enddate");
-
-				me.cardPanel.__columns = columns.concat([
-				/*
-				{
-					header: "折上折",
-					dataIndex: "raterate",
-					hidden: true,
-					flex: 1,
-					editor: {
-						xtype: "textfield",
-						type: "int",
-						allowBlank: false
-					}
-				},
-				{
-					header: "余额",
-					dataIndex: "blance",
-					flex: 1,
-					editor: {
-						xtype: "textfield",
-						type: "int",
-						allowBlank: false
-					}
-				},
-				{
-					header: "购买日期",
-					dataIndex: "startdate",
-					flex: 1,
-					xtype: 'datecolumn',
-					editor: {
-						xtype: "datefield",
-						format: "Y/m/d",
-						allowBlank: false
-					}
-				},
-				{
-					header: "失效日期",
-					dataIndex: "enddate",
-					flex: 1,
-					xtype: 'datecolumn',
-					editor: {
-						xtype: "datefield",
-						format: "Y/m/d",
-						allowBlank: false
-					}
-				},*/
-				]);
 
 				me.initializeCardGrid();
 			},
@@ -2478,10 +2429,10 @@ Ext.define("Beet.apps.AddCustomerCard", {
 							}else{
 								e.cancel = true;
 								//check blance
-								//var blance = editor.getEditor().down("textfield[name=Balance]");
-								//if (blance){
-									//TODO: 这里需要显示错误
-								//}
+								var blance = editor.getEditor().down("textfield[name=Balance]");
+								if (blance){
+									blance.markInvalid("不能卡项原有金额");
+								}
 							}
 						}
 					}
@@ -2489,9 +2440,10 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			],
 		});
 
-		grid.on("beforedestroy", function(){
-			me.cardPanel.grid.plugins = [];
-		})
+		//On 4.0.7, it seem works.
+		//grid.on("beforedestroy", function(){
+		//	me.cardPanel.grid.plugins = [];
+		//})
 
 		me.cardPanel.add(grid);
 		me.cardPanel.doLayout();
@@ -2594,7 +2546,6 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			}else{
 				balance -= parseFloat(rawData["Balance"]);	
 			}
-
 
 			//console.log(__fields, rawData)
 			for (var c = 0; c < __fields.length; ++c){
