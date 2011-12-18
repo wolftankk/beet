@@ -3141,6 +3141,7 @@ Ext.define("Beet.apps.CreateOrder", {
 		me.selectedItemIndex = 0;//init index
 		me.selectedItems = {};
 		me.canEditOrder = true;
+		me.currentCustomerBalance = 0;
 
 		me.callParent();
 		me.createMainPanel();
@@ -3496,6 +3497,7 @@ Ext.define("Beet.apps.CreateOrder", {
 					me.createOrderBtn.enable();
 					me.customerHistoryBtn.enable();
 					me.currentCardBalanceLable.setText('卡内余额: <span style="color:black;font-weight:bolder">' + data["Balance"] + "</span>", false)
+					me.currentCustomerBalance = data["Balance"];
 				}
 			},
 			failure: function(error){
@@ -3666,13 +3668,27 @@ Ext.define("Beet.apps.CreateOrder", {
 				dataIndex: "isgiff",
 				xtype: "checkcolumn",
 				header: "赠送?",
-				width: 40
+				width: 40,
+				editor: {
+					xtype: "checkbox",
+					cls: 'x-grid-checkheader-editor'
+				},
 			},
 			{
 				dataIndex: "isturn",
 				xtype: "checkcolumn",
 				header: "转扣?",
-				width: 40
+				width: 40,
+				editor: {
+					xtype: "checkbox",
+					cls: 'x-grid-checkheader-editor',
+				},
+				listeners: {
+					checkchange: function(){
+						//这类事件无效?
+						me.autoComputeNeedPaid();
+					}
+				}
 			},
 		])
 		cardServer.GetItemPageData(0, 1, "", {
@@ -3773,21 +3789,18 @@ Ext.define("Beet.apps.CreateOrder", {
 								}
 								return false
 							},
-							validateedit: function(editor, e){
+							edit: function(editor, e){
 								var record = e.record;
-								setTimeout(function(){
-									var data = record.data;
-									var value = parseFloat(data["Balance"]);
-									var originBalance = parseFloat(data["originBalance"]);
-									var f = editor.getEditor(record, e.column);//real editor
-									if (value > originBalance){
-										editor.startEdit(record, e.column)
-										var f = editor.getActiveEditor();
-										f.field.setValue(originBalance);
-										f.field.markInvalid("不能高于原有余额: " + originBalance);
-									}else{
-									}
-								}, 50);
+								var data = record.data;
+								var value = parseFloat(data["Balance"]);
+								var originBalance = parseFloat(data["originBalance"]);
+								var f = editor.getEditor(record, e.column);//real editor
+								if (value > originBalance){
+									data.Balance = originBalance
+									e.cancel = false;
+									record.commit();
+								}
+								me.autoComputeNeedPaid();
 							}
 						}
 					})
@@ -3897,7 +3910,7 @@ Ext.define("Beet.apps.CreateOrder", {
 						list[data[c]["CID"]] = {
 							name: data[c]["Name"],
 							expensecount: data[c]["ExpenseCount"],
-							balance: data[c]["Balance"],
+							balance: (data[c]["Balance"] + "").replaceAll(",", ""),
 							originBalance : (data[c]["Balance"] + "").replaceAll(",", ""),
 							stepprice: data[c]["StepPrice"],
 							maxcount: (data[c]["MaxCount"] + "").replaceAll(",", "")
@@ -4065,6 +4078,14 @@ Ext.define("Beet.apps.CreateOrder", {
 		if (selectedItems[id]){
 			selectedItems[id] = null;
 			delete selectedItems[id];
+			//remove tab
+			var tabid = "tab" + id;
+			if (me.tabCache[tabid]){
+				me.listTabPanel.remove(me.tabCache[tabid], true);
+				me.tabCache[tabid].close();
+				me.tabCache[tabid] = null;
+				me.listTabPanel.doLayout();
+			}
 		}
 
 		me.updateItemsPanel();
@@ -4073,11 +4094,40 @@ Ext.define("Beet.apps.CreateOrder", {
 		var me = this, selectedItems = me.selectedItems;
 		var grid = me.itemsPanel.grid, store = grid.getStore();
 		var tmp = []
+		//console.log(selectedItems)
 		for (var c in selectedItems){
+			if (selectedItems[c].length == 0){continue;}
 			var item = selectedItems[c];
 			tmp.push(selectedItems[c]);
 		}
 		store.loadData(tmp);
+		me.autoComputeNeedPaid();
+	},
+	autoComputeNeedPaid: function(){
+		var me = this;
+		var grid = me.itemsPanel.grid, store = grid.getStore();
+		var needPaidCount = 0;
+		var currentCustomerBalance = 0
+		var tmp = {};
+		for (var c = 0; c < store.getCount(); ++c){
+			var record = store.getAt(c);
+			if (!record.get("isturn") && !record.get("isgiff")){
+				needPaidCount += record.get("needPaid");
+			}
+			var cardno = record.get("CardNo");
+			if (!tmp[cardno]){
+				tmp[cardno] = true;
+				currentCustomerBalance += parseFloat((record.get("Balance") + "").replaceAll(",", ""));
+			}
+		}
+		currentCustomerBalance += parseFloat((me.currentCustomerBalance + "").replaceAll(",", ""));
+		//console.log(currentCustomerBalance, needPaidCount)
+		if (needPaidCount > currentCustomerBalance){
+			me.createOrderBtn.disable();
+			Ext.Msg.alert("警告", "卡内余额不足");
+		}else{
+			me.createOrderBtn.enable();
+		}
 	},
 	//}}}
 	createListTabPanel: function(){
