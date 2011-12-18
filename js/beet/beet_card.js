@@ -6866,9 +6866,9 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 										},
 										{
 											fieldLabel: "最大消费次数",
-											allowBlank: true,
-											value: 0,
-											name: "maxcount"
+											allowBlank: false,
+											name: "maxcount",
+											emptyText: "(大于0为计次卡; -1时为计费卡)" 
 										},
 										{
 											fieldLabel: "有效日期",
@@ -8579,7 +8579,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 											fieldLabel: "最大消费次数",
 											allowBlank: false,
 											name: "maxcount",
-											value: 0
+											emptyText: "(大于0为计次卡; -1时为计费卡)" 
 										},
 										{
 											fieldLabel: "有效日期",
