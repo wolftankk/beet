@@ -4596,21 +4596,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 		me.callParent()	
 
 		if (me.b_advanceSearch){
-			cardServer.GetItemPageData(0, 1, "", {
-				success: function(data){
-					var win = Ext.create("Beet.apps.AdvanceSearch", {
-						searchData: Ext.JSON.decode(data),
-						b_callback: function(where){
-							me.b_filter = where;
-							me.buildStoreAndModel();
-						}
-					});
-					win.show();
-				},
-				failure: function(error){
-					Ext.Error.raise(error);
-				}
-			});
+			me.buildStoreAndModel();
 		}else{
 			me.initializeItemGrid();
 		}
@@ -4687,7 +4673,6 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 					});
 				}
 
-
 				me.initializeItemGrid();
 			},
 			failure: function(error){
@@ -4696,7 +4681,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 		});
 	},
 	initializeItemGrid: function(){
-		var me = this;
+		var me = this, cardServer = Beet.constants.cardServer;
 
 		var __fields, store;
 		//使用自定义的model以及columns
@@ -4745,6 +4730,50 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 				}
 			}
 		});
+
+		if (me.b_advanceSearch){
+			grid.addDocked({
+				xtype: "toolbar",
+				dock: "top",
+				items: [
+					{
+						text: "高级搜索",	
+						handler: function(){
+							cardServer.GetItemPageData(0, 1, "", {
+								success: function(data){
+									var win = Ext.create("Beet.apps.AdvanceSearch", {
+										searchData: Ext.JSON.decode(data),
+										b_callback: function(where){
+											me.b_filter = where;
+											me.itemList.store.setProxy({
+												type: "b_proxy",
+												b_method: cardServer.GetItemPageData,
+												startParam: "start",
+												limitParam: "limit",
+												b_params: {
+													"awhere" : me.b_filter
+												},
+												b_scope: Beet.constants.cardServer,
+												reader: {
+													type: "json",
+												root: "Data",
+												totalProperty: "TotalCount"
+												}
+											});
+											me.itemList.store.loadPage(1);
+										}
+									});
+									win.show();
+								},
+								failure: function(error){
+									Ext.Error.raise(error);
+								}
+							});
+						}
+					}
+				]
+			})
+		}
 
 		if (me.b_customerStoreData){
 			store.loadData(me.b_customerStoreData);
@@ -4866,6 +4895,10 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 		if (me.b_type == "selection"){
 			me.add(Ext.widget("button", {
 				text: "确定",
+				width: 100,
+				style: {
+					"float" : "right"
+				},
 				handler: function(){
 					if (me.b_selectionCallback){
 						me.b_selectionCallback(me.selModel.getSelection());
