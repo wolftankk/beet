@@ -2207,6 +2207,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 					if (me.paidStore.getCount() > 0) {
 						sm.select(0);
 					}
+					updatePayType();
 				}
 			}, "-");
 			_columns.push(_actions);
@@ -2314,6 +2315,10 @@ Ext.define("Beet.apps.AddCustomerCard", {
 					var data = Ext.JSON.decode(data);
 					data = data["Data"];
 					me.paidTypeStore.loadData(data);
+					rowEditing.fireEvent("edit", {
+						grid : grid,
+						store: grid.getStore() 
+					});
 				},
 				failure: function(error){
 					Ext.Error.raise(error);
@@ -2421,8 +2426,8 @@ Ext.define("Beet.apps.AddCustomerCard", {
 						text: "确定",
 						handler: function(){
 							Ext.MessageBox.show({
-								title: "付款确认",
-								msg: "确认需要支付 " + cost + "元吗? 注意提交后无法修改!",
+								title: "充值确认",
+								msg: "充值金额: <span style=\"color:red;font-weight:bolder;\">" + cost + "</span> 元 <br/><br/>确认充值吗?",
 								buttons: Ext.MessageBox.YESNO,
 								fn: function(btn){
 									if (btn == "yes"){
@@ -2999,7 +3004,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 
 		var totalBalance = 0; //卡项总价
 		for (var c in selectedCards){
-			var m = (selectedCards[c][5] || "0").replaceAll(",", "");
+			var m = (selectedCards[c][6] || "0").replaceAll(",", "");
 			totalBalance += parseFloat(m);
 			tmp.push(selectedCards[c]);
 		}
@@ -3161,7 +3166,7 @@ Ext.define("Beet.apps.CreateOrder", {
 								{
 									layout: {
 										type: "table",
-										columns: 2,
+										columns: 1,
 										tableAttrs: {
 											cellspacing: 10,
 											style: {
@@ -3173,7 +3178,6 @@ Ext.define("Beet.apps.CreateOrder", {
 									bodyStyle: "background-color: #dfe8f5",
 									defaults: {
 										bodyStyle: "background-color: #dfe8f5",
-										width: 260
 									},
 									defaultType: "textfield",
 									fieldDefaults: {
@@ -3332,7 +3336,7 @@ Ext.define("Beet.apps.CreateOrder", {
 				},
 				{
 					xtype: "panel",
-					flex: 1,
+					flex: 2,
 					height: "100%",
 					name: "rightPanel"
 				},
@@ -3361,6 +3365,9 @@ Ext.define("Beet.apps.CreateOrder", {
 		})
 		me.selectedCustomerId = null;
 		me.customerInfoBtn.disable();
+		me.bindOtherItemsBtn.disable();
+		me.bindCardItemsBtn.disable();
+		me.createOrderBtn.disable();
 	},
 	cleanup: function(){
 		var me = this;
@@ -3368,7 +3375,6 @@ Ext.define("Beet.apps.CreateOrder", {
 
 
 		me.itemsPanel.grid.getStore().loadData([])
-		me.newOrderPanel.disable();
 
 		for (var k in me.tabCache){
 			me.listTabPanel.remove(me.tabCache[k], true);
@@ -3458,7 +3464,9 @@ Ext.define("Beet.apps.CreateOrder", {
 					});
 					//开始查询他的卡项, 套餐, 费用
 					me.customerInfoBtn.enable();
-					me.newOrderPanel.enable();
+					me.bindOtherItemsBtn.enable();
+					me.bindCardItemsBtn.enable();
+					me.createOrderBtn.enable();
 				}
 			},
 			failure: function(error){
@@ -3473,7 +3481,7 @@ Ext.define("Beet.apps.CreateOrder", {
 			autoScroll: true,
 			autoHeight: true,
 			height: Beet.constants.VIEWPORT_HEIGHT - 100,
-			width: Beet.constants.WORKSPACE_WIDTH * 0.5 - 10,
+			width: Beet.constants.WORKSPACE_WIDTH * (2/3) - 10,
 			cls: "iScroll",
 			border: true,
 			plain: true,
@@ -3515,6 +3523,8 @@ Ext.define("Beet.apps.CreateOrder", {
 				{
 					xtype: "button",
 					text: "指定卡项项目",
+					name: "bindcarditems",
+					disabled: true,
 					handler: function(){
 						me.selectItems();
 					},
@@ -3523,12 +3533,17 @@ Ext.define("Beet.apps.CreateOrder", {
 				{
 					xtype: "button",
 					text: "指定其他项目",
+					name: "bindotheritems",
+					disabled: true,
 					handler: function(){
 						me.selectGiffItems();
 					}
 				}
 			]
 		}));
+
+		me.bindCardItemsBtn = me.itemsPanel.down("button[name=bindcarditems]");
+		me.bindOtherItemsBtn = me.itemsPanel.down("button[name=bindotheritems]");
 
 		/*
 		me.chargeTypesPanel = Ext.widget("panel", Ext.apply(options, {
@@ -3550,22 +3565,24 @@ Ext.define("Beet.apps.CreateOrder", {
 		]
 
 		me.newOrderPanel = Ext.create("Ext.panel.Panel", {
-			width: Beet.constants.WORKSPACE_WIDTH * 0.5 - 10,
+			width: Beet.constants.WORKSPACE_WIDTH * (2/3) - 10,
 			height: Beet.constants.VIEWPORT_HEIGHT - 15,
 			border: false,
-			disabled: true,
+			//disabled: true,
 			bodyStyle: "background-color: #dfe8f5",
 			items: me.childrenList,
 			buttons: [
 				{
 					text: "下单",
 					scale: "large",
+					disabled: true,
+					name: "_createorder",
 					handler: function(){
 						me.processData();
 					},
 				},
 				{
-					text: "取消",
+					text: "重置",
 					scale: "large",
 					handler: function(){
 						me.cleanup()
@@ -3573,6 +3590,8 @@ Ext.define("Beet.apps.CreateOrder", {
 				}
 			]
 		})
+
+		me.createOrderBtn = me.newOrderPanel.down("button[name=_createorder]")
 
 		me.rightPanel.add(me.newOrderPanel);
 		me.rightPanel.doLayout();
@@ -3631,8 +3650,13 @@ Ext.define("Beet.apps.CreateOrder", {
 						})
 					}
 				};
-				me.itemsPanel.__fields = fields.concat(["CardName", "CardNo" , {name: "isgiff", type: "bool"}, "__index"]);
+				me.itemsPanel.__fields = fields.concat(["CardName", "CardNo" , "ExpenseCount", {name: "isgiff", type: "bool"}, {name: "isturn", type: "bool"}, "__index"]);
 				me.itemsPanel.__columns = columns.concat([
+					{
+						dataIndex: "ExpenseCount",
+						header: "剩余消费次数",
+						flex: 1
+					},
 					{
 						dataIndex: "CardName",
 						header: "所属卡项",
@@ -3642,6 +3666,12 @@ Ext.define("Beet.apps.CreateOrder", {
 						dataIndex: "isgiff",
 						xtype: "checkcolumn",
 						header: "赠送?",
+						width: 35
+					},
+					{
+						dataIndex: "isturn",
+						xtype: "checkcolumn",
+						header: "转扣?",
 						width: 35
 					},
 					{
@@ -3675,7 +3705,7 @@ Ext.define("Beet.apps.CreateOrder", {
 				columns: me.itemsPanel.__columns,
 				plugins: [
 					Ext.create('Ext.grid.plugin.CellEditing', {
-						clicksToEdit: 1
+						clicksToEdit: 2
 					})
 				],
 				listeners: {
@@ -3724,7 +3754,7 @@ Ext.define("Beet.apps.CreateOrder", {
 		win.show();
 
 		//create fields
-		var __fields = ["IID", "ICode", "IName", "IPrice", "IRate", "IRealPrice", "ICategoryID", "IDescript", "CardNo", "CardName"];
+		var __fields = ["IID", "ICode", "IName", "IPrice", "IRate", "IRealPrice", "ICategoryID", "IDescript", "CardNo", "CardName", "ExpenseCount"];
 		var __columns = [
 			{
 				dataIndex: "ICode",
@@ -3763,20 +3793,27 @@ Ext.define("Beet.apps.CreateOrder", {
 			}
 		]
 		
-		cardServer.GetCustomerCardData(false, "CustomerID='" + me.selectedCustomerId + "'", {
+		var now = Ext.Date.format(new Date, "Y/m/d H:i:s");
+		cardServer.GetCustomerCardData(false, "CustomerID='" + me.selectedCustomerId + "' AND ExpenseCount > 0 AND EndTime > '" + now + "'", {
 			success: function(data){
 				data = Ext.JSON.decode(data)["Data"];
 				var cards = [];
+				var list = {};//card info list include expensecount
 				waitBox.hide();
 				if (data.length == 0){
 					win.hide();
 					Ext.MessageBox.alert("警告", "没有可用卡项");	
 				}else{
+					//console.log(data)
 					for (var c = 0; c < data.length; ++c){
 						cards.push({
 							attr: data[c]["CID"],
 							name: data[c]["Name"]	
 						})
+						list[data[c]["CID"]] = {
+							name: data[c]["Name"],
+							expensecount: data[c]["ExpenseCount"]
+						}
 					}
 					var customerCardList = Ext.create("Ext.data.Store", {
 						fields: ["attr", "name"],
@@ -3811,6 +3848,7 @@ Ext.define("Beet.apps.CreateOrder", {
 														var item = data[c];
 														item["CardNo"] = cid;
 														item["CardName"] = cardName;
+														item["ExpenseCount"] = list[cid]["expensecount"]
 														var _new = [];
 														for (var k in __fields){
 															_new.push(item[__fields[k]]);
@@ -3942,9 +3980,9 @@ Ext.define("Beet.apps.CreateOrder", {
 		var options = {
 			autoScroll: true,
 			autoHeight: true,
-			disabled: true,
-			height: Beet.constants.VIEWPORT_HEIGHT - 190,
-			width: Beet.constants.WORKSPACE_WIDTH * 0.5 - 10,
+			//disabled: true,
+			height: Beet.constants.VIEWPORT_HEIGHT - 225,
+			width: Beet.constants.WORKSPACE_WIDTH * (1/3) - 10,
 			cls: "iScroll",
 			border: false,
 			plain: true,
