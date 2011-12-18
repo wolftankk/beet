@@ -2188,7 +2188,6 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			fields: ["PayID", "PayName"]
 		});
 		updatePayType();
-		
 
 		if (me.paidStore == undefined){
 			var _actions = {
@@ -2202,7 +2201,6 @@ Ext.define("Beet.apps.AddCustomerCard", {
 				icon: "./resources/themes/images/fam/delete.gif",
 				tooltip: "移除",
 				handler: function(grid, rowIndex, colIndex){
-					//var d = grid.store.getAt(rowIndex)
 					var sm = grid.getSelectionModel();
 					rowEditing.cancelEdit();
 					me.paidStore.remove(sm.getSelection());
@@ -2527,6 +2525,8 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		me.down("button[name=deleteCard]").disable();
 		me.down("button[name=paidbtn]").disable();
 		me.updateCardPanel();
+		var currentBalance = 0;
+
 		if (records && records.length > 0){
 			var customerData;
 			me.queue.Add("queryCustomer", "", function(){
@@ -2568,6 +2568,9 @@ Ext.define("Beet.apps.AddCustomerCard", {
 							}
 							me.down("button[name=updatebtn]").enable();
 							me.down("button[name=deleteCard]").enable();
+							me.down("button[name=bindingCard]").enable();
+
+							me.queue.triggle("queryCustomer", "success");
 						}else{
 							customerData = null;
 							//获取充值余额
@@ -2588,6 +2591,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 									if (money > 0){
 										me.down("button[name=bindingCard]").enable();
 									}
+									me.queue.triggle("queryCustomer", "success");
 								},
 								failure: function(error){
 									Ext.Error.raise(error)
@@ -2598,8 +2602,6 @@ Ext.define("Beet.apps.AddCustomerCard", {
 						if (me.selectedCustomerId){
 							me.down("button[name=paidbtn]").enable();
 						}
-						me.queue.triggle("queryCustomer", "success");
-						me.queue.triggle("queryCustomerCard", "success");
 					},
 					failure: function(error){
 						Ext.Error.raise(error)
@@ -2626,7 +2628,19 @@ Ext.define("Beet.apps.AddCustomerCard", {
 								}
 							}
 
-							me.addCard(records, true);
+							if (records.length > 0){
+								var money = 0;
+								for (var c = 0; c < records.length; ++c){
+									var r = records[c];
+									money += parseFloat(r["Balance"].replaceAll(",", ""));
+								}
+								currentBalance = parseFloat(form.getValues()["_payvalue"]);
+								form.setValues({
+									_payvalue: money + currentBalance,
+									balance: money+currentBalance
+								});
+							}
+							me.addCard(records, true)
 							me.queue.triggle("queryCustomerCard", "success");
 						},
 						failure: function(error){
@@ -2635,7 +2649,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 					});
 				}else{
 					if (customerData == null){
-						me.queue.triggle("queryCustomer", "success");
+						me.queue.triggle("queryCustomerCard", "success");
 					}
 				}
 			})
@@ -2643,7 +2657,6 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			me.queue.Add("waitingFeedback", "queryCustomer,queryCustomerCard", function(){
 				Ext.MessageBox.hide();
 				me.queue.triggle("waitingFeedback", "success");
-				me.queue.reset();
 				me.initCustomerData = false;
 			})
 		}
@@ -2679,7 +2692,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			id: "customer_grid_delete",
 			handler: function(grid, rowIndex, colIndex){
 				var d = grid.store.getAt(rowIndex)
-				me.deleteCard(d);
+				me.deleteCard(d, grid);
 			}
 		}, "-");
 
@@ -2749,13 +2762,13 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		})
 
 		var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-			clicksToEdit: 1,
 			autoCancel: true,
 			listeners: {
+				beforeedit: function(){
+				},
 				validateedit: function(editor, e){
 					var record = e.record, newvalues = e.newValues;
 					var price = parseFloat(record.data.Price.replaceAll(",", "")), blance = parseFloat(newvalues.Balance);
-					//console.log(editor, e)
 					var selectedCards = me.selectedCards;
 					var __fields = me.cardPanel.__fields;
 
@@ -2809,16 +2822,16 @@ Ext.define("Beet.apps.AddCustomerCard", {
 								me.updateCardPanel();
 								return;
 							}
+							selectedCards[cid] = [];
+							Ext.defer(function(){
+								for (var c = 0; c < __fields.length; ++c){
+									var k = __fields[c];
+									selectedCards[cid].push(rawData[k]);
+								}
+								me.updateCardPanel();
+							}, 100);
 						}
 
-						selectedCards[cid] = [];
-						Ext.defer(function(){
-							for (var c = 0; c < __fields.length; ++c){
-								var k = __fields[c];
-								selectedCards[cid].push(rawData[k]);
-							}
-							me.updateCardPanel();
-						}, 100);
 
 					}else{
 						e.cancel = true;
@@ -2897,7 +2910,6 @@ Ext.define("Beet.apps.AddCustomerCard", {
 
 		for (var r = 0; r < records.length; ++r){
 			var record = records[r];
-			//console.log(record)
 			var cid, rawData;
 			if (isRaw){
 				cid = record["ID"] || record["CID"];
@@ -2907,6 +2919,9 @@ Ext.define("Beet.apps.AddCustomerCard", {
 				rawData = record.raw;
 			}
 
+			//重新设置一次
+			rawData["ID"] = cid;
+
 			if (selectedCards[cid] == undefined){
 				selectedCards[cid] = []
 			}else{
@@ -2914,7 +2929,6 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			}
 
 			//auto computer
-			//console.log(rawData);
 			if (rawData["raterate"] == undefined){
 				rawData["raterate"] = 1;
 			}
@@ -2955,18 +2969,14 @@ Ext.define("Beet.apps.AddCustomerCard", {
 					balance -= parseFloat(rawData["Balance"]);	
 				}
 			}
-
-			//console.log(__fields, rawData)
 			for (var c = 0; c < __fields.length; ++c){
 				var k = __fields[c];
 				selectedCards[cid].push(rawData[k]);
 			}
-			//console.log(selectedCards)
 		}
-
 		me.updateCardPanel();
 	},
-	deleteCard: function(record){
+	deleteCard: function(record, grid){
 		var me = this, selectedCards = me.selectedCards;
 		me.cardPanel.grid.rowEditing.cancelEdit();
 
@@ -2979,6 +2989,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		me.updateCardPanel();
 	},
 	updateCardPanel: function(){
+		//console.trace(this);
 		var me = this, selectedCards = me.selectedCards;
 		var grid = me.cardPanel.grid, store = grid.getStore();
 		var __fields = me.cardPanel.__fields;
@@ -2988,15 +2999,14 @@ Ext.define("Beet.apps.AddCustomerCard", {
 
 		var totalBalance = 0; //卡项总价
 		for (var c in selectedCards){
-			totalBalance += (selectedCards[c][5] || "0").replaceAll(",", "");
+			var m = (selectedCards[c][5] || "0").replaceAll(",", "");
+			totalBalance += parseFloat(m);
 			tmp.push(selectedCards[c]);
 		}
-
-		if (!me.initCustomerData){
-			me.form.getForm().setValues({
-				"balance" : (balance - totalBalance)
-			})
-		}
+		//console.trace(this)
+		me.form.getForm().setValues({
+			"balance" : (balance - totalBalance)
+		})
 
 		store.loadData(tmp);
 	},
@@ -3050,7 +3060,6 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		results["cards"] = cards;
 		
 		if (isUpdate){
-			//console.log(results);
 			cardServer.UpdateCustomerAccount(Ext.JSON.encode(results), {
 				success: function(succ){
 					if (succ){
@@ -4199,3 +4208,8 @@ Ext.define("Beet.apps.CreateOrder", {
 		 */
 	}
 })
+
+
+function time(){
+	return +(new Date());
+}
