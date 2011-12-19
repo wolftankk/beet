@@ -4495,10 +4495,6 @@ Ext.define("Beet.apps.EndConsumer", {
 	plain: true,
 	initComponent: function(){
 		var me = this;
-		//me.selectedItemIndex = 0;//init index
-		//me.selectedItems = {};
-		//me.canEditOrder = true;
-		//me.currentCustomerBalance = 0;
 
 		me.callParent();
 		me.createMainPanel();
@@ -4567,15 +4563,17 @@ Ext.define("Beet.apps.EndConsumer", {
 											name: "ccardno",
 											listeners: {
 												keydown: function(f, e){
-													//if (e.getKey() == Ext.EventObject.ENTER){
-													//	var v = f.getValue();
-													//	if (v.length > 0){
-													//		me.quickQueryCustom(v, "cardno")
-													//	}
-													//	e.stopEvent();
-													//	e.stopPropagation();
-													//	return false;
-													//}
+													if (e.getKey() == Ext.EventObject.ENTER){
+														var v = f.getValue();
+														if (v.length > 0){
+															var store = me.orderListPanel.grid.getStore();
+															store.setProxy(me.updateOrderListProxy("ServiceNo = '" + v + "'"));//初始化时候
+															store.loadPage(1);
+														}
+														e.stopEvent();
+														e.stopPropagation();
+														return false;
+													}
 												}
 											}
 										},
@@ -4587,7 +4585,21 @@ Ext.define("Beet.apps.EndConsumer", {
 											store: Beet.plugins.OrderStatus,
 											queryMode: "local",
 											displayField: "name",
-											valueField : "attr"
+											valueField : "attr",
+											value: 2,
+											listeners: {
+												change: function(f, newvalue){
+													var sql = "";
+													if (newvalue == -1){
+														sql = ""
+													}else{
+														sql = ("State = " + newvalue)
+													}
+													var store = me.orderListPanel.grid.getStore();
+													store.setProxy(me.updateOrderListProxy(sql));//初始化时候
+													store.loadPage(1);
+												}
+											}
 										},
 										{
 											xtype: "toolbar",
@@ -4597,8 +4609,6 @@ Ext.define("Beet.apps.EndConsumer", {
 												border: "0"
 											},
 											onBeforeAdd: function(component){
-												//hack it!!!
-												//console.log(component)
 											},
 											items: [
 											]
@@ -4663,8 +4673,6 @@ Ext.define("Beet.apps.EndConsumer", {
 		me.orderListPanel = Ext.widget("panel", Ext.apply(options, {
 			title: "订单列表",
 		}));
-
-
 
 		me.orderDetailPanel = Ext.create("Ext.panel.Panel", Ext.apply(options, {
 			title: "订单详情",
@@ -4756,6 +4764,7 @@ Ext.define("Beet.apps.EndConsumer", {
 	initializeOrderListGrid: function(){
 		var me = this, selectedProducts = me.selectedProducts;
 		var __fields = me.orderListPanel.__fields;
+		//console.log(__fields)
 
 		if (!Beet.apps.OrderListStore){
 			Ext.define("Beet.apps.OrderListStore", {
@@ -4789,7 +4798,7 @@ Ext.define("Beet.apps.EndConsumer", {
 
 		if (me.orderListPanel.grid == undefined){
 			var store = Ext.create("Beet.apps.OrderListStore");
-			store.setProxy(me.updateOrderListProxy(""));
+			store.setProxy(me.updateOrderListProxy("State = 2"));//初始化时候
 
 			var grid = me.orderListPanel.grid = Ext.create("Beet.plugins.LiveSearch", {
 				store: store,
@@ -4801,7 +4810,7 @@ Ext.define("Beet.apps.EndConsumer", {
 				listeners: {
 					itemdblclick: function(f, record, item, index, e){
 						var indexno  = record.get("IndexNo");
-						console.log(indexno)
+						//console.log(indexno)
 						me.orderDetailPanel.expand();
 						me.orderDetailPanel.store.setProxy(me.updateOrderDetailProxy("IndexNo = '" + indexno + "'"));
 					}
