@@ -4601,22 +4601,59 @@ Ext.define("Beet.apps.EndConsumer", {
 												}
 											}
 										},
-										{
-											xtype: "toolbar",
-											ui: "",
-											border: 0,
-											style: {
-												border: "0"
-											},
-											onBeforeAdd: function(component){
-											},
-											items: [
-											]
-										}
 									]
-								}
+								},
 							]
 						},
+						{
+							xtype: "toolbar",
+							ui: "",
+							border: 0,
+							style: {
+								border: "0"
+							},
+							onBeforeAdd: function(component){
+							},
+							items: [
+								"->",
+								{
+									text: "结算",
+									scale: "large",
+									width: 100,
+									disabled: true,
+									name: "clearingFee",
+									handler: function(){
+										var grid = me.orderListPanel.grid,
+											sm = grid.selModel, list = sm.getSelection(),
+											cardServer = Beet.constants.cardServer;
+										if (list.length == 0){
+											Ext.Msg.alert("失败", "请指定需要结算的订单");
+											return;
+										}
+										
+										var results = [];
+										for (var c = 0; c < list.length; ++c){
+											var order = list[c], state = order.get("State");
+											if (state != 2){
+												Ext.Msg.alert("失败", "你选定的订单不能结算. 状态必须为已审核!");
+												return;
+											}
+											results.push(order.get("IndexNo"));
+										}
+										if (results.length > 0){
+											cardServer.EndConsumer(Ext.JSON.encode(results), {
+												success: function(succ){
+													Ext.Msg.alert("调试信息", succ);
+												},
+												failure: function(error){
+													Ext.Error.raise(error)
+												}
+											})
+										}
+									}
+								}
+							]
+						}
 					]
 				},
 				{
@@ -4637,6 +4674,7 @@ Ext.define("Beet.apps.EndConsumer", {
 
 		me.leftPanel = me.mainPanel.down("panel[name=leftPanel]");
 		me.rightPanel = me.mainPanel.down("panel[name=rightPanel]");
+		me.clearingFeeBtn = me.mainPanel.down("button[name=clearingFee]");
 
 		me.createOrderPanel();
 	},
@@ -4700,24 +4738,7 @@ Ext.define("Beet.apps.EndConsumer", {
 			return;
 		}
 		var columns = me.orderListPanel.__columns = [];
-		var _actions = {
-			xtype: 'actioncolumn',
-			header: "操作",
-			width: 40,
-			items: [
-			]
-		}
-		_actions.items.push("-",{
-			icon: "./resources/themes/images/fam/delete.gif",
-			tooltip: "删除",
-			id: "customer_grid_delete",
-			handler: function(grid, rowIndex, colIndex){
-				//var d = grid.store.getAt(rowIndex)
-				//me.deleteProducts(d);
-			}
-		}, "-");
 
-		columns.push(_actions);
 		cardServer.GetConsumerPageData(0, 1, "", {
 			success: function(data){
 				var data = Ext.JSON.decode(data)["MetaData"];
@@ -4799,23 +4820,47 @@ Ext.define("Beet.apps.EndConsumer", {
 		if (me.orderListPanel.grid == undefined){
 			var store = Ext.create("Beet.apps.OrderListStore");
 			store.setProxy(me.updateOrderListProxy("State = 2"));//初始化时候
-
-			var grid = me.orderListPanel.grid = Ext.create("Beet.plugins.LiveSearch", {
-				store: store,
-				height: Beet.constants.VIEWPORT_HEIGHT - 79,
-				cls: "iScroll",
-				autoScroll: true,
-				columnLines: true,
-				columns: me.orderListPanel.__columns,
+			var grid;
+			var sm = Ext.create("Ext.selection.CheckboxModel", {
+				mode: "MULTI",
 				listeners: {
-					itemdblclick: function(f, record, item, index, e){
-						var indexno  = record.get("IndexNo");
-						//console.log(indexno)
-						me.orderDetailPanel.expand();
-						me.orderDetailPanel.store.setProxy(me.updateOrderDetailProxy("IndexNo = '" + indexno + "'"));
+					beforeselect: function(f, record, index){
+						var state = record.get("State");
+						if (state == 2){
+							me.clearingFeeBtn.enable();
+							return true
+						}
+						me.clearingFeeBtn.false();
+						//Ext.MessageBox.alert("失败", "你所勾选的不符合规定, 无法结算");
+						return false
 					}
 				}
 			});
+			
+			grid = me.orderListPanel.grid = Ext.create("Beet.plugins.LiveSearch", {
+				store: store,
+				height: Beet.constants.VIEWPORT_HEIGHT - 79,
+				cls: "iScroll",
+				selModel: sm,
+				autoScroll: true,
+				columnLines: true,
+				columns: me.orderListPanel.__columns,
+				bbar: Ext.create("Ext.PagingToolbar", {
+					store: store,
+					displayInfo: true,
+					displayMsg: '当前显示 {0} - {1} 到 {2}',
+					emptyMsg: "没有数据"
+				}),
+				listeners: {
+					itemdblclick: function(f, record, item, index, e){
+						var indexno  = record.get("IndexNo");
+						me.orderDetailPanel.expand();
+						me.orderDetailPanel.store.setProxy(me.updateOrderDetailProxy("IndexNo = '" + indexno + "'"));
+						me.orderDetailPanel.store.loadPage(1);
+					}
+				}
+			});
+			grid.selModel = sm;
 
 			me.orderListPanel.add(grid);
 			me.orderListPanel.doLayout();
@@ -4828,7 +4873,7 @@ Ext.define("Beet.apps.EndConsumer", {
 		}
 		var columns = me.orderDetailPanel.__columns = [];
 
-		cardServer.GetConsumerDetailData("", {
+		cardServer.GetConsumerDetailData(true, "", {
 			success: function(data){
 				var data = Ext.JSON.decode(data)["MetaData"];
 				var fields = me.orderDetailPanel.__fields = [];
@@ -4859,6 +4904,7 @@ Ext.define("Beet.apps.EndConsumer", {
 			type: "b_proxy",
 			b_method: cardServer.GetConsumerDetailData,
 			b_params: {
+				"b_onlySchema": false,
 				"awhere" : b_filter
 			},
 			b_scope: Beet.constants.cardServer,
@@ -4896,6 +4942,7 @@ Ext.define("Beet.apps.EndConsumer", {
 					type: "b_proxy",
 					b_method: cardServer.GetConsumerDetailData,
 					b_params: {
+						"b_onlySchema": false,
 						"awhere" : ""
 					},
 					b_scope: Beet.constants.cardServer,
@@ -4910,7 +4957,6 @@ Ext.define("Beet.apps.EndConsumer", {
 
 		if (me.orderDetailPanel.grid == undefined){
 			var store = Ext.create("Beet.apps.OrderDetailStore");
-			store.setProxy(me.updateOrderDetailProxy(""));
 
 			var grid = me.orderDetailPanel.grid = Ext.create("Beet.plugins.LiveSearch", {
 				store: store,

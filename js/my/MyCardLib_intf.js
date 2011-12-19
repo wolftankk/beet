@@ -1792,10 +1792,16 @@ MyCardSvc.prototype.GetChargeTypePageData = function(Start, Limit, AWhere, __cal
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyCardSvc.prototype.GetConsumerDetailData = function(AWhere, __callback) {
+MyCardSvc.prototype.GetConsumerDetailData = function(OnlySchema, AWhere, __callback) {
+  if (typeof(OnlySchema) == "string" && typeof(AWhere) == "boolean"){
+		var tmp = OnlySchema;
+		OnlySchema = AWhere;
+		AWhere = tmp
+  }
   var __message = {
     "method" : "MyCardSvc.GetConsumerDetailData",
     "params" : {
+      "OnlySchema": OnlySchema,
       "AWhere": AWhere
       }
   }

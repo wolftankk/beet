@@ -387,13 +387,14 @@ Ext.define("Beet.plugins.proxyClient", {
 			request.push(params[filterParam]);
 		}
 
+		if (isDef(params["b_onlySchema"])){
+			request.push(params["b_onlySchema"]);
+		}
+
 		if (isDef(params["awhere"])){
 			request.push(params["awhere"]);
 		}
 
-		if (isDef(params["b_onlySchema"])){
-			request.push(params["b_onlySchema"]);
-		}
 
 		return request;
 	},
