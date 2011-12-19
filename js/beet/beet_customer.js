@@ -4694,7 +4694,8 @@ Ext.define("Beet.apps.EndConsumer", {
 		var columns = me.orderListPanel.__columns = [];
 		var _actions = {
 			xtype: 'actioncolumn',
-			width: 30,
+			header: "操作",
+			width: 40,
 			items: [
 			]
 		}
@@ -4800,11 +4801,12 @@ Ext.define("Beet.apps.EndConsumer", {
 				listeners: {
 					itemdblclick: function(f, record, item, index, e){
 						var indexno  = record.get("IndexNo");
+						console.log(indexno)
+						me.orderDetailPanel.expand();
 						me.orderDetailPanel.store.setProxy(me.updateOrderDetailProxy("IndexNo = '" + indexno + "'"));
 					}
 				}
 			});
-
 
 			me.orderListPanel.add(grid);
 			me.orderListPanel.doLayout();
@@ -4820,7 +4822,7 @@ Ext.define("Beet.apps.EndConsumer", {
 		cardServer.GetConsumerDetailData("", {
 			success: function(data){
 				var data = Ext.JSON.decode(data)["MetaData"];
-				var fields = me.orderListPanel.__fields = [];
+				var fields = me.orderDetailPanel.__fields = [];
 				for (var c in data){
 					var meta = data[c];
 					fields.push(meta["FieldName"])
@@ -4859,7 +4861,7 @@ Ext.define("Beet.apps.EndConsumer", {
 		}
 	},
 	initializeOrderDetailGrid: function(){
-		var me = this, selectedProducts = me.selectedProducts;
+		var me = this, selectedProducts = me.selectedProducts, cardServer = Beet.constants.cardServer;
 		var __fields = me.orderDetailPanel.__fields;
 
 		if (!Beet.apps.OrderDetailStore){
@@ -4875,21 +4877,26 @@ Ext.define("Beet.apps.EndConsumer", {
 							callback: options
 						};
 					}
-
 					Ext.applyIf(options, {
 						groupers: that.groupers.items,
-						page: that.currentPage,
-						start: (that.currentPage - 1) * Beet.constants.PageSize,
-						limit: Beet.constants.PageSize,
 						addRecords: false
 					});
-					
-					that.proxy.b_params["start"] = options["start"];
-					that.proxy.b_params["limit"] = options["limit"];
-
 					return that.callParent([options]);
+				},
+				proxy: {
+					type: "b_proxy",
+					b_method: cardServer.GetConsumerDetailData,
+					b_params: {
+						"awhere" : ""
+					},
+					b_scope: Beet.constants.cardServer,
+					reader: {
+						type: "json",
+						root: "Data",
+						totalProperty: "TotalCount"
+					}
 				}
-			});
+			})
 		}
 
 		if (me.orderDetailPanel.grid == undefined){
