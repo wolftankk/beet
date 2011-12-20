@@ -4830,7 +4830,7 @@ Ext.define("Beet.apps.EndConsumer", {
 							me.clearingFeeBtn.enable();
 							return true
 						}
-						me.clearingFeeBtn.false();
+						me.clearingFeeBtn.disable();
 						//Ext.MessageBox.alert("失败", "你所勾选的不符合规定, 无法结算");
 						return false
 					}
