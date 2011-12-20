@@ -167,11 +167,14 @@ Beet_connection = {
 	restoreResponeObject: function(responeObject){
 		var responseText = responeObject.responseText, jsondata = Ext.JSON.decode(responseText);
 		
-		//console.log(responeObject)
 		try {
 			var resultData = JSON.parse(jsondata["result"]);
 		}catch (e){
 			return responeObject
+		}
+
+		if (resultData == null || resultData == undefined){
+			return  responeObject;
 		}
 
 		var Data = resultData["Data"], MetaData = resultData["MetaData"];
