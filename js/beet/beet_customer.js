@@ -4638,12 +4638,39 @@ Ext.define("Beet.apps.EndConsumer", {
 												Ext.Msg.alert("失败", "你选定的订单不能结算. 状态必须为已审核!");
 												return;
 											}
-											results.push(order.get("IndexNo"));
+											results.push({
+												index: order["index"],
+												indexno: order.get("IndexNo")
+											});
 										}
 										if (results.length > 0){
 											cardServer.EndConsumer(Ext.JSON.encode(results), {
-												success: function(succ){
-													Ext.Msg.alert("调试信息", succ);
+												success: function(r){
+													r = Ext.JSON.decode(r);
+													if (r.length == 0) { }
+
+													var str = [], pass = true;
+													for (var c = 0; c < r.length; ++c){
+														var info = r[c];
+														//true
+														if (info["result"]){
+															updateGridRowBackgroundColor(grid, "#e2e2ff", info["index"]);
+														}else{
+															var rowIdx = updateGridRowBackgroundColor(grid, "#ffe2e2", info["index"], info["message"]);
+															str.push("第" + rowIdx + "行 :" + info["message"]);
+														}
+
+														pass = pass && info["result"];
+													}
+
+													if (pass){
+													}else{
+														Ext.MessageBox.show({
+															title: "错误",
+															msg: str.join("<br/>"),
+															buttons: Ext.MessageBox.OK	
+														})
+													}
 												},
 												failure: function(error){
 													Ext.Error.raise(error)
@@ -4825,14 +4852,14 @@ Ext.define("Beet.apps.EndConsumer", {
 				mode: "MULTI",
 				listeners: {
 					beforeselect: function(f, record, index){
-						var state = record.get("State");
-						if (state == 2){
-							me.clearingFeeBtn.enable();
-							return true
-						}
-						me.clearingFeeBtn.disable();
-						//Ext.MessageBox.alert("失败", "你所勾选的不符合规定, 无法结算");
-						return false
+						//var state = record.get("State");
+						//if (state == 2){
+						me.clearingFeeBtn.enable();
+						//	return true
+						//}
+						//me.clearingFeeBtn.disable();
+						////Ext.MessageBox.alert("失败", "你所勾选的不符合规定, 无法结算");
+						//return false
 					}
 				}
 			});
