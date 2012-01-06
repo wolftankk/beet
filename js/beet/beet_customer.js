@@ -1917,6 +1917,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 										{
 											fieldLabel: "会员名",
 											xtype: "trigger",
+											width: 400,
 											name: "customername",
 											onTriggerClick: function(){
 												//这里需要一个高级查询
