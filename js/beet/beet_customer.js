@@ -1887,7 +1887,8 @@ Ext.define("Beet.apps.AddCustomerCard", {
 								align: 'stretch'
 							},
 							height: "100%",
-							flex: 1,
+							width: 400,
+							//flex: 1,
 							items: [
 								{
 									layout: {
@@ -1916,7 +1917,6 @@ Ext.define("Beet.apps.AddCustomerCard", {
 										{
 											fieldLabel: "会员名",
 											xtype: "trigger",
-											width: 400,
 											name: "customername",
 											onTriggerClick: function(){
 												//这里需要一个高级查询
