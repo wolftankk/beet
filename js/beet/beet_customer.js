@@ -1886,9 +1886,10 @@ Ext.define("Beet.apps.AddCustomerCard", {
 								type: 'vbox',
 								align: 'stretch'
 							},
-							height: "100%",
-							width: 400,
-							//flex: 1,
+							//collapsible: true,
+							//collapseDirection: "left",
+							width: 320,
+							height: 300,
 							items: [
 								{
 									layout: {
@@ -1905,7 +1906,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 									bodyStyle: "background-color: #dfe8f5",
 									defaults: {
 										bodyStyle: "background-color: #dfe8f5",
-										width: 400
+										width: 300
 									},
 									defaultType: "textfield",
 									fieldDefaults: {
@@ -1917,7 +1918,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 										{
 											fieldLabel: "会员名",
 											xtype: "trigger",
-											width: 400,
+											width: 300,
 											name: "customername",
 											onTriggerClick: function(){
 												//这里需要一个高级查询
@@ -1979,7 +1980,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 										{
 											fieldLabel: "专属顾问",
 											xtype: "trigger",
-											width: 400,
+											width: 300,
 											name: "employeename",
 											onTriggerClick: function(){
 												var win = Ext.create("Ext.window.Window", {
@@ -2034,7 +2035,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 									items: [
 										{
 											xtype: "component",
-											width: 100
+											width: 20
 										},
 										{
 											xtype: "button",
