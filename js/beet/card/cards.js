@@ -23,15 +23,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 		me._par = {};
 		//实耗
 		me._real = {};
-		/*
-		me.count = {
-			interestsCount : 0,
-			chargesCount : 0,
-			rebatesCount: 0,
-			packagesCount : 0,
-			itemsCount: 0,
-			productsCount: 0
-		}*/
 
 		me.callParent();	
 		me.createMainPanel();
@@ -106,7 +97,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 				},
 			}]
 		}));
-		me.packagesPanel.hide();
 		me.itemsPanel= Ext.widget("panel", Ext.apply(options, {
 			title: "项目列表",
 			tbar: [{

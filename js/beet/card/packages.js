@@ -214,6 +214,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 		//update panel
 		me.initializeItemsPanel();
 		me.initializeProductsPanel();
+		me.initializePackagePanel();
 	},
 	initializeItemsPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -224,6 +225,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 		var _actions = {
 			xtype: 'actioncolumn',
 			width: 30,
+			header: "操作",
 			items: [
 			]
 		}
@@ -368,6 +370,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 		var _actions = {
 			xtype: 'actioncolumn',
 			width: 30,
+			header: "操作",
 			items: [
 			]
 		}
@@ -505,11 +508,164 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 		store.loadData(tmp);
 	},
 
+	initializePackagePanel: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		if (me.packagesPanel.__columns && me.packagesPanel.__columns.length > 0){
+			return;
+		}
+		var columns = me.packagesPanel.__columns = [];
+		var _actions = {
+			xtype: 'actioncolumn',
+			width: 30,
+			header: "操作",
+			items: [
+			]
+		}
+		_actions.items.push("-",{
+			icon: "./resources/themes/images/fam/delete.gif",
+			tooltip: "删除套餐",
+			id: "customer_grid_delete",
+			handler: function(grid, rowIndex, colIndex){
+				var d = grid.store.getAt(rowIndex)
+				me.deletePackage(d);
+			}
+		}, "-");
+
+		columns.push(_actions);
+		cardServer.GetPackagesPageDataToJSON(0, 1, "", {
+			success: function(data){
+				var data = Ext.JSON.decode(data)["MetaData"];
+				var fields = me.packagesPanel.__fields = [];
+				for (var c in data){
+					var meta = data[c];
+					fields.push(meta["FieldName"])
+					if (!meta["FieldHidden"]){
+						columns.push({
+							dataIndex: meta["FieldName"],
+							header: meta["FieldLabel"],
+							flex: 1,
+						})
+					}
+				}
+				me.initializePackageGrid();
+			},
+			failure: function(error){
+				Ext.Error.raise(error);
+			}
+		});
+	},
+	initializePackageGrid: function(){
+		var me = this, selectedPackages = me.selectedPackages;
+		var __fields = me.packagesPanel.__fields;
+		var store = Ext.create("Ext.data.ArrayStore", {
+			fields: __fields
+		})
+
+		var grid = me.packagesPanel.grid = Ext.create("Ext.grid.Panel", {
+			store: store,
+			width: "100%",
+			height: "100%",
+			cls: "iScroll",
+			autoScroll: true,
+			columnLines: true,
+			columns: me.packagesPanel.__columns
+		});
+
+		me.packagesPanel.add(grid);
+		me.packagesPanel.doLayout();
+		me.queue.triggle("initPackagepanel", "success");
+	},
+	selectPackage: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var config = {
+			extend: "Ext.window.Window",
+			title: "选择套餐",
+			width: 1100,
+			height: 640,
+			autoScroll: true,
+			autoHeight: true,
+			layout: "fit",
+			resizable: true,
+			border: false,
+			modal: true,
+			maximizable: true,
+			border: 0,
+			bodyBorder: false,
+			editable: false
+		}
+		var win = Ext.create("Ext.window.Window", config);
+		win.show();
+
+		win.add(Ext.create("Beet.apps.ProductsViewPort.PackageList", {
+			b_type: "selection",
+			b_selectionMode: "MULTI",
+			b_selectionCallback: function(records){
+				if (records.length == 0){ win.close(); return;}
+				me.addPackage(records);
+				win.close();
+			}
+		}));
+		win.doLayout();
+	},
+	addPackage: function(records, isRaw){
+		var me = this, selectedPackages = me.selectedPackages;
+		var __fields = me.packagesPanel.__fields;
+		if (records == undefined){
+			return;
+		}
+		for (var r = 0; r < records.length; ++r){
+			var record = records[r];
+			var rid, rawData;
+			if (isRaw){
+				rid = record["ID"];
+				rawData = record;
+			}else{
+				rid = record.get("ID");
+				rawData = record.raw;
+			}
+			if (selectedPackages[rid] == undefined){
+				selectedPackages[rid] = []
+			}else{
+				selectedPackages[cid] = [];
+			}
+			for (var c = 0; c < __fields.length; ++c){
+				var k = __fields[c];
+				selectedPackages[rid].push(rawData[k]);
+			}
+		}
+
+		me.updatePackagesPanel();
+	},
+	deletePackage: function(record){
+		var me = this, selectedPackages = me.selectedPackages;
+		var rid = record.get("ID");
+		if (selectedPackages[rid]){
+			selectedPackages[rid] = null;
+			delete selectedPackages[rid];
+		}
+
+		me.updatePackagesPanel();
+	},
+	updatePackagesPanel: function(){
+		var me = this, selectedPackages = me.selectedPackages;
+		var grid = me.packagesPanel.grid, store = grid.getStore();
+		var __fields = me.packagesPanel.__fields;
+		var tmp = []
+		me._par.packages = 0;
+		me._real.packages = 0;
+		for (var c in selectedPackages){
+			var package = selectedPackages[c];
+			tmp.push(selectedPackages[c]);
+		}
+		store.loadData(tmp);
+	},
+
 	resetAll: function(){
 		var me = this;
 		//reset all
 		me.selectedItems = {};
 		me.selectedProducts = {};
+		me.selectedPackages = {};
 		me.count = {
 			itemsCount : 0
 		}
