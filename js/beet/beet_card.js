@@ -65,5 +65,6 @@ registerBeetAppsMenu("card", {
 
 Ext.namespace("Beet.apps.ProductsViewPort");
 
-
-//Ext.require(["card.products", "card.cards", "card.interests", "card.packages", "card.items", "card.charges", "card.rebate"]);
+Ext.onReady(function(){
+	Ext.require(["card.products", "card.cards", "card.interests", "card.packages", "card.items", "card.charges", "card.rebate"]);
+});
