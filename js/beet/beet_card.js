@@ -3318,7 +3318,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 
 		me.updateProductsPanel();
 	},
-	updateProductsPanel: function(first){
+	updateProductsPanel: function(append){
 		var me = this, selectedProducts = me.selectedProducts;
 		var grid = me.productsPanel.grid, store = grid.getStore();
 		var tmp = []
@@ -3326,7 +3326,6 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			tmp.push(selectedProducts[c]);
 		}
 		store.loadData(tmp);
-		console.log(store)
 		//if (first){return;}
 		//me.onUpdate();
 	},
@@ -3469,7 +3468,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 
 		me.updateChargeTypePanel();
 	},
-	updateChargeTypePanel: function(first){
+	updateChargeTypePanel: function(append){
 		var me = this, selectedChargeType = me.selectedChargeType;
 		var grid = me.chargeTypesPanel.grid, store = grid.getStore();
 		var __fields = me.chargeTypesPanel.__fields;
