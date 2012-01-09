@@ -1,9 +1,3 @@
-Ext.Loader.setConfig({
-	enabled: true,
-	paths: {
-		"card" : "./js/beet/card"
-	}
-})
 registerBeetAppsMenu("card", {
 	title: "卡项管理",
 	items: [

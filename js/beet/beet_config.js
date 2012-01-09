@@ -1,3 +1,12 @@
+Ext.Loader.setConfig({
+	enabled: true,
+	paths: {
+		"card" : "./js/beet/card",
+		"customer" : "./js/beet/customer",
+		"libs" : "js/my"
+	}
+});
+
 Beet.config = {
 	serverUrl: "mydogn.vicp.net",
 	getPrivileUrl: function(){
@@ -18,7 +27,6 @@ Beet.config = {
 }
 
 Beet.constants.customerLoginServer = new CTLoginSvc("http://"+Beet.config.getCustomerUrl() +"/JSON");
-
 Beet.constants.privilegeServer = new MyPrivilegeSvc("http://"+Beet.config.getPrivileUrl() + "/JSON");
 Beet.constants.customerServer = new MyCustomerSvc("http://"+Beet.config.getCustomerUrl() + "/JSON");
 Beet.constants.employeeServer = new MyEMSvc("http://" + Beet.config.getEmployeeUrl() + "/JSON");
