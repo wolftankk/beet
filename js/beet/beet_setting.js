@@ -91,16 +91,18 @@ registerBeetAppsMenu("configure",
 						{
 							text: "产品设置",
 							handler: function(){
-								var item = Beet.apps.Menu.Tabs["productsList"];
-								if (!item){
-									Beet.workspace.addPanel("productsList", "产品设置", {
-										items: [
-											Ext.create("Beet.apps.ProductsViewPort.UpdateProducts")
-										]
-									})
-								}else{
-									Beet.workspace.workspace.setActiveTab(item);
-								}
+								Ext.require("card.products", function(){
+									var item = Beet.apps.Menu.Tabs["productsList"];
+									if (!item){
+										Beet.workspace.addPanel("productsList", "产品设置", {
+											items: [
+												Ext.create("Beet.apps.ProductsViewPort.UpdateProducts")
+											]
+										})
+									}else{
+										Beet.workspace.workspace.setActiveTab(item);
+									}
+								});
 							}
 						},
 						/*
