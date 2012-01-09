@@ -41,7 +41,7 @@ Beet_Process.prototype.execute = function(needWaitProcess, queue){
 		this.executing = setInterval(function(){
 			var isReady = true;
 			for (var c = 0; c < needWaitProcess.length; ++c){
-				var processName = needWaitProcess[c], process = queue.getProcess(processName);
+				var processName = needWaitProcess[c].trim(), process = queue.getProcess(processName);
 				if (!!!process || process == undefined){
 					clearInterval(me.executing);
 					throw processName + " not found!";

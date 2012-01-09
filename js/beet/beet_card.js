@@ -2920,7 +2920,10 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 		me.itemList.cache = {};//cache itemdata
 		me.selectedItemId = 0;
 		me.selectedItemIndex = 0;
-		me.callParent()	
+
+		//create queue
+		me.queue = new Beet_Queue("AddItem-" + Math.random());
+		me.callParent();
 
 		me.createMainPanel();
 	},
@@ -3130,8 +3133,13 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 		me.doLayout();
 
 		//update panel
-		me.initializeProductsPanel();
-		me.initializeChargeTypePanel();
+
+		me.queue.Add("initproduct", function(){
+			me.initializeProductsPanel();
+		});
+		me.queue.Add("initcharge", function(){
+			me.initializeChargeTypePanel();
+		})
 	},
 	initializeProductsPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -3238,6 +3246,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			me.productsPanel.add(grid);
 			me.productsPanel.doLayout();
 		}
+		me.queue.trigger("initproduct", "success");
 	},
 	selectProducts: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -3317,8 +3326,9 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			tmp.push(selectedProducts[c]);
 		}
 		store.loadData(tmp);
-		if (first){return;}
-		me.onUpdate();
+		console.log(store)
+		//if (first){return;}
+		//me.onUpdate();
 	},
 	initializeChargeTypePanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -3383,6 +3393,8 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 
 		me.chargeTypesPanel.add(grid);
 		me.chargeTypesPanel.doLayout();
+
+		me.queue.trigger("initcharge", "success")
 	},
 	selectChargeType: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -3466,9 +3478,8 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			tmp.push(selectedChargeType[c]);
 		}
 		store.loadData(tmp);
-
-		if (first){return;}
-		me.onUpdate()
+		//if (first){return;}
+		//me.onUpdate()
 	},
 	restoreFromData: function(rawData){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -3492,12 +3503,13 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			Ext.Msg.alert("错误", "项目ID非法!");
 			return;
 		}
-		if (me.itemList.cache[itemId] == undefined){
+
+		me.queue.Add("restoreFormData", "initproduct,initcharge", function(){
 			me.itemList.cache[itemId] = {};
 			cardServer.GetItemProductData(itemId, {
 				success: function(data){
 					data = Ext.JSON.decode(data)["Data"]//["products"];
-					me.itemList.cache[itemId].products = data;
+					//me.itemList.cache[itemId].products = data;
 					me.addProducts(data, true)
 				},
 				failure: function(error){
@@ -3516,7 +3528,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 						cardServer.GetChargeTypePageData(1, 1000000, s, {
 							success: function(data){
 								var data = Ext.JSON.decode(data)["Data"];
-								me.itemList.cache[itemId].charges= data;
+								//me.itemList.cache[itemId].charges= data;
 								me.addChargeType(data, true);
 							},
 							failure: function(error){
@@ -3529,10 +3541,9 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 					Ext.Error.raise(error);
 				}
 			})
-		}else{
-			me.addProducts(me.itemList.cache[itemId].products, true);
-			me.addChargeType(me.itemList.cache[itemId].charges, true);
-		}
+
+			me.queue.triggle("restoreFormData", "success")
+		});
 	},
 	resetAll: function(){
 		var me = this, form = me.form.getForm();
@@ -3902,7 +3913,8 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 							autoScroll: true,
 							autoHeight: true,
 							layout: "fit",
-							border: false	
+							border: false,
+							title: "增加项目"
 						})
 
 						win.add(Ext.create("Beet.apps.ProductsViewPort.AddItem", {
@@ -4045,7 +4057,9 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 			if (list.length > 0 && (t && t.getValue() && rtest.test(t.getValue()))){
 				b.enable();
 			}else{
-				b.disable();
+				if (b){
+					b.disable();
+				}
 			}
 	   }
 	},
@@ -4456,7 +4470,8 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 			autoScroll: true,
 			autoHeight: true,
 			layout: "fit",
-			border: false	
+			border: false,
+			title: "编辑项目: " + rawData["IName"]
 		})
 
 		var f = Ext.create("Beet.apps.ProductsViewPort.AddItem", {
