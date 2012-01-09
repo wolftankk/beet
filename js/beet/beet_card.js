@@ -137,7 +137,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 	initComponent: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
 	
-		me.callParent()	
+		me.callParent();	
 		me.mainPanel = Ext.create("Ext.panel.Panel", {
 			height: (me.b_type == "selection" ? "95%" : "100%"),
 			width: "100%",
@@ -147,7 +147,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 			layout: {
 				type: "hbox",
 				columns: 2,
-				align: 'stretch'
+				align: 'stretch',				
 			},
 		})
 		me.add(me.mainPanel);
@@ -178,10 +178,11 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 						type: "table",
 						columns: 2,
 						tableAttrs: {
-							cellspacing: 10,
+							cellspacing: 10,							
 							style: {
-								width: "100%"
-							}
+								width: "100%",
+								
+							}						
 						}
 					},
 					border: false,
@@ -211,11 +212,11 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 							name: "barcode",
 							allowBlank: true
 						},
-						{
-							fieldLabel: "产品数目",
-							name: "count",
-							allowBlank: false
-						},
+//						{
+//							fieldLabel: "产品数目",
+//							name: "count",
+//							allowBlank: false,							
+//						},
 						{
 							fieldLabel: "产品价格",
 							name: "price",
@@ -268,9 +269,14 @@ Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 							emptyMsg: "点击侧边分类列表, 自动填入"
 						},
 						{
+							xtype: "component",
+													
+						},
+						{
 							fieldLabel: "注释",
+							xtype: 'textareafield',
 							name: "descript",
-							allowBlank: true,
+							allowBlank: true,							
 						},
 						{
 							xtype: "component",
@@ -3015,7 +3021,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 											name: "name"
 										},
 										{
-											fieldLabel: "项目总价",
+											fieldLabel: "项目售价",
 											allowBlank: false,
 											name: "price",
 											listeners: {
@@ -3025,6 +3031,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 												}
 											},
 										},
+										/*
 										{
 											fieldLabel: "项目折扣总价",
 											allowBlank: false,
@@ -3048,6 +3055,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 												}
 											},
 										},
+										*/
 										{
 											fieldLabel: "项目所属分类",
 											allowBlank: false,
@@ -3541,8 +3549,9 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 		}
 		me.itemList.store.loadPage(me.itemList.store.currentPage);
 	},
-	//auto computing value
 	onUpdate: function(force){
+		//COMMIT: 这部分目前已经不需要再自动计算
+		/*
 		var me = this, cardServer = Beet.constants.cardServer, form = me.form.getForm(),
 			values = form.getValues(),
 			_price = (""+values["price"]).replaceAll(",", ""),
@@ -3585,6 +3594,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 			rate: Ext.Number.toFixed(_rate, 2),
 			realprice: Ext.Number.toFixed(_realprice, 2)
 		});
+		*/
 	},
 	processData: function(f){
 		var me = this, cardServer = Beet.constants.cardServer,
@@ -3907,6 +3917,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 					}
 				},
 				"-",
+				/*
 				{ xtype: 'tbspacer', width: 50 },
 				"批量修改",
 				{
@@ -3998,6 +4009,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 						})
 					}
 				}
+				*/
 			],
 			bbar: Ext.create("Ext.PagingToolbar", {
 				store: store,

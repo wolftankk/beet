@@ -149,7 +149,6 @@ registerBeetAppsMenu("configure",
 								}
 							}
 						},
-						/*
 						{
 							text: "增加套餐",
 							handler: function(){
@@ -180,7 +179,6 @@ registerBeetAppsMenu("configure",
 								}
 							}
 						},
-						*/
 					]
 				}
 			]
