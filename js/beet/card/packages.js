@@ -698,26 +698,6 @@
 //			result["items"] = items;
 //		}
 //
-//		cardServer.AddPackage(Ext.JSON.encode(result), {
-//			success: function(pid){
-//				if (pid > 0){
-//					Ext.MessageBox.show({
-//						title: "提示",
-//						msg: "添加套餐成功!",
-//						buttons: Ext.MessageBox.YESNO,
-//						fn: function(btn){
-//							if (btn == "yes"){
-//								form.reset()
-//								me.resetAll();
-//							}
-//						}
-//					});
-//				}
-//			},
-//			failure: function(error){
-//				Ext.Error.raise(error);
-//			}
-//		})
 //	}
 //});
 
@@ -738,7 +718,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 
 		me.selectedItems = {};
 		me.selectedProducts = {};
-		me.selectedPackages = {};
+		me.selectedPackages = [];
 
 		me.selectedPackageId= 0;
 		me.selectedPackageIndex = 0;
@@ -969,25 +949,14 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 		});
 	},
 	addPackageWindow: function(){
-		//这里可以重置界面, 然后直接在现有界面中增加新的套餐?
 		var me = this;
-		var win = Ext.create("Ext.window.Window", {
-			width: 1000,
-			height: 630,
-			layout: "fit",
-			autoHeight: true,
-			autoScroll: true,
-			title: "增加套餐",
-			border: false
-		});
-		win.add(Ext.create("Beet.apps.ProductsViewPort.AddPackage", {
-			_editType: "add",
-			callback: function(){
-				win.close();
-				me.storeProxy.loadPage(me.storeProxy.currentPage);
-			}
-		}));
-		win.show();
+		Ext.Msg.alert("通知", "你进入了套餐添加的模式");
+		me.resetAll();
+		var addBtn = me.form.down("button[name=packageNewBtn]");
+		
+		if 	(addBtn) {
+			addBtn.enable();
+		}
 	},
 	deletePackage: function(record){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -1078,26 +1047,14 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 				xtype: "button",
 				text: "绑定产品",
 				handler: function(){
-					//me.selectItems();
-				}
-			}]	
-		}));
-
-		me.packagesPanel = Ext.widget("panel", Ext.apply(options, {
-			title: "套餐列表",
-			tbar: [{
-				xtype: "button",
-				text: "绑定套餐",
-				handler: function(){
-					//me.selectItems();
+					me.selectProducts();
 				}
 			}]	
 		}));
 
 		me.childrenList = [
 			me.itemsPanel,
-			me.productsPanel,
-			me.packagesPanel
+			me.productsPanel
 		]
 
 		var config = {
@@ -1182,7 +1139,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 											name: "rate"
 										},
 										{
-											fieldLabel: "折扣总价",
+											fieldLabel: "套餐售价",
 											allowBlank: false,
 											name: "realprice",
 											listeners: {
@@ -1193,9 +1150,72 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 											}
 										},
 										{
+											xtype: "combobox",
+											fieldLabel: "所属父类",
+											store:new Ext.data.SimpleStore({fields:[],data:[[]]}),   
+											editable:false, 
+											name: "_packageName",
+											mode: 'local',   
+											triggerAction:'all',   
+											maxHeight: 200,   
+											tpl: "<tpl for='.'><div style='height:200px'><div id='innerTree'></div></div></tpl>",   
+											selectedClass:'',   
+											onSelect:Ext.emptyFn,
+											listeners: {
+												expand: function(f){
+													console.log("treelist expand");
+													var that = this;
+													if (!me.innerTreeList){
+														var sm;
+														sm = Ext.create("Ext.selection.CheckboxModel", {
+															mode: me.b_selectionMode ? me.b_selectionMode : "SINGLE"
+														});
+														f.sm = sm;
+														f.store = Ext.create("Beet.apps.ProductsViewPort.PackageTreeStore")
+														me.innerTreeList = Ext.create("Ext.tree.TreePanel", {
+															store: f.store,
+															bodyStyle: "background-color: #fff",
+															frame: false,
+															lookMask: true,
+															selModel: sm,
+															cls: "iScroll",
+															border: 0,
+															height: 200,
+															useArrow: true,
+															split: true,
+															listeners: {
+																itemclick: function(grid, record){
+																	//首先要获取原始的数据
+																	me.selectedPackages = [
+																		record
+																	];
+																	//me.form.getForm().setValues({
+																	//	"_packageName" : record.raw["name"]	
+																	//})
+																}
+															}
+														});
+													};
+													me.innerTreeList.render("innerTree");
+
+													f.sm.deselectAll();
+													if (me.selectedPackages.length > 0){
+														for (var c = 0; c < me.selectedPackages.length; ++c){
+															f.sm.select(me.selectedPackages[c]);
+														}
+													}
+												}
+											}
+										},
+										{
+											xtype: "component",
+											width: 5
+										},
+										{
 											fieldLabel: "注释",
-											colspan: 2,
-											width: 620,
+											colspan: 3,
+											width: 600,
+											height: 40,
 											allowBlank: true,
 											name: "descript"
 										}	
@@ -1207,7 +1227,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 									autoHeight: true,
 									border: false,
 									bodyStyle: "background-color: #dfe8f5;margin-top: 10px",
-									height: Beet.constants.VIEWPORT_HEIGHT - 70,
+									height: Beet.constants.VIEWPORT_HEIGHT - 115,
 									width: Beet.constants.WORKSPACE_WIDTH - 240,
 									items: me.childrenList, 
 									bbar:[
@@ -1229,7 +1249,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 														disabled: true,
 														bodyStyle: "background-color: #dfe8f5",
 														handler: function(){
-															//me.processData(this);
+															me.processData(this, "add");
 														}
 													},
 													{
@@ -1244,7 +1264,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 														disabled: true,
 														bodyStyle: "background-color: #dfe8f5",
 														handler: function(){
-															//me.processData(this);
+															me.processData(this, "edit");
 														}
 													},
 												]
@@ -1266,7 +1286,6 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 
 		me.initializeItemsPanel();
 		me.initializeProductsPanel();
-		me.initializePackagePanel();
 	},
 	initializeItemsPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -1562,160 +1581,9 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 		store.loadData(tmp);
 	},
 
-	initializePackagePanel: function(){
-		var me = this, cardServer = Beet.constants.cardServer;
-		if (me.packagesPanel.__columns && me.packagesPanel.__columns.length > 0){
-			return;
-		}
-		var columns = me.packagesPanel.__columns = [];
-		var _actions = {
-			xtype: 'actioncolumn',
-			width: 30,
-			header: "操作",
-			items: [
-			]
-		}
-		_actions.items.push("-",{
-			icon: "./resources/themes/images/fam/delete.gif",
-			tooltip: "删除套餐",
-			id: "customer_grid_delete",
-			handler: function(grid, rowIndex, colIndex){
-				var d = grid.store.getAt(rowIndex)
-				me.deletePackage(d);
-			}
-		}, "-");
-
-		columns.push(_actions);
-		cardServer.GetPackagesPageDataToJSON(0, 1, "", {
-			success: function(data){
-				var data = Ext.JSON.decode(data)["MetaData"];
-				var fields = me.packagesPanel.__fields = [];
-				for (var c in data){
-					var meta = data[c];
-					fields.push(meta["FieldName"])
-					if (!meta["FieldHidden"]){
-						columns.push({
-							dataIndex: meta["FieldName"],
-							header: meta["FieldLabel"],
-							flex: 1,
-						})
-					}
-				}
-				me.initializePackageGrid();
-			},
-			failure: function(error){
-				Ext.Error.raise(error);
-			}
-		});
-	},
-	initializePackageGrid: function(){
-		var me = this, selectedPackages = me.selectedPackages;
-		var __fields = me.packagesPanel.__fields;
-		var store = Ext.create("Ext.data.ArrayStore", {
-			fields: __fields
-		})
-
-		var grid = me.packagesPanel.grid = Ext.create("Ext.grid.Panel", {
-			store: store,
-			height: 245,
-			cls: "iScroll",
-			autoScroll: true,
-			columnLines: true,
-			columns: me.packagesPanel.__columns
-		});
-
-		me.packagesPanel.add(grid);
-		me.packagesPanel.doLayout();
-		me.queue.triggle("initPackagepanel", "success");
-	},
-	selectPackage: function(){
-		var me = this, cardServer = Beet.constants.cardServer;
-		//var config = {
-		//	extend: "Ext.window.Window",
-		//	title: "选择套餐",
-		//	width: 1100,
-		//	height: 640,
-		//	autoScroll: true,
-		//	autoHeight: true,
-		//	layout: "fit",
-		//	resizable: true,
-		//	border: false,
-		//	modal: true,
-		//	maximizable: true,
-		//	border: 0,
-		//	bodyBorder: false,
-		//	editable: false
-		//}
-		//var win = Ext.create("Ext.window.Window", config);
-		//win.show();
-
-		//win.add(Ext.create("Beet.apps.ProductsViewPort.PackageList", {
-		//	b_type: "selection",
-		//	b_selectionMode: "MULTI",
-		//	b_selectionCallback: function(records){
-		//		if (records.length == 0){ win.close(); return;}
-		//		me.addPackage(records);
-		//		win.close();
-		//	}
-		//}));
-		//win.doLayout();
-	},
-	addPackage: function(records, isRaw){
-		var me = this, selectedPackages = me.selectedPackages;
-		var __fields = me.packagesPanel.__fields;
-		if (records == undefined){
-			return;
-		}
-		for (var r = 0; r < records.length; ++r){
-			var record = records[r];
-			var rid, rawData;
-			if (isRaw){
-				rid = record["ID"];
-				rawData = record;
-			}else{
-				rid = record.get("ID");
-				rawData = record.raw;
-			}
-			if (selectedPackages[rid] == undefined){
-				selectedPackages[rid] = []
-			}else{
-				selectedPackages[cid] = [];
-			}
-			for (var c = 0; c < __fields.length; ++c){
-				var k = __fields[c];
-				selectedPackages[rid].push(rawData[k]);
-			}
-		}
-
-		me.updatePackagesPanel();
-	},
-	deletePackage: function(record){
-		var me = this, selectedPackages = me.selectedPackages;
-		var rid = record.get("ID");
-		if (selectedPackages[rid]){
-			selectedPackages[rid] = null;
-			delete selectedPackages[rid];
-		}
-
-		me.updatePackagesPanel();
-	},
-	updatePackagesPanel: function(){
-		var me = this, selectedPackages = me.selectedPackages;
-		var grid = me.packagesPanel.grid, store = grid.getStore();
-		var __fields = me.packagesPanel.__fields;
-		var tmp = []
-		me._par.packages = 0;
-		me._real.packages = 0;
-		for (var c in selectedPackages){
-			var package = selectedPackages[c];
-			tmp.push(selectedPackages[c]);
-		}
-		store.loadData(tmp);
-	},
-
 	onSelectItem: function(pid, record){
 		var me = this, cardServer = Beet.constants.cardServer;
-		me.selectedItems = {};//reset
+		me.resetAll();
 
 		me.selectedPackageId = pid;
 		me.selectedPackageIndex = record.get("index");
@@ -1723,6 +1591,11 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 		if (pid <= 0){
 			Ext.Msg.alert("错误", "项目ID非法!");
 			return;
+		}
+
+		var editBtn = me.form.down("button[name=packageEditBtn]");
+		if (editBtn){
+			editBtn.enable();
 		}
 		
 		cardServer.GetPackagesPageDataToJSON(0, 1, "ID=" + pid, {
@@ -1832,45 +1705,86 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 		var me = this, cardServer = Beet.constants.cardServer;
 		me.onUpdateForm();
 		var form = f.up("form").getForm(), result = form.getValues();
-		var selectedItems = me.selectedItems;
-		if (me.selectedPackageId< 0){
-			Ext.MessageBox.alert("oops", "没有套餐ID, 无法更新");
-			return;
-		}
 
+		var selectedItems = me.selectedItems;
 		//name descript products charges
 		var items = Ext.Object.getKeys(selectedItems);
-
 		if (items && items.length > 0){
 			result["items"] = items;
 		}
+	
+		var selectedProducts = me.selectedProducts;
+		var products = Ext.Object.getKeys(selectedProducts);
+		if (products && products.length > 0){
+			result["products"] = products;
+		}
 
-		result["id"] = me.selectedPackageId;
+		var selectedPackages = me.selectedPackages;
+		if (selectedPackages && selectedPackages.length > 0){
+			result["parentid"] = selectedPackages.shift().get("id");
+		}
 
-		cardServer.UpdatePackage(Ext.JSON.encode(result), {
-			success: function(succ){
-				if (succ){
-					Ext.MessageBox.show({
-						title: "提示",
-						msg: "更新项目成功!",
-						buttons: Ext.MessageBox.OK,
-						fn: function(btn){
-							me.selectedItems= {};
-							me.updateItemsPanel();
-							if (me.packageList.cache[me.selectedPackageId]){
-								me.packageList.cache[me.selectedPackageId] = {};
-								delete me.packageList.cache[me.selectedPackageId];
-							}
-							me.packageList.store.loadPage(me.packageList.store.currentPage);
-						}
-					});
-				}else{
-					Ext.Msg.alert("警告", "更新产品失败!!");
-				}
-			},
-			failure: function(error){
-				Ext.Error.raise(error);
+		if (action == "edit"){
+			if (me.selectedPackageId< 0){
+				Ext.MessageBox.alert("oops", "没有套餐ID, 无法更新");
+				return;
 			}
-		})
+			result["id"] = me.selectedPackageId;
+		}
+		
+		if (action == "add"){
+			cardServer.AddPackage(Ext.JSON.encode(result), {
+				success: function(pid){
+					if (pid > 0){
+						Ext.MessageBox.show({
+							title: "提示",
+							msg: "添加套餐成功!",
+							buttons: Ext.MessageBox.YESNO,
+							fn: function(btn){
+								if (btn == "yes"){
+									me.resetAll();
+									//reload 
+									me.storeProxy.load();
+								}
+							}
+						});
+					}else{
+						Ext.MessageBox.alert("失败", "添加套餐失败!");
+					}
+				},
+				failure: function(error){
+					Ext.Error.raise(error);
+				}
+			});
+		}else{
+			if (action == "edit"){
+				cardServer.UpdatePackage(Ext.JSON.encode(result), {
+					success: function(succ){
+						if (succ){
+							Ext.MessageBox.show({
+								title: "提示",
+								msg: "更新项目成功!",
+								buttons: Ext.MessageBox.OK,
+								fn: function(btn){
+									//me.selectedItems= {};
+									//me.updateItemsPanel();
+									//if (me.packageList.cache[me.selectedPackageId]){
+									//	me.packageList.cache[me.selectedPackageId] = {};
+									//	delete me.packageList.cache[me.selectedPackageId];
+									//}
+									//me.packageList.store.loadPage(me.packageList.store.currentPage);
+								}
+							});
+						}else{
+							Ext.Msg.alert("警告", "更新产品失败!!");
+						}
+					},
+					failure: function(error){
+						Ext.Error.raise(error);
+					}
+				})
+			}
+		}
+
 	}
 });
