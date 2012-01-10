@@ -1,14 +1,14 @@
 Ext.Loader.setConfig({
 	enabled: true,
 	paths: {
-		"card" : "./js/beet/card",
-		"customer" : "./js/beet/customer",
+		"card" : "js/beet/card",
+		"customer" : "js/beet/customer",
 		"libs" : "js/my"
 	}
 });
 
 Beet.config = {
-	serverUrl: "mydogn.vicp.net",
+	serverUrl: "172.16.88.8",
 	getPrivileUrl: function(){
 		return this.serverUrl + ":6660";
 	},
