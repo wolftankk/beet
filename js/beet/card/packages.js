@@ -957,6 +957,24 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 					cardServer.GetPackageProducts(pid, {
 						success: function(data){
 							console.log(data)
+							data = Ext.JSON.decode(data)["products"];
+							var sql = [];
+							for (var c = 0; c < data.length; ++c){
+								sql.push("id=" + data[c]);
+							}
+							var s = sql.join(" OR ");
+							if (s.length > 0){
+								cardServer.GetProductPageData(1, data.length, s, {
+									success: function(data){
+										var data = Ext.JSON.decode(data)["Data"];
+										me.addProducts(data, true);
+										//me.productsPanel.expand();
+									},
+									failure: function(error){
+										Ext.Error.raise(error)
+									}
+								});
+							}
 						},
 						failure: function(error){
 							Ext.Error.raise(error)
@@ -973,7 +991,6 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 								me.selectedPackages = [r];
 							}
 						}
-						//console.log(me.selectedPackages)
 					}
 				}else{
 					return;
@@ -1097,13 +1114,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 								msg: "更新项目成功!",
 								buttons: Ext.MessageBox.OK,
 								fn: function(btn){
-									//me.selectedItems= {};
-									//me.updateItemsPanel();
-									//if (me.packageList.cache[me.selectedPackageId]){
-									//	me.packageList.cache[me.selectedPackageId] = {};
-									//	delete me.packageList.cache[me.selectedPackageId];
-									//}
-									//me.packageList.store.loadPage(me.packageList.store.currentPage);
+									me.storeProxy.load();
 								}
 							});
 						}else{
