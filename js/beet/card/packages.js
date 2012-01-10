@@ -71,16 +71,16 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 				}
 			}]	
 		}));
-		//me.packagesPanel = Ext.widget("panel", Ext.apply(options, {
-		//	title: "绑定套餐",
-		//	tbar: [{
-		//		xtype: "button",
-		//		text: "",
-		//		handler: function(){
-		//			//me.selectItems();
-		//		}
-		//	}]	
-		//}));
+		me.packagesPanel = Ext.widget("panel", Ext.apply(options, {
+			title: "绑定套餐",
+			tbar: [{
+				xtype: "button",
+				text: "",
+				handler: function(){
+					//me.selectItems();
+				}
+			}]	
+		}));
 
 		me.childrenList = [
 			me.itemsPanel,
@@ -721,6 +721,9 @@ Ext.define("Beet.apps.ProductsViewPort.AddPackage",{
 	}
 });
 
+
+
+
 Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 	extend: "Ext.panel.Panel",
 	autoHeight: true,
@@ -738,6 +741,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 
 		me.selectedItems = {};
 		me.selectedProducts = {};
+		me.selectedPackages = {};
 		//me.packageList = {};//save store fields columns and grid
 		//me.packageList.cache = {};//cache itemdata
 
@@ -808,6 +812,9 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 						borderColor: "#99BBE8"
 					},
 					text: "增加",
+					handler: function(){
+						me.addPackageWindow();
+					},
 				},
 				{
 					xtype: "button",
@@ -815,18 +822,33 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 					style: {
 						borderColor: "#99BBE8"
 					},
-					text: "删除"
+					text: "删除",
+					handler: function(){
+						var list = me.treeList.selModel.getSelection();
+						if (list && list.length > 0){
+							var r = list[0];
+							if (r.get("id") == "-1"){
+								Ext.Msg.alert("失败", "无法删除根目录");
+								return;
+							}
+							me.deletePackage(r)
+						}else{
+							Ext.Msg.alert("失败", "请选择需要删除的套餐");
+						}
+					}
 				}
 			],
 			bbar: [
 				"->",
 				{
 					xtype: "button",
-					text: "确定"
+					text: "确定",
+					hidden: (me.b_type != "selection")
 				},
 				{
 					xtype: "button",
-					text: "取消"
+					text: "取消",
+					hidden: (me.b_type != "selection")
 				}
 			]
 		});
@@ -862,7 +884,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 					me.onSelectItem(record.raw["ID"], record)
 				}},
 				{text: "增加", handler: function(direction, e){
-				
+					me.addPackageWindow();	
 				}},
 				{text: "删除", handler: function(direction, e){
 					me.deletePackage(record)
@@ -1049,6 +1071,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 				}
 			}]	
 		}));
+
 		me.productsPanel = Ext.widget("panel", Ext.apply(options, {
 			title: "产品列表",
 			tbar: [{
@@ -1060,9 +1083,21 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 			}]	
 		}));
 
+		me.packagesPanel = Ext.widget("panel", Ext.apply(options, {
+			title: "套餐列表",
+			tbar: [{
+				xtype: "button",
+				text: "绑定套餐",
+				handler: function(){
+					//me.selectItems();
+				}
+			}]	
+		}));
+
 		me.childrenList = [
 			me.itemsPanel,
-			me.productsPanel
+			me.productsPanel,
+			me.packagesPanel
 		]
 
 		var config = {
