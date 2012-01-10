@@ -1,3 +1,63 @@
+function buildCategoryTreeStore(){
+	if (!Beet.apps.ProductsViewPort.CatgoryTreeStore){
+		Ext.define("Beet.apps.ProductsViewPort.CatgoryTreeStore", {
+			extend: "Ext.data.TreeStore",
+			autoLoad: true,
+			root: {
+				text: "总分类",
+				id: "-1",
+				expanded: true
+			},
+			proxy: {
+				type: "b_proxy",
+				b_method: Beet.constants.cardServer.GetCategoryData,
+				preProcessData: function(data){
+					var originData = data["root"];
+					var bucket = [];
+					var me = this;
+					me.categoryList = [];
+					
+					var processData = function(target, cache, pid){
+						var k;
+						for (k = 0; k < target.length; ++k){
+							var _tmp = target[k];
+							var item = {};
+							if (_tmp.data && _tmp.data.length > 0){
+								item["expanded"] = false;
+								item["text"] = _tmp["name"];
+								item["id"] = _tmp["id"];
+								item["pid"] = pid;
+								item["children"] = [];
+
+								processData(_tmp.data, item["children"], item["id"]);
+							}else{
+								item = _tmp;
+								item["text"] = _tmp["name"];
+								item["leaf"] = true;
+								item["pid"] = pid;
+								//item["checked"] = false;
+							}
+							cache.push(item);
+							me.categoryList.push({
+								id: _tmp["id"],
+								text: _tmp["name"]      
+							})
+						}
+					}
+
+					processData(originData, bucket, -1);
+
+					return bucket;
+				},
+				b_scope: Beet.constants.cardServer,
+				reader: {
+					type: "json"	
+				}
+			},
+		})
+	}
+}
+
 function createItemCategoryTree(){
 	var me = this, cardServer = Beet.constants.cardServer;
 	me.createTreeList = function(){
@@ -1890,9 +1950,9 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		})
 
 		Ext.defer(function(){
-			f.restoreFromData(rawData);
 			win.add(f);
 			win.show();
+			f.restoreFromData(rawData);
 		}, 500);
 	},
 	deleteItem: function(record){
