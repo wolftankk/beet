@@ -148,12 +148,22 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 				{
 					xtype: "button",
 					text: "确定",
-					hidden: (me.b_type != "selection")
+					hidden: (me.b_type != "selection"),
+					handler: function(){
+						if (me.b_selectionCallback){
+							me.b_selectionCallback(me.treeList.selModel.getSelection());
+						}
+					},
 				},
 				{
 					xtype: "button",
 					text: "取消",
-					hidden: (me.b_type != "selection")
+					hidden: (me.b_type != "selection"),
+					handler: function(){
+						if (me.b_selectionCallback){
+							me.b_selectionCallback([])
+						}
+					},
 				}
 			]
 		});
@@ -793,11 +803,19 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 					var meta = data[c];
 					fields.push(meta["FieldName"])
 					if (!meta["FieldHidden"]){
-						columns.push({
+						var c = {
 							dataIndex: meta["FieldName"],
 							header: meta["FieldLabel"],
 							flex: 1
-						})
+						}
+						if (meta["FieldName"] == "COUNT" || meta["FieldName"] == "PRICE"){
+							c.editor = {
+								xtype: "numberfield",
+								allowBlank: false,
+								type: "float"
+							}
+						}
+						columns.push(c)
 					}
 				}
 				me.initializeProductsGrid();
@@ -822,7 +840,35 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 				cls: "iScroll",
 				autoScroll: true,
 				columnLines: true,
-				columns: me.productsPanel.__columns	
+				columns: me.productsPanel.__columns,
+				plugins: [
+					Ext.create('Ext.grid.plugin.CellEditing', {
+						clicksToEdit: 1,
+						// cell edit event
+						listeners: {
+							"edit" : function(editor, e, opts){
+								// fire event when cell edit complete
+								var currField = e.field, currColIdx = e.colIdx, currRowIdx = e.rowIndex;
+								var currRecord = e.record;
+								var currPrice = currRecord.get("PRICE");
+								if (currField == "COUNT"){
+									//check field "PRICE" that it exists val?
+									var price = currRecord.get("PPrice"), count = currRecord.get("COUNT");
+									if (price){ price = parseFloat(price.replaceAll(",", "")); }
+									currRecord.set("PRICE", Ext.Number.toFixed(price * count, 2));
+									currRecord.set("COUNT", Ext.Number.toFixed(count, 6));
+
+									//me.onUpdate();	
+								}else{
+									if (currField == "PRICE" && currPrice && currPrice > 0){
+										//me.onUpdate();	
+									}
+								}
+							}
+						}
+					})
+				],
+				selType: 'cellmodel'
 			});
 
 			me.productsPanel.add(grid);
@@ -973,7 +1019,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 							data = Ext.JSON.decode(data)["products"];
 							var sql = [];
 							for (var c = 0; c < data.length; ++c){
-								sql.push("id=" + data[c]);
+								sql.push("pid=" + data[c]);
 							}
 							var s = sql.join(" OR ");
 							if (s.length > 0){

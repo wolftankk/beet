@@ -865,9 +865,29 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 			b_selectionMode: "MULTI",
 			b_selectionCallback: function(records){
 				if (records.length == 0){ win.close(); return;}
-				me.addPackage(records);
-				win.close();
-			}
+				var sql = [];
+				for (var c = 0; c < records.length; ++c){
+					var record = records[c];
+					sql.push("id=" + record.raw["ID"]);
+					console.log(sql);
+				}
+				if (sql.length > 0){
+					sql = sql.concat(" OR ");
+					cardServer.GetPackagesPageDataToJSON(0, records.length, sql, {
+						success: function(data){
+							data = Ext.JSON.decode(data)["Data"];
+							me.addPackage(data, true);
+							win.close();
+						},
+						failure: function(error){
+							Ext.Error.raise(error)
+						}
+					})
+				}else{
+					win.close();
+				}
+			},
+			height: "100%",
 		}));
 		win.doLayout();
 	},
@@ -2595,9 +2615,29 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 			b_selectionMode: "MULTI",
 			b_selectionCallback: function(records){
 				if (records.length == 0){ win.close(); return;}
-				me.addPackage(records);
-				win.close();
-			}
+				var sql = [];
+				for (var c = 0; c < records.length; ++c){
+					var record = records[c];
+					sql.push("id=" + record.raw["ID"]);
+					console.log(sql);
+				}
+				if (sql.length > 0){
+					sql = sql.concat(" OR ");
+					cardServer.GetPackagesPageDataToJSON(0, records.length, sql, {
+						success: function(data){
+							data = Ext.JSON.decode(data)["Data"];
+							me.addPackage(data, true);
+							win.close();
+						},
+						failure: function(error){
+							Ext.Error.raise(error)
+						}
+					})
+				}else{
+					win.close();
+				}
+			},
+			height: "100%",
 		}));
 		win.doLayout();
 	},
