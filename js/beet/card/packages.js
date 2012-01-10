@@ -727,6 +727,9 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 	autoScroll:true,
 	frame:true,
 	border: false,
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
+	width: "100%",
+	bodyPadding: 0,
 	bodyBorder: false,
 	plain: true,
 	b_filter: "",
@@ -761,7 +764,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 			collapsible: true,
 			collapseDirection: "left",
 			width: 230,
-			height: 500,
+			height: Beet.constants.VIEWPORT_HEIGHT - 50,
 			border: 0,
 			useArrow: true,
 			title: "项目分类",
@@ -795,10 +798,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 			}
 		});
 
-
-		Ext.defer(function(){
-			me.createMainPanel()	
-		}, 10);
+		me.createMainPanel()	
 		//if (me.b_type == "selection") {
 		//}else{
 		//	_actions.items.push("-",{
@@ -935,8 +935,8 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 						}
 					}
 
-					console.log(originData);
-					//processData(originData, bucket, -1);
+					//console.log(originData);
+					processData(originData, bucket, -1);
 
 					return bucket;
 				},
@@ -1068,13 +1068,28 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 		var options = {
 			autoScroll: true,
 			height: 300,
+			width: "100%",
 			cls: "iScroll",
 			collapsible: true,
 			collapsed: true,
 			border: true,
 			plain: true,
-			flex: 1,
-			bodyStyle: "background-color: #dfe8f5"
+			bodyStyle: "background-color: #dfe8f5",
+			listeners: {
+				beforeexpand: function(p){
+					for (var c = 0; c < me.childrenList.length; ++c){
+						var child = me.childrenList[c];
+						if (child !== p){
+							child.collapse();
+						}
+					}
+				},
+				expand: function(p){
+					if (p && p.setHeight){
+						p.setHeight(300);//reset && update
+					}
+				}
+			}
 		}
 
 		me.itemsPanel = Ext.widget("panel", Ext.apply(options, {
@@ -1087,6 +1102,22 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 				}
 			}]	
 		}));
+		me.productsPanel = Ext.widget("panel", Ext.apply(options, {
+			title: "产品列表",
+			tbar: [{
+				xtype: "button",
+				text: "绑定产品",
+				handler: function(){
+					//me.selectItems();
+				}
+			}]	
+		}));
+
+		me.childrenList = [
+			me.itemsPanel,
+			me.productsPanel
+		]
+
 		var config = {
 			autoHeight: true,
 			autoScroll: true,
@@ -1097,6 +1128,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 			border: false,
 			bodyBorder: false,
 			plain: true,
+			bodyPadding: 0,
 			bodyStyle: "background-color: #dfe8f5",
 			items: [
 				{
@@ -1119,13 +1151,13 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 								align: 'stretch'
 							},
 							bodyStyle: "background-color: #dfe8f5",
-							height: 500,
-							width: 280,
+							height: "100%",
+							flex: 2,
 							items: [
 								{
 									layout: {
 										type: "table",
-										columns: 1,
+										columns: 3,
 										tableAttrs: {
 											cellspacing: 10,
 											style: {
@@ -1180,66 +1212,67 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 										},
 										{
 											fieldLabel: "注释",
-											xtype: "textarea",
-											height: 230,
+											colspan: 2,
+											width: 620,
 											allowBlank: true,
 											name: "descript"
 										}	
 									]
+								},
+								{
+									type: "fit",
+									autoScroll: true,
+									autoHeight: true,
+									border: false,
+									bodyStyle: "background-color: #dfe8f5;margin-top: 10px",
+									height: Beet.constants.VIEWPORT_HEIGHT - 70,
+									width: Beet.constants.WORKSPACE_WIDTH - 240,
+									items: me.childrenList, 
+									bbar:[
+										"->",
+										(function(){
+											var b = {};
+											if (me.b_type == "selection"){
+												b = {
+													text: "确定",
+													xtype: "button",
+													border: 1,
+													style: {
+														borderColor: "#99BBE8"
+													},
+													bodyStyle: "background-color: #dfe8f5",
+													handler: function(){
+														if (me.b_selectionCallback){
+															me.b_selectionCallback(me.selModel.getSelection());
+														}
+													}
+												}
+											}else{
+												b = {
+													text: "提交",
+													xtype: "button",
+													border: 1,
+													width: 200,
+													style: {
+														borderColor: "#99BBE8"
+													},
+													bodyStyle: "background-color: #dfe8f5",
+													handler: function(){
+														me.processData(this);
+													}
+												}
+											}
+											return b;
+										})()
+									]
 								}
-							]
+							],
 						},
-						{
-							layout: {
-								type: 'vbox',
-								align: 'stretch'
-							},
-							flex: 1,
-							items: [
-								//me.packageList.grid,
-								//me.itemsPanel,
-							]
-						}
 					]
 				}
 			],
-			bbar:[
-				"->",
-				(function(){
-					var b = {};
-					if (me.b_type == "selection"){
-						b = {
-							text: "确定",
-							xtype: "button",
-							border: 1,
-							style: {
-								borderColor: "#99BBE8"
-							},
-							bodyStyle: "background-color: #dfe8f5",
-							handler: function(){
-								if (me.b_selectionCallback){
-									me.b_selectionCallback(me.selModel.getSelection());
-								}
-							}
-						}
-					}else{
-						b = {
-							text: "提交",
-							xtype: "button",
-							border: 1,
-							width: 200,
-							style: {
-								borderColor: "#99BBE8"
-							},
-							bodyStyle: "background-color: #dfe8f5",
-							handler: function(){
-								me.processData(this);
-							}
-						}
-					}
-					return b;
-				})()
-			]
+			/*
+			*/
 		};
 		var form = Ext.widget("form", config);
 		me.form = form;
