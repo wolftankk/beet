@@ -477,7 +477,8 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 										{
 											fieldLabel: "折扣",
 											allowBlank: false,
-											name: "rate"
+											name: "rate",
+											value: 1.00
 										},
 										{
 											fieldLabel: "套餐售价",
@@ -769,6 +770,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 			tmp.push(selectedItems[c]);
 		}
 		store.loadData(tmp);
+		me.onUpdateForm();
 	},
 
 	initializeProductsPanel: function(){
@@ -858,10 +860,10 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 									currRecord.set("PRICE", Ext.Number.toFixed(price * count, 2));
 									currRecord.set("COUNT", Ext.Number.toFixed(count, 6));
 
-									//me.onUpdate();	
+									me.onUpdateForm();	
 								}else{
 									if (currField == "PRICE" && currPrice && currPrice > 0){
-										//me.onUpdate();	
+										me.onUpdateForm();	
 									}
 								}
 							}
@@ -952,6 +954,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 			tmp.push(selectedProducts[c]);
 		}
 		store.loadData(tmp);
+		me.onUpdateForm();
 	},
 
 	onSelectItem: function(pid, record){
@@ -1065,12 +1068,40 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 	onUpdateForm: function(force){
 		var me = this, form = me.form.getForm(), values = form.getValues();
 		var sale = values["rate"], price = values["price"], realprice = values["realprice"];
+		var selectedProducts = me.selectedProducts, selectedItems = me.selectedItems;
+		if (price == '' || price == undefined || price == 0 ){
+		var __price = 0;//每次都会进行重新计算
+		if (selectedProducts && Ext.Object.getKeys(selectedProducts).length > 0){
+			var productstore = me.productsPanel.grid.getStore();
+			for (var c = 0; c < productstore.getCount(); ++c){
+				var data = productstore.getAt(c);
+				var count = data.get("COUNT"), price = data.get("PRICE");
+				if (count != undefined && price != undefined){
+					__price += parseFloat(price);
+				}
+			}
+		}
+
+		if (selectedItems && Ext.Object.getKeys(selectedItems).length> 0){
+			for (var c in selectedItems){
+				var p = selectedItems[c];
+				//console.log(p)
+				__price += parseFloat((""+p[3]).replaceAll(",", ""), 2)
+			}
+		}
+		price = __price;
+
+		form.setValues({
+			price: price	
+		})
+		}
 		if (price <= 0 ) { return; }	
 		if (force) {
 			sale = realprice / price;
 		}else{
 			realprice = price * sale;
 		}
+
 		form.setValues({
 			rate: parseFloat(sale).toFixed(2),
 			realprice: parseFloat(realprice).toFixed(2),
