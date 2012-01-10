@@ -1491,10 +1491,10 @@ Ext.define("Beet.apps.EndConsumer", {
 										var results = [];
 										for (var c = 0; c < list.length; ++c){
 											var order = list[c], state = order.get("State");
-											if (state != 2){
-												Ext.Msg.alert("失败", "你选定的订单不能结算. 状态必须为已审核!");
-												return;
-											}
+											//if (state != 2){
+											//	Ext.Msg.alert("失败", "你选定的订单不能结算. 状态必须为已审核!");
+											//	return;
+											//}
 											results.push({
 												index: order["index"],
 												indexno: order.get("IndexNo")
