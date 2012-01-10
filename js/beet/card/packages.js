@@ -483,46 +483,41 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 												expand: function(f){
 													console.log("treelist expand");
 													var that = this;
+													f.setValue = function(value){
+														var that = this, inputId = f.getInputId(), inputEl = that.inputEl;
+														inputEl.dom.value = value
+													}
 													if (!me.innerTreeList){
-														var sm;
-														sm = Ext.create("Ext.selection.CheckboxModel", {
-															mode: me.b_selectionMode ? me.b_selectionMode : "SINGLE"
-														});
-														f.sm = sm;
-														f.store = Ext.create("Beet.apps.ProductsViewPort.PackageTreeStore")
-														me.innerTreeList = Ext.create("Ext.tree.TreePanel", {
-															store: f.store,
+														var store = f.store = Ext.create("Beet.apps.ProductsViewPort.PackageTreeStore", {
+															autoLoad: false	
+														})
+														me.innerTreeList = new Ext.tree.TreePanel({
+															store: store,
+															layout: "fit",
 															bodyStyle: "background-color: #fff",
 															frame: false,
 															lookMask: true,
-															selModel: sm,
+															//selModel: sm,
 															cls: "iScroll",
 															border: 0,
+															autoScroll: true,
 															height: 200,
 															useArrow: true,
 															split: true,
 															listeners: {
 																itemclick: function(grid, record){
 																	//首先要获取原始的数据
+																	//console.log("itemClick", record)
 																	me.selectedPackages = [
 																		record
 																	];
-																	f.value = record.raw["name"];
-																	//me.form.getForm().setValues({
-																	//	"_packageName" : record.raw["name"]	
-																	//})
+																	//f.value = record.raw["name"];
+																	f.setValue(record.get("text") || record.raw["name"])
 																}
 															}
 														});
 													};
 													me.innerTreeList.render("innerTree");
-
-													f.sm.deselectAll();
-													if (me.selectedPackages.length > 0){
-														for (var c = 0; c < me.selectedPackages.length; ++c){
-															f.sm.select(me.selectedPackages[c]);
-														}
-													}
 												}
 											}
 										},
@@ -929,7 +924,8 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 						price:		data["PPrice"].replace(",", ""),
 						rate:		data["PRate"],
 						realprice:	data["PRealPrice"].replace(",", ""),
-						descript:	data["Descript"]
+						descript:	data["Descript"],
+						_packageName: data["ParentName"]
 					});
 
 					cardServer.GetPackagesItems(pid, {
@@ -966,6 +962,19 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 							Ext.Error.raise(error)
 						}
 					});
+
+					//find selectedPackages
+					if (data["ParentID"]){
+						var store = me.storeProxy.tree.root.store;
+						//console.log(store);
+						for (var c = 0; c < store.getCount(); ++c){
+							r = store.getAt(c);
+							if (parseInt(r.get("id")) == data["ParentID"]){
+								me.selectedPackages = [r];
+							}
+						}
+						//console.log(me.selectedPackages)
+					}
 				}else{
 					return;
 				}
