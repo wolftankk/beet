@@ -1823,7 +1823,6 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 				},
 			}]
 		}));
-		me.packagesPanel.hide();
 
 		me.itemsPanel= Ext.widget("panel", Ext.apply(options, {
 			title: "项目列表",
