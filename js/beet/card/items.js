@@ -2000,6 +2000,8 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 		var me = this, cardServer = Beet.constants.cardServer;
 		me.selectedProducts = {};//reset
 		me.selectedChargeType = {};
+		me.resetAll();
+
 		var itemId = record.get("IID");
 		me.selectedItemId = itemId;
 		me.selectedItemIndex = index;
@@ -2581,6 +2583,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemListWindow", {
 		var me = this, cardServer = Beet.constants.cardServer;
 		me.selectedProducts = {};//reset
 		me.selectedChargeType = {};
+
 		var itemId = record.get("IID");
 		me.selectedItemId = itemId;
 		me.selectedItemIndex = index;
