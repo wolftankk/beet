@@ -967,7 +967,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 						}
 					});
 
-					cardServer.GetPackageProductData(pid, {
+					cardServer.GetPackageProducts(pid, {
 						success: function(data){
 							console.log(data)
 							data = Ext.JSON.decode(data)["products"];
