@@ -1018,6 +1018,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 		//reset all
 		me.selectedChargeType = {};
 		me.selectedProducts = {};	
+
 		me.updateProductsPanel();
 		me.updateChargeTypePanel();
 

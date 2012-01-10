@@ -91,7 +91,13 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 					},
 					text: "增加",
 					handler: function(){
-						me.addPackageWindow();
+						var list = me.treeList.selModel.getSelection();
+						if (list && list.length > 0){
+							var r = list[0];
+							me.addPackageWindow(r.get("ID") || r.raw["ID"], r)
+						}else{
+							me.addPackageWindow();
+						}
 					},
 				},
 				{
@@ -266,11 +272,18 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 			},
 		});
 	},
-	addPackageWindow: function(){
+	addPackageWindow: function(pid, record){
 		var me = this;
 		//Ext.Msg.alert("通知", "你进入了套餐添加的模式");
 		me.resetAll();
 		var addBtn = me.form.down("button[name=packageNewBtn]");
+
+		if (pid){
+			me.selectedPackages = [record];
+			me.form.getForm().setValues({
+				_packageName: record.get("text") || record.raw["name"]	
+			})
+		}
 		
 		if 	(addBtn) {
 			addBtn.enable();
@@ -1106,6 +1119,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 			});
 		}else{
 			if (action == "edit"){
+				console.log(result)
 				cardServer.UpdatePackage(Ext.JSON.encode(result), {
 					success: function(succ){
 						if (succ){
