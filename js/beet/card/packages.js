@@ -785,7 +785,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 		}, "-");
 
 		columns.push(_actions);
-		cardServer.GetItemProductData(1,{
+		cardServer.GetPackageProductData(1,{
 			success: function(data){
 				var data = Ext.JSON.decode(data)["MetaData"];
 				var fields = me.productsPanel.__fields = [];
@@ -967,7 +967,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 						}
 					});
 
-					cardServer.GetPackageProducts(pid, {
+					cardServer.GetPackageProductData(pid, {
 						success: function(data){
 							console.log(data)
 							data = Ext.JSON.decode(data)["products"];

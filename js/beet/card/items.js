@@ -650,7 +650,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 							c.editor = {
 								xtype: "numberfield",
 								allowBlank: false,
-								type: "int"
+								type: "float"
 							}
 						}
 
@@ -676,7 +676,8 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 
 			var grid = me.productsPanel.grid = Ext.create("Ext.grid.Panel", {
 				store: store,
-				height: 200,
+				height: "100%",
+				width: "100%",
 				cls: "iScroll",
 				autoScroll: true,
 				columnLines: true,
@@ -696,6 +697,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 									var price = currRecord.get("PPrice"), count = currRecord.get("COUNT");
 									if (price){ price = parseFloat(price.replaceAll(",", "")); }
 									currRecord.set("PRICE", Ext.Number.toFixed(price * count, 2));
+									currRecord.set("COUNT", Ext.Number.toFixed(count, 6));
 
 									me.onUpdate();	
 								}else{
@@ -852,6 +854,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddItem", {
 		var grid = me.chargeTypesPanel.grid = Ext.create("Ext.grid.Panel", {
 			store: store,
 			height: 200,
+			width: "100%",
 			cls: "iScroll",
 			autoScroll: true,
 			columnLines: true,
