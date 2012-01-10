@@ -1112,6 +1112,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 						border: false
 					},
 					items:[
+						me.treeList,
 						{
 							layout: {
 								type: 'vbox',
