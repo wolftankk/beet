@@ -177,7 +177,11 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 										}else{
 											cardServer.BatchEditPackageRate(parseInt(record.get("id")), parseFloat(value), {
 												success: function(succ){
-													console.log(succ)	
+													if (succ){
+														Ext.Msg.alert("成功", "批量修改成功")
+													}else{
+														Ext.Msg.alert("失败", "批量修改失败");
+													}
 												},
 												failure: function(error){
 													Ext.Error.raise(error);
