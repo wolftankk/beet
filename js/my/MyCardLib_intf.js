@@ -1141,12 +1141,12 @@ MyCardSvc.prototype.AddRebate = function(RebateJSON, __callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyCardSvc.prototype.BatchEditPackageRate = function(APackageID, bSubPackages, __callback) {
+MyCardSvc.prototype.BatchEditPackageRate = function(APackageID, fRate, __callback) {
   var __message = {
     "method" : "MyCardSvc.BatchEditPackageRate",
     "params" : {
       "APackageID": APackageID,
-      "bSubPackages": bSubPackages
+      "fRate": fRate
       }
   }
   var __callbacks = null;

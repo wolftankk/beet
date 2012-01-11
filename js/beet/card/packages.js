@@ -51,10 +51,11 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 			frame: true,
 			lookMask: true,
 			selModel: sm,
+			//multiSelect: true,
 			cls: "iScroll",
 			collapsible: true,
 			collapseDirection: "left",
-			width: 230,
+			width: 240,
 			height: Beet.constants.VIEWPORT_HEIGHT - 50,
 			border: 0,
 			useArrow: true,
@@ -141,7 +142,54 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 							Ext.Msg.alert("失败", "请选择需要删除的套餐");
 						}
 					}
-				}
+				},
+				{
+					xtype: "button",
+					border: 1,
+					style: {
+						borderColor: "#99BBE8"
+					},
+					text: "批量",
+					tooltip: "批量修改",
+					handler: function(){
+						var list = me.treeList.selModel.getSelection();
+						if (list.length == 1){
+							var record = list[0];
+							if (parseInt(record.get("id")) == -1){
+								Ext.MessageBox.alert("警告", "修改失败, 你不能选择>总分类<")
+								return;
+							}
+						}
+						if (list.length <= 0){
+							Ext.MessageBox.alert("警告", "请选择需要修改的套餐")
+							return;
+						}
+						Ext.MessageBox.prompt(
+							"批量修改",
+							"批量修改套餐折扣",
+							function(btn, value, opts){
+								if (btn == "ok"){
+									if (list.length == 1){
+										var record = list[0];
+										if (parseInt(record.get("id")) == -1){
+											Ext.MessageBox.alert("警告", "修改失败, 你不能选择>总分类<")
+											return;
+										}else{
+											cardServer.BatchEditPackageRate(parseInt(record.get("id")), parseFloat(value), {
+												success: function(succ){
+													console.log(succ)	
+												},
+												failure: function(error){
+													Ext.Error.raise(error);
+												}
+											})
+										}
+									}
+								}
+							}
+						)
+					}
+				},
 			],
 			bbar: [
 				"->",
@@ -566,7 +614,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 									border: false,
 									bodyStyle: "background-color: #dfe8f5;margin-top: 10px",
 									height: Beet.constants.VIEWPORT_HEIGHT - 115,
-									width: Beet.constants.WORKSPACE_WIDTH - 240,
+									width: Beet.constants.WORKSPACE_WIDTH - 250,
 									items: me.childrenList, 
 									bbar:[
 										"->",

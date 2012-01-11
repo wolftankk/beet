@@ -818,7 +818,9 @@ Ext.define("Beet.apps.CreateOrder", {
 									data = Ext.JSON.decode(data);
 									var items = data.items;
 									var packages = data.packages;
+
 									var getItems = function(){
+										console.log(items)
 										if (items && items.length > 0){
 											var sql = [];
 											for (var c = 0; c < items.length; ++c){
@@ -862,15 +864,20 @@ Ext.define("Beet.apps.CreateOrder", {
 										}
 									}
 
-									cardServer.GetAllPackageItem(Ext.JSON.encode([1, 2, 3, 4, 5, 6, 7, 8]), {
-										success: function(data){
-											console.log("allpackageitems", data)
-										},
-										failure: function(error){
-											Ext.Error.raise(error)
-										}
-									})
 									if (packages && packages.length > 0){
+										cardServer.GetAllPackageItem(Ext.JSON.encode(packages), {
+											success: function(data){
+												data = Ext.JSON.decode(data);
+												var _items = data.items;
+												if (_items && _items.length > 0){
+													items = items.concat(_items);
+													getItems();			
+												}
+											},
+											failure: function(error){
+												Ext.Error.raise(error)
+											}
+										})
 									}else{
 										getItems();
 									}
