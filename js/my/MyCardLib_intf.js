@@ -835,40 +835,6 @@ MyCardSvc.prototype.AddChargeType = function(ChargeJSON, __callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyCardSvc.prototype.GetPackageProducts = function(APackageID, __callback) {
-  var __message = {
-    "method" : "MyCardSvc.GetPackageProducts",
-    "params" : {
-      "APackageID": APackageID
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
 MyCardSvc.prototype.AddConsumer = function(ConsumerJSON, __callback) {
   var __message = {
     "method" : "MyCardSvc.AddConsumer",
@@ -1146,6 +1112,41 @@ MyCardSvc.prototype.AddRebate = function(RebateJSON, __callback) {
     "method" : "MyCardSvc.AddRebate",
     "params" : {
       "RebateJSON": RebateJSON
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyCardSvc.prototype.BatchEditPackageRate = function(APackageID, bSubPackages, __callback) {
+  var __message = {
+    "method" : "MyCardSvc.BatchEditPackageRate",
+    "params" : {
+      "APackageID": APackageID,
+      "bSubPackages": bSubPackages
       }
   }
   var __callbacks = null;
@@ -1623,6 +1624,40 @@ MyCardSvc.prototype.GetAccountCards = function(CustomerID, __callback) {
     "method" : "MyCardSvc.GetAccountCards",
     "params" : {
       "CustomerID": CustomerID
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyCardSvc.prototype.GetAllPackageItem = function(APackageJSON, __callback) {
+  var __message = {
+    "method" : "MyCardSvc.GetAllPackageItem",
+    "params" : {
+      "APackageJSON": APackageJSON
       }
   }
   var __callbacks = null;
@@ -2179,6 +2214,40 @@ MyCardSvc.prototype.GetItemProducts = function(AItemID, __callback) {
 MyCardSvc.prototype.GetPackageProductData = function(APackageID, __callback) {
   var __message = {
     "method" : "MyCardSvc.GetPackageProductData",
+    "params" : {
+      "APackageID": APackageID
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
+MyCardSvc.prototype.GetPackageProducts = function(APackageID, __callback) {
+  var __message = {
+    "method" : "MyCardSvc.GetPackageProducts",
     "params" : {
       "APackageID": APackageID
       }

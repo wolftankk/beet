@@ -711,7 +711,7 @@ Ext.define("Beet.apps.CreateOrder", {
 		var config = {
 			extend: "Ext.window.Window",
 			title: "选择卡项项目",
-			width: 1000,
+			width: 1100,
 			height: 640,
 			autoScroll: true,
 			autoHeight: true,
@@ -728,7 +728,7 @@ Ext.define("Beet.apps.CreateOrder", {
 		win.show();
 
 		//create fields
-		var __fields = ["IID", "ICode", "IName", "IPrice", "IRate", "IRealPrice", "ICategoryID", "IDescript", "CardNo", "CardName", "ExpenseCount", "Balance", "StepPrice", "needPaid", "originBalance"];
+		var __fields = ["IID", "ICode", "IName", "IPrice", "IRate", "IRealPrice", "ICategoryID", "IDescript", "CardNo", "CardName", "ExpenseCount", "Balance", "StepPrice", "needPaid", "originBalance", "PackageName", "PackageID"];
 		var __columns = [
 			{
 				dataIndex: "ICode",
@@ -760,6 +760,11 @@ Ext.define("Beet.apps.CreateOrder", {
 				flex: 1,
 				header: "项目注释"
 			},
+			//{
+			//	dataIndex: "PackageName",
+			//	flex: 1,
+			//	header: "所属套餐"
+			//},
 			{
 				dataIndex: "CardName",
 				flex: 1,
@@ -778,7 +783,7 @@ Ext.define("Beet.apps.CreateOrder", {
 					win.hide();
 					Ext.MessageBox.alert("警告", "没有可用卡项");	
 				}else{
-					//console.log(data)
+					console.log("customerData",data)
 					for (var c = 0; c < data.length; ++c){
 						cards.push({
 							attr: data[c]["CID"],
@@ -812,46 +817,62 @@ Ext.define("Beet.apps.CreateOrder", {
 								success: function(data){
 									data = Ext.JSON.decode(data);
 									var items = data.items;
-									if (items && items.length > 0){
-										var sql = [];
-										for (var c = 0; c < items.length; ++c){
-											sql.push("iid=" + items[c]);
-										}
-										var s = sql.join(" OR ");
-										if (s.length > 0){
-											cardServer.GetItemPageData(1, items.length, s, {
-												success: function(data){
-													var data = Ext.JSON.decode(data)["Data"], tmp = [];
-													for (var c = 0; c < data.length; ++c){
-														var item = data[c];
-														item["CardNo"] = cid;
-														item["CardName"] = cardName;
-														item["ExpenseCount"] = list[cid]["expensecount"]
-														item["Balance"] = list[cid]["balance"]
-														item["StepPrice"] = list[cid]["stepprice"]
-														item["originBalance"] = list[cid]["originBalance"]
-														var maxcount = parseInt(list[cid]["maxcount"]);
-														var realPrice = parseFloat((item["IRealPrice"]+"").replaceAll(",", ""))
-														if (maxcount == -1){
-															item["needPaid"] = realPrice;
-														}else{
-															maxcount = maxcount == 0 ? 1 : maxcount;
-															item["needPaid"] = parseFloat(realPrice / maxcount)
+									var packages = data.packages;
+									var getItems = function(){
+										if (items && items.length > 0){
+											var sql = [];
+											for (var c = 0; c < items.length; ++c){
+												sql.push("iid=" + items[c]);
+											}
+											var s = sql.join(" OR ");
+											if (s.length > 0){
+												cardServer.GetItemPageData(1, items.length, s, {
+													success: function(data){
+														var data = Ext.JSON.decode(data)["Data"], tmp = [];
+														for (var c = 0; c < data.length; ++c){
+															var item = data[c];
+															item["CardNo"] = cid;
+															item["CardName"] = cardName;
+															item["ExpenseCount"] = list[cid]["expensecount"]
+															item["Balance"] = list[cid]["balance"]
+															item["StepPrice"] = list[cid]["stepprice"]
+															item["originBalance"] = list[cid]["originBalance"]
+															var maxcount = parseInt(list[cid]["maxcount"]);
+															var realPrice = parseFloat((item["IRealPrice"]+"").replaceAll(",", ""))
+															if (maxcount == -1){
+																item["needPaid"] = realPrice;
+															}else{
+																maxcount = maxcount == 0 ? 1 : maxcount;
+																item["needPaid"] = parseFloat(realPrice / maxcount)
+															}
+															var _new = [];
+															//console.log(item, __fields)
+															for (var k in __fields){
+																_new.push(item[__fields[k]]);
+															}
+															tmp.push(_new);
 														}
-														var _new = [];
-														//console.log(item, __fields)
-														for (var k in __fields){
-															_new.push(item[__fields[k]]);
-														}
-														tmp.push(_new);
+														store.loadData(tmp);
+													},
+													failure: function(error){
+														Ext.Error.raise(error);
 													}
-													store.loadData(tmp);
-												},
-												failure: function(error){
-													Ext.Error.raise(error);
-												}
-											})
+												})
+											}
 										}
+									}
+
+									cardServer.GetAllPackageItem([1, 2, 3, 4, 5, 6, 7, 8], {
+										success: function(data){
+											console.log("allpackageitems", data)
+										},
+										failure: function(error){
+											Ext.Error.raise(error)
+										}
+									})
+									if (packages && packages.length > 0){
+									}else{
+										getItems();
 									}
 								},
 								failure: function(error){
