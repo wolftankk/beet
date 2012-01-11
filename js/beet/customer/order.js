@@ -862,7 +862,7 @@ Ext.define("Beet.apps.CreateOrder", {
 										}
 									}
 
-									cardServer.GetAllPackageItem([1, 2, 3, 4, 5, 6, 7, 8], {
+									cardServer.GetAllPackageItem(Ext.JSON.encode([1, 2, 3, 4, 5, 6, 7, 8]), {
 										success: function(data){
 											console.log("allpackageitems", data)
 										},
