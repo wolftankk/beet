@@ -946,13 +946,13 @@ Ext.define("Beet.apps.AddCustomerCard", {
 									allowBlank: false
 								}
 								break;
-							case "EndTime":
-								column.editor = {
-									xtype: "datefield",
-									format: "Y/m/d",
-									allowBlank: false
-								}
-								break
+							//case "EndTime":
+							//	column.editor = {
+							//		xtype: "datefield",
+							//		format: "Y/m/d",
+							//		allowBlank: false
+							//	}
+							//	break
 						}
 
 						columns.push(column);
