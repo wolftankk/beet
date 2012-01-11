@@ -1193,7 +1193,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 	 */
 	processData: function(f, action){
 		var me = this, cardServer = Beet.constants.cardServer;
-		me.onUpdateForm();
+		//me.onUpdateForm();
 		var form = f.up("form").getForm(), result = form.getValues();
 
 		var selectedItems = me.selectedItems;
