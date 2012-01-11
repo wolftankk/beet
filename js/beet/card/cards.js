@@ -248,9 +248,42 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 											valueField: "attr"
 										},
 										{
+											fieldLabel: "失效方式",
+											allowBlank: false,
+											name: "validdatemode",
+											xtype: "combo",
+											store: new Ext.data.Store({
+												fields: ["attr", "name"],
+													data: [
+														{attr: 0, name: "自启动之日"},
+														{attr: 1, name: "自开卡之日"},
+														{attr: 2, name: '指定日期'},
+													]	
+												}),
+											editable: false,
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr",
+											listeners: {
+												change: function(f, value){
+													var nb = f.nextSibling();
+													if (value == 2){
+														nb.show();
+													}else{
+														nb.hide();
+													}
+												}
+											}
+										},
+										{
+											fieldLabel: "失效日期",
+											xtype: "datefield",
+											name: "validdatetime",
+											hidden: true
+										},
+										{
 											fieldLabel: "卡项注释",
 											xtype: "textarea",
-											height: 230,
 											allowBlank: true,
 											name: "descript"
 										},
@@ -1360,6 +1393,12 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 			results["products"] = products;
 		}
 
+		if (results["validdatemode"] == 2){
+			results["validdatetime"] = ((+new Date(results["validdatetime"])) / 1000)
+		}else{
+			delete results["validdatetime"];
+		}
+
 		cardServer.AddCard(Ext.JSON.encode(results), {
 			success: function(pid){
 				if (pid == Beet.constants.FAILURE){
@@ -1978,9 +2017,43 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 											valueField: "attr"
 										},
 										{
+											fieldLabel: "失效方式",
+											allowBlank: false,
+											name: "validdatemode",
+											xtype: "combo",
+											store: new Ext.data.Store({
+												fields: ["attr", "name"],
+													data: [
+														{attr: 0, name: "自启动之日"},
+														{attr: 1, name: "自开卡之日"},
+														{attr: 2, name: '指定日期'},
+													]	
+												}),
+											editable: false,
+											queryMode: "local",
+											displayField: "name",
+											valueField: "attr",
+											listeners: {
+												change: function(f, value){
+													var nb = f.nextSibling();
+													if (value == 2){
+														nb.show();
+													}else{
+														nb.hide();
+													}
+												}
+											}
+										},
+										{
+											fieldLabel: "失效日期",
+											xtype: "datefield",
+											name: "validdatetime",
+											hidden: true
+										},
+										{
 											fieldLabel: "卡项注释",
 											xtype: "textarea",
-											height: 230,
+											//height: 230,
 											allowBlank: true,
 											name: "descript"
 										},
@@ -3283,6 +3356,12 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 
 		if (products && products.length > 0){
 			results["products"] = products;
+		}
+
+		if (results["validdatemode"] == 2){
+			results["validdatetime"] = ((+new Date(results["validdatetime"])) / 1000)
+		}else{
+			delete results["validdatetime"];
 		}
 
 		results["id"] = me.selectedCardId;

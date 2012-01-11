@@ -1,4 +1,3 @@
-
 Ext.define("Beet.apps.ProductsViewPort.AddProducts", {
 	extend: "Ext.form.Panel",
 	height: Beet.constants.VIEWPORT_HEIGHT - 5,
