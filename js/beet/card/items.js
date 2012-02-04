@@ -33,6 +33,19 @@ function createItemCategoryTree(){
 						return me.treeList.expandAll();
 					}
 				},
+			],
+			columns: [
+				{
+					xtype: 'treecolumn',
+					text: "分类名称",
+					flex: 1,
+					dataIndex: 'text'
+				},
+				{
+					text: "打折率",
+					flex: 1,
+					dataIndex: "id"
+				}
 			]
 		});
 
