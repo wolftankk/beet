@@ -309,9 +309,9 @@ Ext.define("Beet.apps.ProductsViewPort.UpdateProducts", {
 function createCategoryTree(){
 	var me = this, cardServer = Beet.constants.cardServer;
 	me.createTreeList = function(){
-		Ext.bind(buildCategoryTreeStore, me)();
+		Ext.bind(buildCategoryTreeStore, me)(0);
 
-		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.CatgoryTreeStore");
+		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.ProductsCatgoryTreeStore");
 		me.treeList = Ext.create("Ext.tree.Panel", {
 			store: store,
 			frame: true,

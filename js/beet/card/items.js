@@ -1,77 +1,9 @@
-//GetCategoryData  
-//0 产品,  1, 项目
-//2 套餐,  3 卡项
-//4 费用
-
-function buildCategoryTreeStore(){
-	if (!Beet.apps.ProductsViewPort.CatgoryTreeStore){
-		Ext.define("Beet.apps.ProductsViewPort.CatgoryTreeStore", {
-			extend: "Ext.data.TreeStore",
-			autoLoad: true,
-			root: {
-				text: "总分类",
-				id: "-1",
-				expanded: true
-			},
-			proxy: {
-				type: "b_proxy",
-				b_method: Beet.constants.cardServer.GetCategoryData,
-				b_params: {
-					"CategoryType" : 1
-				},
-				preProcessData: function(data){
-					var originData = data["root"];
-					var bucket = [];
-					var me = this;
-					me.categoryList = [];
-					
-					var processData = function(target, cache, pid){
-						var k;
-						for (k = 0; k < target.length; ++k){
-							var _tmp = target[k];
-							var item = {};
-							if (_tmp.data && _tmp.data.length > 0){
-								item["expanded"] = false;
-								item["text"] = _tmp["name"];
-								item["id"] = _tmp["id"];
-								item["pid"] = pid;
-								item["children"] = [];
-
-								processData(_tmp.data, item["children"], item["id"]);
-							}else{
-								item = _tmp;
-								item["text"] = _tmp["name"];
-								item["leaf"] = true;
-								item["pid"] = pid;
-								//item["checked"] = false;
-							}
-							cache.push(item);
-							me.categoryList.push({
-								id: _tmp["id"],
-								text: _tmp["name"]      
-							})
-						}
-					}
-
-					processData(originData, bucket, -1);
-
-					return bucket;
-				},
-				b_scope: Beet.constants.cardServer,
-				reader: {
-					type: "json"	
-				}
-			},
-		})
-	}
-}
-
 function createItemCategoryTree(){
 	var me = this, cardServer = Beet.constants.cardServer;
 	me.createTreeList = function(){
-		Ext.bind(buildCategoryTreeStore, me)();
+		Ext.bind(buildCategoryTreeStore, me)(1);
 
-		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.CatgoryTreeStore");
+		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.ItemsCatgoryTreeStore");
 		me.treeList = Ext.create("Ext.tree.Panel", {
 			store: store,
 			bodyStyle: "background-color: #fff",
