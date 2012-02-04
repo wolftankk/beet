@@ -1792,10 +1792,11 @@ MyCardSvc.prototype.GetCardPageData = function(Start, Limit, AWhere, __callback)
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyCardSvc.prototype.GetCategoryData = function(__callback) {
+MyCardSvc.prototype.GetCategoryData = function(CategoryType, __callback) {
   var __message = {
     "method" : "MyCardSvc.GetCategoryData",
     "params" : {
+      "CategoryType": CategoryType
       }
   }
   var __callbacks = null;
