@@ -1,3 +1,8 @@
+//GetCategoryData  
+//0 产品,  1, 项目
+//2 套餐,  3 卡项
+//4 费用
+
 function buildCategoryTreeStore(){
 	if (!Beet.apps.ProductsViewPort.CatgoryTreeStore){
 		Ext.define("Beet.apps.ProductsViewPort.CatgoryTreeStore", {
@@ -11,6 +16,9 @@ function buildCategoryTreeStore(){
 			proxy: {
 				type: "b_proxy",
 				b_method: Beet.constants.cardServer.GetCategoryData,
+				b_params: {
+					"CategoryType" : 1
+				},
 				preProcessData: function(data){
 					var originData = data["root"];
 					var bucket = [];

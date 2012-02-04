@@ -377,25 +377,35 @@ Ext.define("Beet.plugins.proxyClient", {
 
 		if (startParam && Ext.isDefined(params[startParam])){
 			request.push(params[startParam]);
+			delete params[startParam];
 		}
 		
 		if (limitParam && isDef(params[limitParam])){
 			request.push(params[limitParam]);
+			delete params[limitParam]
 		}
 
 		if (filterParam && isDef(params[filterParam])){
 			request.push(params[filterParam]);
+			delete params[filterParam]
 		}
 
 		if (isDef(params["b_onlySchema"])){
 			request.push(params["b_onlySchema"]);
+			delete params["b_onlySchema"];
 		}
 
 		if (isDef(params["awhere"])){
 			request.push(params["awhere"]);
+			delete params["awhere"];
 		}
 
-
+		for (var k in params){
+			if (k && k != "node"){
+				request.push(params[k]);
+				delete params[k];
+			}
+		}
 		return request;
 	},
 	/**
