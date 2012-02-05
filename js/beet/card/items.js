@@ -43,7 +43,7 @@ function createItemCategoryTree(){
 				},
 				{
 					text: "打折率",
-					flex: 1,
+					width: 60,
 					dataIndex: "id"
 				}
 			]

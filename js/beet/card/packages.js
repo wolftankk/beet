@@ -1,43 +1,7 @@
-Ext.define("Beet.apps.ProductsViewPort.PackageList", {
-	extend: "Ext.panel.Panel",
-	autoHeight: true,
-	autoScroll:true,
-	frame:true,
-	border: false,
-	height: Beet.constants.VIEWPORT_HEIGHT - 5,
-	width: "100%",
-	bodyPadding: 0,
-	bodyBorder: false,
-	plain: true,
-	b_filter: "",
-	initComponent: function(){
-		var me = this, cardServer = Beet.constants.cardServer;
+function createPackageCategoryTree(){
+	var me = this, cardServer = Beet.constants.cardServer;
 
-		me.selectedItems = {};
-		me.selectedProducts = {};
-		me.selectedPackages = [];
-
-		me.selectedPackageId= 0;
-		me.selectedPackageIndex = 0;
-
-		me.callParent()	
-
-		me.buildStoreAndModel();
-	},
-	buildStoreAndModel: function(){
-		var me = this, cardServer = Beet.constants.cardServer;
-		//创建树形
-		if (!Beet.apps.ProductsViewPort.PackageTreeStore){
-			me.createPackageTreeStore();
-		}
-		me.storeProxy = Ext.create("Beet.apps.ProductsViewPort.PackageTreeStore");
-
-		me.createTreePanel();
-
-		me.createMainPanel()	
-	},
-	createTreePanel: function(){
-		var me = this, cardServer = Beet.constants.cardServer;
+	me.createTreePanel = function(){
 		var sm = null;
 		if (me.b_type == "selection"){
 			sm = Ext.create("Ext.selection.CheckboxModel", {
@@ -238,8 +202,8 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 				me.treeListRClick(frame, record, item, index, e, options);
 			}
 		});
-	},
-	treeListRClick: function(frame, record, item, index, e, options){
+	}
+	me.treeListRClick = function(frame, record, item, index, e, options){
 		var isLeaf = record.isLeaf(), me = this;
 		if (!record.contextMenu){
 			var menu = [];
@@ -269,8 +233,8 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 		e.stopEvent();
 		record.contextMenu.showAt(e.getXY());
 		return false;
-	},
-	createPackageTreeStore: function(){
+	}
+	var createPackageTreeStore = function(){
 		Ext.define("Beet.apps.ProductsViewPort.PackageTreeStore", {
 			extend: "Ext.data.TreeStore",
 			autoLoad: true,
@@ -333,6 +297,48 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 				}
 			},
 		});
+	}
+	
+	//创建树形
+	if (!Beet.apps.ProductsViewPort.PackageTreeStore){
+		createPackageTreeStore();
+	}
+	me.storeProxy = Ext.create("Beet.apps.ProductsViewPort.PackageTreeStore");
+}
+
+Ext.define("Beet.apps.ProductsViewPort.PackageList", {
+	extend: "Ext.panel.Panel",
+	autoHeight: true,
+	autoScroll:true,
+	frame:true,
+	border: false,
+	height: Beet.constants.VIEWPORT_HEIGHT - 5,
+	width: "100%",
+	bodyPadding: 0,
+	bodyBorder: false,
+	plain: true,
+	b_filter: "",
+	initComponent: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+
+		me.selectedItems = {};
+		me.selectedProducts = {};
+		me.selectedPackages = [];
+
+		me.selectedPackageId= 0;
+		me.selectedPackageIndex = 0;
+
+		me.callParent()	
+
+		me.buildStoreAndModel();
+	},
+	buildStoreAndModel: function(){
+		var me = this, cardServer = Beet.constants.cardServer;
+
+		Ext.bind(createPackageCategoryTree, me)();
+		me.createTreePanel();
+
+		me.createMainPanel()	
 	},
 	addPackageWindow: function(pid, record){
 		var me = this;

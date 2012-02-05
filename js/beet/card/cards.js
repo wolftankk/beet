@@ -52,6 +52,9 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 				expand: function(p){
 					if (p && p.setHeight){
 						p.setHeight("100%");//reset && update
+						if (p.callUpdateMethod){
+							p.callUpdateMethod(p.getHeight());
+						}
 					}
 				}
 			}
@@ -89,6 +92,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 		}));
 		me.packagesPanel = Ext.widget("panel", Ext.apply(options, {
 			title: "套餐列表",
+			layout: "hbox",
 			tbar: [{
 				xtype: "button",
 				text: "绑定套餐",
@@ -99,6 +103,7 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 		}));
 		me.itemsPanel= Ext.widget("panel", Ext.apply(options, {
 			title: "项目列表",
+			layout: "hbox",
 			tbar: [{
 				xtype: "button",
 				text: "绑定项目",
@@ -812,6 +817,10 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 		if (me.packagesPanel.__columns && me.packagesPanel.__columns.length > 0){
 			return;
 		}
+
+		Ext.bind(createPackageCategoryTree, me.packagesPanel)();
+		me.packagesPanel.createTreePanel();
+
 		var columns = me.packagesPanel.__columns = [];
 		var _actions = {
 			xtype: 'actioncolumn',
@@ -859,18 +868,26 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 			fields: __fields
 		})
 
+		me.packagesPanel.add(me.packagesPanel.treeList);
 		var grid = me.packagesPanel.grid = Ext.create("Ext.grid.Panel", {
 			store: store,
-			width: "100%",
+			flex: 1,
 			height: "100%",
 			cls: "iScroll",
 			autoScroll: true,
+			border: 0,
 			columnLines: true,
 			columns: me.packagesPanel.__columns
 		});
 
 		me.packagesPanel.add(grid);
 		me.packagesPanel.doLayout();
+
+		me.packagesPanel.callUpdateMethod = function(height){
+			height = height - 55;
+			me.packagesPanel.treeList.setHeight(height);
+			me.packagesPanel.grid.setHeight(height)
+		}
 	},
 	selectPackage: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -991,6 +1008,11 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 		if (me.itemsPanel.__columns && me.itemsPanel.__columns.length > 0){
 			return;
 		}
+		
+		//add items tree
+		Ext.bind(createItemCategoryTree, me.itemsPanel)();
+		me.itemsPanel.createTreeList();
+
 		var columns = me.itemsPanel.__columns = [];
 		var _actions = {
 			xtype: 'actioncolumn',
@@ -1040,18 +1062,30 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 				fields: __fields
 			})
 
+			me.itemsPanel.add(me.itemsPanel.treeList);
+			//hook treeList
+			//me.itemsPanel.treeItemClick = function(frame, record, item, index, e, options){
+			//	if (!record){return;}
+			//}
 			var grid = me.itemsPanel.grid = Ext.create("Ext.grid.Panel", {
 				store: store,
-				width: "100%",
+				flex: 1,
 				height: "100%",
 				cls: "iScroll",
 				autoScroll: true,
 				columnLines: true,
+				border: 0,
 				columns: me.itemsPanel.__columns	
 			});
 
 			me.itemsPanel.add(grid);
 			me.itemsPanel.doLayout();
+		}
+
+		me.itemsPanel.callUpdateMethod = function(height){
+			height = height - 55;
+			me.itemsPanel.treeList.setHeight(height);
+			me.itemsPanel.grid.setHeight(height)
 		}
 	},
 	selectItems: function(){
@@ -1212,6 +1246,11 @@ Ext.define("Beet.apps.ProductsViewPort.AddCard", {
 
 			me.productsPanel.add(grid);
 			me.productsPanel.doLayout();
+		}
+		me.productsPanel.callUpdateMethod = function(height){
+			height = height - 55;
+			//me.itemsPanel.treeList.setHeight(height);
+			me.productsPanel.grid.setHeight(height)
 		}
 	},
 	selectProducts: function(){
@@ -1817,6 +1856,9 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 				expand: function(p){
 					if (p && p.setHeight){
 						p.setHeight("100%");//reset && update
+						if (p.callUpdateMethod){
+							p.callUpdateMethod(p.getHeight());
+						}
 					}
 				}
 			}
@@ -1854,6 +1896,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		}))
 		me.packagesPanel = Ext.widget("panel", Ext.apply(options, {
 			title: "套餐列表",
+			layout: "hbox",
 			tbar: [{
 				xtype: "button",
 				text: "绑定套餐",
@@ -1865,6 +1908,7 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 
 		me.itemsPanel= Ext.widget("panel", Ext.apply(options, {
 			title: "项目列表",
+			layout: "hbox",
 			tbar: [{
 				xtype: "button",
 				text: "绑定项目",
@@ -2600,6 +2644,10 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		if (me.packagesPanel.__columns && me.packagesPanel.__columns.length > 0){
 			return;
 		}
+
+		Ext.bind(createPackageCategoryTree, me.packagesPanel)();
+		me.packagesPanel.createTreePanel();
+
 		var columns = me.packagesPanel.__columns = [];
 		var _actions = {
 			xtype: 'actioncolumn',
@@ -2647,10 +2695,12 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 			fields: __fields
 		})
 
+		me.packagesPanel.add(me.packagesPanel.treeList);
 		var grid = me.packagesPanel.grid = Ext.create("Ext.grid.Panel", {
 			store: store,
-			width: "100%",
 			height: "100%",
+			flex: 1,
+			border: 0,
 			cls: "iScroll",
 			autoScroll: true,
 			columnLines: true,
@@ -2659,6 +2709,14 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 
 		me.packagesPanel.add(grid);
 		me.packagesPanel.doLayout();
+
+		me.packagesPanel.callUpdateMethod = function(height){
+			height = height - 55;
+			me.packagesPanel.treeList.setHeight(height);
+			me.packagesPanel.grid.setHeight(height)
+		}
+		
+
 		me.queue.triggle("initPackagepanel", "success");
 	},
 	selectPackage: function(){
@@ -2779,6 +2837,10 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 		if (me.itemsPanel.__columns && me.itemsPanel.__columns.length > 0){
 			return;
 		}
+
+		Ext.bind(createItemCategoryTree, me.itemsPanel)();
+		me.itemsPanel.createTreeList();
+
 		var columns = me.itemsPanel.__columns = [];
 		var _actions = {
 			xtype: 'actioncolumn',
@@ -2828,9 +2890,11 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 				fields: __fields
 			})
 
+			me.itemsPanel.add(me.itemsPanel.treeList);
 			var grid = me.itemsPanel.grid = Ext.create("Ext.grid.Panel", {
 				store: store,
-				width: "100%",
+				flex: 1,
+				border: 0,
 				height: "100%",
 				cls: "iScroll",
 				autoScroll: true,
@@ -2842,6 +2906,13 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 			me.itemsPanel.doLayout();
 			me.queue.triggle("initItemspanel", "success");
 		}
+
+		me.itemsPanel.callUpdateMethod = function(height){
+			height = height - 55;
+			me.itemsPanel.treeList.setHeight(height);
+			me.itemsPanel.grid.setHeight(height)
+		}
+		
 	},
 	selectItems: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -3001,6 +3072,11 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 			me.productsPanel.add(grid);
 			me.productsPanel.doLayout();
 			me.queue.triggle("initProductspanel", "success");
+		}
+		me.productsPanel.callUpdateMethod = function(height){
+			height = height - 55;
+			//me.itemsPanel.treeList.setHeight(height);
+			me.productsPanel.grid.setHeight(height)
 		}
 	},
 	selectProducts: function(){
