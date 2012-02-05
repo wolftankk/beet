@@ -292,11 +292,29 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 			items: [
 				{
 					xtype: "tool",
-					type: "help",
+					type: "restore",
 					handler: function(){
-						//TODO 帮助
+						//var b = document.body;
+						//b._isFullscreen = false;
+						//if (b._isFullscreen){
+						//	b._isFullscreen = false;
+						//	document.webkitCancelFullScreen();
+						//	document.mozCancelFullScreen();
+						//	document.cancelFullScreen();
+						//}else{
+							if (document.body.webkitRequestFullScreen){
+								document.body.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+							}else{
+								document.body.mozRequestFullScreen()
+							}
+						//	b._isFullscreen = true;
+						//}
+
+						//Beet.constants.WORKSPACE_WIDTH = Ext.core.Element.getViewWidth(),
+						//Beet.constants.WORKSPACE_HEIGHT = Ext.core.Element.getViewHeight(),
+						//Beet.constants.VIEWPORT_HEIGHT = Ext.core.Element.getViewHeight() - 137
 					},
-					tooltip: "点击获得帮助"
+					tooltip: "切换至全屏模式"
 				}
 			]
 		}
