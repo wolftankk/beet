@@ -82,6 +82,7 @@ function buildCategoryTreeStore(type){
 			root: {
 				text: "总分类",
 				id: "-1",
+				rate: "",
 				expanded: true
 			},
 			proxy: {
@@ -107,6 +108,7 @@ function buildCategoryTreeStore(type){
 								item["id"] = _tmp["id"];
 								item["pid"] = pid;
 								item["children"] = [];
+								item["rate"] = _tmp["rate"] == "-1" ? "无" : _tmp["rate"];
 
 								processData(_tmp.data, item["children"], item["id"]);
 							}else{
@@ -114,12 +116,14 @@ function buildCategoryTreeStore(type){
 								item["text"] = _tmp["name"];
 								item["leaf"] = true;
 								item["pid"] = pid;
+								item["rate"] = _tmp["rate"] == "-1" ? "无" : _tmp["rate"];
 								//item["checked"] = false;
 							}
+
 							cache.push(item);
 							me.categoryList.push({
 								id: _tmp["id"],
-								text: _tmp["name"]      
+								text: _tmp["name"]   
 							})
 						}
 					}

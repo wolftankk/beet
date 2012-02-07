@@ -307,9 +307,14 @@ Ext.define("Beet.apps.Menu.Toolbar", {
 							}else{
 								document.body.mozRequestFullScreen()
 							}
+							//refresh
+							setTimeout(function(){
+								location.reload();
+							}, 500);
 						//	b._isFullscreen = true;
 						//}
-
+						//
+	
 						//Beet.constants.WORKSPACE_WIDTH = Ext.core.Element.getViewWidth(),
 						//Beet.constants.WORKSPACE_HEIGHT = Ext.core.Element.getViewHeight(),
 						//Beet.constants.VIEWPORT_HEIGHT = Ext.core.Element.getViewHeight() - 137

@@ -25,6 +25,19 @@ function createPackageCategoryTree(){
 			useArrow: true,
 			title: "套餐列表",
 			split: true,
+			columns: [
+				{
+					xtype: 'treecolumn',
+					text: "分类名称",
+					flex: 1,
+					dataIndex: 'text'
+				},
+				{
+					text: "打折率(%)",
+					width: 60,
+					dataIndex: 'rate'
+				}
+			],
 			tbar: [
 				{
 					xtype: "button",
@@ -203,6 +216,36 @@ function createPackageCategoryTree(){
 			}
 		});
 	}
+
+
+	var updateCategoryRate = function(widget, record, e){
+		var title = record.get("text"), id = record.get("id");
+		Ext.MessageBox.show({
+			title: "修改"+title+"打折率",
+			msg: "是否需要修改"+title+"打折率?",
+			buttons: Ext.MessageBox.YESNO,
+			fn: function(btn){
+				if (btn == "yes") {
+					Ext.MessageBox.prompt((title+"打折率"), "输入需要修改的打折率值:", function(btn, value, opts){
+						cardServer.UpdateCategoryRate(id, value, {
+							success: function(data){
+								if (data){
+									Ext.MessageBox.alert("通知", "修改成功!");
+									me.refreshTreeList();
+								}else{
+									Ext.MessageBox.alert("失败", "修改失败!");
+								}
+							},
+							failure: function(error){
+								Ext.Error.raise(error)
+							}
+						})
+					})
+				}
+			}
+		})
+	}
+
 	me.treeListRClick = function(frame, record, item, index, e, options){
 		var isLeaf = record.isLeaf(), me = this;
 		if (!record.contextMenu){
@@ -218,6 +261,9 @@ function createPackageCategoryTree(){
 				{text: "删除", handler: function(direction, e){
 					me.deletePackage(record)
 				}},
+				{text: "修改打折率", handler: function(direction, e){
+					updateCategoryRate(direction, record, e);
+				}}
 			]
 
 			record.contextMenu = Ext.create("Ext.menu.Menu", {
