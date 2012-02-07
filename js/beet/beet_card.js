@@ -75,9 +75,16 @@ function buildCategoryTreeStore(type){
 		Ext.Error.raise("传入的type错误, 请检查!");
 		return;
 	}
+	
 	if (!Beet.apps.ProductsViewPort[typedict[type]+"CatgoryTreeStore"]){
 		Ext.define(("Beet.apps.ProductsViewPort."+typedict[type]+"CatgoryTreeStore"), {
 			extend: "Ext.data.TreeStore",
+			fields: [
+				"rate",//add for rate
+				"id",
+				"text",
+				"name"
+			],
 			autoLoad: true,
 			root: {
 				text: "总分类",
@@ -101,6 +108,7 @@ function buildCategoryTreeStore(type){
 						var k;
 						for (k = 0; k < target.length; ++k){
 							var _tmp = target[k];
+							_tmp["rate"] = (_tmp["rate"] == -1 ? "无" : _tmp["rate"]);
 							var item = {};
 							if (_tmp.data && _tmp.data.length > 0){
 								item["expanded"] = false;
@@ -108,22 +116,22 @@ function buildCategoryTreeStore(type){
 								item["id"] = _tmp["id"];
 								item["pid"] = pid;
 								item["children"] = [];
-								item["rate"] = _tmp["rate"] == "-1" ? "无" : _tmp["rate"];
-
+								item["rate"] = _tmp["rate"];
 								processData(_tmp.data, item["children"], item["id"]);
 							}else{
 								item = _tmp;
 								item["text"] = _tmp["name"];
 								item["leaf"] = true;
 								item["pid"] = pid;
-								item["rate"] = _tmp["rate"] == "-1" ? "无" : _tmp["rate"];
+								item["rate"] = _tmp["rate"];
 								//item["checked"] = false;
 							}
 
 							cache.push(item);
 							me.categoryList.push({
 								id: _tmp["id"],
-								text: _tmp["name"]   
+								text: _tmp["name"],
+								rate: _tmp["rate"]
 							})
 						}
 					}
