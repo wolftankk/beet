@@ -270,7 +270,7 @@ function createPackageCategoryTree(){
 	//}
 
 	///public API
-	onTreeItemClick = function(frame, record, item){
+	var onTreeItemClick = function(frame, record, item){
 		var id = record.get("id");
 		if (id != -1){
 			me.b_filter = "PCategoryId= " + id;
@@ -659,7 +659,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 			tooltip: "删除项目",
 			handler: function(grid, rowIndex, colIndex){
 				var d = grid.store.getAt(rowIndex)
-				//me.deletePackage(d);
+				me.deletePackage(d);
 			}
 		}, "-");
 
@@ -745,6 +745,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 	initializePackageGrid: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
 		var __fields = me.packageList.__fields;
+
 		var store = me.packageList.store = Ext.create("Beet.apps.ProductsViewPort.PackagesStore");
 		store.setProxy(me.updateProxy());
 		var grid;
@@ -752,7 +753,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 			mode: "MULTI",
 			listeners: {
 				selectionchange: function(){
-					Ext.bind(me.updateButtonState, grid)(grid.getView());
+					//Ext.bind(me.updateButtonState, grid)(grid.getView());
 				},
 			}
 		});
@@ -830,19 +831,10 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 			}),
 			listeners: {
 				itemdblclick: function(grid, record, item, index, e){
-					//me.onSelectItem(grid, record, item, index, e);	
-				},
-				itemclick: function(grid){
-					//Ext.bind(me.updateButtonState, this)(grid);
+					me.onSelectItem(record.get("ID"), record);	
 				}
 			}
 		});
-
-		me.packageList.store.on("load", function(){
-			if (me.packageList.store.getCount() > 0){
-				//me.fireSelectGridItem();
-			}
-		})
 
 		me.createMainPanel();
 	},
@@ -1162,8 +1154,8 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 		me.add(panel);
 		me.doLayout();
 
-		//me.initializeItemsPanel();
-		//me.initializeProductsPanel();
+		me.initializeItemsPanel();
+		me.initializeProductsPanel();
 	},
 
 	//废弃...
@@ -1206,11 +1198,6 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 										me.updateItemsPanel();
 										me.updateChargeTypePanel();
 										me.packageList.store.loadPage(me.packageList.store.currentPage);
-										me.form.getForm().reset();
-										if (me.packageList.cache[itemId]){
-											me.packageList.cache[itemId] = {};
-											delete me.packageList.cache[itemId];
-										}
 									}
 								})
 							},
@@ -1372,7 +1359,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 			tmp.push(selectedItems[c]);
 		}
 		store.loadData(tmp);
-		me.onUpdateForm();
+		//me.onUpdateForm();
 	},
 
 	initializeProductsPanel: function(){
@@ -1462,10 +1449,10 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 									currRecord.set("PRICE", Ext.Number.toFixed(price * count, 2));
 									currRecord.set("COUNT", Ext.Number.toFixed(count, 6));
 
-									me.onUpdateForm();	
+									//me.onUpdateForm();	
 								}else{
 									if (currField == "PRICE" && currPrice && currPrice > 0){
-										me.onUpdateForm();	
+										//me.onUpdateForm();	
 									}
 								}
 							}
@@ -1556,114 +1543,68 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 			tmp.push(selectedProducts[c]);
 		}
 		store.loadData(tmp);
-		me.onUpdateForm();
+		//me.onUpdateForm();
 	},
-
 	onSelectItem: function(pid, record){
 		var me = this, cardServer = Beet.constants.cardServer;
-		me.resetAll();
-
-		me.selectedPackageId = pid;
-		me.selectedPackageIndex = record.get("index");
 
 		if (pid <= 0){
 			Ext.Msg.alert("错误", "项目ID非法!");
 			return;
 		}
 
-		var editBtn = me.form.down("button[name=packageEditBtn]");
-		if (editBtn){
-			editBtn.enable();
-		}
-		
-		cardServer.GetPackagesPageDataToJSON(0, 1, "ID=" + pid, {
+		cardServer.GetPackagesItems(pid, {
 			success: function(data){
-				data = Ext.JSON.decode(data);
-				data = data["Data"];
-				if (data && data.length > 0){
-					data = data[0];
-					console.debug("Package", data);
-					me.form.getForm().setValues({
-						name:		data["Name"],
-						price:		data["PPrice"].replace(",", ""),
-						rate:		data["PRate"],
-						realprice:	data["PRealPrice"].replace(",", ""),
-						descript:	data["Descript"],
-						_packageName: data["ParentName"]
-					});
-
-					cardServer.GetPackagesItems(pid, {
+				data = Ext.JSON.decode(data)["items"];
+				var sql = [];
+				for (var c = 0; c < data.length; ++c){
+					sql.push("iid=" + data[c]);
+				}
+				var s = sql.join(" OR ");
+				if (s.length > 0){
+					cardServer.GetItemPageData(1, 1000000, s, {
 						success: function(data){
-							data = Ext.JSON.decode(data)["items"];
-							var sql = [];
-							for (var c = 0; c < data.length; ++c){
-								sql.push("iid=" + data[c]);
-							}
-							var s = sql.join(" OR ");
-							if (s.length > 0){
-								cardServer.GetItemPageData(1, 1000000, s, {
-									success: function(data){
-										var data = Ext.JSON.decode(data)["Data"];
-										me.addItems(data, true);
-										me.itemsPanel.expand();
-									},
-									failure: function(error){
-										Ext.Error.raise(error)
-									}
-								});
-							}
-						},
-						failure: function(error){
-							Ext.Error.raise(error);
-						}
-					});
-
-					cardServer.GetPackageProducts(pid, {
-						success: function(data){
-							console.log(data)
-							data = Ext.JSON.decode(data)["products"];
-							var sql = [];
-							for (var c = 0; c < data.length; ++c){
-								sql.push("pid=" + data[c]);
-							}
-							var s = sql.join(" OR ");
-							if (s.length > 0){
-								cardServer.GetProductPageData(1, data.length, s, {
-									success: function(data){
-										var data = Ext.JSON.decode(data)["Data"];
-										me.addProducts(data, true);
-										//me.productsPanel.expand();
-									},
-									failure: function(error){
-										Ext.Error.raise(error)
-									}
-								});
-							}
+							var data = Ext.JSON.decode(data)["Data"];
+							me.addItems(data, true);
+							me.itemsPanel.expand();
 						},
 						failure: function(error){
 							Ext.Error.raise(error)
 						}
 					});
-
-					//find selectedPackages
-					if (data["ParentID"]){
-						var store = me.storeProxy.tree.root.store;
-						//console.log(store);
-						for (var c = 0; c < store.getCount(); ++c){
-							r = store.getAt(c);
-							if (parseInt(r.get("id")) == data["ParentID"]){
-								me.selectedPackages = [r];
-							}
-						}
-					}
-				}else{
-					return;
 				}
 			},
 			failure: function(error){
 				Ext.Error.raise(error);
 			}
-		})	
+		});
+
+		cardServer.GetPackageProducts(pid, {
+			success: function(data){
+				data = Ext.JSON.decode(data)["products"];
+				var sql = [];
+				for (var c = 0; c < data.length; ++c){
+					sql.push("pid=" + data[c]);
+				}
+				var s = sql.join(" OR ");
+				if (s.length > 0){
+					cardServer.GetProductPageData(1, data.length, s, {
+						success: function(data){
+							var data = Ext.JSON.decode(data)["Data"];
+							me.addProducts(data, true);
+							//me.productsPanel.expand();
+						},
+						failure: function(error){
+							Ext.Error.raise(error)
+						}
+					});
+				}
+			},
+			failure: function(error){
+				Ext.Error.raise(error)
+			}
+		});
+
 	},
 
 	//自动计算部分代码
