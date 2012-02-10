@@ -1,24 +1,26 @@
-function createPackageCategoryTree(){
-	var me = this, cardServer = Beet.constants.cardServer;
+function createPackageCategoryTree(isConfigMode){
+	var me = this, cardServer = Beet.constants.cardServer, store;
+
+	var isConfigMode = (isConfigMode == undefined ? false : isConfigMode ); 
 
 	me.createTreePanel = function(){
 		Ext.bind(buildCategoryTreeStore, me)(2);
 
 		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.PackagesCatgoryTreeStore");
 
-		var sm = null;
-		if (me.b_type == "selection"){
-			sm = Ext.create("Ext.selection.CheckboxModel", {
-				mode: me.b_selectionMode ? me.b_selectionMode : "SINGLE"
-			});
-			me.selModel = sm;
-		}
+		//var sm = null;
+		//if (me.b_type == "selection"){
+		//	sm = Ext.create("Ext.selection.CheckboxModel", {
+		//		mode: me.b_selectionMode ? me.b_selectionMode : "SINGLE"
+		//	});
+		//	me.selModel = sm;
+		//}
 		me.treeList = Ext.create("Ext.tree.Panel", {
 			store: me.storeProxy,
 			bodyStyle: "background-color: #fff",
 			frame: true,
 			lookMask: true,
-			selModel: sm,
+			//selModel: sm,
 			//multiSelect: true,
 			cls: "iScroll",
 			collapsible: true,
@@ -27,8 +29,31 @@ function createPackageCategoryTree(){
 			height: Beet.constants.VIEWPORT_HEIGHT - 50,
 			border: 0,
 			useArrow: true,
-			title: "套餐列表",
+			title: "套餐分类",
 			split: true,
+			tbar: [
+				{
+					xtype: "button",
+					text: "全部卷起",
+					handler: function(){
+						return me.treeList.collapseAll();
+					}
+				},
+				{
+					xtype: "button",
+					text: "全部展开",
+					handler: function(){
+						return me.treeList.expandAll();
+					}
+				},
+				{
+					xtype: "button",
+					text: "刷新",
+					handler: function(){
+						me.refreshTreeList();
+					}
+				}
+			],
 			columns: [
 				{
 					xtype: 'treecolumn',
@@ -42,163 +67,163 @@ function createPackageCategoryTree(){
 					dataIndex: 'rate'
 				}
 			],
-			tbar: [
-				{
-					xtype: "button",
-					text: "卷起",
-					border: 1,
-					style: {
-						borderColor: "#99BBE8"
-					},
-					handler: function(){
-						return me.treeList.collapseAll();
-					}
-				},
-				{
-					xtype: "button",
-					text: "展开",
-					border: 1,
-					style: {
-						borderColor: "#99BBE8"
-					},
-					handler: function(){
-						return me.treeList.expandAll();
-					}
-				},
-				{
-					xtype: "button",
-					border: 1,
-					style: {
-						borderColor: "#99BBE8"
-					},
-					text: "增加",
-					handler: function(){
-						var list = me.treeList.selModel.getSelection();
-						if (list && list.length > 0){
-							var r = list[0];
-							me.addPackageWindow(r.get("id") || r.raw["id"], r)
-						}else{
-							me.addPackageWindow();
-						}
-					},
-				},
-				{
-					xtype: "button",
-					border: 1,
-					style: {
-						borderColor: "#99BBE8"
-					},
-					text: "编辑",
-					handler: function(){
-						var list = me.treeList.selModel.getSelection();
-						if (list && list.length > 0){
-							var r = list[0];
-							if (r.get("id") == "-1"){
-								Ext.Msg.alert("失败", "无法删除根目录");
-								return;
-							}
-							me.onSelectItem(r.get("ID") || r.raw["ID"], r)
-						}else{
-							Ext.Msg.alert("失败", "请选择需要删除的套餐");
-						}
-					},
-				},
-				{
-					xtype: "button",
-					border: 1,
-					style: {
-						borderColor: "#99BBE8"
-					},
-					text: "删除",
-					handler: function(){
-						var list = me.treeList.selModel.getSelection();
-						if (list && list.length > 0){
-							var r = list[0];
-							if (r.get("id") == "-1"){
-								Ext.Msg.alert("失败", "无法删除根目录");
-								return;
-							}
-							me.deletePackage(r)
-						}else{
-							Ext.Msg.alert("失败", "请选择需要删除的套餐");
-						}
-					}
-				},
-				{
-					xtype: "button",
-					border: 1,
-					style: {
-						borderColor: "#99BBE8"
-					},
-					text: "批量",
-					tooltip: "批量修改",
-					handler: function(){
-						var list = me.treeList.selModel.getSelection();
-						if (list.length == 1){
-							var record = list[0];
-							if (parseInt(record.get("id")) == -1){
-								Ext.MessageBox.alert("警告", "修改失败, 你不能选择>总分类<")
-								return;
-							}
-						}
-						if (list.length <= 0){
-							Ext.MessageBox.alert("警告", "请选择需要修改的套餐")
-							return;
-						}
-						Ext.MessageBox.prompt(
-							"批量修改",
-							"批量修改套餐折扣",
-							function(btn, value, opts){
-								if (btn == "ok"){
-									if (list.length == 1){
-										var record = list[0];
-										if (parseInt(record.get("id")) == -1){
-											Ext.MessageBox.alert("警告", "修改失败, 你不能选择>总分类<")
-											return;
-										}else{
-											cardServer.BatchEditPackageRate(parseInt(record.get("id")), parseFloat(value), {
-												success: function(succ){
-													if (succ){
-														Ext.Msg.alert("成功", "批量修改成功")
-													}else{
-														Ext.Msg.alert("失败", "批量修改失败");
-													}
-												},
-												failure: function(error){
-													Ext.Error.raise(error);
-												}
-											})
-										}
-									}
-								}
-							}
-						)
-					}
-				},
-			],
-			bbar: [
-				"->",
-				{
-					xtype: "button",
-					text: "确定",
-					hidden: (me.b_type != "selection"),
-					handler: function(){
-						if (me.b_selectionCallback){
-							me.b_selectionCallback(me.treeList.selModel.getSelection());
-						}
-					},
-				},
-				{
-					xtype: "button",
-					text: "取消",
-					hidden: (me.b_type != "selection"),
-					handler: function(){
-						if (me.b_selectionCallback){
-							me.b_selectionCallback([])
-						}
-					},
-				}
-			]
+			//tbar: [
+			//	{
+			//		xtype: "button",
+			//		text: "卷起",
+			//		border: 1,
+			//		style: {
+			//			borderColor: "#99BBE8"
+			//		},
+			//		handler: function(){
+			//			return me.treeList.collapseAll();
+			//		}
+			//	},
+			//	{
+			//		xtype: "button",
+			//		text: "展开",
+			//		border: 1,
+			//		style: {
+			//			borderColor: "#99BBE8"
+			//		},
+			//		handler: function(){
+			//			return me.treeList.expandAll();
+			//		}
+			//	},
+			//	{
+			//		xtype: "button",
+			//		border: 1,
+			//		style: {
+			//			borderColor: "#99BBE8"
+			//		},
+			//		text: "增加",
+			//		handler: function(){
+			//			var list = me.treeList.selModel.getSelection();
+			//			if (list && list.length > 0){
+			//				var r = list[0];
+			//				me.addPackageWindow(r.get("id") || r.raw["id"], r)
+			//			}else{
+			//				me.addPackageWindow();
+			//			}
+			//		},
+			//	},
+			//	{
+			//		xtype: "button",
+			//		border: 1,
+			//		style: {
+			//			borderColor: "#99BBE8"
+			//		},
+			//		text: "编辑",
+			//		handler: function(){
+			//			var list = me.treeList.selModel.getSelection();
+			//			if (list && list.length > 0){
+			//				var r = list[0];
+			//				if (r.get("id") == "-1"){
+			//					Ext.Msg.alert("失败", "无法删除根目录");
+			//					return;
+			//				}
+			//				me.onSelectItem(r.get("ID") || r.raw["ID"], r)
+			//			}else{
+			//				Ext.Msg.alert("失败", "请选择需要删除的套餐");
+			//			}
+			//		},
+			//	},
+			//	{
+			//		xtype: "button",
+			//		border: 1,
+			//		style: {
+			//			borderColor: "#99BBE8"
+			//		},
+			//		text: "删除",
+			//		handler: function(){
+			//			var list = me.treeList.selModel.getSelection();
+			//			if (list && list.length > 0){
+			//				var r = list[0];
+			//				if (r.get("id") == "-1"){
+			//					Ext.Msg.alert("失败", "无法删除根目录");
+			//					return;
+			//				}
+			//				me.deletePackage(r)
+			//			}else{
+			//				Ext.Msg.alert("失败", "请选择需要删除的套餐");
+			//			}
+			//		}
+			//	},
+			//	{
+			//		xtype: "button",
+			//		border: 1,
+			//		style: {
+			//			borderColor: "#99BBE8"
+			//		},
+			//		text: "批量",
+			//		tooltip: "批量修改",
+			//		handler: function(){
+			//			var list = me.treeList.selModel.getSelection();
+			//			if (list.length == 1){
+			//				var record = list[0];
+			//				if (parseInt(record.get("id")) == -1){
+			//					Ext.MessageBox.alert("警告", "修改失败, 你不能选择>总分类<")
+			//					return;
+			//				}
+			//			}
+			//			if (list.length <= 0){
+			//				Ext.MessageBox.alert("警告", "请选择需要修改的套餐")
+			//				return;
+			//			}
+			//			Ext.MessageBox.prompt(
+			//				"批量修改",
+			//				"批量修改套餐折扣",
+			//				function(btn, value, opts){
+			//					if (btn == "ok"){
+			//						if (list.length == 1){
+			//							var record = list[0];
+			//							if (parseInt(record.get("id")) == -1){
+			//								Ext.MessageBox.alert("警告", "修改失败, 你不能选择>总分类<")
+			//								return;
+			//							}else{
+			//								cardServer.BatchEditPackageRate(parseInt(record.get("id")), parseFloat(value), {
+			//									success: function(succ){
+			//										if (succ){
+			//											Ext.Msg.alert("成功", "批量修改成功")
+			//										}else{
+			//											Ext.Msg.alert("失败", "批量修改失败");
+			//										}
+			//									},
+			//									failure: function(error){
+			//										Ext.Error.raise(error);
+			//									}
+			//								})
+			//							}
+			//						}
+			//					}
+			//				}
+			//			)
+			//		}
+			//	},
+			//],
+			//bbar: [
+			//	"->",
+			//	{
+			//		xtype: "button",
+			//		text: "确定",
+			//		hidden: (me.b_type != "selection"),
+			//		handler: function(){
+			//			if (me.b_selectionCallback){
+			//				me.b_selectionCallback(me.treeList.selModel.getSelection());
+			//			}
+			//		},
+			//	},
+			//	{
+			//		xtype: "button",
+			//		text: "取消",
+			//		hidden: (me.b_type != "selection"),
+			//		handler: function(){
+			//			if (me.b_selectionCallback){
+			//				me.b_selectionCallback([])
+			//			}
+			//		},
+			//	}
+			//]
 		});
 		me.treeList.addListener({
 			collapse: function(p){
@@ -210,17 +235,16 @@ function createPackageCategoryTree(){
 					}, 50);
 				}
 			},
-			itemclick: function(){
-			},
-			itemdblclick: function(frame, record, item, index, e, options){
-				me.treeListRClick(frame, record, item, index, e, options);
-			},
 			beforeitemcontextmenu: function(frame, record, item, index, e, options){
 				me.treeListRClick(frame, record, item, index, e, options);
+			},
+			itemclick: function(frame, record, item, index, e, options){
+				me.treeItemClick(frame, record, item, index, e, options);
 			}
 		});
-	}
 
+		me.treeList.storeProxy = me.treeList.getStore();
+	}
 
 	var updateCategoryRate = function(widget, record, e){
 		var title = record.get("text"), id = record.get("id");
@@ -249,26 +273,58 @@ function createPackageCategoryTree(){
 			}
 		})
 	}
+	me.refreshTreeList = function(){
+		me.treeList.storeProxy.load();
+	}
 
 	me.treeListRClick = function(frame, record, item, index, e, options){
+		e.stopEvent();
 		var isLeaf = record.isLeaf(), me = this;
 		if (!record.contextMenu){
 			var menu = [];
-			if (record.get("id") == "-1") { return false; }
-			menu = [
-				{text: "查看详情", handler: function(direction, e){
-					me.onSelectItem(record.raw["id"], record)
-				}},
-				{text: "增加", handler: function(direction, e){
-					me.addPackageWindow();	
-				}},
-				{text: "删除", handler: function(direction, e){
-					me.deletePackage(record)
-				}},
-				{text: "修改打折率", handler: function(direction, e){
-					updateCategoryRate(direction, record, e);
-				}}
-			]
+			//if (record.get("id") == "-1") { return false; }
+			if (record.isRoot()){
+				menu = [
+					{
+						text: "增加分类", 
+						handler: function(direction, e){
+							me.addTreeItem(direction, record, e)	
+						}
+					}
+				]
+			}else {
+				menu = [
+					{text: "增加分类", handler: function(direction, e){
+						me.addTreeItem(direction, record, e);	
+					}},
+					{text: "编辑", handler: function(direction, e){
+						me.editTreeItem(direction, record, e)	
+					}},
+					{text: "删除", handler: function(direction, e){
+						me.deleteTreeItem(direction, record, e);	
+					}},
+					{text: "修改打折率", handler: function(direction, e){
+						updateCategoryRate(direction, record, e);
+					}}
+				]
+				//if (isConfigMode){
+				//	menu.concat([
+				//		"-",
+				//		{text: "查看详情", handler: function(direction, e){
+				//			me.onSelectItem(record.raw["id"], record)
+				//		}},
+				//		{text: "增加", handler: function(direction, e){
+				//			me.addPackageWindow();	
+				//		}},
+				//		{text: "删除", handler: function(direction, e){
+				//			me.deletePackage(record)
+				//		}},
+				//		{text: "修改打折率", handler: function(direction, e){
+				//			updateCategoryRate(direction, record, e);
+				//		}}
+				//	])
+				//}
+			}
 
 			record.contextMenu = Ext.create("Ext.menu.Menu", {
 				style: {
@@ -280,9 +336,203 @@ function createPackageCategoryTree(){
 				leaf: isLeaf
 			});
 		}
-		e.stopEvent();
 		record.contextMenu.showAt(e.getXY());
 		return false;
+	}
+
+	//////tree item
+	me.categoryListCombo = function(){
+		var itemList = me.treeList.getStore().proxy.categoryList;
+		itemList.push({
+			id: -1,
+			text: "总分类"	
+		});
+		return Ext.create("Ext.data.Store", {
+			fields: ["id", "text"],
+			data: itemList
+		})
+	}
+	me.addTreeItem = function(widget, record, e){
+		var CLCombo = me.categoryListCombo();
+		if (me.addWin){
+			me.addWin.close();
+		}
+		if (me.editWin){
+			me.editWin.close()
+		}
+		me.doLayout();
+
+		var form = Ext.create("Ext.form.Panel", {
+			width: "100%",
+			height: 100,
+			bodyStyle: "background-color: #dfe8f5",
+			border: false,
+			flex: 1,
+			bodyPadding: 10,
+			items: [
+				{
+					fieldLabel: "名称",
+					xtype: "textfield",
+					allowBlank: false,
+					name: "name"
+				},
+				{
+					fieldLabel: "所属类别",
+					xtype: "combobox",
+					store: CLCombo,
+					name: "parentid",
+					queryMode: "local",
+					displayField: "text",
+					valueField: "id",
+					value: parseInt(record.get("id") == "src" ? -1 : record.get("id"))
+				}
+			],
+			buttons: [
+				{
+					xtype: "button",
+					text: "提交",
+					width: 200,
+					handler: function(){
+						var f = form.getForm(), result = f.getValues();
+						result["categorytype"] = 2;
+						cardServer.AddCategory(Ext.JSON.encode(result), {
+							success: function(id){
+								if (id > 0){
+									Ext.Msg.alert("添加成功", "添加分类成功");
+									me.addWin.close();
+									me.refreshTreeList();
+								}
+							},
+							failure: function(error){
+								Ext.Error.raise(error)
+							}
+						})
+					}
+				}
+			]
+		});
+
+		me.addWin = Ext.create("Ext.window.Window", {
+			height: 140,
+			width: 300,
+			title: "增加分类",
+			autoHeight: true,
+			autoScroll: true,
+			autoWidth: true,
+		});
+		me.addWin.add(form)
+		me.addWin.doLayout();
+		me.addWin.show();
+	}
+	me.deleteTreeItem = function(width, record, e){
+		var id = record.get("id");
+		if (id == "src"){
+			return;
+		}
+
+		Ext.Msg.alert("删除分类", "你确定需要删除 " + record.get("text") + " 吗?", function(btn){
+			cardServer.DeleteCategory(id, {
+				success: function(succ){
+					if (succ) {
+						Ext.Msg.alert("删除成功", "删除分类 "+ record.get("text") + " 成功");
+						me.refreshTreeList();
+					}
+				},
+				failure: function(error){
+					Ext.Error.raise(error)
+				}
+			});
+		}, me)
+	}
+	me.editTreeItem = function(widget, record, e){
+		var CLCombo = me.categoryListCombo();
+		if (me.addWin){
+			me.addWin.close();
+		}
+		if (me.editWin){
+			me.editWin.close()
+		}
+
+		var form = Ext.create("Ext.form.Panel", {
+			width: "100%",
+			height: 100,
+			bodyPadding: 10,
+			bodyStyle: "background-color: #dfe8f5",
+			border: false,
+			flex: 1,
+			items: [
+				{
+					fieldLabel: "名称",
+					xtype: "textfield",
+					allowBlank: false,
+					name: "name",
+					value: record.get("text")
+				},
+				{
+					fieldLabel: "所属类别",
+					xtype: "combobox",
+					store: CLCombo,
+					name: "parentid",
+					queryMode: "local",
+					displayField: "text",
+					valueField: "id",
+					value: parseInt(record.raw["pid"])
+				}
+			],
+			buttons: [
+				{
+					xtype: "button",
+					text: "提交",
+					width: 200,
+					handler: function(){
+						var f = form.getForm(), result = f.getValues();
+						result["id"] = record.get("id");
+						cardServer.UpdateCategory(Ext.JSON.encode(result), {
+							success: function(succ){
+								if (succ){
+									Ext.Msg.alert("编辑成功", "编辑分类成功");
+									me.editWin.close();
+									me.refreshTreeList();
+								}
+							},
+							failure: function(error){
+								Ext.Error.raise(error);
+							}
+						})
+					}
+				}
+			]
+		});
+
+		me.editWin= Ext.create("Ext.window.Window", {
+			height: 140,
+			width: 300,
+			title: "编辑分类",
+			autoHeight: true,
+			autoScroll: true,
+			autoWidth: true,
+		});
+		me.editWin.add(form)
+		me.editWin.doLayout();
+		me.editWin.show();
+	},
+	me.onTreeItemClick = function(frame, record, item){
+		var id = record.get("id");
+		if (id != -1){
+			me.b_filter = "PCategoryId= " + id;
+		}else{
+			me.b_filter = "";
+		}
+		me.filterProducts();
+	}
+	me.treeItemClick = function(frame, record, item, index, e, options){
+		if (!record){return;}
+		
+		me.selectProductCategoryId = parseInt(record.get("id"));
+
+		me.form.getForm().setValues({
+			"category" : record.get("text")	
+		})
 	}
 }
 
@@ -315,7 +565,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 	buildStoreAndModel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
 
-		Ext.bind(createPackageCategoryTree, me)();
+		Ext.bind(createPackageCategoryTree, me)(true);
 		me.createTreePanel();
 
 		me.createMainPanel()	
@@ -543,14 +793,14 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 											onSelect:Ext.emptyFn,
 											listeners: {
 												expand: function(f){
-													console.log("treelist expand");
+													//console.log("treelist expand");
 													var that = this;
 													f.setValue = function(value){
 														var that = this, inputId = f.getInputId(), inputEl = that.inputEl;
 														inputEl.dom.value = value
 													}
 													if (!me.innerTreeList){
-														var store = f.store = Ext.create("Beet.apps.ProductsViewPort.PackageTreeStore", {
+														var store = f.store = Ext.create("Beet.apps.ProductsViewPort.PackagesCatgoryTreeStore", {
 															autoLoad: false	
 														})
 														me.innerTreeList = new Ext.tree.TreePanel({
@@ -579,7 +829,9 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 															}
 														});
 													};
-													me.innerTreeList.render("innerTree");
+													setTimeout(function(){
+														me.innerTreeList.render("innerTree")
+													}, 500);
 												}
 											}
 										},

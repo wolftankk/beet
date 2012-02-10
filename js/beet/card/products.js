@@ -462,6 +462,7 @@ function createCategoryTree(){
 					width: 200,
 					handler: function(){
 						var f = form.getForm(), result = f.getValues();
+						result["categorytype"] = 0;
 						cardServer.AddCategory(Ext.JSON.encode(result), {
 							success: function(id){
 								if (id > 0){

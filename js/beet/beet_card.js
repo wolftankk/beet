@@ -103,7 +103,6 @@ function buildCategoryTreeStore(type){
 					var bucket = [];
 					var me = this;
 					me.categoryList = [];
-					
 					var processData = function(target, cache, pid){
 						var k;
 						for (k = 0; k < target.length; ++k){

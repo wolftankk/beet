@@ -153,6 +153,10 @@ function createItemCategoryTree(){
 	}
 	me.categoryListCombo = function(){
 		var itemList = me.treeList.getStore().proxy.categoryList;
+		itemList.push({
+			id: -1,
+			text: "总分类"	
+		});
 		return Ext.create("Ext.data.Store", {
 			fields: ["id", "text"],
 			data: itemList
@@ -200,6 +204,7 @@ function createItemCategoryTree(){
 					width: 200,
 					handler: function(){
 						var f = form.getForm(), result = f.getValues();
+						result["categorytype"] = 1;
 						cardServer.AddCategory(Ext.JSON.encode(result), {
 							success: function(id){
 								if (id > 0){
