@@ -1642,6 +1642,30 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 					]
 				}
 			],
+			bbar: [
+				"->",
+				{
+						xtype: "button",
+						text: "确定",
+						hidden: (me.b_type != "selection"),
+						handler: function(){
+							if (me.b_selectionCallback){
+								me.b_selectionCallback(me.packageList.grid.selModel.getSelection());
+							}
+						},
+				},
+				{
+						xtype: "button",
+						text: "取消",
+						hidden: (me.b_type != "selection"),
+						handler: function(){
+							if (me.b_selectionCallback){
+								me.b_selectionCallback([])
+							}
+						},
+				}
+				
+			]
 		};
 		var panel = Ext.widget("form", config);
 		me.add(panel);
