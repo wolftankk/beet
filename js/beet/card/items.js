@@ -152,10 +152,10 @@ function createItemCategoryTree(){
 		return false;
 	}
 	me.categoryListCombo = function(){
-		me.itemList = me.treeList.getStore().proxy.itemList;
+		var itemList = me.treeList.getStore().proxy.categoryList;
 		return Ext.create("Ext.data.Store", {
 			fields: ["id", "text"],
-			data: me.itemList
+			data: itemList
 		})
 	}
 	me.addTreeItem = function(widget, record, e){

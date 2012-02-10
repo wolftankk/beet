@@ -301,7 +301,6 @@ function createPackageCategoryTree(){
 				b_method: Beet.constants.cardServer.GetPackageTreeData,
 				preProcessData: function(data){
 					var originData = data["root"];
-					//console.log(data);
 					var bucket = [];
 					var me = this;
 					me.categoryList = [];
