@@ -210,7 +210,7 @@ function createPackageCategoryTree(){
 		editWin.add(form)
 		editWin.doLayout();
 		editWin.show();
-	},
+	}
 
 	//private event handler
 	var treeListRClick = function(frame, record, item, index, e, options){
@@ -367,183 +367,261 @@ function createPackageCategoryTree(){
 	}
 }
 
+(function(){
 
+var createPackagesList = function(){
+	var me = this, cardServer = Beet.constants.cardServer, storeProxy;
 
-				//if (isConfigMode){
-				//	menu.concat([
-				//		"-",
-				//		{text: "查看详情", handler: function(direction, e){
-				//			me.onSelectItem(record.raw["id"], record)
-				//		}},
-				//		{text: "增加", handler: function(direction, e){
-				//			me.addPackageWindow();	
-				//		}},
-				//		{text: "删除", handler: function(direction, e){
-				//			me.deletePackage(record)
-				//		}},
-				//		{text: "修改打折率", handler: function(direction, e){
-				//			updateCategoryRate(direction, record, e);
-				//		}}
-				//	])
-				//}
-			//tbar: [
-			//	{
-			//		xtype: "button",
-			//		text: "卷起",
-			//		border: 1,
-			//		style: {
-			//			borderColor: "#99BBE8"
-			//		},
-			//		handler: function(){
-			//			return me.treeList.collapseAll();
-			//		}
-			//	},
-			//	{
-			//		xtype: "button",
-			//		text: "展开",
-			//		border: 1,
-			//		style: {
-			//			borderColor: "#99BBE8"
-			//		},
-			//		handler: function(){
-			//			return me.treeList.expandAll();
-			//		}
-			//	},
-			//	{
-			//		xtype: "button",
-			//		border: 1,
-			//		style: {
-			//			borderColor: "#99BBE8"
-			//		},
-			//		text: "增加",
-			//		handler: function(){
-			//			var list = me.treeList.selModel.getSelection();
-			//			if (list && list.length > 0){
-			//				var r = list[0];
-			//				me.addPackageWindow(r.get("id") || r.raw["id"], r)
-			//			}else{
-			//				me.addPackageWindow();
-			//			}
-			//		},
-			//	},
-			//	{
-			//		xtype: "button",
-			//		border: 1,
-			//		style: {
-			//			borderColor: "#99BBE8"
-			//		},
-			//		text: "编辑",
-			//		handler: function(){
-			//			var list = me.treeList.selModel.getSelection();
-			//			if (list && list.length > 0){
-			//				var r = list[0];
-			//				if (r.get("id") == "-1"){
-			//					Ext.Msg.alert("失败", "无法删除根目录");
-			//					return;
-			//				}
-			//				me.onSelectItem(r.get("ID") || r.raw["ID"], r)
-			//			}else{
-			//				Ext.Msg.alert("失败", "请选择需要删除的套餐");
-			//			}
-			//		},
-			//	},
-			//	{
-			//		xtype: "button",
-			//		border: 1,
-			//		style: {
-			//			borderColor: "#99BBE8"
-			//		},
-			//		text: "删除",
-			//		handler: function(){
-			//			var list = me.treeList.selModel.getSelection();
-			//			if (list && list.length > 0){
-			//				var r = list[0];
-			//				if (r.get("id") == "-1"){
-			//					Ext.Msg.alert("失败", "无法删除根目录");
-			//					return;
-			//				}
-			//				me.deletePackage(r)
-			//			}else{
-			//				Ext.Msg.alert("失败", "请选择需要删除的套餐");
-			//			}
-			//		}
-			//	},
-			//	{
-			//		xtype: "button",
-			//		border: 1,
-			//		style: {
-			//			borderColor: "#99BBE8"
-			//		},
-			//		text: "批量",
-			//		tooltip: "批量修改",
-			//		handler: function(){
-			//			var list = me.treeList.selModel.getSelection();
-			//			if (list.length == 1){
-			//				var record = list[0];
-			//				if (parseInt(record.get("id")) == -1){
-			//					Ext.MessageBox.alert("警告", "修改失败, 你不能选择>总分类<")
-			//					return;
-			//				}
-			//			}
-			//			if (list.length <= 0){
-			//				Ext.MessageBox.alert("警告", "请选择需要修改的套餐")
-			//				return;
-			//			}
-			//			Ext.MessageBox.prompt(
-			//				"批量修改",
-			//				"批量修改套餐折扣",
-			//				function(btn, value, opts){
-			//					if (btn == "ok"){
-			//						if (list.length == 1){
-			//							var record = list[0];
-			//							if (parseInt(record.get("id")) == -1){
-			//								Ext.MessageBox.alert("警告", "修改失败, 你不能选择>总分类<")
-			//								return;
-			//							}else{
-			//								cardServer.BatchEditPackageRate(parseInt(record.get("id")), parseFloat(value), {
-			//									success: function(succ){
-			//										if (succ){
-			//											Ext.Msg.alert("成功", "批量修改成功")
-			//										}else{
-			//											Ext.Msg.alert("失败", "批量修改失败");
-			//										}
-			//									},
-			//									failure: function(error){
-			//										Ext.Error.raise(error);
-			//									}
-			//								})
-			//							}
-			//						}
-			//					}
-			//				}
-			//			)
-			//		}
-			//	},
-			//],
-			//bbar: [
-			//	"->",
-			//	{
-			//		xtype: "button",
-			//		text: "确定",
-			//		hidden: (me.b_type != "selection"),
-			//		handler: function(){
-			//			if (me.b_selectionCallback){
-			//				me.b_selectionCallback(me.treeList.selModel.getSelection());
-			//			}
-			//		},
-			//	},
-			//	{
-			//		xtype: "button",
-			//		text: "取消",
-			//		hidden: (me.b_type != "selection"),
-			//		handler: function(){
-			//			if (me.b_selectionCallback){
-			//				me.b_selectionCallback([])
-			//			}
-			//		},
-			//	}
-			//]
+	var createPackageTreeStore = function(){
+		Ext.define("Beet.apps.ProductsViewPort.PackageListStore", {
+			extend: "Ext.data.TreeStore",
+			autoLoad: true,
+			proxy: {
+				type: "b_proxy",
+				b_method: Beet.constants.cardServer.GetPackageTreeData,
+				preProcessData: function(data){
+					var originData = data["root"];
+					var bucket = [];
+					var me = this;
+					me.itemList = [];
+					
+					var processData = function(target, cache, pid){
+						var k;
+						for (k = 0; k < target.length; ++k){
+							var _tmp = target[k];
+							var item = {};
+							if (_tmp.data && _tmp.data.length > 0){
+								item["expanded"] = false;
+								item["text"] = _tmp["name"];
+								item["id"] = _tmp["id"];
+								item["name"] = _tmp["name"];
+								item["pid"] = pid;
+								item["children"] = [];
 
+								processData(_tmp.data, item["children"], item["id"]);
+							}else{
+								item = _tmp;
+								item["text"] = _tmp["name"];
+								item["leaf"] = true;
+								item["pid"] = pid;
+								item["id"] = _tmp["id"];
+								item["name"] = _tmp["name"];
+								//item["checked"] = false;
+							}
+							cache.push(item);
+							me.itemList.push({
+								id: _tmp["id"],
+								text: _tmp["name"],
+								name : _tmp["name"]
+							})
+						}
+					}
+
+					//console.log(originData);
+					processData(originData, bucket, -1);
+
+					return bucket;
+				},
+				b_scope: Beet.constants.cardServer,
+				reader: {
+					type: "json"	
+				}
+			},
+		});
+	}
+
+	var treeListRClick = function(frame, record, item, index, e, options){
+		var isLeaf = record.isLeaf(), me = this;
+		if (!record.contextMenu){
+			var menu = [];
+			if (record.get("id") == "-1") { return false; }
+			menu = [
+				{text: "查看详情", handler: function(direction, e){
+					me.onSelectItem(record.raw["id"], record)
+				}},
+				{text: "增加", handler: function(direction, e){
+					me.addPackageWindow();	
+				}},
+				{text: "删除", handler: function(direction, e){
+					me.deletePackage(record)
+				}},
+			]
+
+			record.contextMenu = Ext.create("Ext.menu.Menu", {
+				style: {
+				   overflow: 'visible',
+				},
+				plain: true,
+				items: menu,
+				raw : record,
+				leaf: isLeaf
+			});
+		}
+		e.stopEvent();
+		record.contextMenu.showAt(e.getXY());
+		return false;
+	}
+
+	me.createPackagesList = function(){
+		var sm = null;
+		if (me.b_type == "selection"){
+			sm = Ext.create("Ext.selection.CheckboxModel", {
+				mode: me.b_selectionMode ? me.b_selectionMode : "SINGLE"
+			});
+			me.selModel = sm;
+		}
+		me.packageList = Ext.create("Ext.tree.Panel", {
+			store: storeProxy,
+			bodyStyle: "background-color: #fff",
+			frame: true,
+			lookMask: true,
+			selModel: sm,
+			//multiSelect: true,
+			cls: "iScroll",
+			collapsible: true,
+			collapseDirection: "left",
+			width: 240,
+			height: Beet.constants.VIEWPORT_HEIGHT - 50,
+			border: 0,
+			useArrow: true,
+			title: "套餐列表",
+			split: true,
+			tbar: [
+				{
+					xtype: "button",
+					text: "卷起",
+					border: 1,
+					style: {
+						borderColor: "#99BBE8"
+					},
+					handler: function(){
+						return me.packageList.collapseAll();
+					}
+				},
+				{
+					xtype: "button",
+					text: "展开",
+					border: 1,
+					style: {
+						borderColor: "#99BBE8"
+					},
+					handler: function(){
+						return me.packageList.expandAll();
+					}
+				},
+				{
+					xtype: "button",
+					border: 1,
+					style: {
+						borderColor: "#99BBE8"
+					},
+					text: "增加",
+					handler: function(){
+						//var list = me.packageList.selModel.getSelection();
+						//if (list && list.length > 0){
+						//	var r = list[0];
+						//	me.addPackageWindow(r.get("ID") || r.raw["ID"], r)
+						//}else{
+						me.addPackageWindow();
+						//}
+					},
+				},
+				{
+					xtype: "button",
+					border: 1,
+					style: {
+						borderColor: "#99BBE8"
+					},
+					text: "编辑",
+					handler: function(){
+						var list = me.packageList.selModel.getSelection();
+						if (list && list.length > 0){
+							var r = list[0];
+							if (r.get("id") == "-1"){
+								Ext.Msg.alert("失败", "无法删除根目录");
+								return;
+							}
+							me.onSelectItem(r.get("id") || r.raw["id"], r)
+						}else{
+							Ext.Msg.alert("失败", "请选择需要删除的套餐");
+						}
+					},
+				},
+				{
+					xtype: "button",
+					border: 1,
+					style: {
+						borderColor: "#99BBE8"
+					},
+					text: "删除",
+					handler: function(){
+						var list = me.packageList.selModel.getSelection();
+						if (list && list.length > 0){
+							var r = list[0];
+							if (r.get("id") == "-1"){
+								Ext.Msg.alert("失败", "无法删除根目录");
+								return;
+							}
+							me.deletePackage(r)
+						}else{
+							Ext.Msg.alert("失败", "请选择需要删除的套餐");
+						}
+					}
+				},
+			],
+			bbar: [
+				"->",
+				{
+					xtype: "button",
+					text: "确定",
+					hidden: (me.b_type != "selection"),
+					handler: function(){
+						if (me.b_selectionCallback){
+							me.b_selectionCallback(me.treeList.selModel.getSelection());
+						}
+					},
+				},
+				{
+					xtype: "button",
+					text: "取消",
+					hidden: (me.b_type != "selection"),
+					handler: function(){
+						if (me.b_selectionCallback){
+							me.b_selectionCallback([])
+						}
+					},
+				}
+			]
+		});
+		me.packageList.addListener({
+			collapse: function(p){
+				if (p && p.collapsed && p.reExpander){
+					var reExpander = p.reExpander;
+					setTimeout(function(){
+						reExpander.el.applyStyles({top: 0, left: 0});
+						reExpander.setHeight(me.getHeight())
+					}, 50);
+				}
+			},
+			itemclick: function(){
+			},
+			itemdblclick: function(frame, record, item, index, e, options){
+				treeListRClick(frame, record, item, index, e, options);
+			},
+			beforeitemcontextmenu: function(frame, record, item, index, e, options){
+				treeListRClick(frame, record, item, index, e, options);
+			}
+		});
+	}
+	
+	//创建树形
+	if (!Beet.apps.ProductsViewPort.PackageTreeStore){
+		createPackageTreeStore();
+	}
+	storeProxy = Ext.create("Beet.apps.ProductsViewPort.PackageListStore");
+}
+
+//
 Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 	extend: "Ext.panel.Panel",
 	autoHeight: true,
@@ -573,71 +651,14 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 	buildStoreAndModel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
 
-		Ext.bind(createPackageCategoryTree, me)(true);
-		me.createTreePanel();
+		Ext.bind(createPackageCategoryTree, me)();
+		me.createTreePanel();//category
+
+		Ext.bind(createPackagesList, me)();
+		me.createPackagesList();
 
 		me.createMainPanel()	
 	},
-	addPackageWindow: function(pid, record){
-		var me = this;
-		//Ext.Msg.alert("通知", "你进入了套餐添加的模式");
-		me.resetAll();
-		var addBtn = me.form.down("button[name=packageNewBtn]");
-
-		if (pid){
-			me.selectedPackages = [record];
-			me.form.getForm().setValues({
-				_packageName: record.get("text") || record.raw["name"]	
-			})
-		}
-		
-		if 	(addBtn) {
-			addBtn.enable();
-		}
-	},
-	deletePackage: function(record){
-		var me = this, cardServer = Beet.constants.cardServer;
-		var itemId = record.get("id") || record.raw["id"], itemName = record.get("name") || record.raw["name"];
-		if (itemId){
-			Ext.MessageBox.show({
-				title: "删除套餐",
-				msg: "是否要删除 " + itemName + " ?",
-				buttons: Ext.MessageBox.YESNO,
-				fn: function(btn){
-					if (btn == "yes"){
-						cardServer.DeletePackage(itemId, {
-							success: function(){
-								Ext.MessageBox.show({
-									title: "删除成功",
-									msg: "删除套餐: " + itemName + " 成功",
-									buttons: Ext.MessageBox.OK,
-									fn: function(){
-										me.selectedItems= {};
-										me.selectedChargeType = {};
-										me.updateItemsPanel();
-										me.updateChargeTypePanel();
-										me.packageList.store.loadPage(me.packageList.store.currentPage);
-										me.form.getForm().reset();
-										if (me.packageList.cache[itemId]){
-											me.packageList.cache[itemId] = {};
-											delete me.packageList.cache[itemId];
-										}
-									}
-								})
-							},
-							failure: function(error){
-								Ext.Error.raise(error);
-							}
-						})
-					}
-				}
-			});
-		
-		}else{
-			Ext.Error.raise("删除套餐失败");
-		}
-	},
-	
 	createMainPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
 		var options = {
@@ -789,7 +810,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 										},
 										{
 											xtype: "combobox",
-											fieldLabel: "所属父类",
+											fieldLabel: "所属分类",
 											store:new Ext.data.SimpleStore({fields:[],data:[[]]}),   
 											editable:false, 
 											name: "_packageName",
@@ -920,9 +941,69 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 		me.add(form);
 		me.doLayout();
 
-		me.initializeItemsPanel();
-		me.initializeProductsPanel();
+		//me.initializeItemsPanel();
+		//me.initializeProductsPanel();
 	},
+	addPackageWindow: function(pid, record){
+		var me = this;
+		//Ext.Msg.alert("通知", "你进入了套餐添加的模式");
+		me.resetAll();
+		var addBtn = me.form.down("button[name=packageNewBtn]");
+
+		if (pid){
+			me.selectedPackages = [record];
+			me.form.getForm().setValues({
+				_packageName: record.get("text") || record.raw["name"]	
+			})
+		}
+		
+		if 	(addBtn) {
+			addBtn.enable();
+		}
+	},
+	deletePackage: function(record){
+		var me = this, cardServer = Beet.constants.cardServer;
+		var itemId = record.get("id") || record.raw["id"], itemName = record.get("name") || record.raw["name"];
+		if (itemId){
+			Ext.MessageBox.show({
+				title: "删除套餐",
+				msg: "是否要删除 " + itemName + " ?",
+				buttons: Ext.MessageBox.YESNO,
+				fn: function(btn){
+					if (btn == "yes"){
+						cardServer.DeletePackage(itemId, {
+							success: function(){
+								Ext.MessageBox.show({
+									title: "删除成功",
+									msg: "删除套餐: " + itemName + " 成功",
+									buttons: Ext.MessageBox.OK,
+									fn: function(){
+										me.selectedItems= {};
+										me.selectedChargeType = {};
+										me.updateItemsPanel();
+										me.updateChargeTypePanel();
+										me.packageList.store.loadPage(me.packageList.store.currentPage);
+										me.form.getForm().reset();
+										if (me.packageList.cache[itemId]){
+											me.packageList.cache[itemId] = {};
+											delete me.packageList.cache[itemId];
+										}
+									}
+								})
+							},
+							failure: function(error){
+								Ext.Error.raise(error);
+							}
+						})
+					}
+				}
+			});
+		
+		}else{
+			Ext.Error.raise("删除套餐失败");
+		}
+	},
+	
 	initializeItemsPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
 		if (me.itemsPanel.__columns && me.itemsPanel.__columns.length > 0){
@@ -1519,3 +1600,5 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 
 	}
 });
+
+})();
