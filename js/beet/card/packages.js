@@ -943,7 +943,9 @@ Ext.define("Beet.apps.ProductsViewPort.PackageProfile", {
 			tmp.push(selectedItems[c]);
 		}
 		store.loadData(tmp);
-		//me.onUpdateForm();
+		if (me.b_mode != "view"){
+			me.onUpdateForm();
+		}
 	},
 	initializeProductsPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -1131,6 +1133,9 @@ Ext.define("Beet.apps.ProductsViewPort.PackageProfile", {
 			tmp.push(selectedProducts[c]);
 		}
 		store.loadData(tmp);
+		if (me.b_mode != "view"){
+			me.onUpdateForm();
+		}
 	},
 	//自动计算部分代码
 	onUpdateForm: function(force){
