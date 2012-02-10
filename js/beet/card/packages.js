@@ -287,13 +287,21 @@ function createPackageCategoryTree(){
 			root: {
 				text: "总分类",
 				id: "-1",
-				expanded: true
+				expanded: true,
+				rate: ""
 			},
+			fields: [
+				"rate",//add for rate
+				"id",
+				"text",
+				"name"
+			],
 			proxy: {
 				type: "b_proxy",
 				b_method: Beet.constants.cardServer.GetPackageTreeData,
 				preProcessData: function(data){
 					var originData = data["root"];
+					//console.log(data);
 					var bucket = [];
 					var me = this;
 					me.categoryList = [];
@@ -302,6 +310,7 @@ function createPackageCategoryTree(){
 						var k;
 						for (k = 0; k < target.length; ++k){
 							var _tmp = target[k];
+							_tmp["rate"] = (_tmp["rate"] == -1 ? "无" : _tmp["rate"]);
 							var item = {};
 							if (_tmp.data && _tmp.data.length > 0){
 								item["expanded"] = false;
@@ -311,6 +320,7 @@ function createPackageCategoryTree(){
 								item["Name"] = _tmp["name"];
 								item["pid"] = pid;
 								item["children"] = [];
+								item["rate"] = _tmp["rate"];
 
 								processData(_tmp.data, item["children"], item["id"]);
 							}else{
@@ -320,6 +330,8 @@ function createPackageCategoryTree(){
 								item["pid"] = pid;
 								item["ID"] = _tmp["id"];
 								item["Name"] = _tmp["name"];
+								item["rate"] = _tmp["rate"];
+								
 								//item["checked"] = false;
 							}
 							cache.push(item);
@@ -327,6 +339,7 @@ function createPackageCategoryTree(){
 								id: _tmp["id"],
 								text: _tmp["name"],
 								ID : _tmp["id"],
+								rate: _tmp["rate"],
 								Name : _tmp["name"]
 							})
 						}
