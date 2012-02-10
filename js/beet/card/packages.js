@@ -2,6 +2,10 @@ function createPackageCategoryTree(){
 	var me = this, cardServer = Beet.constants.cardServer;
 
 	me.createTreePanel = function(){
+		Ext.bind(buildCategoryTreeStore, me)(2);
+
+		me.storeProxy = store = Ext.create("Beet.apps.ProductsViewPort.PackagesCatgoryTreeStore");
+
 		var sm = null;
 		if (me.b_type == "selection"){
 			sm = Ext.create("Ext.selection.CheckboxModel", {
@@ -72,7 +76,7 @@ function createPackageCategoryTree(){
 						var list = me.treeList.selModel.getSelection();
 						if (list && list.length > 0){
 							var r = list[0];
-							me.addPackageWindow(r.get("ID") || r.raw["ID"], r)
+							me.addPackageWindow(r.get("id") || r.raw["id"], r)
 						}else{
 							me.addPackageWindow();
 						}
@@ -253,7 +257,7 @@ function createPackageCategoryTree(){
 			if (record.get("id") == "-1") { return false; }
 			menu = [
 				{text: "查看详情", handler: function(direction, e){
-					me.onSelectItem(record.raw["ID"], record)
+					me.onSelectItem(record.raw["id"], record)
 				}},
 				{text: "增加", handler: function(direction, e){
 					me.addPackageWindow();	
@@ -280,88 +284,6 @@ function createPackageCategoryTree(){
 		record.contextMenu.showAt(e.getXY());
 		return false;
 	}
-	var createPackageTreeStore = function(){
-		Ext.define("Beet.apps.ProductsViewPort.PackageTreeStore", {
-			extend: "Ext.data.TreeStore",
-			autoLoad: true,
-			root: {
-				text: "总分类",
-				id: "-1",
-				expanded: true,
-				rate: ""
-			},
-			fields: [
-				"rate",//add for rate
-				"id",
-				"text",
-				"name"
-			],
-			proxy: {
-				type: "b_proxy",
-				b_method: Beet.constants.cardServer.GetPackageTreeData,
-				preProcessData: function(data){
-					var originData = data["root"];
-					var bucket = [];
-					var me = this;
-					me.categoryList = [];
-					
-					var processData = function(target, cache, pid){
-						var k;
-						for (k = 0; k < target.length; ++k){
-							var _tmp = target[k];
-							_tmp["rate"] = (_tmp["rate"] == -1 ? "无" : _tmp["rate"]);
-							var item = {};
-							if (_tmp.data && _tmp.data.length > 0){
-								item["expanded"] = false;
-								item["text"] = _tmp["name"];
-								item["id"] = _tmp["id"];
-								item["ID"] = _tmp["id"];
-								item["Name"] = _tmp["name"];
-								item["pid"] = pid;
-								item["children"] = [];
-								item["rate"] = _tmp["rate"];
-
-								processData(_tmp.data, item["children"], item["id"]);
-							}else{
-								item = _tmp;
-								item["text"] = _tmp["name"];
-								item["leaf"] = true;
-								item["pid"] = pid;
-								item["ID"] = _tmp["id"];
-								item["Name"] = _tmp["name"];
-								item["rate"] = _tmp["rate"];
-								
-								//item["checked"] = false;
-							}
-							cache.push(item);
-							me.categoryList.push({
-								id: _tmp["id"],
-								text: _tmp["name"],
-								ID : _tmp["id"],
-								rate: _tmp["rate"],
-								Name : _tmp["name"]
-							})
-						}
-					}
-
-					//console.log(originData);
-					processData(originData, bucket, -1);
-
-					return bucket;
-				},
-				b_scope: Beet.constants.cardServer,
-				reader: {
-					type: "json"	
-				}
-			},
-		});
-	}
-	
-	//创建树形
-	if (!Beet.apps.ProductsViewPort.PackageTreeStore){
-		createPackageTreeStore();
-	}
-	me.storeProxy = Ext.create("Beet.apps.ProductsViewPort.PackageTreeStore");
 }
 
 Ext.define("Beet.apps.ProductsViewPort.PackageList", {
@@ -417,7 +339,7 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 	},
 	deletePackage: function(record){
 		var me = this, cardServer = Beet.constants.cardServer;
-		var itemId = record.get("ID") || record.raw["ID"], itemName = record.get("Name") || record.raw["Name"];
+		var itemId = record.get("id") || record.raw["id"], itemName = record.get("name") || record.raw["name"];
 		if (itemId){
 			Ext.MessageBox.show({
 				title: "删除套餐",
