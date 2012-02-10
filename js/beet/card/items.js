@@ -1259,7 +1259,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 							Ext.applyIf(options, {
 								groupers: that.groupers.items,
 								page: that.currentPage,
-								start: (that.currentPage - 1) * Beet.constants.PageSize || 50,
+								start: (that.currentPage - 1) * Beet.constants.PageSize || 0,
 								limit: Beet.constants.PageSize,
 								addRecords: false
 							});
