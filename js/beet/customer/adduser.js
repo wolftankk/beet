@@ -71,7 +71,6 @@ Ext.define("Beet.apps.Viewport.AddUser", {
 							defaults: {
 								bodyStyle: 'background-color:#dfe8f5;'
 							},
-							frame: true,
 							items: [
 								{
 									columnWidth: .3,
