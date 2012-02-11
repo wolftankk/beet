@@ -203,7 +203,8 @@ Ext.define("Beet.apps.Viewport.Setting.Store", {
 		b_method: Beet.constants.customerServer.GetCTTypeDataToJSON,
 		b_params: {
 			awhere: "",
-			b_onlySchema: false
+			WhereInCategory: false,
+			//b_onlySchema: false
 		},
 		preProcessData: function(data){
 			data = data["category"];
