@@ -2032,9 +2032,25 @@ Ext.define("Beet.apps.ProductsViewPort.PackageList", {
 		}
 		store.loadData(tmp);
 	},
+	resetAll: function(){
+		var me = this;
+		me.selectedItems = {};
+		me.selectedProducts = {};
+		me.selectedPackages = {};
 
+		me.selectedPackageId= 0;
+		me.selectedPackageIndex = 0;
+
+		//me.form.getForm().reset();
+
+		me.updateItemsPanel();
+		me.updateProductsPanel();
+		
+	},
 	onSelectItem: function(pid, record){
 		var me = this, cardServer = Beet.constants.cardServer;
+
+		me.resetAll();
 
 		if (pid <= 0){
 			Ext.Msg.alert("错误", "项目ID非法!");

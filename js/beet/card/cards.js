@@ -2994,8 +2994,12 @@ Ext.define("Beet.apps.ProductsViewPort.CardList", {
 			var item = selectedItems[c];
 			if (!!item[5]){
 				var price = item[3].replaceAll(",", "");
-					r = item[5].replaceAll(",", "");
-
+				    if (typeof(item[5])=="number"){
+						r=item[5];
+				    }
+					if (typeof(item[5])=="string"){
+						r=item[5].replaceAll(",", "");
+				    }
 				me._par.items += price * 1;
 				me._real.items += r * 1;
 			//	me.count.itemsCount += item[5].replaceAll(",", "") * 1;
