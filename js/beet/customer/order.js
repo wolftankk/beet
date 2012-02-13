@@ -269,6 +269,7 @@ Ext.define("Beet.apps.CreateOrder", {
 		me.bindCardItemsBtn.disable();
 		me.createOrderBtn.disable();
 		me.customerHistoryBtn.disable();
+		me.currentCardBalanceLable.setText('', false);
 	},
 	cleanup: function(){
 		var me = this;

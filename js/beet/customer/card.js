@@ -77,8 +77,6 @@ Ext.define("Beet.apps.AddCustomerCard", {
 								type: 'vbox',
 								align: 'stretch'
 							},
-							//collapsible: true,
-							//collapseDirection: "left",
 							width: 320,
 							height: 300,
 							items: [
@@ -396,7 +394,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		me.paidTypeStore = Ext.create("Ext.data.Store", {
 			fields: ["PayID", "PayName"]
 		});
-		updatePayType();
+		//updatePayType();
 
 		if (me.paidStore == undefined){
 			var _actions = {
@@ -653,23 +651,26 @@ Ext.define("Beet.apps.AddCustomerCard", {
 											customerid: me.selectedCustomerId,
 											pays: pays
 										}
+
+										//充值部分, 成功充值后, 将返回当前的余额
 										cardServer.AddCustomerPay(Ext.JSON.encode(results), {
-											success: function(succ){
-												if (succ){
-													var values = form.getValues();
-													if (cost > 0){
-														me.down("button[name=bindingCard]").enable();
-													}
-													form.setValues(
-														{
-															_payvalue: cost,
-															"balance" : parseFloat(values["balance"]) + cost
-														}
-													)
-													win.close();	
-												}else{
-													Ext.Msg.alert("失败", "充值失败");
-												}
+											success: function(data){
+												console.log(data)
+												//if (succ){
+												//	var values = form.getValues();
+												//	if (cost > 0){
+												//		me.down("button[name=bindingCard]").enable();
+												//	}
+												//	form.setValues(
+												//		{
+												//			_payvalue: cost,
+												//			"balance" : parseFloat(values["balance"]) + cost
+												//		}
+												//	)
+												//	win.close();	
+												//}else{
+												//	Ext.Msg.alert("失败", "充值失败");
+												//}
 											},
 											failure: function(error){
 												Ext.Error.raise(error)
@@ -711,8 +712,6 @@ Ext.define("Beet.apps.AddCustomerCard", {
 				win.show();
 			});
 		}
-
-
 	},
 	onSelectEmployee: function(records){
 		var me = this, form = me.form.getForm(), cardServer = Beet.constants.cardServer;
@@ -1074,11 +1073,6 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			],
 		});
 		grid.rowEditing = rowEditing;
-
-		//On 4.0.7, it seem works.
-		//grid.on("beforedestroy", function(){
-		//	me.cardPanel.grid.plugins = [];
-		//})
 
 		me.cardPanel.add(grid);
 		me.cardPanel.doLayout();
