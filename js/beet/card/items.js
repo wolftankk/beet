@@ -2004,6 +2004,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 			me.itemList.cache[itemId] = {};
 			cardServer.GetItemProductData(itemId, {
 				success: function(data){
+					console.log(data)
 					data = Ext.JSON.decode(data)["Data"]//["products"];
 					me.itemList.cache[itemId].products = data;
 					me.addProducts(data, true)
