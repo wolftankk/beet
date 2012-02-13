@@ -394,7 +394,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		me.paidTypeStore = Ext.create("Ext.data.Store", {
 			fields: ["PayID", "PayName"]
 		});
-		//updatePayType();
+		updatePayType();
 
 		if (me.paidStore == undefined){
 			var _actions = {
@@ -655,22 +655,28 @@ Ext.define("Beet.apps.AddCustomerCard", {
 										//充值部分, 成功充值后, 将返回当前的余额
 										cardServer.AddCustomerPay(Ext.JSON.encode(results), {
 											success: function(data){
-												console.log(data)
-												//if (succ){
-												//	var values = form.getValues();
-												//	if (cost > 0){
-												//		me.down("button[name=bindingCard]").enable();
-												//	}
-												//	form.setValues(
-												//		{
-												//			_payvalue: cost,
-												//			"balance" : parseFloat(values["balance"]) + cost
-												//		}
-												//	)
-												//	win.close();	
-												//}else{
-												//	Ext.Msg.alert("失败", "充值失败");
-												//}
+												data = JSON.parse(data);
+												if (data["result"]){
+													var values = form.getValues();
+													if (cost > 0){
+														me.down("button[name=bindingCard]").enable();
+													}
+													
+													/**
+													 * TODO:
+													 * 这里问题:
+													 * 1. 充值成功后, 需要更新成功充值的金额, 往余额上加
+													 */
+													form.setValues(
+														{
+															_payvalue: cost,
+															"balance" : parseFloat(values["balance"]) + cost
+														}
+													)
+													win.close();	
+												}else{
+													Ext.Msg.alert("失败", "充值失败");
+												}
 											},
 											failure: function(error){
 												Ext.Error.raise(error)
@@ -840,20 +846,22 @@ Ext.define("Beet.apps.AddCustomerCard", {
 									records.push(record);
 								}
 							}
-
-							if (records.length > 0){
-								var money = 0;
-								for (var c = 0; c < records.length; ++c){
-									var r = records[c];
-									money += parseFloat(r["Balance"].replaceAll(",", ""));
-								}
-								currentBalance = parseFloat(form.getValues()["_payvalue"]);
-								form.setValues({
-									_payvalue: money + currentBalance,
-									balance: money+currentBalance
-								});
-							}
-							me.addCard(records, true)
+							
+							//这里初始化成功, 直接获得当前的金额值即可完成
+							//var currentBalance = parseFloat(form.getValues()["_payvalue"]);
+							//if (records.length > 0){
+							//	var money = 0;
+							//	for (var c = 0; c < records.length; ++c){
+							//		var r = records[c];
+							//		money += parseFloat(r["Balance"].replaceAll(",", ""));
+							//	}
+							//	form.setValues({
+							//		_payvalue: money + currentBalance,
+							//		balance: money+currentBalance
+							//	});
+							//}
+							//不自动扣钱, 只增加数据进去
+							me.addCard(records, true, false, true);
 							me.queue.triggle("queryCustomerCard", "success");
 						},
 						failure: function(error){
@@ -960,6 +968,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 
 				fields.push("raterate");
 				fields.push("ID");
+				fields.push("isNew");
 
 				me.initializeCardGrid();
 			},
@@ -978,7 +987,10 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
 			autoCancel: true,
 			listeners: {
-				beforeedit: function(){
+				edit: function(editor, e){
+					var record = e.record, newvalues = e.newValues;
+					record.commit();
+					console.log(newvalues);
 				},
 				validateedit: function(editor, e){
 					var record = e.record, newvalues = e.newValues;
@@ -1042,7 +1054,10 @@ Ext.define("Beet.apps.AddCustomerCard", {
 									var k = __fields[c];
 									selectedCards[cid].push(rawData[k]);
 								}
-								me.updateCardPanel();
+								//取消?!
+								//TODO 
+								//ISSUE
+								//me.updateCardPanel();
 							}, 100);
 						}
 
@@ -1109,9 +1124,13 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		}));
 		win.doLayout();
 	},
-	addCard: function(records, isRaw, needComputeStepPrice){
+	addCard: function(records, isRaw, needComputeStepPrice, notComputingTotal){
 		var me = this, selectedCards = me.selectedCards;
+		if (notComputingTotal == undefined){
+			notComputingTotal = false;
+		}
 		var __fields = me.cardPanel.__fields;
+		//"CustomerID", "CID", "Name", "Par", "Price", "ExpenseCount", "StepPrice", "Balance", "Rate", "StartTime", "EndTime", "Price", "MaxCount", "ValidDateMode", "ValidDateTime", "ValidUnit", "ValidDate", "raterate", "ID", "isNew"
 		if (records == undefined){
 			return;
 		}
@@ -1178,8 +1197,10 @@ Ext.define("Beet.apps.AddCustomerCard", {
 			if (rawData["Balance"] == undefined || rawData["Balance"] == ""){
 				rawData["Balance"] = rawData["Price"].replace(/,/g, "");
 			}
+			
+			rawData["isNew"] = !notComputingTotal;//是否为新的?取反向值
 
-			//hook
+			//批量计算是否超出面额
 			if (!me.initCustomerData){
 				if (parseFloat(rawData["Balance"]) > parseFloat(balance)){
 					Ext.MessageBox.alert("警告", "该卡项面值超出当前余额");
@@ -1194,12 +1215,13 @@ Ext.define("Beet.apps.AddCustomerCard", {
 				selectedCards[cid].push(rawData[k]);
 			}
 		}
-		me.updateCardPanel();
+
+		me.updateCardPanel(notComputingTotal);
 	},
 	deleteCard: function(record, grid){
 		var me = this, selectedCards = me.selectedCards;
 		me.cardPanel.grid.rowEditing.cancelEdit();
-
+		//自动删除部分
 		var cid = record.get("CID");
 		//console.log(cid, selectedCards)
 		if (selectedCards[cid]){
@@ -1210,7 +1232,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 
 		me.updateCardPanel();
 	},
-	updateCardPanel: function(){
+	updateCardPanel: function(notComputingTotal){
 		//console.trace(this);
 		var me = this, selectedCards = me.selectedCards;
 		var grid = me.cardPanel.grid, store = grid.getStore();
@@ -1219,19 +1241,25 @@ Ext.define("Beet.apps.AddCustomerCard", {
 
 		var _v = me.form.getForm().getValues(), balance = _v["_payvalue"];
 
+		//这一部分将会重新计算
 		var totalBalance = 0; //卡项总价
 		for (var c in selectedCards){
 			if (selectedCards[c].length == 0){
 				continue;
 			}
 			var m = (selectedCards[c][7] || "0").replaceAll(",", "");
-			totalBalance += parseFloat(m);
+			var isNew = selectedCards[c][19];//last 
+			if (isNew){
+				totalBalance += parseFloat(m);
+			}
 			tmp.push(selectedCards[c]);
 		}
-		//console.trace(this)
-		me.form.getForm().setValues({
-			"balance" : (balance - totalBalance)
-		})
+
+		if (!notComputingTotal){
+			me.form.getForm().setValues({
+				"balance" : (balance - totalBalance)
+			})
+		}
 		store.loadData(tmp);
 	},
 	processData: function(f, isUpdate){
