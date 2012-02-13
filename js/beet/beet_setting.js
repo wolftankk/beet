@@ -204,7 +204,6 @@ Ext.define("Beet.apps.Viewport.Setting.Store", {
 		b_params: {
 			awhere: "",
 			WhereInCategory: false,
-			//b_onlySchema: false
 		},
 		preProcessData: function(data){
 			data = data["category"];
