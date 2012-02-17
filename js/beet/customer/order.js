@@ -821,7 +821,6 @@ Ext.define("Beet.apps.CreateOrder", {
 									var packages = data.packages;
 
 									var getItems = function(){
-										console.log(items)
 										if (items && items.length > 0){
 											var sql = [];
 											for (var c = 0; c < items.length; ++c){
@@ -962,9 +961,11 @@ Ext.define("Beet.apps.CreateOrder", {
 			var id = "item-" + rawData["CardNo"] + "_" + rawData["IID"];
 			rawData["__index"] = id;
 
-			if (rawData["needPaid"] == undefined){
+			if (rawData["needPaid"] == undefined || rawData["needPaid"] == NaN){
 				rawData["needPaid"] = parseFloat((rawData["IRealPrice"] + "").replaceAll(",", ""))
 			}
+
+			console.log(rawData)
 
 			if (selectedItems[id] == undefined){
 				selectedItems[id] = []

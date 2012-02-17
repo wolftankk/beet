@@ -1264,7 +1264,8 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 								addRecords: false
 							});
 							
-							that.proxy.b_params["start"] = options["start"];
+							console.debug(options)
+							that.proxy.b_params["start"] = options["start"] || 0;
 							that.proxy.b_params["limit"] = options["limit"];
 
 							return that.callParent([options]);
@@ -1640,17 +1641,17 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 			items: [
 			]
 		}
-		_actions.items.push("-",{
-			icon: "./resources/themes/images/fam/delete.gif",
-			tooltip: "删除消耗产品",
-			id: "customer_grid_delete",
-			handler: function(grid, rowIndex, colIndex){
-				var d = grid.store.getAt(rowIndex)
-				me.deleteProducts(d);
-			}
-		}, "-");
+		//_actions.items.push("-",{
+		//	icon: "./resources/themes/images/fam/delete.gif",
+		//	tooltip: "删除消耗产品",
+		//	id: "customer_grid_delete",
+		//	handler: function(grid, rowIndex, colIndex){
+		//		var d = grid.store.getAt(rowIndex)
+		//		me.deleteProducts(d);
+		//	}
+		//}, "-");
 
-		columns.push(_actions);
+		//columns.push(_actions);
 		cardServer.GetItemProductData(-1, {
 			success: function(data){
 				var data = Ext.JSON.decode(data)["MetaData"];
@@ -1787,15 +1788,15 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 			items: [
 			]
 		}
-		_actions.items.push("-",{
-			icon: "./resources/themes/images/fam/delete.gif",
-			tooltip: "删除费用",
-			id: "customer_grid_delete",
-			handler: function(grid, rowIndex, colIndex){
-				var d = grid.store.getAt(rowIndex)
-				me.deleteChargeType(d);
-			}
-		}, "-");
+		//_actions.items.push("-",{
+		//	icon: "./resources/themes/images/fam/delete.gif",
+		//	tooltip: "删除费用",
+		//	id: "customer_grid_delete",
+		//	handler: function(grid, rowIndex, colIndex){
+		//		var d = grid.store.getAt(rowIndex)
+		//		me.deleteChargeType(d);
+		//	}
+		//}, "-");
 
 		columns.push(_actions);
 		cardServer.GetChargeTypePageData(0, 1, "", {
@@ -2004,7 +2005,7 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 			me.itemList.cache[itemId] = {};
 			cardServer.GetItemProductData(itemId, {
 				success: function(data){
-					console.log(data)
+					//console.log(data)
 					data = Ext.JSON.decode(data)["Data"]//["products"];
 					me.itemList.cache[itemId].products = data;
 					me.addProducts(data, true)
@@ -2043,9 +2044,9 @@ Ext.define("Beet.apps.ProductsViewPort.ItemList", {
 			me.addChargeType(me.itemList.cache[itemId].charges, true);
 		}
 
-		//expand
+		//expand, now it only expands the first one
 		me.productsPanel.expand();
-		me.chargeTypesPanel.expand();
+		//me.chargeTypesPanel.expand();
 	},
 	resetAll: function(){
 		var me = this;

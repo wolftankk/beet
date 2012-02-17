@@ -655,6 +655,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 										//充值部分, 成功充值后, 将返回当前的余额
 										cardServer.AddCustomerPay(Ext.JSON.encode(results), {
 											success: function(data){
+												console.log(data)
 												data = JSON.parse(data);
 												if (data["result"]){
 													var values = form.getValues();
@@ -987,10 +988,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
 			autoCancel: true,
 			listeners: {
-				edit: function(editor, e){
-					var record = e.record, newvalues = e.newValues;
-					record.commit();
-					console.log(newvalues);
+				edit: function(events, e){
 				},
 				validateedit: function(editor, e){
 					var record = e.record, newvalues = e.newValues;
