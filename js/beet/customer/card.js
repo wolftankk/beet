@@ -1310,11 +1310,13 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		results["cards"] = cards;
 		
 		if (isUpdate){
+			console.log(results)
 			cardServer.UpdateCustomerAccount(Ext.JSON.encode(results), {
 				success: function(succ){
 					if (succ){
 						Ext.MessageBox.alert("成功", "更新成功!");
-						me.storeProxy.loadPage(1);
+						//console.log(me, me.storeProxy)
+						me.cardPanel.grid.store.loadPage(1)
 					}else{
 						Ext.MessageBox.alert("失败", "更新失败!");
 					}
