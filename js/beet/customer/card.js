@@ -1316,7 +1316,7 @@ Ext.define("Beet.apps.AddCustomerCard", {
 					if (succ){
 						Ext.MessageBox.alert("成功", "更新成功!");
 						//console.log(me, me.storeProxy)
-						me.cardPanel.grid.store.loadPage(1)
+						//me.cardPanel.grid.store.loadPage(1)
 					}else{
 						Ext.MessageBox.alert("失败", "更新失败!");
 					}
