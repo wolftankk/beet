@@ -19,6 +19,92 @@ Ext.define("Beet.apps.AddCustomerCard", {
 		me.callParent();
 		me.createMainPanel();
 		me.queue = new Beet_Queue("customerCard");
+		me.buildCustomerStore();
+	},
+	buildCustomerStore: function(){
+		var me = this, customerServer = Beet.constants.customerServer;
+		customerServer.GetCustomerPageData(0, 1, "", {
+			success: function(data){
+				var data = Ext.JSON.decode(data);
+				metaData = data["MetaData"];
+				var fields = [], columns = [];
+
+				for (var c = 0; c < metaData.length; ++c){
+					var d = metaData[c];
+					fields.push(d["FieldName"]);
+					if (!d["FieldHidden"]) {
+						columns.push({
+							flex: 1,
+							header: d["FieldLabel"],
+							dataIndex: d["FieldName"]	
+						})
+					}
+				};
+
+				if (!Beet.apps.Viewport.CustomerListModel){
+					Ext.define("Beet.apps.Viewport.CustomerListModel", {
+						extend: "Ext.data.Model",
+						fields: fields
+					});
+				}
+
+				if (!Ext.isDefined(Beet.apps.Viewport.CustomerListStore)){
+					Ext.define("Beet.apps.Viewport.CustomerListStore", {
+						extend: "Ext.data.Store",
+						model: Beet.apps.Viewport.CustomerListModel,
+						autoLoad: true,
+						pageSize: Beet.constants.PageSize,
+						b_filter: "",
+						load: function(options){
+							var me = this;
+							options = options || {};
+							if (Ext.isFunction(options)) {
+								options = {
+									callback: options
+								};
+							}
+
+							Ext.applyIf(options, {
+								groupers: me.groupers.items,
+								page: me.currentPage,
+								start: (me.currentPage - 1) * me.pageSize,
+								limit: me.pageSize,
+								addRecords: false
+							});      
+							me.proxy.b_params["start"] = options["start"] || 0;
+							me.proxy.b_params["limit"] = options["limit"]
+
+							return me.callParent([options]);
+						}
+					});
+				}
+
+				me.customerStore = Ext.create("Beet.apps.Viewport.CustomerListStore");
+				me.customerStore.setProxy(me.updateCustomerProxy(""));
+			},
+			failure: function(error){
+				Ext.Error.raise(error)
+			}
+		})
+	},
+	updateCustomerProxy: function(filter){
+		var me = this;
+		filter = filter == undefined ? "" : filter;
+		return {
+			 type: "b_proxy",
+			 b_method: Beet.constants.customerServer.GetCustomerPageData,
+			 startParam: "start",
+			 limitParam: "limit",
+			 b_params: {
+				 "filter": filter
+			 },
+			 b_scope: Beet.constants.customerServer,
+			 reader: {
+				 type: "json",
+				 root: "Data",
+				 totalProperty: "TotalCount"
+			 }
+		}
 	},
 	createMainPanel: function(){
 		var me = this, cardServer = Beet.constants.cardServer;
@@ -109,11 +195,105 @@ Ext.define("Beet.apps.AddCustomerCard", {
 											xtype: "trigger",
 											width: 300,
 											name: "customername",
+											checkChangeBuffer: 500,
+											//listeners: {
+											//	change: function(f, newValue, oldValue, opts){
+											//		newValue = Ext.String.trim(newValue);
+											//		if (newValue.length == 0){
+											//			 me.selectedCustomer = false;
+											//			 return;
+											//		}
+											//		if (newValue == oldValue){
+											//			return;
+											//		}
+											//		if (me.selectedCustomer){
+											//			return;
+											//		}
+											//		if (!me.customerStore) { return; }
+											//		var ownerCT = f.up("panel");
+											//		var onListRefresh;
+											//		//create picker
+											//		if (f.picker == undefined){
+											//			var createPicker= function(){
+											//				var picker = Ext.create("Ext.view.BoundList", {
+											//					pickerField: f,
+											//					selModel: "SINGLE",
+											//					floating: true,
+											//					hidden: true,
+											//					ownerCT: ownerCT,
+											//					cls: "",
+											//					displayField: "CTName",
+											//					store: me.customerStore,
+											//					focusOnFront: false,
+											//					pageSize: 10,
+											//					loadingText: 'Searching...',
+											//					loadingHeight: 70,
+											//					width: 400,
+											//					maxHeight: 300,
+											//					shadow: "sides",
+											//					emptyText: 'No matching posts found.',
+											//					getInnerTpl: function(){
+											//						return '<span class="search-item"><h3>{CTName}</h3>{CTCardNo}<br/>电话: {CTMobile}</span>';
+											//					}
+											//				});
+											//				return picker
+											//			}
+											//			f.picker = createPicker();
+
+											//			f.picker.on({
+											//				itemClick: function(v, record, item, index, e, opts){
+											//					//console.log(record)
+											//					me.onSelectCustomer([record]);
+											//					me.selectedCustomer = true;
+											//					f.picker.hide();
+											//				},
+											//				refresh: function(){
+											//					onListRefresh();
+											//				}
+											//			})
+											//		}
+											//		me.customerStore.setProxy(me.updateCustomerProxy("CTName LIKE '%"+newValue+"%'"));
+											//		me.customerStore.load();
+
+											//		onListRefresh = function(){
+											//			var heightAbove = f.getPosition()[1] - Ext.getBody().getScroll().top,
+											//				heightBelow = Ext.Element.getViewHeight() - heightAbove - f.getHeight(),
+											//				space = Math.max(heightBelow, heightAbove);
+
+											//			if (f.picker.getHeight() > space){
+											//				f.picker.setHeight(space - 5);
+											//			}
+											//		}
+											//		var collapseIf = function(e){
+											//			if (!e.within(f.bodyEl, false, true) && !e.within(f.picker.el, false, true)){
+											//				f.picker.hide();
+
+											//				var doc = Ext.getDoc();
+											//				doc.un("mousewheel", collapseIf, f);
+											//				doc.un("mousedown", collapseIf, f);
+											//			}
+											//		}
+
+											//		me.customerStore.on({
+											//			load: function(){
+											//				f.picker.show();
+											//				f.picker.alignTo(f.el, "tl-bl?", [105, 0]);
+											//				onListRefresh();
+											//				f.mon(Ext.getDoc(), {
+											//					mousedown: collapseIf,
+											//					mousewheel: collapseIf	
+											//				})
+											//				f.el.focus();
+											//			}
+											//		})
+											//	}
+											//},
 											onTriggerClick: function(){
 												//这里需要一个高级查询
 												var win = Ext.create("Beet.plugins.selectCustomerWindow", {
 													b_selectionMode: "SINGLE",
 													_callback: function(r){
+														me.selectedCustomer = true;
 														me.onSelectCustomer(r);
 														win.hide();
 													}
