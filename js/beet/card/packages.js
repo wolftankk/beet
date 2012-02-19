@@ -9,12 +9,12 @@ function createPackageCategoryTree(){
 
 	var updateCategoryRate = function(widget, record, e){
 		var title = record.get("text"), id = record.get("id");
-		Ext.MessageBox.show({
-			title: "修改"+title+"打折率",
-			msg: "是否需要修改"+title+"打折率?",
-			buttons: Ext.MessageBox.YESNO,
-			fn: function(btn){
-				if (btn == "yes") {
+		//Ext.MessageBox.show({
+		//	title: "修改"+title+"打折率",
+		//	msg: "是否需要修改"+title+"打折率?",
+		//	buttons: Ext.MessageBox.YESNO,
+		//	fn: function(btn){
+		//		if (btn == "yes") {
 					Ext.MessageBox.prompt((title+"打折率"), "输入需要修改的打折率值:", function(btn, value, opts){
 						cardServer.UpdateCategoryRate(id, value, {
 							success: function(data){
@@ -30,9 +30,9 @@ function createPackageCategoryTree(){
 							}
 						})
 					})
-				}
-			}
-		})
+		//		}
+		//	}
+		//})
 	}
 
 
