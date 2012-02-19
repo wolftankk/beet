@@ -203,6 +203,7 @@ Ext.define("Beet.apps.CreateOrder", {
 													}
 													if (!me.customerStore) { return; }
 													var ownerCT = f.up("panel");
+													var onListRefresh;
 													//create picker
 													if (f.picker == undefined){
 														var createPicker= function(){
@@ -219,7 +220,7 @@ Ext.define("Beet.apps.CreateOrder", {
 																pageSize: 10,
 																loadingText: 'Searching...',
 																loadingHeight: 70,
-																width: 150,
+																width: 400,
 																maxHeight: 300,
 																shadow: "sides",
 																emptyText: 'No matching posts found.',
@@ -236,22 +237,44 @@ Ext.define("Beet.apps.CreateOrder", {
 																me.onSelectCustomer(record);
 																me.selectedCustomer = true;
 																f.picker.hide();
+															},
+															refresh: function(){
+																onListRefresh();
 															}
 														})
 													}
 													me.customerStore.setProxy(me.updateCustomerProxy("CTName LIKE '%"+newValue+"%'"));
 													me.customerStore.load();
+
+													onListRefresh = function(){
+														var heightAbove = f.getPosition()[1] - Ext.getBody().getScroll().top,
+															heightBelow = Ext.Element.getViewHeight() - heightAbove - f.getHeight(),
+															space = Math.max(heightBelow, heightAbove);
+
+														if (f.picker.getHeight() > space){
+															f.picker.setHeight(space - 5);
+														}
+													}
+													var collapseIf = function(e){
+														if (!e.within(f.bodyEl, false, true) && !e.within(f.picker.el, false, true)){
+															f.picker.hide();
+
+															var doc = Ext.getDoc();
+															doc.un("mousewheel", collapseIf, f);
+															doc.un("mousedown", collapseIf, f);
+														}
+													}
+
 													me.customerStore.on({
 														load: function(){
-															//set height
 															f.picker.show();
-															var heightAbove = f.getPosition()[1] - Ext.getBody().getScroll().top,
-																heightBelow = Ext.Element.getViewHeight() - heightAbove - f.getHeight(),
-																space = Math.max(heightBelow, heightAbove);
-															if (f.picker.getHeight() > space){
-																f.picker.setHeight(space - 5);
-															}
 															f.picker.alignTo(f.el, "tl-bl?", [105, 0]);
+															onListRefresh();
+															f.mon(Ext.getDoc(), {
+																mousedown: collapseIf,
+																mousewheel: collapseIf	
+															})
+															f.el.focus();
 														}
 													})
 												}
