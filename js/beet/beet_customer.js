@@ -4058,3 +4058,9 @@ Ext.define("Beet.apps.customers.EndConsumer", {
 		}
 	},
 });
+
+Ext.onReady(function(){
+	Ext.require([
+		"customers.addcustomer"
+	])
+})

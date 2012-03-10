@@ -69,6 +69,10 @@
 					if (Beet.cache.employee.branchesList == undefined){
 						getSubbrachesList();
 					}
+
+					setTimeout(function(){
+						Beet.navigationbar.refreshMenu();	
+					}, 200)
 				});
 	
 			</script>
