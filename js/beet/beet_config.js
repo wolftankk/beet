@@ -1,29 +1,29 @@
 Ext.Loader.setConfig({
-	enabled: true,
-	paths: {
-		"customers" : "js/beet/customers",
-		"employees" : "js/beet/employees",
-		"cards"		: "js/beet/cards",
-	}
+    enabled: true,
+    paths: {
+	    "customers" : "js/beet/customers",
+	    "employees" : "js/beet/employees",
+	    "cards"		: "js/beet/cards",
+    }
 });
 
 Beet.config = {
-	serverUrl: "192.168.11.3",
-	getPrivileUrl: function(){
-		return this.serverUrl + ":6660";
-	},
-	getCustomerUrl: function(){
-		return this.serverUrl + ":6661";
-	},
-	getEmployeeUrl: function(){
-		return this.serverUrl + ":6662";
-	},
-	getCardUrl: function(){
-		return this.serverUrl + ":6663";
-	},
-	getWarehouse: function(){
-		return this.serverUrl + ":6664";
-	}
+    serverUrl: "192.168.11.3",
+    getPrivileUrl: function(){
+	return this.serverUrl + ":6660";
+    },
+    getCustomerUrl: function(){
+	return this.serverUrl + ":6661";
+    },
+    getEmployeeUrl: function(){
+	return this.serverUrl + ":6662";
+    },
+    getCardUrl: function(){
+	return this.serverUrl + ":6663";
+    },
+    getWarehouse: function(){
+	return this.serverUrl + ":6664";
+    }
 }
 
 Beet.constants.customerLoginServer = new CTLoginSvc("http://"+Beet.config.getCustomerUrl() +"/JSON");
