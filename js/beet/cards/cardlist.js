@@ -3,7 +3,7 @@ registerMenu("cards", "cardAdmin", "卡项管理",
 		{
 			text: "编辑卡项",
 			handler: function(){
-				var item = Beet.apps.Menu.Tabs["cards.CardList"]
+				var item = Beet.cache.menus["cards.CardList"]
 				if (!item){
 					Beet.workspace.addPanel("cards.CardList", "编辑卡项", {
 						items: [
