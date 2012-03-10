@@ -8,90 +8,93 @@ Ext.define("Beet.apps.HeaderPanel", {
     shadow: true,
     border: 0,
     initComponent: function(){
-    var me = this;
-    //目录设置面板
-    me.getOperatorList();
-    //将所有的子panel加入到此列表中
-    Beet.cache.containerList = {};
+	var me = this;
+	//目录设置面板
+	me.getOperatorList();
+	//将所有的子panel加入到此列表中
+	Beet.cache.containerList = {};
 
-    me.configurePanel = new Ext.tab.Panel(me.getCPanelConfig());
+	me.configurePanel = new Ext.tab.Panel(me.getCPanelConfig());
 
-    //当框体变动的时候 进行自动调整大小
-    Ext.EventManager.onWindowResize(me.fireResize, me);
-    me.callParent(arguments);
+	//当框体变动的时候 进行自动调整大小
+	Ext.EventManager.onWindowResize(me.fireResize, me);
+	me.callParent(arguments);
 
-    me.add(me.configurePanel);
-    me.addDocked(
-        Ext.create("Beet.apps.HeaderToolbar", {
-           configurePanel: me.configurePanel    
-        })
-    )
-    me.doLayout();
+	me.add(me.configurePanel);
+	me.addDocked(
+	    Ext.create("Beet.apps.HeaderToolbar", {
+	       configurePanel: me.configurePanel    
+	    })
+	)
+	me.doLayout();
     },
     refreshMenu: function(){
-    //update menus
-    var me = this;
-    var items = me.configurePanel.items.items;
-    if (items && items.length > 0){
-        for (var c = 0; c < items.length; ++c){
-        var item = items[c], _key = item["_key"];
-        if (Beet.menus[_key]){
-            var panel = item.add(
-            {
-                xtype: "container",
-                layout: "hbox",
-                defaultType: "buttongroup",
-                defaults: {
-                height: 100,
-                width: 250
-                }
-            }
-            );
-            Beet.menus[_key].panel = panel;
-            if (Beet.menus[_key] && Beet.menus[_key].menus){
-            var menus = Beet.menus[_key].menus;
-            for (var menuName in menus){
-                if (!menus[menuName].panel){
-                menus[menuName].panel = panel.add(
-                    {
-                    xtype: "buttongroup",
-                    title: menus[menuName].title,
-                    layout: "auto",
-                    frame: true,
-                    width: 200,
-                    defaults: {
-                        scale: "large",
-                        rowspan: 1
-                    }
-                    }
-                )
-                }
-                panel.on("add", function(frame){
-                var btns = frame.items.items;
-                if (btns.length == 0){return;}
-                setTimeout(function(){
-                    var totalWidth = 30;
-                    for (var b = 0; b < btns.length; b++){
-                    var btn = btns[b];
-                    if (btn.getWidth){
-                        totalWidth += btn.getWidth();
-                    }else{
-                        console.trace(btn)
-                    }
-                    }
-                    frame.setWidth(totalWidth);
-                }, 10);
-                });
-                if (menus[menuName].data && menus[menuName].data.length > 0){
-                for (var a = 0; a < menus[menuName].data.length; ++a){
-                    menus[menuName].panel.add(menus[menuName].data[a])
-                }
-                }
-            }
-            }
-        }
-        }
-    }
+	//update menus
+	var me = this;
+	var items = me.configurePanel.items.items;
+	if (items && items.length > 0){
+	    for (var c = 0; c < items.length; ++c){
+		var item = items[c], _key = item["_key"];
+		if (Beet.menus[_key]){
+		    var panel = item.add(
+			{
+			    xtype: "container",
+			    layout: "hbox",
+			    defaultType: "buttongroup",
+			    defaults: {
+			    height: 100,
+			    width: 250
+			    }
+			}
+		    );
+		    Beet.menus[_key].panel = panel;
+		    if (Beet.menus[_key] && Beet.menus[_key].menus){
+			var menus = Beet.menus[_key].menus;
+			for (var menuName in menus){
+			    if (!menus[menuName].panel){
+				menus[menuName].panel = panel.add(
+				    {
+					xtype: "buttongroup",
+					title: menus[menuName].title,
+					layout: "auto",
+					frame: true,
+					width: 200,
+					defaults: {
+					    scale: "large",
+					    rowspan: 1
+					}
+				    }
+				)
+				menus[menuName].panel.on("add", function(frame){
+				    var btns = frame.items.items;
+				    if (btns.length == 0){return;}
+				    setTimeout(
+				        function(){
+					    //var totalWidth = 30;
+					    for (var b = 0; b < btns.length; b++){
+						var btn = btns[b];
+					        if (btn.getWidth && btn.el){
+						   totalWidth += btn.getWidth();
+					        }else{
+						   console.log(btn)
+					        }
+					    }
+					    //frame.setWidth(totalWidth);
+				        }, 
+				        10
+				    );
+				});
+			    }
+			    if (menus[menuName].data && menus[menuName].data.length > 0){
+			       for (var a = 0; a < menus[menuName].data.length; ++a){
+				   menus[menuName].panel.add(menus[menuName].data[a])
+			       }
+			    }
+			}
+		    }
+		}
+	    }
+	}
     },
     getOperatorList: function(__callback){
         //获取权限

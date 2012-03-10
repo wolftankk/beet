@@ -1,24 +1,24 @@
 Ext.namespace("Beet.apps.customers")
 //registerMenu("customers", "customerAdmin", "会员管理",
-//	[
+//    [
 //
-//	]
+//    ]
 //)
 
 function time(){
-	return +(new Date());
+    return +(new Date());
 }
 
 
 Ext.onReady(function(){
-	Ext.require([
-		"customers.addcustomer",
-		"customers.customerlist",
-		"customers.advancesearch",
-		"customers.customercard",
-		"customers.createorder",
-		"customers.consumer",
-		"customers.sms",
-		"customers.activity"
-	])
+    Ext.syncRequire([
+        "customers.addcustomer",
+        "customers.customerlist",
+        "customers.advancesearch",
+        "customers.customercard",
+        "customers.createorder",
+        "customers.consumer",
+        "customers.sms",
+        "customers.activity"
+    ])
 })
