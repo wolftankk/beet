@@ -922,7 +922,7 @@ Ext.define("Beet.apps.cards.ItemList", {
                                 addRecords: false
                             });
                             
-                            console.debug(options)
+                            //console.debug(options)
                             that.proxy.b_params["start"] = options["start"] || 0;
                             that.proxy.b_params["limit"] = options["limit"];
 

@@ -8,6 +8,7 @@ Ext.onReady(function(){
 	"settings.cards.products",
 	"settings.cards.charges",
 	"settings.cards.items",
+	"settings.cards.packages",
     ])   
 })
 //registerBeetAppsMenu("configure", 
@@ -33,8 +34,6 @@ Ext.onReady(function(){
 //                    },
 //                    autoWidth: true,
 //                    items: [
-//                        {
-//                        },
 //                        /*
 //                        {
 //                            text: "增加套餐",
