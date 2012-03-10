@@ -4,7 +4,10 @@ Ext.onReady(function(){
     Ext.syncRequire([
 	"settings.customers.customerattr",
 	"settings.employees.department",
-	"settings.employees.branch"
+	"settings.employees.branch",
+	"settings.cards.products",
+	"settings.cards.charges",
+	"settings.cards.items",
     ])   
 })
 //registerBeetAppsMenu("configure", 
@@ -31,65 +34,6 @@ Ext.onReady(function(){
 //                    autoWidth: true,
 //                    items: [
 //                        {
-//                            text: "产品设置",
-//                            handler: function(){
-//                                var item = Beet.apps.Menu.Tabs["productsList"];
-//                                if (!item){
-//                                    Beet.workspace.addPanel("productsList", "产品设置", {
-//                                        items: [
-//                                        Ext.create("Beet.apps.ProductsViewPort.UpdateProducts")
-//                                        ]
-//                                    })
-//                                }else{
-//                                    Beet.workspace.workspace.setActiveTab(item);
-//                                }
-//                            }
-//                        },
-//                        /*
-//                        {
-//                            text: "增加费用",
-//                            handler: function(){
-//                                var item = Beet.apps.Menu.Tabs["addCharge"]
-//                                if (!item){
-//                                    Beet.workspace.addPanel("addCharge", "增加费用", {
-//                                        items: [
-//                                            Ext.create("Beet.apps.ProductsViewPort.AddCharge")
-//                                        ]
-//                                    })
-//                                }else{
-//                                    Beet.workspace.workspace.setActiveTab(item);
-//                                }
-//                            }
-//                        },*/
-//                        {
-//                            text: "费用设置",
-//                            handler: function(){
-//                                var item = Beet.apps.Menu.Tabs["chargeList"];
-//                                if (!item){
-//                                    Beet.workspace.addPanel("chargeList", "费用设置", {
-//                                        items: [
-//                                            Ext.create("Beet.apps.ProductsViewPort.UpdateCharge")
-//                                        ]
-//                                    })
-//                                }else{
-//                                    Beet.workspace.workspace.setActiveTab(item);
-//                                }
-//                            }
-//                        },
-//                        {
-//                            text: "项目设置",
-//                            handler: function(){
-//                                var item = Beet.apps.Menu.Tabs["itemList"]
-//                                if (!item){
-//                                    Beet.workspace.addPanel("itemList", "项目设置", {
-//                                        items: [
-//                                            Ext.create("Beet.apps.ProductsViewPort.ItemList")
-//                                        ]
-//                                    })
-//                                }else{
-//                                    Beet.workspace.workspace.setActiveTab(item);
-//                                }
-//                            }
 //                        },
 //                        /*
 //                        {
