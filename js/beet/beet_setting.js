@@ -3,7 +3,8 @@ Ext.namespace("Beet.settings")
 Ext.onReady(function(){
     Ext.syncRequire([
 	"settings.customers.customerattr",
-	"settings.employees.department"
+	"settings.employees.department",
+	"settings.employees.branch"
     ])   
 })
 //registerBeetAppsMenu("configure", 
@@ -20,32 +21,6 @@ Ext.onReady(function(){
 //                autoWidth: true
 //            },
 //            items: [
-//                {
-//                    title: "员工管理",
-//                    layout: "anchor",
-//                    defaults: {
-//                        scale: "large",
-//                        rowspan: 3
-//                    },
-//                    width: 160,
-//                    items: [
-//                        {
-//                            text: "分店设定",
-//                            handler: function(){
-//                                var item = Beet.apps.Menu.Tabs["subbranch"];
-//                                if (!item){
-//                                    Beet.workspace.addPanel("subbranch", "分店设定", {
-//                                        items: [
-//                                            Ext.create("Beet.apps.ShopSettingViewPort.Viewport")
-//                                        ]
-//                                    });
-//                                }else{
-//                                    Beet.workspace.workspace.setActiveTab(item);
-//                                }
-//                            }
-//                        }
-//                    ]
-//                },
 //                {
 //                    title: "产品管理",
 //                    width: 420,
