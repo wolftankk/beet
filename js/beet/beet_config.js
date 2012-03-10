@@ -32,3 +32,27 @@ Beet.constants.customerServer = new MyCustomerSvc("http://"+Beet.config.getCusto
 Beet.constants.employeeServer = new MyEMSvc("http://" + Beet.config.getEmployeeUrl() + "/JSON");
 Beet.constants.cardServer = new MyCardSvc("http://" + Beet.config.getCardUrl() + "/JSON");
 Beet.constants.stockServer = new MyStockSvc("http://" + Beet.config.getWarehouse() + "/JSON");
+
+Beet.menus = {
+	customers: {
+		title: "会员管理",
+		menus: {}
+	},
+	employees:{
+		title: "员工管理",
+		menus: {}
+	},
+	cards:{
+		title: "卡项管理",
+		menus: {}
+	},
+	warehouses: {
+		title: "库存管理",
+		menus: {}
+	},
+	settings : {
+		title: "设置",
+		menus:{}
+	}
+	
+}
