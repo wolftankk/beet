@@ -2,7 +2,8 @@ Ext.Loader.setConfig({
 	enabled: true,
 	paths: {
 		//"card" : "js/beet/card",
-		"customers" : "js/beet/customers"
+		"customers" : "js/beet/customers",
+		"employees" : "js/beet/employees"
 	}
 });
 
