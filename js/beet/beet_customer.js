@@ -4,17 +4,6 @@ registerMenu("customers", "customerAdmin", "会员管理",
 	[
 		{
 			xtype: "button",
-			text: "高级搜索",
-			id: "customer_searchBtn",
-			tooltip: "高级搜索",
-			handler: function(){
-				var win = Ext.create("Beet.apps.customers.AdvanceSearch", {});
-				Beet.cache.AdvanceSearchWin = win;
-				win.show();
-			}
-		},
-		{
-			xtype: "button",
 			text: "会员卡编辑",
 			handler: function(){
 				var item = Beet.cache.menus["customers.AddCustomerCard"]
@@ -3765,6 +3754,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
 Ext.onReady(function(){
 	Ext.require([
 		"customers.addcustomer",
-		"customers.customerlist"
+		"customers.customerlist",
+		"customers.advancesearch"
 	])
 })

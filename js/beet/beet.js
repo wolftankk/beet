@@ -575,7 +575,9 @@ Ext.define("Beet.apps.Viewport", {
 		that.callParent();
 		that.add(that.createMainPanel());
 		that.doLayout();
-		that.readPound();
+		setTimeout(function(){
+			that.readPound();
+		}, 500);
 	},
 	onRender: function(){
 		var that = this, h = Ext.core.Element.getViewHeight();

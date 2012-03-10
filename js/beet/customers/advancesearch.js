@@ -1,3 +1,18 @@
+registerMenu("customers", "customerAdmin", "会员管理",
+	[
+		{
+			xtype: "button",
+			text: "高级搜索",
+			id: "customer_searchBtn",
+			tooltip: "高级搜索",
+			handler: function(){
+				var win = Ext.create("Beet.apps.customers.AdvanceSearch", {});
+				Beet.cache.AdvanceSearchWin = win;
+				win.show();
+			}
+		}
+	]
+);
 Ext.define("Beet.apps.customers.AdvanceSearch", {
 	extend: "Ext.window.Window",
 	title: "高级搜索",
