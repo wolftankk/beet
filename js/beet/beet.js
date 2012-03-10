@@ -42,8 +42,8 @@ Ext.define("Beet.apps.HeaderPanel", {
 			    layout: "hbox",
 			    defaultType: "buttongroup",
 			    defaults: {
-			    height: 100,
-			    width: 250
+				height: 100,
+				width: 250
 			    }
 			}
 		    );
@@ -56,7 +56,7 @@ Ext.define("Beet.apps.HeaderPanel", {
 				    {
 					xtype: "buttongroup",
 					title: menus[menuName].title,
-					layout: "auto",
+					layout: "anchor",
 					frame: true,
 					width: 200,
 					defaults: {
@@ -70,16 +70,16 @@ Ext.define("Beet.apps.HeaderPanel", {
 				    if (btns.length == 0){return;}
 				    setTimeout(
 				        function(){
-					    //var totalWidth = 30;
+					    var totalWidth = 30;
 					    for (var b = 0; b < btns.length; b++){
 						var btn = btns[b];
 					        if (btn.getWidth && btn.el){
 						   totalWidth += btn.getWidth();
 					        }else{
-						   console.log(btn)
+						    totalWidth += 50
 					        }
 					    }
-					    //frame.setWidth(totalWidth);
+					    frame.setWidth(totalWidth);
 				        }, 
 				        10
 				    );
