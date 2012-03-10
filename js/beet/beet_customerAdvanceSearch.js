@@ -1,4 +1,4 @@
-Ext.define("Beet.apps.CustomerAdvanceSearch", {
+Ext.define("Beet.apps.customers.AdvanceSearch", {
 	extend: "Ext.window.Window",
 	title: "高级搜索",
 	height: 400,
@@ -16,7 +16,7 @@ Ext.define("Beet.apps.CustomerAdvanceSearch", {
 	checkable: false,
 	initComponent: function(){
 		var me = this;
-		var form = Ext.create("Beet.apps.CustomerSearchEngine", {
+		var form = Ext.create("Beet.apps.customers.SearchEngine", {
 			checkable : me.checkable	
 		});
 		me.items = [
@@ -26,7 +26,7 @@ Ext.define("Beet.apps.CustomerAdvanceSearch", {
 	}
 });
 
-Ext.define("Beet.apps.CustomerSearchEngine", {
+Ext.define("Beet.apps.customers.SearchEngine", {
 	extend: "Ext.form.Panel",
 	frame: true,
 	bodyBorder: 0,
@@ -176,17 +176,17 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 		}
 		
 		//create model
-		if (!Beet.apps.CustomerSearchEngine.Model){
-			Ext.define("Beet.apps.CustomerSearchEngine.Model", {
+		if (!Beet.apps.customers.SearchEngine.Model){
+			Ext.define("Beet.apps.customers.SearchEngine.Model", {
 				extend: "Ext.data.Model",
 				fields: me._modelFields	
 			})
 		}
 
-		if (!Beet.apps.CustomerSearchEngine.Store){
-			Ext.define("Beet.apps.CustomerSearchEngine.Store", {
+		if (!Beet.apps.customers.SearchEngine.Store){
+			Ext.define("Beet.apps.customers.SearchEngine.Store", {
 				extend: "Ext.data.Store",
-				model: Beet.apps.CustomerSearchEngine.Model,
+				model: Beet.apps.customers.SearchEngine.Model,
 				autoLoad: true,
 				pageSize: Beet.constants.PageSize,
 				load: function(options){
@@ -214,16 +214,16 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 			});
 		}
 
-		var store = Ext.create("Beet.apps.CustomerSearchEngine.Store");
+		var store = Ext.create("Beet.apps.customers.SearchEngine.Store");
 		me.storeProxy = store;
 		me.storeProxy.setProxy(me.updateProxy(where));
 
-		var grid = Ext.create("Beet.apps.CustomerSearchEngine.GridList", {
+		var grid = Ext.create("Beet.apps.customers.SearchEngine.GridList", {
 			store: store,
 			columns: me._colunms,
 		});
 
-		var item = Beet.apps.Menu.Tabs["customeAdvanceSearchBtn"];
+		var item = Beet.cache.menus["customeAdvanceSearchBtn"];
 		if (item){
 			Beet.workspace.removePanel("customeAdvanceSearchBtn");
 		}
@@ -232,7 +232,7 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 			items: [
 				grid
 			]
-		});
+		}, false);
 		Beet.cache.AdvanceSearchWin.close();
 	},
 	updateProxy: function(where){
@@ -340,7 +340,7 @@ Ext.define("Beet.apps.CustomerSearchEngine", {
 	},
 });
 
-Ext.define("Beet.apps.CustomerSearchEngine.GridList", {
+Ext.define("Beet.apps.customers.SearchEngine.GridList", {
 	extend: "Ext.grid.Panel",
 	layout: "fit",
 	width: "100%",

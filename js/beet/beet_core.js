@@ -2,14 +2,14 @@
 //使用namespace 规范代码机制 方便调用
 
 Beet = {
-	apps = {},
-	cache = {
-		Users = {},
-		menus = {},
-		containers = {}
+	apps : {},
+	cache : {
+		Users : {},
+		menus : {},
+		containers : {}
 	},
-	plugins = {},
-	constants = {
+	plugins : {},
+	constants : {
 		FAILURE: "{00000000-0000-0000-0000-000000000000}",
 		GRANDMADATE: -2208988800,
 		PageSize: 30,
@@ -58,6 +58,10 @@ if (!Beet.constants.now){
 	now = new Date();
 	Beet.constants.now = +now;	
 	Beet.constants.timezoneOffset = now.getTimezoneOffset() * 60;
+}
+
+function registerBeetAppsMenu(){
+
 }
 
 function registerMenu(type, title, data){

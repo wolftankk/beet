@@ -1,11 +1,11 @@
-Ext.Loader.setConfig({
-	enabled: true,
-	paths: {
-		"card" : "js/beet/card",
-		"customer" : "js/beet/customer",
-		"libs" : "js/my"
-	}
-});
+//Ext.Loader.setConfig({
+//	enabled: true,
+//	paths: {
+//		"card" : "js/beet/card",
+//		"customers" : "js/beet/customer",
+//		"libs" : "js/my"
+//	}
+//});
 
 Beet.config = {
 	serverUrl: "192.168.11.3",

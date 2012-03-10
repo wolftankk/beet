@@ -17,12 +17,12 @@ Ext.define("Beet.apps.HeaderPanel", {
 		me.configurePanel = new Ext.tab.Panel(me.getCPanelConfig());
 		
 		//当框体变动的时候 进行自动调整大小
-		Ext.EventManager.onWindowResize(that.fireResize, that);
+		Ext.EventManager.onWindowResize(me.fireResize, me);
 		me.callParent(arguments);
 		
-		me.add(that.configurePanel);
+		me.add(me.configurePanel);
 		me.addDocked(
-			Ext.create("Spyder.apps.HeaderToolbar", {
+			Ext.create("Beet.apps.HeaderToolbar", {
 				configurePanel: me.configurePanel	
 			})
 		)
@@ -30,30 +30,30 @@ Ext.define("Beet.apps.HeaderPanel", {
 		me.doLayout();
 
 		setTimeout(function(){
-			//var items = me.configurePanel.items.items;
-			//if (items && items.length > 0){
-			//	for (var c = 0; c < items.length; ++c){
-			//		var item = items[c], _key = item["_key"];
-			//		if (Spyder.menus[_key]){
-			//			var panel = item.add({
-			//				xtype: "container",
-			//				layout: "hbox",
-			//				defaultType: "buttongroup",
-			//				defaults: {
-			//					height: 100,
-			//					width: 250
-			//				}
-			//			});
-			//			Spyder.menus[_key].panel = panel;
-			//			if (Spyder.menus[_key] && Spyder.menus[_key].menus){
-			//				var data = Spyder.menus[_key].menus;
-			//				for (var k in data){
-			//					panel.add(data[k]);
-			//				}
-			//			}
-			//		}
-			//	}
-			//}
+			var items = me.configurePanel.items.items;
+			if (items && items.length > 0){
+				for (var c = 0; c < items.length; ++c){
+					var item = items[c], _key = item["_key"];
+					if (Beet.menus[_key]){
+						var panel = item.add({
+							xtype: "container",
+							layout: "hbox",
+							defaultType: "buttongroup",
+							defaults: {
+								height: 100,
+								width: 250
+							}
+						});
+						Beet.menus[_key].panel = panel;
+						if (Beet.menus[_key] && Beet.menus[_key].menus){
+							var data = Beet.menus[_key].menus;
+							for (var k in data){
+								panel.add(data[k]);
+							}
+						}
+					}
+				}
+			}
 		}, 100)
 		
 	},
@@ -117,6 +117,17 @@ Ext.define("Beet.apps.HeaderPanel", {
 		}
 	},
 	getCPanelConfig: function(){
+		var items = [];
+		for (var type in Beet.menus){
+			items.push({
+				title: Beet.menus[type].title,
+				_key: type,
+				tabConfig: {
+					minWidth: 100
+				}
+			});
+		}
+		
 		var config = {
 			border: 1,
 			width: '100%',
@@ -132,7 +143,7 @@ Ext.define("Beet.apps.HeaderPanel", {
 			defaults: {
 				bodyStyle: "background-color: #dfe8f5"
 			},
-			items: Beet.apps.Menu.Items
+			items: items
 		}
 
 		return config;
@@ -534,6 +545,7 @@ Ext.define("Beet.apps.Viewport", {
 		that.callParent();
 		that.add(that.createMainPanel());
 		that.doLayout();
+		that.readPound();
 	},
 	onRender: function(){
 		var that = this, h = Ext.core.Element.getViewHeight();
@@ -642,13 +654,21 @@ Ext.define("Beet.apps.Viewport", {
 		}
 		this.workspace.doLayout();
 	},
-	addPanel: function(name, title, config){
+	addPanel: function(name, title, config, notHash){
 		var item = this.workspace.add(Ext.apply({
 			inTab: true, 
 			title: title,
 			tabTip: title
 		}, config));
 		this.workspace.doLayout();
+
+		item.b_name = name;
+		Beet.cache.menus[name] = item;
+		this.workspace.setActiveTab(item);
+
+		if (notHash == false){
+			return
+		}
 
 		var hash = location.hash;
 		if (hash.indexOf("#") == -1){
@@ -664,9 +684,6 @@ Ext.define("Beet.apps.Viewport", {
 			}
 		}
 
-		item.b_name = name;
-		Beet.cache.menus[name] = item;
-		this.workspace.setActiveTab(item);
 	},
 	readPound: function(){
 		var hash = location.hash.substring(1);
