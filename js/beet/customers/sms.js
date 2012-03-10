@@ -1,4 +1,44 @@
-Ext.define("Beet.apps.Viewport.SendMessages", {
+registerMenu("customers", "customerServer", "客户联系",
+	[
+		{
+			xtype: "button",
+			text: "发送短信",
+			id: "customer_sendmsg",
+			tooltip: "点击打开发送短信界面, 向客户发送短信",
+			handler: function(){
+				var item = Beet.cache.menus["customers.SendMessages"];
+				if (!item){
+					Beet.workspace.addPanel("customers.SendMessages", "发送短信", {
+						items: [
+							Ext.create("Beet.apps.customers.SendMessages")
+						]
+					});
+				}else{
+					Beet.workspace.workspace.setActiveTab(item);
+				}
+			}
+		},
+		{
+			xtype: "button",
+			text: "历史查询",
+			id: "customer_smshistory",
+			tooltip: "点击查询短信发送历史记录",
+			handler: function(){
+				var item = Beet.cache.menus["customers.SMSHistory"];
+				if (!item){
+					Beet.workspace.addPanel("customers.SMSHistory", "短信历史记录", {
+						items: [
+							Ext.create("Beet.apps.customers.SMSHistory")
+						]
+					});
+				}else{
+					Beet.workspace.workspace.setActiveTab(item);
+				}
+			}
+		}
+	]
+)
+Ext.define("Beet.apps.customers.SendMessages", {
 	extend: "Ext.panel.Panel",
 	layout: "anchor",
 	height: Beet.constants.VIEWPORT_HEIGHT - 5, 
@@ -124,7 +164,7 @@ Ext.define("Beet.apps.Viewport.SendMessages", {
 	}
 });
 
-Ext.define("Beet.apps.Viewport.SMSHistory", {
+Ext.define("Beet.apps.customers.SMSHistory", {
 	extend: "Ext.panel.Panel",
 	layout: "anchor",
 	height: "100%",
@@ -134,7 +174,7 @@ Ext.define("Beet.apps.Viewport.SMSHistory", {
 	border: 0,
 	initComponent: function(){
 		var me = this;
-
-		
+	
+		me.callParent();	
 	}
 });
