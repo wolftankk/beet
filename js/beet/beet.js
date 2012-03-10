@@ -48,7 +48,7 @@ Ext.define("Beet.apps.HeaderPanel", {
 					Beet.menus[_key].panel = panel;
 					if (Beet.menus[_key] && Beet.menus[_key].menus){
 						var menus = Beet.menus[_key].menus;
-						for (menuName in menus){
+						for (var menuName in menus){
 							if (!menus[menuName].panel){
 								menus[menuName].panel = panel.add(
 									{
