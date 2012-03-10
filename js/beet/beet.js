@@ -28,72 +28,82 @@ Ext.define("Beet.apps.HeaderPanel", {
 	)
 	me.doLayout();
     },
-    refreshMenu: function(){
-	//update menus
-	var me = this;
-	var items = me.configurePanel.items.items;
-	if (items && items.length > 0){
-	    for (var c = 0; c < items.length; ++c){
-		var item = items[c], _key = item["_key"];
-		if (Beet.menus[_key]){
-		    var panel = item.add(
-			{
-			    xtype: "container",
-			    layout: "hbox",
-			    flex: 1,
-			    defaultType: "buttongroup",
-			    defaults: {
-				height: 100
+    _updateMenu: function(item){
+	var _key = item["_key"];
+	if (Beet.menus[_key]){
+	    item.b_loaded = true;
+	    var panel = item.add(
+		{
+		    xtype: "container",
+		    layout: "hbox",
+		    flex: 1,
+		    defaultType: "buttongroup",
+		    defaults: {
+			height: 100
+		    }
+		}
+	    );
+	    Beet.menus[_key].panel = panel;
+	    if (Beet.menus[_key] && Beet.menus[_key].menus){
+		var menus = Beet.menus[_key].menus;
+		for (var menuName in menus){
+		    if (!menus[menuName].panel){
+			menus[menuName].panel = panel.add(
+			    {
+				xtype: "buttongroup",
+				title: menus[menuName].title,
+				layout: "anchor",
+				width: 150,
+				defaults: {
+				    scale: "large",
+				    rowspan: 1
+				}
 			    }
-			}
-		    );
-		    Beet.menus[_key].panel = panel;
-		    if (Beet.menus[_key] && Beet.menus[_key].menus){
-			var menus = Beet.menus[_key].menus;
-			for (var menuName in menus){
-			    if (!menus[menuName].panel){
-				menus[menuName].panel = panel.add(
-				    {
-					xtype: "buttongroup",
-					title: menus[menuName].title,
-					layout: "anchor",
-					width: 200,
-					defaults: {
-					    scale: "large",
-					    rowspan: 1
+			)
+			menus[menuName].panel.on("add", function(frame){
+			    var btns = frame.items.items;
+			    if (btns.length == 0){return;}
+			    setTimeout(
+				function(){
+				    var totalWidth = 30;
+				    for (var b = 0; b < btns.length; b++){
+					var btn = btns[b];
+					if (btn.getWidth && btn.el){
+					   totalWidth += btn.getWidth();
+					}else{
+					    totalWidth += 60
 					}
 				    }
-				)
-				menus[menuName].panel.on("add", function(frame){
-				    var btns = frame.items.items;
-				    if (btns.length == 0){return;}
-				    setTimeout(
-				        function(){
-					    var totalWidth = 30;
-					    for (var b = 0; b < btns.length; b++){
-						var btn = btns[b];
-					        if (btn.getWidth && btn.el){
-						   totalWidth += btn.getWidth();
-					        }else{
-						    totalWidth += 60
-					        }
-					    }
-					    frame.setWidth(totalWidth);
-				        }, 
-				        10
-				    );
-				});
-			    }
-			    if (menus[menuName].data && menus[menuName].data.length > 0){
-			       for (var a = 0; a < menus[menuName].data.length; ++a){
-				   menus[menuName].panel.add(menus[menuName].data[a])
-			       }
-			    }
-			}
+				    if (totalWidth > 100){
+					frame.setWidth(totalWidth);
+				    }
+				}, 
+				10
+			    );
+			});
+		    }
+		    if (menus[menuName].data && menus[menuName].data.length > 0){
+		       for (var a = 0; a < menus[menuName].data.length; ++a){
+			   menus[menuName].panel.add(menus[menuName].data[a])
+		       }
 		    }
 		}
 	    }
 	}
+    },
+    refreshMenu: function(){
+	var me = this;
+	var tabs = me.configurePanel.tabBar.items.items;
+	for (var c = 0; c < tabs.length; ++c){
+	    tabs[c].addListener("activate", function(tab){
+		if (!!tab.card.b_loaded){ return; }
+		me._updateMenu(tab.card)
+	    })
+	};
+	setTimeout(function(){
+	    var activeTab = me.configurePanel.getActiveTab();
+	    me._updateMenu(activeTab)
+	}, 100)
     },
     getOperatorList: function(__callback){
         //获取权限
