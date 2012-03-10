@@ -40,10 +40,10 @@ Ext.define("Beet.apps.HeaderPanel", {
 			{
 			    xtype: "container",
 			    layout: "hbox",
+			    flex: 1,
 			    defaultType: "buttongroup",
 			    defaults: {
-				height: 100,
-				width: 250
+				height: 100
 			    }
 			}
 		    );
@@ -57,7 +57,6 @@ Ext.define("Beet.apps.HeaderPanel", {
 					xtype: "buttongroup",
 					title: menus[menuName].title,
 					layout: "anchor",
-					frame: true,
 					width: 200,
 					defaults: {
 					    scale: "large",
@@ -76,7 +75,7 @@ Ext.define("Beet.apps.HeaderPanel", {
 					        if (btn.getWidth && btn.el){
 						   totalWidth += btn.getWidth();
 					        }else{
-						    totalWidth += 50
+						    totalWidth += 60
 					        }
 					    }
 					    frame.setWidth(totalWidth);

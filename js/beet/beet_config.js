@@ -3,7 +3,8 @@ Ext.Loader.setConfig({
     paths: {
 	    "customers" : "js/beet/customers",
 	    "employees" : "js/beet/employees",
-	    "cards"		: "js/beet/cards",
+	    "cards"	: "js/beet/cards",
+	    "warehouses": "js/beet/warehouses",
     }
 });
 
