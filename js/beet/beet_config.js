@@ -1,10 +1,11 @@
 Ext.Loader.setConfig({
     enabled: true,
     paths: {
-	    "customers" : "js/beet/customers",
-	    "employees" : "js/beet/employees",
-	    "cards"	: "js/beet/cards",
-	    "warehouses": "js/beet/warehouses",
+	"customers" : "js/beet/customers",
+	"employees" : "js/beet/employees",
+	"cards"	    : "js/beet/cards",
+	"warehouses": "js/beet/warehouses",
+	"settings"  : "js/beet/settings"
     }
 });
 
@@ -35,25 +36,24 @@ Beet.constants.cardServer = new MyCardSvc("http://" + Beet.config.getCardUrl() +
 Beet.constants.stockServer = new MyStockSvc("http://" + Beet.config.getWarehouse() + "/JSON");
 
 Beet.menus = {
-	customers: {
-		title: "会员管理",
-		menus: {}
-	},
-	employees:{
-		title: "员工管理",
-		menus: {}
-	},
-	cards:{
-		title: "卡项管理",
-		menus: {}
-	},
-	warehouses: {
-		title: "库存管理",
-		menus: {}
-	},
-	settings : {
-		title: "设置",
-		menus:{}
-	}
-	
+    customers: {
+	title: "会员管理",
+	menus: {}
+    },
+    employees:{
+	title: "员工管理",
+	menus: {}
+    },
+    cards:{
+	title: "卡项管理",
+	menus: {}
+    },
+    warehouses: {
+	title: "库存管理",
+	menus: {}
+    },
+    settings : {
+	title: "设置",
+	menus:{}
+    }
 }
