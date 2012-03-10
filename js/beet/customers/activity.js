@@ -1,4 +1,47 @@
-Ext.define("Beet.apps.Viewport.VIPActivity", {
+/**
+ * @module CustomertActicity
+ */
+registerMenu("customers", "customerActivity", "活动管理",
+	[
+		{
+			xtype: "button",
+			text: "新增活动",
+			id: "customer_activity",
+			tooltip: "点击添加活动",
+			handler: function(){
+				var item = Beet.cache.menus["customers.VIPActivity"];
+				if (!item){
+					Beet.workspace.addPanel("customers.VIPActivity", "新增活动", {
+						items: [
+							Ext.create("Beet.apps.customers.VIPActivity")
+						]
+					});
+				}else{
+					Beet.workspace.workspace.setActiveTab(item);
+				}
+			}
+		},
+		{
+			xtype: "button",
+			text: "活动列表",
+			tooltip: "查看,编辑已有的活动",
+			handler: function(){
+				var item = Beet.cache.menus["customers.ActivityList"];
+				if (!item){
+					Beet.workspace.addPanel("customers.ActivityList", "活动列表", {
+						items: [
+							Ext.create("Beet.apps.customers.ActivityList")
+						]
+					});
+				}else{
+					Beet.workspace.workspace.setActiveTab(item);
+				}
+			}
+		}
+	]
+);
+
+Ext.define("Beet.apps.customers.VIPActivity", {
 	extend: "Ext.panel.Panel",
 	layout: "anchor",
 	height: Beet.constants.VIEWPORT_HEIGHT - 5,
@@ -268,7 +311,7 @@ Ext.define("Beet.apps.Viewport.VIPActivity", {
 	}
 });
 
-Ext.define("Beet.apps.Viewport.ActivityList.Model", {
+Ext.define("Beet.apps.customers.ActivityList.Model", {
 	extend: "Ext.data.Model",
 	fields: [
 		"AID",
@@ -281,9 +324,9 @@ Ext.define("Beet.apps.Viewport.ActivityList.Model", {
 	]
 });
 
-Ext.define("Beet.apps.Viewport.ActivityList.Store", {
+Ext.define("Beet.apps.customers.ActivityList.Store", {
 	extend: "Ext.data.Store",
-	model: Beet.apps.Viewport.ActivityList.Model,
+	model: Beet.apps.customers.ActivityList.Model,
 	autoLoad: true,
 	pageSize: Beet.constants.PageSize,
 	load: function(options){
@@ -324,7 +367,7 @@ Ext.define("Beet.apps.Viewport.ActivityList.Store", {
 	}
 });
 
-Ext.define("Beet.apps.Viewport.ActivityList", {
+Ext.define("Beet.apps.customers.ActivityList", {
 	extend: "Ext.panel.Panel",
 	frame: true,
 	height: Beet.constants.VIEWPORT_HEIGHT - 5,
@@ -335,7 +378,7 @@ Ext.define("Beet.apps.Viewport.ActivityList", {
 		var me = this;
 
 		Ext.apply(me, {
-			storeProxy: Ext.create("Beet.apps.Viewport.ActivityList.Store")
+			storeProxy: Ext.create("Beet.apps.customers.ActivityList.Store")
 		});
 
 		me.items = [me.createGridList()]
