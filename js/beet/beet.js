@@ -71,7 +71,11 @@ Ext.define("Beet.apps.HeaderPanel", {
 									var totalWidth = 30;
 									for (var b = 0; b < btns.length; b++){
 										var btn = btns[b];
-										totalWidth += btn.getWidth();
+										if (btn.getWidth){
+											totalWidth += btn.getWidth();
+										}else{
+											console.trace(btn)
+										}
 									}
 									frame.setWidth(totalWidth);
 								}, 10);

@@ -1,4 +1,3 @@
-//register menu
 Ext.namespace("Beet.apps.customers")
 //registerMenu("customers", "customerAdmin", "会员管理",
 //	[
