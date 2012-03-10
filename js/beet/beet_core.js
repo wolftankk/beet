@@ -64,17 +64,23 @@ function registerBeetAppsMenu(){
 
 }
 
-function registerMenu(type, title, data){
+function registerMenu(type, name, title, data){
 	if (!Beet.menus[type]){
 		throw new Error("This `" + type + "` has not registed")
 	}
 	if (!data){
 		throw new Error("This `data` must be defined");
 	}
-	if (Beet.menus[type].menus[title]){
-		throw new Error(title+" has registed");
+	//if (Beet.menus[type].menus[title]){
+	//	throw new Error(title+" has registed");
+	//}
+	if (Beet.menus[type].menus[name] == undefined){
+		Beet.menus[type].menus[name] = {
+			title: title,
+			data : []
+		}
 	}
-	Beet.menus[type].menus[title] = data
+	Beet.menus[type].menus[name].data.push(data);
 }
 
 if (!String.prototype.replaceAll){

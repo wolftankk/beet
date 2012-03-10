@@ -46,9 +46,40 @@ Ext.define("Beet.apps.HeaderPanel", {
 						});
 						Beet.menus[_key].panel = panel;
 						if (Beet.menus[_key] && Beet.menus[_key].menus){
-							var data = Beet.menus[_key].menus;
-							for (var k in data){
-								panel.add(data[k]);
+							var menus = Beet.menus[_key].menus;
+							for (menuName in menus){
+								if (!menus[menuName].panel){
+									menus[menuName].panel = panel.add(
+										{
+											xtype: "buttongroup",
+											title: menus[menuName].title,
+											layout: "auto",
+											frame: true,
+											width: 200,
+											defaults: {
+												scale: "large",
+												rowspan: 1
+											}
+										}
+									)
+								}
+								panel.on("add", function(frame){
+									var btns = frame.items.items;
+									if (btns.length == 0){return;}
+									setTimeout(function(){
+										var totalWidth = 30;
+										for (var b = 0; b < btns.length; b++){
+											var btn = btns[b];
+											totalWidth += btn.getWidth();
+										}
+										frame.setWidth(totalWidth);
+									}, 10);
+								});
+								if (menus[menuName].data && menus[menuName].data.length > 0){
+									for (var a = 0; a < menus[menuName].data.length; ++a){
+										menus[menuName].panel.add(menus[menuName].data[a])
+									}
+								}
 							}
 						}
 					}

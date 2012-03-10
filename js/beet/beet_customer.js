@@ -1,117 +1,106 @@
 //register menu
 Ext.namespace("Beet.apps.customers")
-registerMenu("customers", "customerAdmin", 
-	{
-		xtype: 'buttongroup',
-		title: '会员管理',
-		layout: "anchor",
-		frame: true,
-		width: 400,
-		defaults: {
-			scale: "large",
-			rowspan: 3
-		},
-		items: [
-			{
-				xtype: "button",
-				text: "增加会员",
-				id: "customer_addBtn",
-				tooltip: "点击打开新增会员界面",
-				handler: function(){
-					var item = Beet.cache.menus["customers.AddCustomer"];
-					if (!item){
-						Beet.apps.Viewport.getCustomerTypes(function(){
-							Beet.workspace.addPanel("customers.AddCustomer", "添加会员", {
-								items: [
-									Ext.create("Beet.apps.customers.AddCustomer")
-								]
-							});
-							Beet.apps.Viewport.getCTTypeData();
-						})
-					}else{
-						Beet.workspace.workspace.setActiveTab(item);
-					}
-				}
-			},
-			{
-				xtype: "button",
-				text: "编辑会员",
-				id: "customer_editBtn",
-				tooltip: "编辑会员个人资料或者删除会员.",
-				handler: function(){
-					var item = Beet.cache.menus["customers.CustomerList"];
-					if (!item){
-						Beet.workspace.addPanel("customers.CustomerList", "编辑会员", {
+registerMenu("customers", "customerAdmin", "会员管理",
+	[
+		{
+			xtype: "button",
+			text: "增加会员",
+			id: "customer_addBtn",
+			tooltip: "点击打开新增会员界面",
+			handler: function(){
+				var item = Beet.cache.menus["customers.AddCustomer"];
+				if (!item){
+					Beet.apps.Viewport.getCustomerTypes(function(){
+						Beet.workspace.addPanel("customers.AddCustomer", "添加会员", {
 							items: [
-								Ext.create("Beet.apps.customers.CustomerList")
-							]	
-						});
-					}else{
-						Beet.workspace.workspace.setActiveTab(item);
-					}
-				}
-			},
-			{
-				xtype: "button",
-				text: "高级搜索",
-				id: "customer_searchBtn",
-				tooltip: "高级搜索",
-				handler: function(){
-					var win = Ext.create("Beet.apps.customers.AdvanceSearch", {});
-					Beet.cache.AdvanceSearchWin = win;
-					win.show();
-				}
-			},
-			{
-				xtype: "button",
-				text: "会员卡编辑",
-				handler: function(){
-					var item = Beet.cache.menus["customers.AddCustomerCard"]
-					if (!item){
-						Beet.workspace.addPanel("customers.AddCustomerCard", "会员卡编辑", {
-							items: [
-								Ext.create("Beet.apps.customers.AddCustomerCard")
+								Ext.create("Beet.apps.customers.AddCustomer")
 							]
-						})
-					}else{
-						Beet.workspace.workspace.setActiveTab(item);
-					}
-				}
-			},
-			{
-				xtype: "button",
-				text: "下单",
-				handler: function(){
-					var item = Beet.cache.menus["customers.CreateOrder"];
-					if (!item){
-						Beet.workspace.addPanel("customers.CreateOrder", "下单", {
-							items: [
-								Ext.create("Beet.apps.customers.CreateOrder")
-							]	
-						})
-					}else{
-						Beet.workspace.workspace.setActiveTab(item);
-					}
-				}
-			},
-			{
-				xtype: "button",
-				text: "结算",
-				handler: function(){
-					var item = Beet.cache.menus["customers.EndConsumer"];
-					if (!item){
-						Beet.workspace.addPanel("customers.EndConsumer", "结算", {
-							items: [
-								Ext.create("Beet.apps.customers.EndConsumer")
-							]	
-						})
-					}else{
-						Beet.workspace.workspace.setActiveTab(item);
-					}
+						});
+						Beet.apps.Viewport.getCTTypeData();
+					})
+				}else{
+					Beet.workspace.workspace.setActiveTab(item);
 				}
 			}
-		]
-	}
+		},
+		{
+			xtype: "button",
+			text: "编辑会员",
+			id: "customer_editBtn",
+			tooltip: "编辑会员个人资料或者删除会员.",
+			handler: function(){
+				var item = Beet.cache.menus["customers.CustomerList"];
+				if (!item){
+					Beet.workspace.addPanel("customers.CustomerList", "编辑会员", {
+						items: [
+							Ext.create("Beet.apps.customers.CustomerList")
+						]	
+					});
+				}else{
+					Beet.workspace.workspace.setActiveTab(item);
+				}
+			}
+		},
+		{
+			xtype: "button",
+			text: "高级搜索",
+			id: "customer_searchBtn",
+			tooltip: "高级搜索",
+			handler: function(){
+				var win = Ext.create("Beet.apps.customers.AdvanceSearch", {});
+				Beet.cache.AdvanceSearchWin = win;
+				win.show();
+			}
+		},
+		{
+			xtype: "button",
+			text: "会员卡编辑",
+			handler: function(){
+				var item = Beet.cache.menus["customers.AddCustomerCard"]
+				if (!item){
+					Beet.workspace.addPanel("customers.AddCustomerCard", "会员卡编辑", {
+						items: [
+							Ext.create("Beet.apps.customers.AddCustomerCard")
+						]
+					})
+				}else{
+					Beet.workspace.workspace.setActiveTab(item);
+				}
+			}
+		},
+		{
+			xtype: "button",
+			text: "下单",
+			handler: function(){
+				var item = Beet.cache.menus["customers.CreateOrder"];
+				if (!item){
+					Beet.workspace.addPanel("customers.CreateOrder", "下单", {
+						items: [
+							Ext.create("Beet.apps.customers.CreateOrder")
+						]	
+					})
+				}else{
+					Beet.workspace.workspace.setActiveTab(item);
+				}
+			}
+		},
+		{
+			xtype: "button",
+			text: "结算",
+			handler: function(){
+				var item = Beet.cache.menus["customers.EndConsumer"];
+				if (!item){
+					Beet.workspace.addPanel("customers.EndConsumer", "结算", {
+						items: [
+							Ext.create("Beet.apps.customers.EndConsumer")
+						]	
+					})
+				}else{
+					Beet.workspace.workspace.setActiveTab(item);
+				}
+			}
+		}
+	]
 )
 /*
 				{
