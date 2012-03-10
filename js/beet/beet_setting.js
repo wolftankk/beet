@@ -2,7 +2,8 @@ Ext.namespace("Beet.settings")
 
 Ext.onReady(function(){
     Ext.syncRequire([
-	"settings.customers.customerattr"
+	"settings.customers.customerattr",
+	"settings.employees.department"
     ])   
 })
 //registerBeetAppsMenu("configure", 
@@ -28,21 +29,6 @@ Ext.onReady(function(){
 //                    },
 //                    width: 160,
 //                    items: [
-//                        {
-//                            text: "部门设定",
-//                            handler: function(){
-//                                var item = Beet.apps.Menu.Tabs["employeeAttr"];
-//                                if (!item){
-//                                    Beet.workspace.addPanel("employeeAttr", "部门设定", {
-//                                        items: [
-//                                            Ext.create("Beet.apps.EmployeeSettingViewPort.Viewport")
-//                                        ]
-//                                    });
-//                                }else{
-//                                    Beet.workspace.workspace.setActiveTab(item);
-//                                }
-//                            }
-//                        },
 //                        {
 //                            text: "分店设定",
 //                            handler: function(){
