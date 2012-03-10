@@ -36,15 +36,17 @@ Ext.define("Beet.apps.HeaderPanel", {
 			for (var c = 0; c < items.length; ++c){
 				var item = items[c], _key = item["_key"];
 				if (Beet.menus[_key]){
-					var panel = item.add({
-						xtype: "container",
-						layout: "hbox",
-						defaultType: "buttongroup",
-						defaults: {
-							height: 100,
-							width: 250
+					var panel = item.add(
+					    {
+							xtype: "container",
+							layout: "hbox",
+							defaultType: "buttongroup",
+							defaults: {
+								height: 100,
+								width: 250
+							}
 						}
-					});
+					);
 					Beet.menus[_key].panel = panel;
 					if (Beet.menus[_key] && Beet.menus[_key].menus){
 						var menus = Beet.menus[_key].menus;

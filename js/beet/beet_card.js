@@ -20,21 +20,6 @@ Ext.namespace("Beet.apps.cards");
 //						rowspan: 1
 //					},
 //					items: [
-//						{
-//							text: "编辑卡项",
-//							handler: function(){
-//								var item = Beet.apps.Menu.Tabs["cardList"]
-//								if (!item){
-//									Beet.workspace.addPanel("cardList", "编辑卡项", {
-//										items: [
-//											Ext.create("Beet.apps.ProductsViewPort.CardList")
-//										]
-//									})
-//								}else{
-//									Beet.workspace.workspace.setActiveTab(item);
-//								}
-//							}
-//						}
 //					]
 //				}
 //			]
@@ -865,7 +850,8 @@ function createItemCategoryTree(){
 
 Ext.onReady(function(){
 	Ext.require([
-		"cards.addcard"
+		"cards.addcard",
+		"cards.cardlist"
 		//"card.products",
 		//"card.cards", 
 		//"card.interests", 
