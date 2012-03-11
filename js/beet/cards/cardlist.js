@@ -1298,6 +1298,7 @@ Ext.define("Beet.apps.cards.CardList", {
         win.add(Ext.create("Beet.apps.cards.PackageList", {
 	    width: "100%",
 	    height: "100%",
+	    autoScroll: true,
             b_type: "selection",
             b_selectionMode: "MULTI",
             b_selectionCallback: function(records){
@@ -1491,7 +1492,7 @@ Ext.define("Beet.apps.cards.CardList", {
         var win = Ext.create("Ext.window.Window", config);
         win.show();
 
-        win.add(Ext.create("Beet.apps.cards.ItemListWindow", {
+        win.add(Ext.create("Beet.apps.cards.ItemList", {
             b_type: "selection",
             b_selectionMode: "MULTI",
             b_selectionCallback: function(records){

@@ -819,7 +819,7 @@ Ext.define("Beet.apps.cards.AddItem", {
 
 Ext.define("Beet.apps.cards.ItemList", {
     extend: "Ext.panel.Panel",
-    height: Beet.constants.VIEWPORT_HEIGHT - 5,
+    height: "100%",
     width: "100%",
     autoHeight: true,
     autoScroll:true,
@@ -1236,7 +1236,7 @@ Ext.define("Beet.apps.cards.ItemList", {
             autoHeight: true,
             autoScroll: true,
             cls: "iScroll",
-            height: Beet.constants.VIEWPORT_HEIGHT * 0.98,
+            height: "100%",
             width: "100%",
             anchor: "fit",    
             border: false,
@@ -1273,8 +1273,22 @@ Ext.define("Beet.apps.cards.ItemList", {
                                 me.productsPanel,
                                 me.chargeTypesPanel
                             ]
-                        },
-                    ]
+                        }
+                    ],
+		    bbar: [
+			"->",
+			{
+			    xtype: "button",
+			    text: "确定",
+			    width: 100,
+			    hidden: (me.b_type != "selection"),
+			    handler: function(){
+				if (me.b_selectionCallback){
+				    me.b_selectionCallback(me.itemList.grid.selModel.getSelection());
+				}
+			    }
+			}
+		    ]
                 }
             ]
         };

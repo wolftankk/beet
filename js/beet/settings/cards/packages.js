@@ -961,6 +961,7 @@ Ext.define("Beet.apps.cards.PackageList", {
     autoHeight: true,
     autoScroll:true,
     border: false,
+    frame: true,
     height: Beet.constants.VIEWPORT_HEIGHT - 5,
     width: "100%",
     bodyPadding: 0,
@@ -1286,7 +1287,7 @@ Ext.define("Beet.apps.cards.PackageList", {
                                 align: 'stretch'
                             },
                             bodyPadding: "0 0 0 5",
-                            height: 500,
+                            height: "100%",
                             flex: 2,
                             items: [
                                 me.packageList.grid,
