@@ -19,7 +19,7 @@ registerMenu("customers", "customerAdmin", "会员管理",
     ]
 );
 
-Ext.define("Beet.apps.CustomerHistory", {
+Ext.define("Beet.apps.customers.CustomerHistory", {
     extend: "Ext.window.Window",
     height: "100%",
     width: "100%",
@@ -27,7 +27,7 @@ Ext.define("Beet.apps.CustomerHistory", {
     title: "消费历史",
     initComponent: function(){
         var me = this;
-        
+	console.log(me) 
         me.callParent();        
     }
 })
@@ -280,7 +280,12 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                                                     xtype: "button",
                                                     text: "消费历史",
                                                     disabled: true,
-                                                    name: "customerhistory"
+                                                    name: "customerhistory",
+						    handler: function(){
+							Ext.create("Beet.apps.customers.customerhistory", {
+							  cid : me.selectedCustomerId
+							});
+						    }
                                                 },
                                                 {
                                                     xtype: "button",

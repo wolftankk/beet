@@ -77,8 +77,8 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                     me.form.getForm().setValues({
                         name:                data["Name"],
                         price:                data["PPrice"].replace(",", ""),
-                        rate:                data["PRate"],
-                        realprice:        data["PRealPrice"].replace(",", ""),
+                        //rate:                data["PRate"],
+                        //realprice:        data["PRealPrice"].replace(",", ""),
                         descript:        data["Descript"],
                         _packageName: data["PCategoryName"]
                     });
@@ -290,6 +290,7 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                                             allowBlank: false,
                                             name: "price"
                                         },
+					/*
                                         {
                                             fieldLabel: "折扣",
                                             allowBlank: false,
@@ -307,6 +308,7 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                                                 }
                                             }
                                         },
+					*/
                                         {
                                             xtype: "combobox",
                                             fieldLabel: "所属分类",
@@ -362,10 +364,10 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                                                 }
                                             }
                                         },
-                                        {
-                                            xtype: "component",
-                                            width: 5
-                                        },
+                                        //{
+                                        //    xtype: "component",
+                                        //    width: 5
+                                        //},
                                         {
                                             fieldLabel: "注释",
                                             colspan: 3,
@@ -790,49 +792,49 @@ Ext.define("Beet.apps.cards.PackageProfile", {
     },
     //自动计算部分代码
     onUpdateForm: function(force){
-        var me = this, form = me.form.getForm(), values = form.getValues();
-        if (me.b_mode == "view"){
-            return
-        }
-        var sale = values["rate"], price = values["price"], realprice = values["realprice"];
-        var selectedProducts = me.selectedProducts, selectedItems = me.selectedItems;
-        if (price == '' || price == undefined || price == 0 ){
-        var __price = 0;//每次都会进行重新计算
-        if (selectedProducts && Ext.Object.getKeys(selectedProducts).length > 0){
-            var productstore = me.productsPanel.grid.getStore();
-            for (var c = 0; c < productstore.getCount(); ++c){
-                var data = productstore.getAt(c);
-                var count = data.get("COUNT"), price = data.get("PRICE");
-                if (count != undefined && price != undefined){
-                    __price += parseFloat(price);
-                }
-            }
-        }
+        //var me = this, form = me.form.getForm(), values = form.getValues();
+        //if (me.b_mode == "view"){
+        //    return
+        //}
+        //var sale = values["rate"], price = values["price"], realprice = values["realprice"];
+        //var selectedProducts = me.selectedProducts, selectedItems = me.selectedItems;
+        //if (price == '' || price == undefined || price == 0 ){
+        //var __price = 0;//每次都会进行重新计算
+        //if (selectedProducts && Ext.Object.getKeys(selectedProducts).length > 0){
+        //    var productstore = me.productsPanel.grid.getStore();
+        //    for (var c = 0; c < productstore.getCount(); ++c){
+        //        var data = productstore.getAt(c);
+        //        var count = data.get("COUNT"), price = data.get("PRICE");
+        //        if (count != undefined && price != undefined){
+        //            __price += parseFloat(price);
+        //        }
+        //    }
+        //}
 
-        if (selectedItems && Ext.Object.getKeys(selectedItems).length> 0){
-            for (var c in selectedItems){
-                var p = selectedItems[c];
-                //console.log(p)
-                __price += parseFloat((""+p[3]).replaceAll(",", ""), 2)
-            }
-        }
-        price = __price;
+        //if (selectedItems && Ext.Object.getKeys(selectedItems).length> 0){
+        //    for (var c in selectedItems){
+        //        var p = selectedItems[c];
+        //        //console.log(p)
+        //        __price += parseFloat((""+p[3]).replaceAll(",", ""), 2)
+        //    }
+        //}
+        //price = __price;
 
-        form.setValues({
-            price: price    
-        })
-        }
-        if (price <= 0 ) { return; }    
-        if (force) {
-            sale = realprice / price;
-        }else{
-            realprice = price * sale;
-        }
+        //form.setValues({
+        //    price: price    
+        //})
+        //}
+        //if (price <= 0 ) { return; }    
+        //if (force) {
+        //    sale = realprice / price;
+        //}else{
+        //    realprice = price * sale;
+        //}
 
-        form.setValues({
-            rate: parseFloat(sale).toFixed(2),
-            realprice: parseFloat(realprice).toFixed(2),
-        });
+        //form.setValues({
+        //    rate: parseFloat(sale).toFixed(2),
+        //    realprice: parseFloat(realprice).toFixed(2),
+        //});
     },
 
     resetAll: function(){
