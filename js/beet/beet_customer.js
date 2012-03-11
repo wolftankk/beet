@@ -12,6 +12,7 @@ function time(){
 
 Ext.onReady(function(){
     Ext.syncRequire([
+        "customers.plugins",
         "customers.addcustomer",
         "customers.customerlist",
         "customers.advancesearch",
