@@ -50,6 +50,7 @@ function buildCategoryTreeStore(type){
                         for (k = 0; k < target.length; ++k){
                             var _tmp = target[k];
                             _tmp["rate"] = (_tmp["rate"] == -1 ? "无" : _tmp["rate"]);
+                            _tmp["rate"] = (_tmp["rate"] == 0 ? "作废" : _tmp["rate"]);
                             var item = {};
                             if (_tmp.data && _tmp.data.length > 0){
                                 item["expanded"] = false;
@@ -107,20 +108,26 @@ function createPackageCategoryTree(){
         //    buttons: Ext.MessageBox.YESNO,
         //    fn: function(btn){
         //        if (btn == "yes") {
-                    Ext.MessageBox.prompt((title+"打折率"), "输入需要修改的打折率值:", function(btn, value, opts){
-                        cardServer.UpdateCategoryRate(id, value, {
-                            success: function(data){
-                                if (data){
-                                    Ext.MessageBox.alert("通知", "修改成功!");
-                                    refreshTreeList();
-                                }else{
-                                    Ext.MessageBox.alert("失败", "修改失败!");
-                                }
-                            },
-                            failure: function(error){
-                                Ext.Error.raise(error)
-                            }
-                        })
+                    Ext.MessageBox.prompt((title+"打折率"), "输入需要修改的打折率值(-1为原价;0为作废):", function(btn, value, opts){
+			if (btn == "ok"){
+			    value = value.trim();
+			    if (value == ""){
+				return;
+			    }
+			    cardServer.UpdateCategoryRate(id, value, {
+				success: function(data){
+				    if (data){
+					Ext.MessageBox.alert("通知", "修改成功!");
+					refreshTreeList();
+				    }else{
+					Ext.MessageBox.alert("失败", "修改失败!");
+				    }
+				},
+				failure: function(error){
+				    Ext.Error.raise(error)
+				}
+			    })
+			}
                     })
         //        }
         //    }
