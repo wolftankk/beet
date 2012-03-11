@@ -19,19 +19,6 @@ registerMenu("customers", "customerAdmin", "会员管理",
     ]
 );
 
-Ext.define("Beet.apps.customers.CustomerHistory", {
-    extend: "Ext.window.Window",
-    height: "100%",
-    width: "100%",
-    border: false,
-    title: "消费历史",
-    initComponent: function(){
-        var me = this;
-	console.log(me) 
-        me.callParent();        
-    }
-})
-
 Ext.define("Beet.apps.customers.CreateOrder", {
     extend: "Ext.form.Panel",
     height: Beet.constants.VIEWPORT_HEIGHT - 5,
@@ -282,9 +269,18 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                                                     disabled: true,
                                                     name: "customerhistory",
 						    handler: function(){
-							Ext.create("Beet.apps.customers.customerhistory", {
-							  cid : me.selectedCustomerId
+							var win = Ext.create("Ext.window.Window", {
+							    title: "消费历史",
+							    height: 600,
+							    width: 1000,
+							    border: false,
+							    autoHeight: true        
 							});
+							win.add(Ext.create("Beet.apps.customers.consumerHistoryPanel", {
+							    cid : me.selectedCustomerId
+							}))
+							win.doLayout();
+							win.show();
 						    }
                                                 },
                                                 {

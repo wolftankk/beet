@@ -905,7 +905,6 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
         me.createTabPanel();
         me.createCustomeBase(rawData);
 
-
         me.callParent();
         me.updateCustomerTitle(rawData["CTName"] + " 的会员资料");
 
@@ -934,6 +933,28 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
                 }
             });
         }
+	
+        me.settingTabPanel.add({
+            title : "充值历史",
+            layout: "fit",
+            border: 0,
+            items: [
+		Ext.create("Beet.apps.customers.payDataPanel", {
+		    cid : CTGUID,
+		})
+            ]
+        });
+
+	me.settingTabPanel.add({
+	    title: "消费历史",
+	    layout: "fit",
+	    border: 0,
+	    items: [
+		Ext.create("Beet.apps.customers.consumerHistoryPanel", {
+		    cid: CTGUID   
+		})
+	    ]
+	})
     },
     afterRender: function(){
         var me = this;
@@ -1114,16 +1135,6 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
         }
         advanceTab.setActiveTab(_firsttab);
 
-        me.settingTabPanel.add({
-            title : "充值历史",
-            layout: "fit",
-            border: 0,
-            items: [
-		Ext.create("Beet.apps.customers.payDataPanel", {
-		    cid : CTGUID,
-		})
-            ]
-        });
     },
     updateCustomerTitle: function(title){
         var me = this;
