@@ -1307,7 +1307,6 @@ Ext.define("Beet.apps.cards.CardList", {
                 for (var c = 0; c < records.length; ++c){
                     var record = records[c];
                     sql.push("id=" + record.raw["ID"]);
-                    console.log(sql);
                 }
                 if (sql.length > 0){
                     sql = sql.concat(" OR ");
