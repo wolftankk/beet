@@ -2192,6 +2192,7 @@ Beet.plugins.customerDropDown = function(f, newValue, oldValue, opts){
 	    heightBelow = Ext.Element.getViewHeight() - heightAbove - f.getHeight(),
 	    space = Math.max(heightBelow, heightAbove);
 
+	console.log(space, f.picker.getHeight())
 	if (f.picker.getHeight() > space){
 	    f.picker.setHeight(space - 5);
 	}
