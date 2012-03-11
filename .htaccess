@@ -1,0 +1,9 @@
+<Files *.js>
+    Header add "Cache-Control" "max-age=604800"
+</Files>
+<Files *.gif>
+    Header add "Cache-Control" "max-age=604800"
+</Files>
+<Files *.png>
+    Header add "Cache-Control" "max-age=604800"
+</Files>
