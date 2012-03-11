@@ -338,7 +338,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                     items: [
                                         {
                                             xtype: "component",
-                                            width: 20
+                                            width: 10
                                         },
                                         {
                                             xtype: "button",
@@ -352,7 +352,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                         },
                                         {
                                             xtype: "component",
-                                            width: 30
+                                            width: 20
                                         },
                                         {
                                             xtype: "button",
@@ -366,7 +366,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                         },
                                         {
                                             xtype: "component",
-                                            width: 30
+                                            width: 20
                                         },
                                         {
                                             xtype: "button",
@@ -384,7 +384,25 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                         },
                                         {
                                             xtype: "component",
-                                            width: 30
+                                            width: 20
+                                        },
+                                        {
+                                            xtype: "button",
+                                            scale: "medium",
+                                            text: "充值历史",
+                                            disabled: true,
+                                            name: "historybtn",
+                                            handler: function(){
+                                                if (!me.selectedCustomerId){
+                                                    Ext.Msg.alert("错误", "请选择会员!");
+                                                    return;
+                                                }
+                                                me.openHistoryWindow();
+                                            }
+                                        },
+                                        {
+                                            xtype: "component",
+                                            width: 20
                                         },
                                         {
                                             xtype: "button",
@@ -482,6 +500,21 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
         me.doLayout();
 
         me.initializeCardPanel();
+    },
+    openHistoryWindow: function(){
+	var me = this, win, cardServer = Beet.constants.cardServer;
+        win = Ext.create("Ext.window.Window", {
+            title: "充值历史",
+            height: 600,
+            width: 500,
+            border: false,
+            autoHeight: true        
+        });
+	win.add(Ext.create("Beet.apps.customers.payDataPanel", {
+	    cid : me.selectedCustomerId
+	}))
+	win.doLayout();
+	win.show();
     },
     openPaidWindow: function(){
         var me = this, form = me.form.getForm(), cardServer = Beet.constants.cardServer,
@@ -858,6 +891,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
         me.down("button[name=activebtn]").disable();
         me.down("button[name=deleteCard]").disable();
         me.down("button[name=paidbtn]").disable();
+	me.down("button[name=historybtn]").disable();
         me.updateCardPanel();
         var currentBalance = 0;
 
@@ -945,6 +979,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                         }
                         if (me.selectedCustomerId){
                             me.down("button[name=paidbtn]").enable();
+			    me.down("button[name=historybtn]").enable();
                         }
                     },
                     failure: function(error){
