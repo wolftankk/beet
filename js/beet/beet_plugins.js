@@ -887,7 +887,7 @@ Ext.define("Beet.apps.customers.payDataPanel", {
 	    Ext.Msg.alert("失败", "用户ID无效");
 	    return;
 	}
-	me.b_filter = "CTGUID='" + me.cid + "'";
+	me.b_filter = "CustomerID='" + me.cid + "'";
 
 	//GetCustomerPayData(const OnlySchema: Boolean; const AWhere:Utf8String)
         Beet.constants.cardServer.GetCustomerPayData(true, "", {
@@ -943,7 +943,8 @@ Ext.define("Beet.apps.customers.payDataPanel", {
              type: "b_proxy",
              b_method: Beet.constants.cardServer.GetCustomerPayData,
              b_params: {
-                 "filter": me.b_filter
+		 "b_onlySchema": false,
+                 "awhere": me.b_filter
              },
              b_scope: Beet.constants.cardServer,
              reader: {
@@ -954,7 +955,7 @@ Ext.define("Beet.apps.customers.payDataPanel", {
         }
     },
     createGrid : function(){
-        var me = this, grid = me.grid, store = that.storeProxy;
+        var me = this, grid = me.grid, store = me.storeProxy;
         var cardServer = Beet.constants.cardServer;
         
         me.grid = Ext.create("Beet.plugins.LiveSearch", {
@@ -1087,6 +1088,7 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
                 margin: "0 0 10 0",
                 bodyStyle: 'background-color:#dfe8f5;'
             },
+	    layout: "anchor",
             plain: true,
             height: "100%",
             fieldDefaults: {
@@ -1209,9 +1211,10 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
                 title : title,
                 flex: 1,
                 border: 0,
-                layout: "anchor",
                 height: "100%",
+		layout: "anchor",
                 defaults: {
+		    anchor: "100%",
                     margin: "0 0 10 0"
                 },
                 fieldDefaults: {
@@ -1817,7 +1820,7 @@ Ext.define("Beet.plugins.ViewCustomerInfoExtra", {
                 {
                     layout: {
                         type: "table",
-                        columns: 4,
+                        columns: 3,
                         tableAttrs: {
                             cellspacing: 10,
                             style: {
