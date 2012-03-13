@@ -14,7 +14,7 @@ registerMenu("customers", "customerAdmin", "会员管理",
                                 Ext.create("Beet.apps.customers.AddCustomer")
                             ]
                         });
-                        Beet.apps.Viewport.getCTTypeData();
+                        Beet.apps.customers.getCTTypeData();
                     })
                 }else{
                     Beet.workspace.workspace.setActiveTab(item);
