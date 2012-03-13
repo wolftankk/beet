@@ -902,7 +902,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         ]
         
         var now = Ext.Date.format(new Date, "Y/m/d H:i:s");
-        cardServer.GetCustomerCardData(false, "CustomerID='" + me.selectedCustomerId + "' AND ExpenseCount > 0 AND EndTime > '" + now + "'", {
+        cardServer.GetCustomerCardData(false, "CustomerID='" + me.selectedCustomerId + "' AND EndTime > '" + now + "'", {
             success: function(data){
                 data = Ext.JSON.decode(data)["Data"];
                 var cards = [];
@@ -912,7 +912,6 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     win.hide();
                     Ext.MessageBox.alert("警告", "没有可用卡项");    
                 }else{
-                    console.log("customerData",data)
                     for (var c = 0; c < data.length; ++c){
                         cards.push({
                             attr: data[c]["CID"],
@@ -1054,7 +1053,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         var win = Ext.create("Ext.window.Window", config);
         win.show();
 
-        win.add(Ext.create("Beet.apps.cards.ItemListWindow", {
+        win.add(Ext.create("Beet.apps.cards.ItemList", {
             b_type: "selection",
             b_selectionMode: "MULTI",
             b_selectionCallback: function(records){
