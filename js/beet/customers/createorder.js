@@ -947,6 +947,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                                     var items = data.items;
                                     var packages = data.packages;
 
+				    /**
+				     * 这里是动态调用获取项目数据, 这里可能需要进行修改 FIXME @TODO
+				     */
                                     var getItems = function(){
                                         if (items && items.length > 0){
                                             var sql = [];
@@ -968,6 +971,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                                                             item["originBalance"] = list[cid]["originBalance"]
                                                             var maxcount = parseInt(list[cid]["maxcount"]);
                                                             var realPrice = parseFloat((item["IRealPrice"]+"").replaceAll(",", ""))
+							    if (!realPrice){
+								realPrice = parseFloat((item["IPrice"]+"").replaceAll(",", ""))
+							    }
                                                             if (maxcount == -1){
                                                                 item["needPaid"] = realPrice;
                                                             }else{
@@ -1089,10 +1095,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             rawData["__index"] = id;
 
             if (rawData["needPaid"] == undefined || rawData["needPaid"] == NaN){
-                rawData["needPaid"] = parseFloat((rawData["IRealPrice"] + "").replaceAll(",", ""))
+		//IRealPrice //取消?
+                //rawData["needPaid"] = parseFloat((rawData["IPrice"] + "").replaceAll(",", ""))
             }
-
-            console.log(rawData)
 
             if (selectedItems[id] == undefined){
                 selectedItems[id] = []
