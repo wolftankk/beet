@@ -306,7 +306,6 @@ Ext.define("Beet.apps.customers.consumerHistoryPanel", {
 	}
 
 	var updateProxy = function(filter){
-	    console.log(filter)
 	    return {
 		 type: "b_proxy",
 		 b_method: Beet.constants.cardServer.GetConsumerDetailData,
@@ -342,7 +341,7 @@ Ext.define("Beet.apps.customers.consumerHistoryPanel", {
 		trackOver: false,
 		stripeRows: true
 	    },
-	    columns: me.columns
+	    columns: columns
 	});
 	me.detailGrid.updateProxy = updateProxy;
 
