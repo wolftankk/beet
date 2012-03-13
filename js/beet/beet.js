@@ -39,6 +39,7 @@ Beet = {
         ACT_DELETE_IID: '{593DD697-70AC-44AE-892E-5588041054A1}',
         ACT_SELECT_IID: '{D61570E6-EB82-4B22-A218-8881C71D692A}',
 
+	/*
         privileges: {
             customer_addBtn : [
                 '{91677AFA-78C0-4A61-A4C0-C73C9F415819}'
@@ -47,6 +48,7 @@ Beet = {
                 '{D61570E6-EB82-4B22-A218-8881C71D692A}' 
             ]
         },
+	*/
 
         WORKSPACE_WIDTH: Ext.core.Element.getViewWidth(),
         WORKSPACE_HEIGHT: Ext.core.Element.getViewHeight(),
@@ -232,6 +234,7 @@ Ext.define("Beet.apps.HeaderPanel", {
     updatePanelStatus: function(){
         var that = this;
         
+	/*
         for (var k in Beet.constants.privileges){
             var privilege = Beet.constants.privileges[k], btn = that.query("#"+k), hidden = false, c = 0;
             while (true){
@@ -250,6 +253,7 @@ Ext.define("Beet.apps.HeaderPanel", {
                 btn[0].hide();
             }
         }
+	*/
     },
     getCPanelConfig: function(){
         var items = [];
