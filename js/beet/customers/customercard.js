@@ -1107,12 +1107,17 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                 }
                                 break;
                             case "StartTime":
+				column["xtype"] = "datecolumn";
+				column["format"] = "Y/m/d";
                                 column.editor = {
                                     xtype: "datefield",
                                     format: "Y/m/d",
                                     allowBlank: false
                                 }
                                 break;
+			    case "ValidDate":
+				column["xtype"] = "datecolumn"
+				column["format"] = "Y/m/d"
                             //case "EndTime":
                             //    column.editor = {
                             //        xtype: "datefield",
