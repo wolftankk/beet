@@ -302,7 +302,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                                     border: 0,
                                                     bodyBorder: false,
                                                 });
-                                                win.add(Ext.create("Beet.apps.Viewport.EmployeeList", {
+                                                win.add(Ext.create("Beet.apps.employees.EmployeeList", {
                                                     b_type: "selection",
                                                     b_selectionMode: "SINGLE",
                                                     height: "100%",
