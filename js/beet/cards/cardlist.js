@@ -1773,7 +1773,7 @@ Ext.define("Beet.apps.cards.CardList", {
             code: record.get("Code"),
             maxcount: record.get("MaxCount")
         });
-        
+
         var charges = detailData["charges"],
             interests = detailData["interests"],
             packages = detailData["packages"],
@@ -1900,7 +1900,7 @@ Ext.define("Beet.apps.cards.CardList", {
             if (products && products.length > 0){
                 var sql = [];
                 for (var c = 0; c < products.length; ++c){
-                    sql.push("id=" + products[c]);
+                    sql.push("pid=" + products[c]);
                 }
                 var s = sql.join(" OR ");
                 if (s.length > 0){
