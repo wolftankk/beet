@@ -902,6 +902,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         ]
         
         var now = Ext.Date.format(new Date, "Y/m/d H:i:s");
+	/**
+	 * TODO FIXME: 获取用户已有的卡项数据
+	 */
         cardServer.GetCustomerCardData(false, "CustomerID='" + me.selectedCustomerId + "' AND EndTime > '" + now + "'", {
             success: function(data){
                 data = Ext.JSON.decode(data)["Data"];

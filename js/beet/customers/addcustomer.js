@@ -8,7 +8,7 @@ registerMenu("customers", "customerAdmin", "会员管理",
             handler: function(){
                 var item = Beet.cache.menus["customers.AddCustomer"];
                 if (!item){
-                    Beet.apps.Viewport.getCustomerTypes(function(){
+                    Beet.apps.customers.getCustomerTypes(function(){
                         Beet.workspace.addPanel("customers.AddCustomer", "添加会员", {
                             items: [
                                 Ext.create("Beet.apps.customers.AddCustomer")

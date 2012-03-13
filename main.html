@@ -59,17 +59,6 @@
                         window.location = "index.html";
                     }
 
-                    Beet.apps.Viewport.getCTTypeData();
-                    if (Beet.cache.employee == undefined){
-                        Beet.cache.employee = {}
-                    }
-                    if (Beet.cache.employee.departmentList == undefined){
-                        getDepartmentList();
-                    }
-                    if (Beet.cache.employee.branchesList == undefined){
-                        getSubbrachesList();
-                    }
-
                     setTimeout(function(){
                         Beet.navigationbar.refreshMenu();    
                     }, 200)
