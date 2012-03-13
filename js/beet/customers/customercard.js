@@ -1100,6 +1100,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 
                         switch (meta["FieldName"]){
                             case "Balance":    
+				//column["xtype"] = "numbercolumn";
                                 column.editor = {
                                     xtype: "textfield",
                                     type: "int",
@@ -1115,9 +1116,10 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                     allowBlank: false
                                 }
                                 break;
-			    case "ValidDate":
+			    case "EndTime":
 				column["xtype"] = "datecolumn"
-				column["format"] = "Y/m/d"
+				column["format"] = "Y/m/d";
+				break;
                             //case "EndTime":
                             //    column.editor = {
                             //        xtype: "datefield",
