@@ -1238,8 +1238,6 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 ]
             })
 
-            console.log(tab)
-
             me.listTabPanel.setActiveTab(tab)
             tab.panel = tab.down("panel[name=_egrid]");
             tab.panel.add(me.createEmpolyeeTempalte(tab));
@@ -1315,7 +1313,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 border: 0,
                 bodyBorder: false,
             });
-            win.add(Ext.create("Beet.apps.Viewport.EmployeeList", {
+            win.add(Ext.create("Beet.apps.employees.EmployeeList", {
                 b_type: "selection",
                 b_selectionMode: "MULTI",
                 height: "100%",
