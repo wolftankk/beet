@@ -519,10 +519,12 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
     openPaidWindow: function(){
         var me = this, form = me.form.getForm(), cardServer = Beet.constants.cardServer,
             win, grid;
-        
+
         cost = 0;
         //grid's columns/fields
         var _columns= [], _fields = [];
+	me.paidTypeStore = undefined;
+	me.paidStore = undefined;
 
         if (!me.queue){
             me.queue = new Beet_Queue("createPaidWindow");
@@ -538,12 +540,20 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
             autoHeight: true        
         });
 
-        me.paidTypeStore = Ext.create("Ext.data.Store", {
-            fields: ["PayID", "PayName"]
-        });
-        updatePayType();
+	if (!me.paidTypeStore){
+	    me.paidTypeStore = Ext.create("Ext.data.Store", {
+		fields: ["PayID", "PayName"]
+	    });
+	}
 
-        if (me.paidStore == undefined){
+	if (grid && grid.store){
+	    updatePayType();
+	}
+
+	/**
+	 * createpaidStore
+	 */
+	if (!me.paidStore){
             var _actions = {
                 xtype: 'actioncolumn',
                 width: 50,
@@ -608,6 +618,9 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                             xtype: "textfield"
                                         }
                                         break
+				    case "PayDate":
+					column.xtype = "datecolumn";
+					column.format = "Y/m/d G:i";
                                 }
 
                                 _columns.push(column);
@@ -632,8 +645,9 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                     }
                 })    
             })
-        }
+	}
 
+	//get a row Editing
         var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
             clicksToMoveEditor: 1,
             autoCancel: false,
@@ -681,7 +695,9 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
         }
         
         var createGird = function(){
+	    console.log(me.paidStore)
             me.paidStore.loadData([]);//clear
+	    console.log(me.paidStore)
 
             updatePayType();
 
@@ -786,6 +802,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                 fn: function(btn){
                                     if (btn == "yes"){
                                         var pays = [];
+					var totalMoney = 0;
                                         for (var c = 0; c < me.paidStore.getCount(); ++c){    
                                             var r = me.paidStore.getAt(c);
                                             pays.push({
@@ -793,16 +810,22 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                                 money: r.get("Money"),
                                                 descript: r.get("Descript")    
                                             });
+					    totalMoney += r.get("Money");
                                         }
                                         var results = {
                                             customerid: me.selectedCustomerId,
                                             pays: pays
                                         }
 
+					if (totalMoney <= 0){
+					    Ext.Msg.alert("错误", "请输入充值金额, 不能为0");
+					    return;
+					}
+
                                         //充值部分, 成功充值后, 将返回当前的余额
                                         cardServer.AddCustomerPay(Ext.JSON.encode(results), {
                                             success: function(data){
-                                                console.log(data)
+                                                //console.log(data)
                                                 data = JSON.parse(data);
                                                 if (data["result"]){
                                                     var values = form.getValues();
