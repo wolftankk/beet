@@ -135,7 +135,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
                                             queryMode: "local",
                                             displayField: "name",
                                             valueField : "attr",
-                                            value: 2,
+                                            value: 0,
                                             listeners: {
                                                 change: function(f, newvalue){
                                                     var sql = "";
@@ -301,7 +301,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
         var options = {
             autoScroll: true,
             autoHeight: true,
-            height: Beet.constants.VIEWPORT_HEIGHT - 50,
+            height: Beet.constants.VIEWPORT_HEIGHT - 100,
             width: Beet.constants.WORKSPACE_WIDTH * (2/3) - 10,
             cls: "iScroll",
             border: true,
@@ -320,7 +320,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
                 },
                 expand: function(p){
                     if (p && p.setHeight){
-                        p.setHeight(Beet.constants.VIEWPORT_HEIGHT - 50);//reset && update
+                        p.setHeight(Beet.constants.VIEWPORT_HEIGHT - 100);//reset && update
                     }
                 }
             }
@@ -334,17 +334,24 @@ Ext.define("Beet.apps.customers.EndConsumer", {
             title: "订单详情",
         }));
 
+	me.stockDataPanel = Ext.create("Ext.panel.Panel", Ext.apply(options, {
+	    title: "物料信息"   
+	}))
+
         me.childrenList = [
             me.orderListPanel,
-            me.orderDetailPanel
+            me.orderDetailPanel,
+	    me.stockDataPanel
         ]
 
         me.rightPanel.add(me.orderListPanel);
         me.rightPanel.add(me.orderDetailPanel);
+	me.rightPanel.add(me.stockDataPanel);
         me.rightPanel.doLayout();
 
         me.initializeOrderPanel();
         me.initializeOrderDetailPanel();
+	me.initializeStockDataPanel();
 
         Ext.defer(function(){
             me.orderListPanel.expand()    
@@ -437,7 +444,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
 
         if (me.orderListPanel.grid == undefined){
             var store = Ext.create("Beet.apps.OrderListStore");
-            store.setProxy(me.updateOrderListProxy("State = 2"));//初始化时候
+            store.setProxy(me.updateOrderListProxy("State = 0"));//初始化时候
             var grid;
             var sm = Ext.create("Ext.selection.CheckboxModel", {
                 mode: "MULTI",
@@ -499,13 +506,19 @@ Ext.define("Beet.apps.customers.EndConsumer", {
                 for (var c in data){
                     var meta = data[c];
                     fields.push(meta["FieldName"])
-		    console.log(meta["FieldName"]);
                     if (!meta["FieldHidden"]){
                         var c = {
                             dataIndex: meta["FieldName"],
                             header: meta["FieldLabel"],
                             flex: 1
                         }
+
+			switch (meta["FieldName"]){
+			    case "CardPay":
+			    case "Cost":
+				c.xtype = "numbercolumn";
+				break;
+			}
 
                         columns.push(c);
                     }
@@ -593,5 +606,107 @@ Ext.define("Beet.apps.customers.EndConsumer", {
             me.orderDetailPanel.doLayout();
         }
     },
+
+    initializeStockDataPanel: function(){
+        var me  = this, cardServer = Beet.constants.cardServer;
+        if (me.stockDataPanel.__columns && me.stockDataPanel.__columns.length > 0){
+            return;
+        }
+        var columns = me.stockDataPanel.__columns = [];
+
+	/*
+        cardServer.GetConsumerStockData("", {
+            success: function(data){
+                var data = Ext.JSON.decode(data)["MetaData"];
+                var fields = me.orderDetailPanel.__fields = [];
+                for (var c in data){
+                    var meta = data[c];
+                    fields.push(meta["FieldName"])
+                    if (!meta["FieldHidden"]){
+                        var c = {
+                            dataIndex: meta["FieldName"],
+                            header: meta["FieldLabel"],
+                            flex: 1
+                        }
+
+			switch (meta["FieldName"]){
+			    case "CardPay":
+			    case "Cost":
+				c.xtype = "numbercolumn";
+				break;
+			}
+
+                        columns.push(c);
+                    }
+                }
+
+                me.initializeStockDataGrid();
+            },
+            failure: function(error){
+                Ext.Error.raise(error);
+            }
+        });
+	*/
+    },
+    initializeStockDataGrid: function(){
+        var me = this, selectedProducts = me.selectedProducts, cardServer = Beet.constants.cardServer;
+        var __fields = me.stockDataPanel.__fields;
+
+	/*
+        if (!Beet.apps.OrderDetailStore){
+            Ext.define("Beet.apps.OrderDetailStore", {
+                extend: "Ext.data.Store",
+                autoLoad: true,
+                pageSize: Beet.constants.PageSize,
+                fields: __fields,
+                load: function(options){
+                    var that = this, options = options || {};
+                    if (Ext.isFunction(options)){
+                        options = {
+                            callback: options
+                        };
+                    }
+                    Ext.applyIf(options, {
+                        groupers: that.groupers.items,
+                        addRecords: false
+                    });
+                    return that.callParent([options]);
+                },
+                proxy: {
+                    type: "b_proxy",
+                    b_method: cardServer.GetConsumerDetailData,
+                    b_params: {
+                        "b_onlySchema": false,
+                        "awhere" : ""
+                    },
+                    b_scope: Beet.constants.cardServer,
+                    reader: {
+                        type: "json",
+                        root: "Data",
+                        totalProperty: "TotalCount"
+                    }
+                }
+            })
+        }
+
+        if (me.orderDetailPanel.grid == undefined){
+            var store = Ext.create("Beet.apps.OrderDetailStore");
+
+            var grid = me.orderDetailPanel.grid = Ext.create("Beet.plugins.LiveSearch", {
+                store: store,
+                height: Beet.constants.VIEWPORT_HEIGHT - 79,
+                cls: "iScroll",
+                autoScroll: true,
+                columnLines: true,
+                columns: me.orderDetailPanel.__columns,
+            });
+            me.orderDetailPanel.store = store;
+
+
+            me.orderDetailPanel.add(grid);
+            me.orderDetailPanel.doLayout();
+        }
+	*/
+    }
 });
 })(window)
