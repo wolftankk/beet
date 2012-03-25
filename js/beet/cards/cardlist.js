@@ -92,8 +92,7 @@ Ext.define("Beet.apps.cards.CardList", {
 			break;
 		}
 
-		console.log(d["FieldName"])
-
+		//console.log(d["FieldName"])
 		me.columns.push(column)
             }
         };
