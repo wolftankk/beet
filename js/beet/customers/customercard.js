@@ -1130,9 +1130,15 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                             flex: 1,
                         }
 
+			console.log(meta["FieldName"])
                         switch (meta["FieldName"]){
+			    case "Par":
+			    case "Price":
+			    case "StepPrice":
+				column.xtype = "numbercolumn";
+				break;
                             case "Balance":    
-				//column["xtype"] = "numbercolumn";
+				column["xtype"] = "numbercolumn";
                                 column.editor = {
                                     xtype: "textfield",
                                     type: "int",
@@ -1152,13 +1158,6 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 				column["xtype"] = "datecolumn"
 				column["format"] = "Y/m/d";
 				break;
-                            //case "EndTime":
-                            //    column.editor = {
-                            //        xtype: "datefield",
-                            //        format: "Y/m/d",
-                            //        allowBlank: false
-                            //    }
-                            //    break
                         }
 
                         columns.push(column);
