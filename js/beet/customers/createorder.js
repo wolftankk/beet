@@ -171,7 +171,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			extend: "Ext.data.Store",
 			model: Beet.apps.employees.EmployeeListModel,
 			autoLoad: true,
-			pageSize: Beet.constants.PageSize,
+			pageSize: 20,
 			load: function(options){
 			    var me = this;
 			    options = options || {};
@@ -212,7 +212,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             startParma: "start",
             limitParma: "limit",
             b_params: {
-                "filter" : "",
+                "filter" : filter,
                 "b_onlySchema": false
             },
             b_scope: Beet.constants.employeeServer,

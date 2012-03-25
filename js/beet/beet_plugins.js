@@ -2321,19 +2321,20 @@ Beet.plugins.employeeDropDown = function(f, newValue, oldValue, opts){
         }
     })
     }
+
     me.employeeStore.setProxy(me.updateEmployeeProxy("EM_NAME LIKE '%"+newValue+"%'"));
     me.employeeStore.load();
 
     onListRefresh = function(){
-    var heightAbove = f.getPosition()[1] - Ext.getBody().getScroll().top,
-        heightBelow = Ext.Element.getViewHeight() - heightAbove - f.getHeight(),
-        space = Math.max(heightBelow, heightAbove);
+	var heightAbove = f.getPosition()[1] - Ext.getBody().getScroll().top,
+	    heightBelow = Ext.Element.getViewHeight() - heightAbove - f.getHeight(),
+	    space = Math.max(heightBelow, heightAbove);
 
-    console.log(space, f.picker.getHeight())
-    if (f.picker.getHeight() > space){
-        f.picker.setHeight(space - 5);
-    }
-    f.el.focus();
+	//console.log(space, f.picker.getHeight())
+	if (f.picker.getHeight() > space){
+	    f.picker.setHeight(space - 5);
+	}
+	f.el.focus();
     }
     var collapseIf = function(e){
     if (!e.within(f.bodyEl, false, true) && !e.within(f.picker.el, false, true)){
@@ -2348,7 +2349,7 @@ Beet.plugins.employeeDropDown = function(f, newValue, oldValue, opts){
     me.employeeStore.on({
 	load: function(){
 	    f.picker.show();
-	    f.picker.alignTo(f.el, "tl-bl?", [105, 0]);
+	    f.picker.alignTo(f.el, "bl-tl?", [105, 0]);
 	    onListRefresh();
 	    f.mon(Ext.getDoc(), {
 		mousedown: collapseIf,
