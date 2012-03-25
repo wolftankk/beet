@@ -78,11 +78,23 @@ Ext.define("Beet.apps.cards.CardList", {
             var d = metaData[c];
             fields.push(d["FieldName"]);
             if (!d["FieldHidden"]) {
-                me.columns.push({
+                var column = {
                     flex: 1,
                     header: d["FieldLabel"],
                     dataIndex: d["FieldName"]    
-                })
+                }
+
+		switch (d["FieldName"]){
+		    case "Par":
+		    case "Price":
+		    case "Insure":
+			column.xtype = "numbercolumn";
+			break;
+		}
+
+		console.log(d["FieldName"])
+
+		me.columns.push(column)
             }
         };
         

@@ -595,8 +595,6 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                     dataIndex: d["FieldName"]    
                                 })
 
-				console.log(d["FieldName"])
-
                                 switch (d["FieldName"]){
                                     case "PayName": 
                                         column.editor = {
@@ -1507,7 +1505,6 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
         results["cards"] = cards;
         
         if (isUpdate){
-            console.log(results)
             cardServer.UpdateCustomerAccount(Ext.JSON.encode(results), {
                 success: function(succ){
                     if (succ){
