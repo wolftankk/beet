@@ -1335,6 +1335,13 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				listeners: {
 				    change: function(f, newValue, oldValue, opts){
 					Ext.callback(Beet.plugins.employeeDropDown, me, [f, newValue, oldValue, opts], 30);
+				    },
+				    keydown: function(f, e, opts){
+					if (e.getKey() == Ext.EventObject.ENTER){
+					    var v = f.getValue();
+					    Ext.callback(Beet.plugins.employeeDropDown, me, [f, v, "", opts], 30);
+					    return false;
+					}
 				    }
 				},
 				onTriggerClick: function(){
