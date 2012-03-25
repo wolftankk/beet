@@ -54,11 +54,14 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                     var d = metaData[c];
                     fields.push(d["FieldName"]);
                     if (!d["FieldHidden"]) {
-                        columns.push({
+                        var column = {
                             flex: 1,
                             header: d["FieldLabel"],
                             dataIndex: d["FieldName"]    
-                        })
+                        }
+			//console.log(d["FieldName"])
+
+			columns.push(column);
                     }
                 };
 
@@ -592,6 +595,8 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                     dataIndex: d["FieldName"]    
                                 })
 
+				console.log(d["FieldName"])
+
                                 switch (d["FieldName"]){
                                     case "PayName": 
                                         column.editor = {
@@ -608,7 +613,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                         break;
                                     case "Money":
                                         column.editor = {
-                                            xtype: "textfield",
+                                            xtype: "numberfield",
                                             type: "int",
                                             allowBlank: false
                                         }
@@ -923,9 +928,13 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
             if (records && (records.data || records.raw)){
                 records = [records];
             }else{
-                Ext.MessageBox.alert("错误", "该用户不存在, 请重新查找!");
-                return;
-            }
+		if (records && type == "cardno"){
+		    records = records;
+		}else{
+		    Ext.MessageBox.alert("错误", "该用户不存在, 请重新查找!");
+		    return;
+		}
+	    }
         }
 
         if (records && records.length > 0){

@@ -1205,7 +1205,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         if (me.tabCache[tabId]){
             me.listTabPanel.setActiveTab(me.tabCache[tabId])
         }else{
-            console.log(store.indexOf(record))
+            //console.log(store.indexOf(record))
             //从模板中创建一个 并且加入panel
             var tab = me.tabCache[tabId] = me.listTabPanel.add({
                 title: record.get("IName") + (!!cardid ? " - (卡)" : ""),
@@ -1461,7 +1461,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             items: items
         }
         
-        console.log(results);
+        //console.log(results);
         cardServer.AddConsumer(Ext.JSON.encode(results), {
             success: function(succ){
                 if (succ){
