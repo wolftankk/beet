@@ -877,12 +877,21 @@ Ext.define("Beet.apps.cards.ItemList", {
                 for (var c in data){
                     var meta = data[c];
                     fields.push(meta["FieldName"])
+		    //console.log(meta["FieldName"])
                     if (!meta["FieldHidden"]){
-                        columns.push({
+                        var column = {
                             dataIndex: meta["FieldName"],
                             header: meta["FieldLabel"],
                             flex: 1
-                        })
+                        }
+
+			switch (meta["FieldName"]){
+			    case "IPrice":
+				column.xtype = "numbercolumn";
+				break;
+			}
+
+			columns.push(column);
                     }
                 }
 
