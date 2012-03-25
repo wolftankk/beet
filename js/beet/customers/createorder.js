@@ -1421,8 +1421,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 Ext.Msg.alert("失败", "创建订单失败");
                 return;
             }
+
             var _cardid = tab["_cardid"], _itemId = record.get("IID"), 
-                _cost = record.get("IRealPrice"), isgiff = record.get("isgiff"), isturn = record.get("isturn"),
+                _cost = record.get("IPrice"), isgiff = record.get("isgiff"), isturn = record.get("isturn"),
                 _balance = record.get("Balance");
                 employeeStore = tab.grid.getStore();
 
