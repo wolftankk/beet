@@ -688,6 +688,8 @@ Ext.define("Beet.apps.Viewport", {
             that.readPound();
         }, 500);
 	that.getCTTypeData()
+
+	Beet.getCTTypeData = that.getCTTypeData
     },
     getCTTypeData : function(__callback, force){
 	var customerServer = Beet.constants.customerServer;
