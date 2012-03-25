@@ -227,7 +227,48 @@ Ext.define("Beet.apps.customers.EndConsumer", {
                                             })
                                         }
                                     }
-                                }
+                                },
+				"-","-",
+				{
+                                    text: "下单回退",
+                                    scale: "large",
+                                    width: 100,
+                                    disabled: true,
+				    name: "cancelconsumer",
+				    handle: function(){
+                                        var grid = me.orderListPanel.grid,
+                                            sm = grid.selModel, list = sm.getSelection(),
+                                            cardServer = Beet.constants.cardServer;
+                                        if (list.length == 0){
+                                            Ext.Msg.alert("失败", "请指定需要结算的订单");
+                                            return;
+                                        }
+                                        
+                                        var results = [];
+                                        for (var c = 0; c < list.length; ++c){
+                                            var order = list[c], state = order.get("State");
+                                            //if (state != 2){
+                                            //    Ext.Msg.alert("失败", "你选定的订单不能结算. 状态必须为已审核!");
+                                            //    return;
+                                            //}
+                                            results.push({
+                                                index: order["index"],
+                                                indexno: order.get("IndexNo")
+                                            });
+                                        }
+                                        if (results.length > 0){
+                                            cardServer.CancelConsumer(Ext.JSON.encode(results), {
+						success: function(succ){
+						    //@TODO: NEED TEST
+						    console.log(succ)
+						},
+						failure: function(error){
+						    Ext.Error.raise(error);
+						}
+					    })
+					}
+				    }
+				}
                             ]
                         }
                     ]
@@ -251,6 +292,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
         me.leftPanel = me.mainPanel.down("panel[name=leftPanel]");
         me.rightPanel = me.mainPanel.down("panel[name=rightPanel]");
         me.clearingFeeBtn = me.mainPanel.down("button[name=clearingFee]");
+	me.cancelConsumerBtn = me.mainPanel.down("button[name=cancelconsumer]");
 
         me.createOrderPanel();
     },
@@ -404,6 +446,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
                         //var state = record.get("State");
                         //if (state == 2){
                         me.clearingFeeBtn.enable();
+			me.cancelConsumerBtn.enable();
                         //    return true
                         //}
                         //me.clearingFeeBtn.disable();
@@ -456,6 +499,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
                 for (var c in data){
                     var meta = data[c];
                     fields.push(meta["FieldName"])
+		    console.log(meta["FieldName"]);
                     if (!meta["FieldHidden"]){
                         var c = {
                             dataIndex: meta["FieldName"],
