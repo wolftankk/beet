@@ -2258,3 +2258,106 @@ Beet.plugins.customerDropDown = function(f, newValue, oldValue, opts){
 	}
     })
 }
+
+Beet.plugins.employeeDropDown = function(f, newValue, oldValue, opts){
+    var me = this;
+    newValue = Ext.String.trim(newValue);
+    if (newValue.length == 0){
+	me.selectedEmployee = false;
+	return;
+    }
+    if (newValue == oldValue){
+	return;
+    }
+    if (me.selectedEmployee){
+        return;
+    }
+    if (!me.employeeStore) { return; }
+
+    var ownerCT = f.up("panel");
+    var onListRefresh;
+
+    //create picker
+    if (f.picker == undefined){
+    var createPicker= function(){
+	    var picker = Ext.create("Ext.view.BoundList", {
+	    pickerField: f,
+	    selModel: "SINGLE",
+	    floating: true,
+	    hidden: true,
+	    ownerCT: ownerCT,
+	    cls: "",
+	    displayField: "EM_NAME",
+	    store: me.employeeStore,
+	    focusOnFront: false,
+	    pageSize: 10,
+	    loadingText: 'Searching...',
+	    loadingHeight: 70,
+	    width: 400,
+	    //maxHeight: 300,
+	    shadow: "sides",
+	    emptyText: 'No matching posts found.',
+	    getInnerTpl: function(){
+		return '<span class="search-item"><h3>{EM_NAME}</h3>{EM_DEPNAME}<br/>分店: {EM_STORENAME}</span>';
+	    }
+        });
+        return picker
+    }
+    f.picker = createPicker();
+
+    f.picker.on({
+        itemClick: function(v, record, item, index, e, opts){
+	    //me.onSelectCustomer(record);
+	    //f.el.focus();
+	    me._addEmpolyee([record])
+	    me.selectedEmployee = true;
+
+	    f.picker.hide();
+	},
+	refresh: function(){
+	    setTimeout(function(){
+		onListRefresh();
+	    }, 200);
+        }
+    })
+    }
+    me.employeeStore.setProxy(me.updateEmployeeProxy("EM_NAME LIKE '%"+newValue+"%'"));
+    me.employeeStore.load();
+
+    onListRefresh = function(){
+    var heightAbove = f.getPosition()[1] - Ext.getBody().getScroll().top,
+        heightBelow = Ext.Element.getViewHeight() - heightAbove - f.getHeight(),
+        space = Math.max(heightBelow, heightAbove);
+
+    console.log(space, f.picker.getHeight())
+    if (f.picker.getHeight() > space){
+        f.picker.setHeight(space - 5);
+    }
+    f.el.focus();
+    }
+    var collapseIf = function(e){
+    if (!e.within(f.bodyEl, false, true) && !e.within(f.picker.el, false, true)){
+	    f.picker.hide();
+
+	    var doc = Ext.getDoc();
+	    doc.un("mousewheel", collapseIf, f);
+	    doc.un("mousedown", collapseIf, f);
+	}
+    }
+
+    me.employeeStore.on({
+	load: function(){
+	    f.picker.show();
+	    f.picker.alignTo(f.el, "tl-bl?", [105, 0]);
+	    onListRefresh();
+	    f.mon(Ext.getDoc(), {
+		mousedown: collapseIf,
+		mousewheel: collapseIf    
+	    })
+	    f.el.focus();
+	    setTimeout(function(){
+		onListRefresh();
+	    }, 200);
+	}
+    })
+}

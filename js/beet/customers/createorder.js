@@ -41,6 +41,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         me.createMainPanel();
 
         me.buildCustomerStore();
+	me.buildEmployeeStore();
     },
     buildCustomerStore: function(){
         var me = this, customerServer = Beet.constants.customerServer;
@@ -127,6 +128,102 @@ Ext.define("Beet.apps.customers.CreateOrder", {
              }
         }
     },
+    buildEmployeeStore: function(metaData){
+        var me = this        //me.columns = columns;
+        Beet.constants.employeeServer.GetEmployeeData(0, 1, "", true, {
+            success: function(data){
+                var data = Ext.JSON.decode(data);
+                metaData = data["MetaData"];
+		var fields = [], columns = [];
+		
+		for (var c = 0; c < metaData.length; ++c){
+		    var d = metaData[c];
+		    if (d["FieldName"] == "EM_INDATE"){
+			fields.push({ 
+			    name: "EM_INDATE", 
+			    convert: function(value, record){
+				 var date = new Date(value * 1000);
+				 if (date){
+				     return Ext.Date.format(date, "Y/m/d");
+				 }
+			     }
+			});
+		    }else{
+			fields.push(d["FieldName"]);
+		    }
+		    if (!d["FieldHidden"]) {
+			columns.push({
+			    flex: 1,
+			    header: d["FieldLabel"],
+			    dataIndex: d["FieldName"]    
+			})
+		    }
+		};
+		if (!Beet.apps.employees.EmployeeListModel){
+		    Ext.define("Beet.apps.employees.EmployeeListModel", {
+			extend: "Ext.data.Model",
+			fields: fields
+		    });
+		}
+
+		if (!Ext.isDefined(Beet.apps.employees.EmployeeListStore)){
+		    Ext.define("Beet.apps.employees.EmployeeListStore", {
+			extend: "Ext.data.Store",
+			model: Beet.apps.employees.EmployeeListModel,
+			autoLoad: true,
+			pageSize: Beet.constants.PageSize,
+			load: function(options){
+			    var me = this;
+			    options = options || {};
+			    if (Ext.isFunction(options)) {
+				options = {
+				    callback: options
+				};
+			    }
+
+			    Ext.applyIf(options, {
+				groupers: me.groupers.items,
+				page: me.currentPage,
+				start: (me.currentPage - 1) * me.pageSize,
+				limit: me.pageSize,
+				addRecords: false
+			    });      
+			    me.proxy.b_params["start"] = options["start"];
+			    me.proxy.b_params["limit"] = options["limit"]
+
+			    return me.callParent([options]);
+			},
+		    });
+		};
+		
+		me.employeeStore = Ext.create("Beet.apps.employees.EmployeeListStore");
+		me.employeeStore.setProxy(me.updateEmployeeProxy(""));
+            },
+            failure: function(error){
+                Ext.Error.raise(error)
+            }
+        })
+    },
+    updateEmployeeProxy: function(filter){
+        var me = this, employeeServer = Beet.constants.employeeServer;
+        return {
+            type: "b_proxy",
+            b_method: Beet.constants.employeeServer.GetEmployeeData,
+            startParma: "start",
+            limitParma: "limit",
+            b_params: {
+                "filter" : "",
+                "b_onlySchema": false
+            },
+            b_scope: Beet.constants.employeeServer,
+            reader: {
+                type: "json",
+                root: "Data",
+                totalProperty: "TotalCount"
+            }
+        }
+    },
+
     createMainPanel: function(){
         var me = this;
         
@@ -703,6 +800,11 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                         meta["FieldHidden"] = true;
                     }
                     fields.push(meta["FieldName"])
+
+		    //屏蔽显示
+		    if (meta["FieldName"] == "ICategoryName"){
+			meta["FieldHidden"] = true;
+		    }
                     if (!meta["FieldHidden"]){
                         columns.push({
                             dataIndex: meta["FieldName"],
@@ -1226,13 +1328,20 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                         plain: true,
                         name: "_egrid",
                         tbar: [
-                            {
-                                text: "指派员工",
-                                xtype: "button",
-                                handler: function(){
+			    {
+				fieldLabel: "指派员工",
+				xtype: "trigger",
+				checkChangeBuffer: 500,
+				listeners: {
+				    change: function(f, newValue, oldValue, opts){
+					Ext.callback(Beet.plugins.employeeDropDown, me, [f, newValue, oldValue, opts], 30);
+				    }
+				},
+				onTriggerClick: function(){
+				    me.selectedEmployee = true;
                                     tab.popupEmpolyee();
-                                }
-                            }
+				}
+			    }
                         ]
                     }
                 ]
@@ -1293,7 +1402,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             cls: "iScroll",
             autoScroll: true,
             columnLines: true,
-            columns: columns    
+            columns: columns
         });
 
         tab.popupEmpolyee = function(){
@@ -1353,6 +1462,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             }
             tab.updatePanel();
         }
+	//alias
+	me._addEmpolyee = tab.addEmpolyee;
+
         tab.removeEmpolyee = function(record){
             var selectedEmpolyees = tab.selectedEmpolyees;
             var eid = record.get("employeeId");
