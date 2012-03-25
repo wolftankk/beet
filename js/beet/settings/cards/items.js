@@ -343,7 +343,7 @@ Ext.define("Beet.apps.cards.AddItem", {
                                 if (currField == "COUNT"){
                                     //check field "PRICE" that it exists val?
                                     var price = currRecord.get("PPrice"), count = currRecord.get("COUNT");
-                                    if (price){ price = parseFloat(price.replaceAll(",", "")); }
+                                    if (price){ price = parseFloat(price); }
                                     currRecord.set("PRICE", Ext.Number.toFixed(price * count, 2));
                                     currRecord.set("COUNT", Ext.Number.toFixed(count, 6));
 
@@ -609,9 +609,9 @@ Ext.define("Beet.apps.cards.AddItem", {
             code: rawData["ICode"],
             name: rawData["IName"],
             descript: rawData["IDescript"],
-            price: (""+rawData["IPrice"]).replaceAll(",", ""),
+            price: rawData["IPrice"],
             rate: rawData["IRate"],
-            realprice: (rawData["IRealPrice"]+"").replaceAll(",", ""),
+            realprice: rawData["IRealPrice"],
             category: rawData["ICategoryName"]
         });
         

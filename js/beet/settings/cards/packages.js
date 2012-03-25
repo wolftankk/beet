@@ -76,9 +76,9 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                     data = data[0];
                     me.form.getForm().setValues({
                         name:                data["Name"],
-                        price:                data["PPrice"].replace(",", ""),
+                        price:                data["PPrice"],
                         //rate:                data["PRate"],
-                        //realprice:        data["PRealPrice"].replace(",", ""),
+                        //realprice:        data["PRealPrice"],
                         descript:        data["Descript"],
                         _packageName: data["PCategoryName"]
                     });

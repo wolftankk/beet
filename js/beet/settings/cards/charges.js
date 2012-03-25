@@ -482,11 +482,11 @@ Ext.define("Beet.apps.cards.AddCharge", {
   },
   restoreFromData: function(rawData){
     var me = this, form = me.form.getForm();
-    var discount = parseFloat(rawData["CCost"].replaceAll(",", "")) * parseFloat(rawData["CRate"]);
+    var discount = parseFloat(rawData["CCost"]) * parseFloat(rawData["CRate"]);
     me.rawData = rawData;
     form.setValues({
       name: rawData["CName"],
-      cost: rawData["CCost"].replaceAll(",", ""),
+      cost: rawData["CCost"],
       rate: rawData["CRate"],
       discount: discount,
       category: rawData["CategoryName"]

@@ -923,10 +923,10 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                         list[data[c]["CID"]] = {
                             name: data[c]["Name"],
                             expensecount: data[c]["ExpenseCount"],
-                            balance: (data[c]["Balance"] + "").replaceAll(",", ""),
-                            originBalance : (data[c]["Balance"] + "").replaceAll(",", ""),
+                            balance: (data[c]["Balance"] + ""),
+                            originBalance : (data[c]["Balance"] + ""),
                             stepprice: data[c]["StepPrice"],
-                            maxcount: (data[c]["MaxCount"] + "").replaceAll(",", "")
+                            maxcount: (data[c]["MaxCount"] + "")
                         }
                     }
                     var customerCardList = Ext.create("Ext.data.Store", {
@@ -973,9 +973,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                                                             item["StepPrice"] = list[cid]["stepprice"]
                                                             item["originBalance"] = list[cid]["originBalance"]
                                                             var maxcount = parseInt(list[cid]["maxcount"]);
-                                                            var realPrice = parseFloat((item["IRealPrice"]+"").replaceAll(",", ""))
+                                                            var realPrice = parseFloat(item["IRealPrice"]);
 							    if (!realPrice){
-								realPrice = parseFloat((item["IPrice"]+"").replaceAll(",", ""))
+								realPrice = parseFloat(item["IPrice"]);
 							    }
                                                             if (maxcount == -1){
                                                                 item["needPaid"] = realPrice;
@@ -1162,10 +1162,10 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             var cardno = record.get("CardNo");
             if (!tmp[cardno]){
                 tmp[cardno] = true;
-                currentCustomerBalance += parseFloat((record.get("Balance") + "").replaceAll(",", "")) || 0;
+                currentCustomerBalance += parseFloat(record.get("Balance")) || 0;
             }
         }
-        currentCustomerBalance += parseFloat((me.currentCustomerBalance + "").replaceAll(",", "")) || 0;
+        currentCustomerBalance += parseFloat(me.currentCustomerBalance) || 0;
         //console.log(currentCustomerBalance, needPaidCount)
         if (needPaidCount > currentCustomerBalance){
             me.createOrderBtn.disable();
@@ -1422,7 +1422,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 return;
             }
             var _cardid = tab["_cardid"], _itemId = record.get("IID"), 
-                _cost = record.get("IRealPrice").replaceAll(",", ""), isgiff = record.get("isgiff"), isturn = record.get("isturn"),
+                _cost = record.get("IRealPrice"), isgiff = record.get("isgiff"), isturn = record.get("isturn"),
                 _balance = record.get("Balance");
                 employeeStore = tab.grid.getStore();
 

@@ -650,7 +650,7 @@ Ext.define("Beet.apps.cards.AddCard", {
         for (var c in selectedChargeType){
             var charge = selectedChargeType[c];
             if (!!charge[2]){
-                var price = charge[2].replaceAll(",", ""), r = charge[4];
+                var price = charge[2], r = charge[4];
                 me._par.charges += price;//面值
                 me._real.charges += price * r;//实耗
             //    me.count.chargesCount = charge[2].replaceAll(",", "") * charge[4];
@@ -812,7 +812,7 @@ Ext.define("Beet.apps.cards.AddCard", {
         for (var c in selectedRebates){
             var rebate = selectedRebates[c];
             //value ismoney rater
-            var v = rebate[2].replaceAll(",", ""), ismoney = rebate[3], rater = rebate[8];
+            var v = rebate[2], ismoney = rebate[3], rater = rebate[8];
             if (ismoney == "True"){
                 //面值 - 值
                 me._rebateList.push(" - " + v);
@@ -1013,8 +1013,8 @@ Ext.define("Beet.apps.cards.AddCard", {
             var package = selectedPackages[c];
             if (!!package[3]){
                 //console.log(package);
-                var price = package[2].replaceAll(",", ""),
-                    r = package[3].replaceAll(",", "");
+                var price = package[2],
+                    r = package[3];
                 me._par.packages += price * 1;
                 me._real.packages += r * 1;
             //    me.count.packagesCount += package[3].replaceAll(",", "") * 1;
@@ -1189,12 +1189,12 @@ Ext.define("Beet.apps.cards.AddCard", {
         for (var c in selectedItems){
             var item = selectedItems[c];
             if (!!item[5]){
-                var price = item[3].replaceAll(",", "");
+                var price = item[3];
                    if (typeof(item[5])=="number"){
                         r=item[5];
                     }
                     if (typeof(item[5])=="string"){
-                        r=item[5].replaceAll(",", "");
+                        r=item[5];
                     }
             //        r = item[5].replaceAll(",", "");
 
@@ -1360,7 +1360,7 @@ Ext.define("Beet.apps.cards.AddCard", {
         for (var c in selectedProducts){
             var product = selectedProducts[c];
             if (!!product[4]){
-                var price = product[4].replaceAll(",", "") * 1;
+                var price = product[4] * 1;
                 me._par.products += price;
                 me._real.products += price;
                 //me.count.productsCount += product[4].replaceAll(",", "") * 1;
