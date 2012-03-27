@@ -51,8 +51,6 @@ Ext.define("Beet.apps.customers.EndConsumer", {
     createMainPanel: function(){
         var me = this;
         
-        //left panel
-        //right panel info panel
         var config = {
             layout: {
                 type: "hbox",
@@ -235,7 +233,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
                                     width: 100,
                                     disabled: true,
 				    name: "cancelconsumer",
-				    handle: function(){
+				    handler: function(){
                                         var grid = me.orderListPanel.grid,
                                             sm = grid.selModel, list = sm.getSelection(),
                                             cardServer = Beet.constants.cardServer;
@@ -244,29 +242,29 @@ Ext.define("Beet.apps.customers.EndConsumer", {
                                             return;
                                         }
                                         
-                                        var results = [];
+					var cancelConsumer = function(indexno, serviceNo){
+					    cardServer.CancelConsumer(indexno, {
+					      success: function(succ){
+						  if (succ){
+						      Ext.Msg.alert("成功", "订单号: " + indexno + ", 回退成功!");
+						  }else{
+						      Ext.Msg.alert("失败", "订单号: " + indexno + ", 回退失败!");
+						  }
+						  grid.store.loadPage(1);
+					      },
+					      failure: function(error){
+						  Ext.Error.raise(error);
+					      }
+					    })
+					}
                                         for (var c = 0; c < list.length; ++c){
                                             var order = list[c], state = order.get("State");
                                             //if (state != 2){
                                             //    Ext.Msg.alert("失败", "你选定的订单不能结算. 状态必须为已审核!");
                                             //    return;
                                             //}
-                                            results.push({
-                                                index: order["index"],
-                                                indexno: order.get("IndexNo")
-                                            });
+					    cancelConsumer(order.get("IndexNo"), order.get("ServiceNo"));
                                         }
-                                        if (results.length > 0){
-                                            cardServer.CancelConsumer(Ext.JSON.encode(results), {
-						success: function(succ){
-						    //@TODO: NEED TEST
-						    console.log(succ)
-						},
-						failure: function(error){
-						    Ext.Error.raise(error);
-						}
-					    })
-					}
 				    }
 				}
                             ]
