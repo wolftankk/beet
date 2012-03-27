@@ -319,7 +319,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
                     }
                 },
                 expand: function(p){
-                    if (p && p.setHeight){
+                    if (p && p.setHeight && me.childrenList[p]){
                         p.setHeight(Beet.constants.VIEWPORT_HEIGHT - 100);//reset && update
                     }
                 }
@@ -328,6 +328,9 @@ Ext.define("Beet.apps.customers.EndConsumer", {
 
         me.orderListPanel = Ext.widget("panel", Ext.apply(options, {
             title: "订单列表",
+	    //collapsible: false,
+	    //collapsed: false,
+	    height: 240
         }));
 
         me.orderDetailPanel = Ext.create("Ext.panel.Panel", Ext.apply(options, {
@@ -339,7 +342,6 @@ Ext.define("Beet.apps.customers.EndConsumer", {
 	}))
 
         me.childrenList = [
-            me.orderListPanel,
             me.orderDetailPanel,
 	    me.stockDataPanel
         ]
@@ -465,7 +467,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
             
             grid = me.orderListPanel.grid = Ext.create("Beet.plugins.LiveSearch", {
                 store: store,
-                height: Beet.constants.VIEWPORT_HEIGHT - 79,
+                height: "100%",
                 cls: "iScroll",
                 selModel: sm,
                 autoScroll: true,
@@ -593,7 +595,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
 
             var grid = me.orderDetailPanel.grid = Ext.create("Beet.plugins.LiveSearch", {
                 store: store,
-                height: Beet.constants.VIEWPORT_HEIGHT - 79,
+                height: "100%",
                 cls: "iScroll",
                 autoScroll: true,
                 columnLines: true,
@@ -694,7 +696,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
 
             var grid = me.orderDetailPanel.grid = Ext.create("Beet.plugins.LiveSearch", {
                 store: store,
-                height: Beet.constants.VIEWPORT_HEIGHT - 79,
+                height: "100%",
                 cls: "iScroll",
                 autoScroll: true,
                 columnLines: true,
