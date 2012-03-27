@@ -4,7 +4,6 @@ function time(){
     return +(new Date());
 }
 
-Beet.apps.customers.getCTTypeData = Beet.getCTTypeData;
 
 Beet.apps.customers.getCustomerTypes = function(__callback){
     if (Beet.cache.customerTypes == undefined){
