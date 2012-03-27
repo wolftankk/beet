@@ -318,7 +318,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
                 },
                 expand: function(p){
                     if (p && p.setHeight && me.childrenList[p]){
-                        p.setHeight(Beet.constants.VIEWPORT_HEIGHT - 100);//reset && update
+                        p.setHeight(Beet.constants.VIEWPORT_HEIGHT - 300);//reset && update
                     }
                 }
             }
@@ -340,7 +340,6 @@ Ext.define("Beet.apps.customers.EndConsumer", {
 	}))
 
         me.childrenList = [
-	    me.orderListPanel,
             me.orderDetailPanel,
 	    me.stockDataPanel
         ]
