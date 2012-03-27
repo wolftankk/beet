@@ -113,7 +113,7 @@ Ext.define("Beet.apps.customers.customerAttr", {
         var that = this;
         that.storeProxy.load();
         //update
-        Beet.apps.customers.getCTTypeData(callback, true);
+        Beet.getCTTypeData(callback, true);
     },
     createTreeList: function(){
         var that = this, store = that.storeProxy, customerServer = Beet.constants.customerServer;

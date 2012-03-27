@@ -838,9 +838,9 @@ Ext.define("Beet.apps.Viewport", {
 	    })
 	}
 	
-	//if (__callback && Ext.isFunction(__callback)){
-	//    __callback();
-	//}
+	if (__callback && Ext.isFunction(__callback)){
+	    __callback();
+	}
     },
     onRender: function(){
         var that = this, h = Ext.core.Element.getViewHeight();
