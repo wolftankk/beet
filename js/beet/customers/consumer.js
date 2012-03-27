@@ -340,6 +340,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
 	}))
 
         me.childrenList = [
+	    me.orderListPanel,
             me.orderDetailPanel,
 	    me.stockDataPanel
         ]
