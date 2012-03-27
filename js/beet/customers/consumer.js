@@ -483,6 +483,9 @@ Ext.define("Beet.apps.customers.EndConsumer", {
                         me.orderDetailPanel.expand();
                         me.orderDetailPanel.store.setProxy(me.updateOrderDetailProxy("IndexNo = '" + indexno + "'"));
                         me.orderDetailPanel.store.loadPage(1);
+
+                        me.stockDataPanel.store.setProxy(me.updateStockDataProxy("IndexNo = '" + indexno + "'"));
+                        me.stockDataPanel.store.loadPage(1);
                     }
                 }
             });
@@ -614,11 +617,10 @@ Ext.define("Beet.apps.customers.EndConsumer", {
         }
         var columns = me.stockDataPanel.__columns = [];
 
-	/*
-        cardServer.GetConsumerStockData("", {
+        cardServer.GetConsumerStockData(true, "", {
             success: function(data){
                 var data = Ext.JSON.decode(data)["MetaData"];
-                var fields = me.orderDetailPanel.__fields = [];
+                var fields = me.stockDataPanel.__fields = [];
                 for (var c in data){
                     var meta = data[c];
                     fields.push(meta["FieldName"])
@@ -646,15 +648,13 @@ Ext.define("Beet.apps.customers.EndConsumer", {
                 Ext.Error.raise(error);
             }
         });
-	*/
     },
     initializeStockDataGrid: function(){
         var me = this, selectedProducts = me.selectedProducts, cardServer = Beet.constants.cardServer;
         var __fields = me.stockDataPanel.__fields;
 
-	/*
-        if (!Beet.apps.OrderDetailStore){
-            Ext.define("Beet.apps.OrderDetailStore", {
+        if (!Beet.apps.customers.StockDataStore){
+            Ext.define("Beet.apps.customers.StockDataStore", {
                 extend: "Ext.data.Store",
                 autoLoad: true,
                 pageSize: Beet.constants.PageSize,
@@ -674,7 +674,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
                 },
                 proxy: {
                     type: "b_proxy",
-                    b_method: cardServer.GetConsumerDetailData,
+                    b_method: cardServer.GetConsumerStockData,
                     b_params: {
                         "b_onlySchema": false,
                         "awhere" : ""
@@ -689,24 +689,40 @@ Ext.define("Beet.apps.customers.EndConsumer", {
             })
         }
 
-        if (me.orderDetailPanel.grid == undefined){
-            var store = Ext.create("Beet.apps.OrderDetailStore");
+        if (me.stockDataPanel.grid == undefined){
+            var store = Ext.create("Beet.apps.customers.StockDataStore");
 
-            var grid = me.orderDetailPanel.grid = Ext.create("Beet.plugins.LiveSearch", {
+            var grid = me.stockDataPanel.grid = Ext.create("Beet.plugins.LiveSearch", {
                 store: store,
                 height: "100%",
                 cls: "iScroll",
                 autoScroll: true,
                 columnLines: true,
-                columns: me.orderDetailPanel.__columns,
+                columns: me.stockDataPanel.__columns,
             });
-            me.orderDetailPanel.store = store;
+            me.stockDataPanel.store = store;
 
 
-            me.orderDetailPanel.add(grid);
-            me.orderDetailPanel.doLayout();
+            me.stockDataPanel.add(grid);
+            me.stockDataPanel.doLayout();
         }
-	*/
+    },
+    updateStockDataProxy : function(b_filter){
+        var me = this, cardServer = Beet.constants.cardServer;
+        return {
+            type: "b_proxy",
+            b_method: cardServer.GetConsumerStockData,
+            b_params: {
+                "b_onlySchema": false,
+                "awhere" : b_filter
+            },
+            b_scope: Beet.constants.cardServer,
+            reader: {
+                type: "json",
+                root: "Data",
+                totalProperty: "TotalCount"
+            }
+        }
     }
 });
 })(window)
