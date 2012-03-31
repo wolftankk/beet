@@ -111,11 +111,6 @@ Ext.define("Beet.apps.cards.AddProducts", {
               name: "barcode",
               allowBlank: true
             },
-//            {
-//              fieldLabel: "产品数目",
-//              name: "count",
-//              allowBlank: false,              
-//            },
             {
               fieldLabel: "产品价格",
               name: "price",
@@ -138,7 +133,19 @@ Ext.define("Beet.apps.cards.AddProducts", {
                   return "输入的值必须是两位小数!";
                 }
                 return true;
-              },
+              }
+            },
+            {
+              fieldLabel: "会员价格",
+              name: "MemberPrice",
+              allowBlank: false,
+              validator: function(value){
+                var p = RegExp(/\d+\.\d\d/);
+                if (!p.test(value)){
+                  return "输入的值必须是两位小数!";
+                }
+                return true;
+              }
             },
             {
               fieldLabel: "计量单位",
@@ -166,10 +173,6 @@ Ext.define("Beet.apps.cards.AddProducts", {
               name: "category",
               readOnly: true,
               emptyMsg: "点击侧边分类列表, 自动填入"
-            },
-            {
-              xtype: "component",
-                          
             },
             {
               fieldLabel: "注释",
@@ -236,6 +239,7 @@ Ext.define("Beet.apps.cards.AddProducts", {
       count: rawData["PCount"],
       price: (rawData["PPrice"] ? rawData["PPrice"] : 0),
       cost: (rawData["PCost"] ? rawData["PCost"] : 0),
+      MemberPrice: rawData["MemberPrice"],
       standards: rawData["PStandands"],
       serviceid: rawData["ServiceID"],
       descript: rawData["PDescript"],
