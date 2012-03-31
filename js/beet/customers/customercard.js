@@ -742,14 +742,20 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                     {
                                         fieldLabel: "名称",
                                         xtype: "textfield",
-                                        name: "name"    
+                                        name: "payname"    
                                     },
+				    {
+					fieldLabel: "虚拟货币?",
+					xtype: "checkbox",
+					inputValue: true,
+					name: "isvirtual"
+				    },
                                     {
                                         xtype: "button",
                                         text: "提交",
                                         handler: function(){
                                             var form = me.paidTypeForm.getForm(), results = form.getValues();
-                                            cardServer.AddPayType(results["name"], {
+                                            cardServer.AddPayType(Ext.JSON.encode(results), {
                                                 success: function(id){
                                                     if (id > -1){
                                                         Ext.Msg.show({
@@ -774,7 +780,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                 ],
                             });
                             w = Ext.create("Ext.window.Window", {
-                                height: 100,
+                                height: 150,
                                 width: 300,
                                 title: "增加付款方式",
                                 plain: true    
