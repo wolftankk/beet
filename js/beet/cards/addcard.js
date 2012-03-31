@@ -258,6 +258,7 @@ Ext.define("Beet.apps.cards.AddCard", {
                                             fieldLabel: "最大消费次数",
                                             allowBlank: false,
                                             name: "maxcount",
+					    xtype: "hidden",
                                             emptyText: "(大于0为计次卡; -1时为计费卡)" 
                                         },
                                         {
