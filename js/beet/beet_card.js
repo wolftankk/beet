@@ -338,9 +338,9 @@ function createPackageCategoryTree(){
                     {text: "删除", handler: function(direction, e){
                         deleteTreeItem(direction, record, e);    
                     }},
-                    {text: "修改打折率", handler: function(direction, e){
-                        updateCategoryRate(direction, record, e);
-                    }}
+                    //{text: "修改打折率", handler: function(direction, e){
+                    //    updateCategoryRate(direction, record, e);
+                    //}}
                 ]
             }
 
@@ -429,20 +429,20 @@ function createPackageCategoryTree(){
                         me.refreshTreeList();
                     }
                 }
-            ],
-            columns: [
-                {
-                    xtype: 'treecolumn',
-                    text: "分类名称",
-                    flex: 1,
-                    dataIndex: 'text'
-                },
-                {
-                    text: "打折率(%)",
-                    width: 60,
-                    dataIndex: 'rate'
-                }
-            ],
+            ]
+            //columns: [
+            //    {
+            //        xtype: 'treecolumn',
+            //        text: "分类名称",
+            //        flex: 1,
+            //        dataIndex: 'text'
+            //    },
+            //    {
+            //        text: "打折率(%)",
+            //        width: 60,
+            //        dataIndex: 'rate'
+            //    }
+            //],
         });
         me.treeList.addListener({
             collapse: function(p){

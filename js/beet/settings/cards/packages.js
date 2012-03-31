@@ -25,6 +25,7 @@ Ext.define("Beet.apps.cards.PackageProfile", {
     autoWidth: true,
     autoHeight: true,
     autoScroll: true,
+    layout: "fit",
     frame: true,
     border: false,
     bodyBorder: false,    
@@ -227,210 +228,165 @@ Ext.define("Beet.apps.cards.PackageProfile", {
             plain: true,
             bodyStyle: "background-color: #dfe8f5",
             items: [
-                {
-                    layout: {
-                        type: "hbox",
-                        align: "stretch"
-                    },
-                    height: "100%",
-                    autoHeight: true,
-                    autoScroll: true,
-                    bodyStyle: "background-color: #dfe8f5",
-                    defaults: {
-                        border: false,
-                        bodyStyle: "background-color: #dfe8f5"
-                    },
-                    items:[
-                        //me.treeList,//category tree list
-                        {
-                            layout: {
-                                type: 'vbox',
-                                align: 'stretch'
-                            },
-                            bodyStyle: "background-color: #dfe8f5",
-                            height: "100%",
-                            flex: 2,
-                            items: [
-                                {
-                                    layout: {
-                                        type: "table",
-                                        columns: 3,
-                                        tableAttrs: {
-                                            cellspacing: 10,
-                                            style: {
-                                                width: "100%",
-                                            }
-                                        }
-                                    },
-                                    border: false,
-                                    bodyStyle: "background-color: #dfe8f5",
-                                    defaults: {
-                                        bodyStyle: "background-color: #dfe8f5",
-                                        margin: "5 0 0 5",
-                                        listeners: {
-                                            scope: me,
-                                            blur: function(){
-                                                me.onUpdateForm();
-                                            }
-                                        }
-                                    },
-                                    defaultType: "textfield",
-                                    fieldDefaults: {
-                                        msgTarget: "side",
-                                        labelAlign: "top",
-                                        labelWidth: 60
-                                    },
-                                    items: [
-                                        {
-                                            fieldLabel: "名称",
-                                            allowBlank: false,
-                                            name: "name"
-                                        },
-                                        {
-                                            fieldLabel: "总价",
-                                            allowBlank: false,
-                                            name: "price"
-                                        },
-					/*
-                                        {
-                                            fieldLabel: "折扣",
-                                            allowBlank: false,
-                                            name: "rate",
-                                            value: 1.00
-                                        },
-                                        {
-                                            fieldLabel: "套餐售价",
-                                            allowBlank: false,
-                                            name: "realprice",
-                                            listeners: {
-                                                scope: me,
-                                                blur: function(){
-                                                    me.onUpdateForm(true);
-                                                }
-                                            }
-                                        },
-					*/
-                                        {
-                                            xtype: "combobox",
-                                            fieldLabel: "所属分类",
-                                            store:new Ext.data.SimpleStore({fields:[],data:[[]]}),   
-                                            editable:false, 
-                                            name: "_packageName",
-                                            mode: 'local',   
-                                            triggerAction:'all',   
-                                            maxHeight: 200,   
-                                            tpl: "<tpl for='.'><div style='height:200px'><div id='innerTree'></div></div></tpl>",   
-                                            selectedClass:'',   
-                                            onSelect:Ext.emptyFn,
-                                            listeners: {
-                                                expand: function(f){
-                                                    var that = this;
-                                                    f.setValue = function(value){
-                                                        var that = this, inputId = f.getInputId(), inputEl = that.inputEl;
-                                                        inputEl.dom.value = value
-                                                    }
-                                                    if (!me.innerTreeList){
-                                                        var store = f.store = Ext.create("Beet.apps.cards.PackagesCatgoryTreeStore", {
-                                                            autoLoad: false    
-                                                        })
-                                                        me.innerTreeList = new Ext.tree.TreePanel({
-                                                            store: store,
-                                                            layout: "fit",
-                                                            bodyStyle: "background-color: #fff",
-                                                            frame: false,
-                                                            lookMask: true,
-                                                            cls: "iScroll",
-                                                            border: 0,
-                                                            autoScroll: true,
-                                                            height: 200,
-                                                            useArrow: true,
-                                                            split: true,
-                                                            listeners: {
-                                                                itemclick: function(grid, record){
-                                                                    //首先要获取原始的数据
-                                                                    //console.log("itemClick", record)
-                                                                    me.selectedPackages = [
-                                                                        record
-                                                                    ];
-                                                                    me.selectedPackageCategoryId = record.get("id");
-                                                                    //f.value = record.raw["name"];
-                                                                    f.setValue(record.get("text") || record.raw["name"])
-                                                                }
-                                                            }
-                                                        });
-                                                    };
-                                                    setTimeout(function(){
-                                                        me.innerTreeList.render("innerTree")
-                                                    }, 500);
-                                                }
-                                            }
-                                        },
-                                        //{
-                                        //    xtype: "component",
-                                        //    width: 5
-                                        //},
-                                        {
-                                            fieldLabel: "注释",
-                                            colspan: 3,
-                                            width: 600,
-                                            height: 40,
-                                            allowBlank: true,
-                                            name: "descript"
-                                        }    
-                                    ]
-                                },
-                                {
-                                    type: "fit",
-                                    autoScroll: true,
-                                    autoHeight: true,
-                                    border: false,
-                                    bodyStyle: "background-color: #dfe8f5;margin-top: 10px",
-                                    height: Beet.constants.VIEWPORT_HEIGHT - 95,
-                                    width: 830,
-                                    items: me.childrenList, 
-                                    bbar:[
-                                        "->",
-                                        (function(){
-                                                if (me.b_mode == "add"){
-                                                    return {
-                                                        text: "新增",
-                                                        xtype: "button",
-                                                        name: "packageNewBtn",
-                                                        border: 1,
-                                                        width: 200,
-                                                        style: {
-                                                            borderColor: "#99BBE8"
-                                                        },
-                                                        bodyStyle: "background-color: #dfe8f5",
-                                                        handler: function(){
-                                                            me.processData(this, "add");
-                                                        }
-                                                        }
-                                                }else{
-                                                    return {
-                                                        text: "编辑",
-                                                        xtype: "button",
-                                                        name: "packageEditBtn",
-                                                        border: 1,
-                                                        width: 200,
-                                                        style: {
-                                                            borderColor: "#99BBE8"
-                                                        },
-                                                        bodyStyle: "background-color: #dfe8f5",
-                                                        handler: function(){
-                                                            me.processData(this, "edit");
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        )()
-                                    ]
-                                }
-                            ],
-                        },
-                    ]
-                }
-            ],
+		{
+		    layout: {
+			type: 'vbox',
+			align: 'stretch'
+		    },
+		    bodyStyle: "background-color: #dfe8f5",
+		    height: "100%",
+		    flex: 2,
+		    items: [
+			{
+			    layout: {
+				type: "table",
+				columns: 2,
+				tableAttrs: {
+				    cellspacing: 10,
+				    style: {
+					width: "100%",
+				    }
+				}
+			    },
+			    border: false,
+			    bodyStyle: "background-color: #dfe8f5",
+			    defaults: {
+				bodyStyle: "background-color: #dfe8f5",
+				margin: "5 0 0 5",
+				listeners: {
+				    scope: me,
+				    blur: function(){
+					me.onUpdateForm();
+				    }
+				}
+			    },
+			    defaultType: "textfield",
+			    fieldDefaults: {
+				msgTarget: "side",
+				labelAlign: "top",
+				labelWidth: 60
+			    },
+			    items: [
+				{
+				    fieldLabel: "名称",
+				    allowBlank: false,
+				    name: "name"
+				},
+				{
+				    fieldLabel: "总价",
+				    allowBlank: false,
+				    name: "price"
+				},
+				{
+				    xtype: "combobox",
+				    fieldLabel: "所属分类",
+				    store:new Ext.data.SimpleStore({fields:[],data:[[]]}),   
+				    editable:false, 
+				    name: "_packageName",
+				    mode: 'local',   
+				    triggerAction:'all',   
+				    maxHeight: 200,   
+				    tpl: "<tpl for='.'><div style='height:200px'><div id='innerTree'></div></div></tpl>",   
+				    selectedClass:'',   
+				    onSelect:Ext.emptyFn,
+				    listeners: {
+					expand: function(f){
+					    var that = this;
+					    f.setValue = function(value){
+						var that = this, inputId = f.getInputId(), inputEl = that.inputEl;
+						inputEl.dom.value = value
+					    }
+					    if (!me.innerTreeList){
+						var store = f.store = Ext.create("Beet.apps.cards.PackagesCatgoryTreeStore", {
+						    autoLoad: false    
+						})
+						me.innerTreeList = new Ext.tree.TreePanel({
+						    store: store,
+						    layout: "fit",
+						    bodyStyle: "background-color: #fff",
+						    frame: false,
+						    lookMask: true,
+						    cls: "iScroll",
+						    border: 0,
+						    autoScroll: true,
+						    height: 200,
+						    useArrow: true,
+						    split: true,
+						    listeners: {
+							itemclick: function(grid, record){
+							    //首先要获取原始的数据
+							    //console.log("itemClick", record)
+							    me.selectedPackages = [
+								record
+							    ];
+							    me.selectedPackageCategoryId = record.get("id");
+							    //f.value = record.raw["name"];
+							    f.setValue(record.get("text") || record.raw["name"])
+							}
+						    }
+						});
+					    };
+					    setTimeout(function(){
+						me.innerTreeList.render("innerTree")
+					    }, 500);
+					}
+				    }
+				},
+				{
+				    xtype: "component",
+				    width: 5
+				},
+				{
+				    fieldLabel: "注释",
+				    colspan: 2,
+				    width: 600,
+				    height: 40,
+				    allowBlank: true,
+				    name: "descript"
+				}    
+			    ]
+			},
+			me.childrenList
+		    ],
+		},
+	    ],
+	    bbar:[
+		"->",
+		(function(){
+			if (me.b_mode == "add"){
+			    return {
+				text: "新增",
+				xtype: "button",
+				name: "packageNewBtn",
+				border: 1,
+				width: 200,
+				style: {
+				    borderColor: "#99BBE8"
+				},
+				bodyStyle: "background-color: #dfe8f5",
+				handler: function(){
+				    me.processData(this, "add");
+				}
+				}
+			}else{
+			    return {
+				text: "编辑",
+				xtype: "button",
+				name: "packageEditBtn",
+				border: 1,
+				width: 200,
+				style: {
+				    borderColor: "#99BBE8"
+				},
+				bodyStyle: "background-color: #dfe8f5",
+				handler: function(){
+				    me.processData(this, "edit");
+				}
+			    }
+			}
+		    }
+		)()
+	    ]
         };
         var form = Ext.widget("form", config);
         me.form = form;
@@ -1338,8 +1294,8 @@ Ext.define("Beet.apps.cards.PackageList", {
     addPackageWindow: function(){
         var me = this;
         var win = Ext.create("Ext.window.Window", {
-            width: 1100,
-            height: 600,
+            width: 800,
+            height: 500,
             autoScroll: true,
             autoHeight: true,
             layout: "fit",
@@ -1398,8 +1354,8 @@ Ext.define("Beet.apps.cards.PackageList", {
             return;
         }
         var win = Ext.create("Ext.window.Window", {
-            width: 1100,
-            height: 600,
+            width: 800,
+            height: 500,
             autoScroll: true,
             autoHeight: true,
             layout: "fit",
