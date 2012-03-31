@@ -346,6 +346,11 @@ Ext.define("Beet.apps.cards.PackageProfile", {
 				}    
 			    ]
 			},
+			{
+			    xtype: "component",
+			    height: 10,
+			    width: 5
+			},
 			me.childrenList
 		    ],
 		},
