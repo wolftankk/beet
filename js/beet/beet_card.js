@@ -598,10 +598,10 @@ function createItemCategoryTree(){
                     }},
                     {text: "删除", handler: function(direction, e){
                         me.deleteTreeItem(direction, record, e);    
-                    }},
-                    {text: "修改打折率", handler: function(direction, e){
-                        updateCategoryRate(direction, record, e);
                     }}
+                    //{text: "修改打折率", handler: function(direction, e){
+                    //    updateCategoryRate(direction, record, e);
+                    //}}
                 ]
             }
 

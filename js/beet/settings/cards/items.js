@@ -17,6 +17,8 @@ registerMenu("settings", "cardAdmin", "产品管理",
 	}
     ]
 );
+
+
 Ext.define("Beet.apps.cards.AddItem", {
     extend: "Ext.form.Panel",
     height: Beet.constants.VIEWPORT_HEIGHT - 5,
@@ -149,36 +151,59 @@ Ext.define("Beet.apps.cards.AddItem", {
                                                 }
                                             },
                                         },
-                                        /*
-                                        {
-                                            fieldLabel: "项目折扣总价",
-                                            allowBlank: false,
-                                            name: "realprice",
-                                            listeners: {
-                                                scope: me,
-                                                blur: function(){
-                                                    me.onUpdate(true);
-                                                }
-                                            },
-                                        },
-                                        {
-                                            fieldLabel: "项目折扣",
-                                            allowBlank: false,
-                                            name: "rate",
-                                            value: 1.00,
-                                            listeners: {
-                                                scope: me,
-                                                blur: function(){
-                                                    me.onUpdate();
-                                                }
-                                            },
-                                        },
-                                        */
-                                        {
-                                            fieldLabel: "项目所属分类",
-                                            allowBlank: false,
-                                            name: "category"
-                                        },
+					{
+					    xtype: "combobox",
+					    fieldLabel: "项目所属分类",
+					    store:new Ext.data.SimpleStore({fields:[],data:[[]]}),   
+					    editable:false, 
+					    name: "category",
+					    mode: 'local',   
+					    triggerAction:'all',   
+					    maxHeight: 200,   
+					    tpl: "<tpl for='.'><div style='height:200px'><div id='innerTree'></div></div></tpl>",   
+					    selectedClass:'',   
+					    onSelect:Ext.emptyFn,
+					    listeners: {
+						expand: function(f){
+						    var that = this;
+						    f.setValue = function(value){
+							var that = this, inputId = f.getInputId(), inputEl = that.inputEl;
+							inputEl.dom.value = value
+						    }
+						    if (!me.innerTreeList){
+							var store = f.store = Ext.create("Beet.apps.cards.ItemsCatgoryTreeStore", {
+							    autoLoad: false    
+							})
+							me.innerTreeList = new Ext.tree.TreePanel({
+							    store: store,
+							    layout: "fit",
+							    bodyStyle: "background-color: #fff",
+							    frame: false,
+							    lookMask: true,
+							    cls: "iScroll",
+							    border: 0,
+							    autoScroll: true,
+							    height: 200,
+							    useArrow: true,
+							    split: true,
+							    listeners: {
+								itemclick: function(grid, record){
+								    //首先要获取原始的数据
+								    if (!record){return;}
+				
+								    me.selectProductCategoryId = parseInt(record.get("id"));
+								    f.value = record.raw["name"];
+								    f.setValue(record.get("text") || record.raw["name"])
+								}
+							    }
+							});
+						    };
+						    setTimeout(function(){
+							me.innerTreeList.render("innerTree")
+						    }, 500);
+						}
+					    }
+					},
                                         {
                                             fieldLabel: "注释",
                                             allowBlank: true,
@@ -248,7 +273,6 @@ Ext.define("Beet.apps.cards.AddItem", {
         me.doLayout();
 
         //update panel
-
         me.queue.Add("initproduct", function(){
             me.initializeProductsPanel();
         });
