@@ -2178,7 +2178,7 @@ Beet.plugins.customerDropDown = function(f, newValue, oldValue, opts){
 
     //create picker
     if (f.picker == undefined){
-    var createPicker= function(){
+	var createPicker= function(){
 	    var picker = Ext.create("Ext.view.BoundList", {
 	    pickerField: f,
 	    selModel: "SINGLE",
@@ -2193,7 +2193,6 @@ Beet.plugins.customerDropDown = function(f, newValue, oldValue, opts){
 	    loadingText: 'Searching...',
 	    loadingHeight: 70,
 	    width: 400,
-	    //maxHeight: 300,
 	    shadow: "sides",
 	    emptyText: 'No matching posts found.',
 	    getInnerTpl: function(){
@@ -2207,7 +2206,6 @@ Beet.plugins.customerDropDown = function(f, newValue, oldValue, opts){
     f.picker.on({
         itemClick: function(v, record, item, index, e, opts){
 	    me.onSelectCustomer(record);
-	    //f.el.focus();
 	    me.selectedCustomer = true;
 	    f.picker.hide();
 	},
@@ -2222,18 +2220,20 @@ Beet.plugins.customerDropDown = function(f, newValue, oldValue, opts){
     me.customerStore.load();
 
     onListRefresh = function(){
-    var heightAbove = f.getPosition()[1] - Ext.getBody().getScroll().top,
-        heightBelow = Ext.Element.getViewHeight() - heightAbove - f.getHeight(),
-        space = Math.max(heightBelow, heightAbove);
+	var heightAbove = f.getPosition()[1] - Ext.getBody().getScroll().top,
+	    heightBelow = Ext.Element.getViewHeight() - heightAbove - f.getHeight(),
+	    space = Math.max(heightBelow, heightAbove) - 10;
 
-    console.log(space, f.picker.getHeight())
-    if (f.picker.getHeight() > space){
-        f.picker.setHeight(space - 5);
-    }
-    f.el.focus();
+	f.picker.setHeight(space);
+	f.picker.setHeight(((me.customerStore.getCount() == 0) ? 60 : (me.customerStore.getCount() * 60)) + 26)
+	if (f.picker.getHeight() > space){
+	    f.picker.setHeight(space);
+	}
+
+	f.el.focus();
     }
     var collapseIf = function(e){
-    if (!e.within(f.bodyEl, false, true) && !e.within(f.picker.el, false, true)){
+	if (!e.within(f.bodyEl, false, true) && !e.within(f.picker.el, false, true)){
 	    f.picker.hide();
 
 	    var doc = Ext.getDoc();
@@ -2328,12 +2328,18 @@ Beet.plugins.employeeDropDown = function(f, newValue, oldValue, opts){
     onListRefresh = function(){
 	var heightAbove = f.getPosition()[1] - Ext.getBody().getScroll().top,
 	    heightBelow = Ext.Element.getViewHeight() - heightAbove - f.getHeight(),
-	    space = Math.max(heightBelow, heightAbove);
+	    space = Math.max(heightBelow, heightAbove) - 10;
 
-	//console.log(space, f.picker.getHeight())
+	f.picker.setHeight(space);
+	f.picker.setHeight(((me.employeeStore.getCount() == 0) ? 63 : (me.employeeStore.getCount() * 60)) + 26)
+	
 	if (f.picker.getHeight() > space){
-	    f.picker.setHeight(space - 5);
+	    f.picker.setHeight(space);
+	    f.picker.alignTo(f.el, "bl-tl?", [105, 0]);
+	    var isAbove = f.picker.el.getY() < f.el.getY();
+	    f.picker[isAbove ? 'addCls' : 'removeCls'](f.picker.baseCls + "-above");
 	}
+
 	f.el.focus();
     }
     var collapseIf = function(e){
