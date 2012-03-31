@@ -146,6 +146,7 @@ Ext.define("Beet.apps.cards.AddItem", {
                                             name: "price",
 					    xtype: "trigger",
 					    triggerCls: "x-trigger-refresh",
+					    triggerWrapCls: "x-trigger-refresh-wrap",
 					    emptyText: "点击右边小按钮, 将会自动计算",
                                             listeners: {
                                                 scope: me,

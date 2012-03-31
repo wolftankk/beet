@@ -241,3 +241,9 @@ aside{
 .x-trigger-refresh-click{
     background: url('../../resources/themes/images/default/grid/refresh.gif') left center no-repeat;
 }
+
+.x-trigger-refresh-wrap, .x-trigger-refresh-wrap{
+    background: url('../../resources/themes/images/default/grid/refresh.gif') left center no-repeat;
+    cursor: pointer;
+    float: left;
+}
