@@ -53,13 +53,9 @@ Ext.define("Beet.apps.cards.AddProducts", {
     me.doLayout();
     
     Ext.bind(createCategoryTree, me)();
-    me.createTreeList();
+    //me.createTreeList();
 
-    me.updateTreeListEvent(true)
-    me.treeList.on({
-      itemclick: me.treeItemClick,
-      scope: me
-    })
+    //me.updateTreeListEvent(true)
     me.createMainPanel();
   },
   createMainPanel: function(){
@@ -137,7 +133,7 @@ Ext.define("Beet.apps.cards.AddProducts", {
             },
             {
               fieldLabel: "会员价格",
-              name: "MemberPrice",
+              name: "memberprice",
               allowBlank: false,
               validator: function(value){
                 var p = RegExp(/\d+\.\d\d/);
@@ -168,12 +164,65 @@ Ext.define("Beet.apps.cards.AddProducts", {
               displayField: "name",
               valueField: "attr",
             },
-            {
-              fieldLabel: "产品分类",
-              name: "category",
-              readOnly: true,
-              emptyMsg: "点击侧边分类列表, 自动填入"
-            },
+            //{
+            //  fieldLabel: "产品分类",
+            //  name: "category",
+            //  readOnly: true,
+            //  emptyMsg: "点击侧边分类列表, 自动填入"
+            //},
+	    {
+		xtype: "combobox",
+		fieldLabel: "产品分类",
+		store:new Ext.data.SimpleStore({fields:[],data:[[]]}),   
+		editable:false, 
+		name: "category",
+		mode: 'local',   
+		triggerAction:'all',   
+		maxHeight: 200,   
+		tpl: "<tpl for='.'><div style='height:200px'><div id='innerTree'></div></div></tpl>",   
+		selectedClass:'',   
+		onSelect:Ext.emptyFn,
+		listeners: {
+		    expand: function(f){
+			var that = this;
+			f.setValue = function(value){
+			    var that = this, inputId = f.getInputId(), inputEl = that.inputEl;
+			    inputEl.dom.value = value
+			}
+			if (!me.innerTreeList){
+			    var store = f.store = Ext.create("Beet.apps.cards.ProductsCatgoryTreeStore", {
+				autoLoad: false    
+			    })
+			    me.innerTreeList = new Ext.tree.TreePanel({
+				store: store,
+				layout: "fit",
+				bodyStyle: "background-color: #fff",
+				frame: false,
+				lookMask: true,
+				cls: "iScroll",
+				border: 0,
+				autoScroll: true,
+				height: 200,
+				useArrow: true,
+				split: true,
+				listeners: {
+				    itemclick: function(grid, record){
+					//首先要获取原始的数据
+					if (!record){return;}
+    
+					me.selectProductCategoryId = parseInt(record.get("id"));
+					f.value = record.raw["name"];
+					f.setValue(record.get("text") || record.raw["name"])
+				    }
+				}
+			    });
+			};
+			setTimeout(function(){
+			    me.innerTreeList.render("innerTree")
+			}, 500);
+		    }
+		}
+	    },
             {
               fieldLabel: "注释",
               xtype: 'textareafield',
@@ -218,16 +267,6 @@ Ext.define("Beet.apps.cards.AddProducts", {
     me.form.setHeight("100%");
     me.mainPanel.add(form);
     me.mainPanel.doLayout();
-  },
-  treeItemClick: function(frame, record, item, index, e, options){
-    var me = this;
-    if (!record){return;}
-    
-    me.selectProductCategoryId = parseInt(record.get("id"));
-
-    me.form.getForm().setValues({
-      "category" : record.get("text")  
-    })
   },
   restoreFromData: function(rawData){
     var me = this, form = me.form.getForm();
@@ -608,29 +647,29 @@ function createCategoryTree(){
     me.editWin.doLayout();
     me.editWin.show();
   }
-  me.updateTreeListEvent = function(unregister){
-    if (unregister){
-      me.treeList.un({
-        itemClick: me.onTreeItemClick,
-        scope: me
-      })
-    }else{
-      me.treeList.on({
-        itemClick: me.onTreeItemClick,
-        scope: me
-      })
-    }
-  }
-  me.onTreeItemClick = function(frame, record, item){
-    var id = record.get("id");
-    if (id != -1){
-      me.b_filter = "PCategoryID = " + id;
-    }else{
-      me.b_filter = "";
-    }
+  //me.updateTreeListEvent = function(unregister){
+  //  if (unregister){
+  //    me.treeList.un({
+  //      itemClick: me.onTreeItemClick,
+  //      scope: me
+  //    })
+  //  }else{
+  //    me.treeList.on({
+  //      itemClick: me.onTreeItemClick,
+  //      scope: me
+  //    })
+  //  }
+  //}
+  //me.onTreeItemClick = function(frame, record, item){
+  //  var id = record.get("id");
+  //  if (id != -1){
+  //    me.b_filter = "PCategoryID = " + id;
+  //  }else{
+  //    me.b_filter = "";
+  //  }
 
-    me.filterProducts();
-  }
+  //  me.filterProducts();
+  //}
 }
 
 Ext.define("Beet.apps.cards.ProductsList", {
