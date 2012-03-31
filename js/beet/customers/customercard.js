@@ -820,13 +820,13 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                             pays.push({
                                                 payid: r.get("PayID"),
                                                 money: r.get("Money"),
-                                                descript: r.get("Descript"),
-						employeeid: r.get("employeeid")
+                                                descript: r.get("Descript")
                                             });
 					    totalMoney += r.get("Money");
                                         }
                                         var results = {
                                             customerid: me.selectedCustomerId,
+					    employeeid: Beet.cache.currentEmployGUID,
                                             pays: pays
                                         }
 
