@@ -884,8 +884,9 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
     buildStore: function(metaData){
 	var me = this, cardServer = Beet.constants.cardServer;
 	var fields = [], columns = [];
+	me.columns = columns;
 	for (var c in metaData){
-	    var meta = data[c];
+	    var meta = metaData[c];
 	    fields.push(meta["FieldName"])
 	    if (!meta["FieldHidden"]){
 		var column = {
@@ -894,22 +895,37 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
 		    flex: 1
 		}
 
+		switch (meta["FieldName"]){
+		    case "MemberPrice":
+			column.editor = {
+			    allowBlank: false
+			}
+			break;
+		    case "TimeLength":
+			column.editor = {
+			    xtype: "numberfield",
+			    allowBlank: false,
+			    minValue : 1,
+			    maxValue : 100000
+			}
+			break;
+		}
+
 		columns.push(column);
 	    }
 	}
 	
-	/*
-	if (!Beet.apps.cards.itemModel){
-	    Ext.define("Beet.apps.cards.itemModel", {
+	if (!Beet.apps.cards.itemPriceModel){
+	    Ext.define("Beet.apps.cards.itemPriceModel", {
 		extend: "Ext.data.Model",
 		fields: fields
 	    });
 	}
 
-	if (!Beet.apps.cards.itemStore){
-	    Ext.define("Beet.apps.cards.itemStore", {
+	if (!Beet.apps.cards.itemPriceStore){
+	    Ext.define("Beet.apps.cards.itemPriceStore", {
 		extend: "Ext.data.Store",
-		model: Beet.apps.cards.itemModel,
+		model: Beet.apps.cards.itemPriceModel,
 		autoLoad: true,
 		pageSize: Beet.constants.PageSize,
 		load: function(options){
@@ -928,7 +944,6 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
 			addRecords: false
 		    });
 		    
-		    //console.debug(options)
 		    that.proxy.b_params["start"] = options["start"] || 0;
 		    that.proxy.b_params["limit"] = options["limit"];
 
@@ -936,10 +951,87 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
 		}
 	    });
 	}
-	*/
+	
+	me.storeProxy = Ext.create("Beet.apps.cards.itemPriceStore");
+	me.storeProxy.setProxy(me.updateProxy());
+
+	me.createMainPanel();
+    },
+    updateProxy: function(){
+        var me = this, cardServer = Beet.constants.cardServer;
+        return {
+            type: "b_proxy",
+            b_method: cardServer.GetItemMemberPricePageData,
+            startParam: "start",
+            limitParam: "limit",
+            b_params: {
+                "awhere" : "IID=" + me.itemid
+            },
+            b_scope: Beet.constants.cardServer,
+            reader: {
+                type: "json",
+                root: "Data",
+                totalProperty: "TotalCount"
+            }
+        }
     },
     createMainPanel: function(){
 	var me = this, cardServer = Beet.constants.cardServer;
+	var grid;
+	var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
+	    clicksToEdit: 1
+	});
+	
+	me.grid = grid = Ext.create("Ext.grid.Panel", {
+	    store: me.storeProxy,
+	    height: "100%",
+	    width: "100%",
+            columnLines: true,
+	    columns: me.columns,
+	    plugins: [rowEditing],
+	    tbar: [
+		{
+		    xtype: "button",
+		    text : "增加",
+		    tooltip: "增加一条会员价",
+		    handler: function(){
+			var r = Ext.create('Beet.apps.cards.itemPriceModel', {
+			    IID: me.itemid,
+			    IName: me.itemName,
+			    MemberPrice: "",
+			    TimeLength: 0
+			});
+			me.storeProxy.insert(0, r);	
+			rowEditing.startEdit(0, 0);
+		    }
+		},
+		{
+		    xtype : "button",
+		    text: "删除",
+		    tooltip: "删除一条会员价",
+		    handler: function(){
+
+		    }
+		},
+		{
+		    xtype: "button",
+		    text: "编辑",
+		    tooltip: "编辑一条会员价",
+		    handler: function(){
+
+		    }
+		}
+	    ],
+            bbar: Ext.create("Ext.PagingToolbar", {
+                store: me.storeProxy,
+                displayInfo: true,
+                displayMsg: '当前显示 {0} - {1} 到 {2}',
+                emptyMsg: "没有数据"
+            }),
+	})
+
+	me.add(grid);
+	me.doLayout();
     }
 })
 
@@ -1722,6 +1814,7 @@ Ext.define("Beet.apps.cards.ItemList", {
 
 	    win.add(Ext.create("Beet.apps.cards.ItemPriceList", {
 		itemid: itemId,
+		itemName: itemName,
 		_callback: function(){
 		    win.close();   
 		}
