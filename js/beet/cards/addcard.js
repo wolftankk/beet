@@ -111,6 +111,7 @@ Ext.define("Beet.apps.cards.AddCard", {
                 },
             }]
         }));
+
         me.packagesPanel = Ext.widget("panel", Ext.apply(options, {
             title: "套餐列表",
             layout: "hbox",
@@ -150,9 +151,9 @@ Ext.define("Beet.apps.cards.AddCard", {
             me.interestsPanel,
             me.chargeTypesPanel,
             me.rebatesPanel,
-            me.packagesPanel,
-            me.itemsPanel,
-            me.productsPanel
+            //me.packagesPanel,
+            //me.itemsPanel,
+            //me.productsPanel
         ]
 
         var config = {
@@ -356,9 +357,9 @@ Ext.define("Beet.apps.cards.AddCard", {
         me.initializeInterestsPanel();
         me.initializeChargeTypePanel();
         me.initializeRebatesPanel();
-        me.initializePackagePanel();
-        me.initializeItemsPanel();
-        me.initializeProductsPanel();
+        //me.initializePackagePanel();
+        //me.initializeItemsPanel();
+        //me.initializeProductsPanel();
     },
     initializeInterestsPanel: function(){
         var me = this, cardServer = Beet.constants.cardServer;
@@ -1371,6 +1372,7 @@ Ext.define("Beet.apps.cards.AddCard", {
         store.loadData(tmp);
     },
     onUpdate: function(){
+	/*
         var me = this, _par = 0, _real = 0, f = me.form.getForm();
         for (var k in me._par){
             _par += parseFloat(me._par[k]);
@@ -1394,6 +1396,7 @@ Ext.define("Beet.apps.cards.AddCard", {
             "par" : _par + parseFloat(_rebate),
             "price": _real + parseFloat(_rebate)
         })
+	*/
     },
     resetAll: function(){
         var me = this;
@@ -1416,9 +1419,9 @@ Ext.define("Beet.apps.cards.AddCard", {
         me.updateInterestsPanel();
         me.updateChargeTypePanel();
         me.updateRebatesPanel();
-        me.updatePackagesPanel();
-        me.updateItemsPanel();
-        me.updateProductsPanel();
+        //me.updatePackagesPanel();
+        //me.updateItemsPanel();
+        //me.updateProductsPanel();
     },
     processData: function(f){
         var me = this, cardServer = Beet.constants.cardServer,
@@ -1443,21 +1446,21 @@ Ext.define("Beet.apps.cards.AddCard", {
             results["charges"] = charges;
         }
 
-        if (packages && packages.length > 0){
-            results["packages"] = packages;
-        }
+        //if (packages && packages.length > 0){
+        //    results["packages"] = packages;
+        //}
 
         if (rebates && rebates.length > 0){
             results["rebates"] = rebates;
         }
 
-        if (items && items.length > 0){
-            results["items"] = items;
-        }
+        //if (items && items.length > 0){
+        //    results["items"] = items;
+        //}
 
-        if (products && products.length > 0){
-            results["products"] = products;
-        }
+        //if (products && products.length > 0){
+        //    results["products"] = products;
+        //}
 
         if (results["validdatemode"] == 2){
             results["validdatetime"] = ((+new Date(results["validdatetime"])) / 1000)
