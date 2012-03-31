@@ -524,7 +524,7 @@ Ext.define("Beet.apps.cards.AddItem", {
 
         var grid = me.chargeTypesPanel.grid = Ext.create("Ext.grid.Panel", {
             store: store,
-            height: 200,
+            height: "100%",
             width: "100%",
             cls: "iScroll",
             autoScroll: true,
