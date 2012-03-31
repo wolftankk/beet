@@ -53,9 +53,9 @@ Ext.define("Beet.apps.cards.AddProducts", {
     me.doLayout();
     
     Ext.bind(createCategoryTree, me)();
-    //me.createTreeList();
+    me.createTreeList();
 
-    //me.updateTreeListEvent(true)
+    me.updateTreeListEvent(true)
     me.createMainPanel();
   },
   createMainPanel: function(){
@@ -647,29 +647,29 @@ function createCategoryTree(){
     me.editWin.doLayout();
     me.editWin.show();
   }
-  //me.updateTreeListEvent = function(unregister){
-  //  if (unregister){
-  //    me.treeList.un({
-  //      itemClick: me.onTreeItemClick,
-  //      scope: me
-  //    })
-  //  }else{
-  //    me.treeList.on({
-  //      itemClick: me.onTreeItemClick,
-  //      scope: me
-  //    })
-  //  }
-  //}
-  //me.onTreeItemClick = function(frame, record, item){
-  //  var id = record.get("id");
-  //  if (id != -1){
-  //    me.b_filter = "PCategoryID = " + id;
-  //  }else{
-  //    me.b_filter = "";
-  //  }
+  me.updateTreeListEvent = function(unregister){
+    if (unregister){
+      me.treeList.un({
+        itemClick: me.onTreeItemClick,
+        scope: me
+      })
+    }else{
+      me.treeList.on({
+        itemClick: me.onTreeItemClick,
+        scope: me
+      })
+    }
+  }
+  me.onTreeItemClick = function(frame, record, item){
+    var id = record.get("id");
+    if (id != -1){
+      me.b_filter = "PCategoryID = " + id;
+    }else{
+      me.b_filter = "";
+    }
 
-  //  me.filterProducts();
-  //}
+    me.filterProducts();
+  }
 }
 
 Ext.define("Beet.apps.cards.ProductsList", {
