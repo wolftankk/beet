@@ -377,10 +377,10 @@ Ext.define("Beet.apps.cards.AddItem", {
                                     currRecord.set("PRICE", Ext.Number.toFixed(price * count, 2));
                                     currRecord.set("COUNT", Ext.Number.toFixed(count, 6));
 
-                                    me.onUpdate();    
+                                    //me.onUpdate();    
                                 }else{
                                     if (currField == "PRICE" && currPrice && currPrice > 0){
-                                        me.onUpdate();    
+                                        //me.onUpdate();    
                                     }
                                 }
                             }
@@ -745,7 +745,10 @@ Ext.define("Beet.apps.cards.AddItem", {
         if (me.selectProductCategoryId){
             result["categoryid"] = me.selectProductCategoryId;
             delete result["category"];
-        }
+        }else{
+	    Ext.MessageBox.alert("失败", "请选择一个项目分类");
+	    return;
+	}
 
         //name descript products charges
         var productstore = me.productsPanel.grid.getStore();
@@ -775,7 +778,7 @@ Ext.define("Beet.apps.cards.AddItem", {
             result["charges"] = charges;
         }
 	
-	if (parseFloat(result["price"]) <= 0 || isNaN(parseFloat(result["price"])) || result["price"] == ""){
+	if (parseInt(result["price"]) <= 0 || isNaN(parseFloat(result["price"])) || result["price"] == ""){
 	    Ext.MessageBox.alert("失败", "请输入项目售价!");
 	    return;
 	}

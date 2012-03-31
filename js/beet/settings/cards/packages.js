@@ -146,8 +146,9 @@ Ext.define("Beet.apps.cards.PackageProfile", {
     },
     createMainPanel: function(){
         var me = this, cardServer = Beet.constants.cardServer;
-        Ext.bind(createPackageCategoryTree, me)();
-        me.createTreePanel();
+        //Ext.bind(createPackageCategoryTree, me)();
+        //me.createTreePanel();
+
         var options = {
             autoScroll: true,
             height: 300,
@@ -218,8 +219,8 @@ Ext.define("Beet.apps.cards.PackageProfile", {
             autoHeight: true,
             autoScroll: true,
             cls: "iScroll",
-            height: me.height,
-            width: me.width,
+            height: "100%",
+            width: "100%",
             anchor: "fit",    
             border: false,
             bodyBorder: false,
@@ -240,7 +241,7 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                         bodyStyle: "background-color: #dfe8f5"
                     },
                     items:[
-                        me.treeList,//category tree list
+                        //me.treeList,//category tree list
                         {
                             layout: {
                                 type: 'vbox',
@@ -1343,7 +1344,7 @@ Ext.define("Beet.apps.cards.PackageList", {
             autoHeight: true,
             layout: "fit",
             border: false,
-            title: "新增项目"
+            title: "新增套餐"
         })
 
         win.add(Ext.create("Beet.apps.cards.PackageProfile", {
@@ -1403,7 +1404,7 @@ Ext.define("Beet.apps.cards.PackageList", {
             autoHeight: true,
             layout: "fit",
             border: false,
-            title: "编辑项目"
+            title: "编辑套餐"
         })
 
         win.add(Ext.create("Beet.apps.cards.PackageProfile", {
