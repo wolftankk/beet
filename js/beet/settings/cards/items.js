@@ -898,7 +898,10 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
 		switch (meta["FieldName"]){
 		    case "MemberPrice":
 			column.editor = {
-			    allowBlank: false
+			    xtype: "numberfield",
+			    allowBlank: false,
+			    minValue : 1,
+			    maxValue : 100000
 			}
 			break;
 		    case "TimeLength":
@@ -977,9 +980,9 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
     },
     createMainPanel: function(){
 	var me = this, cardServer = Beet.constants.cardServer;
-	var grid, currentAction
+	var grid
 	var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
-	    clicksToEdit: 1
+	    clicksToEdit: 2
 	});
 	
 	me.grid = grid = Ext.create("Ext.grid.Panel", {
@@ -1012,16 +1015,38 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
 		    text: "删除",
 		    tooltip: "删除一条会员价",
 		    handler: function(){
-
-		    }
-		},
-		{
-		    xtype: "button",
-		    text: "编辑",
-		    tooltip: "编辑一条会员价",
-		    handler: function(){
-			var record = grid.getSelection();
-			console.log(record)
+			var sm = grid.selModel;
+			var selected = sm.getSelection();
+			if (selected.length <= 0){
+			    Ext.Msg.alert("错误", "请选择需要删除会员价");
+			}
+			var record = selected.shift();
+			Ext.MessageBox.show({
+			    title: "确认删除",
+			    msg: "确认需要删除 " + record.get("IName") + ": " + record.get("TimeLength") + "分钟的数据吗?",  
+			    buttons: Ext.Msg.YESNO,
+			    fn:  function(btn){
+				if (btn == "yes"){
+				    var jsondata = {
+					id: record.get("IID"),
+					timelength: record.get("TimeLength")
+				    }
+				    cardServer.DeleteItemMemberPrice(Ext.JSON.encode(jsondata), {
+					success: function(succ){
+					    if (succ){
+						Ext.Msg.alert("成功", "删除成功");
+						me.storeProxy.loadPage(1);
+					    }else{
+						Ext.Msg.alert("失败", "删除失败");
+					    }
+					},
+					failure: function(error){
+					    Ext.Error.raise(error)
+					}
+				    })
+				}
+			    }
+			})
 		    }
 		}
 	    ],
@@ -1031,6 +1056,14 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
                 displayMsg: '当前显示 {0} - {1} 到 {2}',
                 emptyMsg: "没有数据"
             }),
+	})
+
+	grid.on("beforeedit", function(editor,e ){
+	    var record = editor.record;
+	    //set
+	    if (record.get("TimeLength") > 0){
+		editor.oldata = Ext.clone(record.data);
+	    }
 	})
 
 	grid.on("edit", function(editor, e){
@@ -1043,18 +1076,43 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
 		timelength : record.get("TimeLength")
 	    }
 
-	    console.log(editor)
-
-	    if (currentAction == "insert"){
+	    if (editor.oldata){
+		jsondata["oldtimelength"] = editor.oldata["TimeLength"];
+		cardServer.UpdateItemMemberPrice(Ext.JSON.encode(jsondata), {
+		    success: function(succ){
+			if (succ){
+			    Ext.Msg.alert("成功", "更新成功");
+			}else{
+			    Ext.Msg.alert("失败","更新失败, 请关闭当前窗口重新尝试.");   
+			}
+		    },
+		    failure: function(error){
+			Ext.Error.raise(error)
+		    }
+		})
+	    }else{
 		cardServer.AddItemMemberPrice(Ext.JSON.encode(jsondata), {
 		    success: function(succ){
 			if (succ){
 			    Ext.Msg.alert("成功","添加成功");   
-			    currentAction = null;
 			}else{
-			    Ext.Msg.alert("失败","添加失败");   
-			    rowEditing.startEdit(0, 0);
-			    currentAction = "insert"
+			    if (editor.oldata == undefined){
+				Ext.Msg.alert("失败","添加失败, 请关闭当前窗口重新尝试.");   
+			    }else{
+				jsondata["oldtimelength"] = editor.oldata.get("TimeLength");
+				cardServer.UpdateItemMemberPrice(Ext.JSON.encode(jsondata), {
+				    success: function(succ){
+					if (succ){
+					    Ext.Msg.alert("成功", "更新成功");
+					}else{
+					    Ext.Msg.alert("失败","更新失败, 请关闭当前窗口重新尝试.");   
+					}
+				    },
+				    failure: function(error){
+					Ext.Error.raise(error)
+				    }
+				})
+			    }
 			}
 		    },
 		    failure: function(error){
