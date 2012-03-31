@@ -229,3 +229,15 @@ aside{
 .x-panel-header-default{
 	background-image: none !important;
 }
+
+.x-trigger-refresh{
+    background: url('../../resources/themes/images/default/grid/refresh.gif') left center no-repeat;
+    border: #B5B8C8 1px solid;
+    border-left: none;
+    cursor: pointer;
+    float: left;
+}
+
+.x-trigger-refresh-click{
+    background: url('../../resources/themes/images/default/grid/refresh.gif') left center no-repeat;
+}

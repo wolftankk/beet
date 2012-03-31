@@ -144,12 +144,18 @@ Ext.define("Beet.apps.cards.AddItem", {
                                             fieldLabel: "项目售价",
                                             allowBlank: false,
                                             name: "price",
+					    xtype: "trigger",
+					    triggerCls: "x-trigger-refresh",
+					    emptyText: "点击右边小按钮, 将会自动计算",
                                             listeners: {
                                                 scope: me,
                                                 blur: function(){
-                                                    me.onUpdate();
+                                                    //me.onUpdate();
                                                 }
                                             },
+					    onTriggerClick: function(){
+						me.onUpdate();
+					    }
                                         },
 					{
 					    xtype: "combobox",
