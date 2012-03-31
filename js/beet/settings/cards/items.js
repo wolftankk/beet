@@ -1458,7 +1458,25 @@ Ext.define("Beet.apps.cards.ItemList", {
             flex: 1,
             collapsible: true,
             collapsed: true,
-            bodyStyle: "background-color: #dfe8f5"
+            bodyStyle: "background-color: #dfe8f5",
+            listeners: {
+                beforeexpand: function(p){
+                    for (var c = 0; c < me.childrenList.length; ++c){
+                        var child = me.childrenList[c];
+                        if (child !== p){
+                            child.collapse();
+                        }
+                    }
+                },
+                expand: function(p){
+                    if (p && p.setHeight){
+                        p.setHeight("100%");//reset && update
+                        if (p.callUpdateMethod){
+                            p.callUpdateMethod(p.getHeight());
+                        }
+                    }
+                }
+            }
         }
         me.productsPanel = Ext.widget("panel", Ext.apply(options, {
             title: "产品列表"
@@ -1466,6 +1484,11 @@ Ext.define("Beet.apps.cards.ItemList", {
         me.chargeTypesPanel = Ext.widget("panel", Ext.apply(options, {
             title: "费用列表"
         }));
+
+	me.childrenList = [
+	    me.productsPanel,
+	    me.chargeTypesPanel
+	]
 
         var config = {
             autoHeight: true,
