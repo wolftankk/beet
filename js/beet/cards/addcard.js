@@ -238,8 +238,10 @@ Ext.define("Beet.apps.cards.AddCard", {
                                             }
                                         },
                                         {
+					    //已取消
                                             fieldLabel: "面值金额",
                                             allowBlank: false,
+					    xtype: "hidden",
                                             name: "par"
                                         },
                                         {
@@ -248,7 +250,7 @@ Ext.define("Beet.apps.cards.AddCard", {
                                             name: "insure"
                                         },
                                         {
-                                            fieldLabel: "折扣金额",
+                                            fieldLabel: "面值金额",
                                             allowBlank: false,
                                             name: "price"
                                         },

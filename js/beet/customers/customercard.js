@@ -283,6 +283,13 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                                 }
                                             }
                                         },
+					{
+					    fieldLabel: "本金",
+					    allowBlank: false,
+					    readOnly: true,
+					    type: "float"
+
+					},
                                         {
                                             fieldLabel: "专属顾问",
                                             xtype: "trigger",
