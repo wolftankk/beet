@@ -538,7 +538,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
         win = Ext.create("Ext.window.Window", {
             title: "充值",
             height: 600,
-            width: 500,
+            width: 600,
             border: false,
             autoHeight: true        
         });
@@ -594,7 +594,8 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                     header: d["FieldLabel"],
                                     dataIndex: d["FieldName"]    
                                 })
-
+				
+				console.log(d["FieldName"])
                                 switch (d["FieldName"]){
                                     case "PayName": 
                                         column.editor = {
@@ -720,7 +721,9 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                 "PayName" : "",
                                 "Money" : 0,
                                 "PayDate" : new Date(),
-                                "Descript" : ""
+                                "Descript" : "",
+				"EName" : Beet.cache.currentEmployName,
+				"employeeid" : Beet.cache.currentEmployGUID
                             });
                             me.paidStore.insert(0, r);
                             rowEditing.startEdit(0, 0);
