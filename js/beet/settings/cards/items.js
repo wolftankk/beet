@@ -45,9 +45,9 @@ Ext.define("Beet.apps.cards.AddItem", {
     },
     createMainPanel: function(){
         var me = this, cardServer = Beet.constants.cardServer;
-        Ext.bind(createItemCategoryTree, me)();
-        me.createTreeList();
-        me.updateTreeListEvent(true)
+        //Ext.bind(createItemCategoryTree, me)();
+        //me.createTreeList();
+        //me.updateTreeListEvent(true)
 
         var options = {
             autoScroll: true,
@@ -95,7 +95,6 @@ Ext.define("Beet.apps.cards.AddItem", {
                         bodyStyle: "background-color: #dfe8f5"
                     },
                     items:[
-                        me.treeList,
                         {
                             layout: {
                                 type: 'vbox',

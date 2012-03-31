@@ -52,10 +52,10 @@ Ext.define("Beet.apps.cards.AddProducts", {
     me.add(me.mainPanel);
     me.doLayout();
     
-    Ext.bind(createCategoryTree, me)();
-    me.createTreeList();
+    //Ext.bind(createCategoryTree, me)();
+    //me.createTreeList();
 
-    me.updateTreeListEvent(true)
+    //me.updateTreeListEvent(true)
     me.createMainPanel();
   },
   createMainPanel: function(){
