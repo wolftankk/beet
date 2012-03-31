@@ -845,6 +845,102 @@ Ext.define("Beet.apps.cards.AddItem", {
             }
         }
     }
+});
+
+Ext.define("Beet.apps.cards.ItemPriceList", {
+    extend: "Ext.panel.Panel",
+    height: "100%",
+    width: "100%",
+    autoHeight: "100%",
+    autoScroll: "100%",
+    border: false,
+    bodyBorder: false,
+    plain: true,
+    initComponent: function(){
+	var me = this, cardServer = Beet.constants.cardServer;
+	
+	if (!me.itemid){
+	    Ext.Msg.alert("错误", "请指定项目ID");
+	    return;    
+	}
+
+	//AddItemMemberPrice
+	//DeleteItemMemberPrice
+	//GetItemMemberPricePageData
+	//UpdateItemMemberPrice
+	me.callParent()
+
+	cardServer.GetItemMemberPricePageData(0, 1, "", {
+	    success: function(data){
+		var data = Ext.JSON.decode(data);
+		var metaData = data["MetaData"];
+		me.buildStore(metaData);
+	    },
+	    failure: function(error){
+		Ext.Error.raise(error);
+	    }
+	})
+    },
+    buildStore: function(metaData){
+	var me = this, cardServer = Beet.constants.cardServer;
+	var fields = [], columns = [];
+	for (var c in metaData){
+	    var meta = data[c];
+	    fields.push(meta["FieldName"])
+	    if (!meta["FieldHidden"]){
+		var column = {
+		    dataIndex: meta["FieldName"],
+		    header: meta["FieldLabel"],
+		    flex: 1
+		}
+
+		columns.push(column);
+	    }
+	}
+	
+	/*
+	if (!Beet.apps.cards.itemModel){
+	    Ext.define("Beet.apps.cards.itemModel", {
+		extend: "Ext.data.Model",
+		fields: fields
+	    });
+	}
+
+	if (!Beet.apps.cards.itemStore){
+	    Ext.define("Beet.apps.cards.itemStore", {
+		extend: "Ext.data.Store",
+		model: Beet.apps.cards.itemModel,
+		autoLoad: true,
+		pageSize: Beet.constants.PageSize,
+		load: function(options){
+		    var that = this, options = options || {};
+		    if (Ext.isFunction(options)){
+			options = {
+			    callback: options
+			};
+		    }
+
+		    Ext.applyIf(options, {
+			groupers: that.groupers.items,
+			page: that.currentPage,
+			start: (that.currentPage - 1) * Beet.constants.PageSize || 0,
+			limit: Beet.constants.PageSize,
+			addRecords: false
+		    });
+		    
+		    //console.debug(options)
+		    that.proxy.b_params["start"] = options["start"] || 0;
+		    that.proxy.b_params["limit"] = options["limit"];
+
+		    return that.callParent([options]);
+		}
+	    });
+	}
+	*/
+    },
+    createMainPanel: function(){
+	var me = this, cardServer = Beet.constants.cardServer;
+    }
 })
 
 Ext.define("Beet.apps.cards.ItemList", {
@@ -876,7 +972,7 @@ Ext.define("Beet.apps.cards.ItemList", {
         var columns = me.itemList.__columns = [];
         var _actions = {
             xtype: 'actioncolumn',
-            width: 50,
+            width: 60,
             items: [
             ]
         }
@@ -898,6 +994,15 @@ Ext.define("Beet.apps.cards.ItemList", {
                 me.deleteItem(d);
             }
         }, "-");
+
+	_actions.items.push("-","-", {
+            icon: "./resources/themes/images/fam/price.png",
+	    tooltip: "编辑会员价",
+	    handler: function(grid, rowIndex, colIndex){
+		var d = grid.store.getAt(rowIndex);
+		me.editPriceList(d);
+	    }
+	}, "-");
 
         columns.push(_actions);
         cardServer.GetItemPageData(0, 1, "", {
@@ -1604,6 +1709,27 @@ Ext.define("Beet.apps.cards.ItemList", {
             Ext.Error.raise("删除项目失败");
         }
     },
+    editPriceList: function(record){
+	var me = this, cardServer = Beet.constants.cardServer;
+	var itemId = record.get("IID"), itemName = record.get("IName");
+	if (itemId){
+	    var win;
+	    win = Ext.create("Ext.window.Window", {
+		width: 600,
+		height: 400,
+		title: itemName + "的会员价格"
+	    })
+
+	    win.add(Ext.create("Beet.apps.cards.ItemPriceList", {
+		itemid: itemId,
+		_callback: function(){
+		    win.close();   
+		}
+	    }))
+
+	    win.show();
+	}
+    },
     onSelectItem: function(grid, record, item, index, e){
         var me = this, cardServer = Beet.constants.cardServer;
         me.selectedProducts = {};//reset
@@ -1835,53 +1961,6 @@ Ext.define("Beet.apps.cards.ItemListWindow", {
                 displayMsg: '当前显示 {0} - {1} 到 {2}',
                 emptyMsg: "没有数据"
             }),
-	//    tbar: [
-	//	(function(){
-	//	    if (me.b_advanceSearch){
-	//		return {
-	//		    xtype: "toolbar",
-	//		    dock: "top",
-	//		    items: [
-	//			{
-	//			    text: "高级搜索",    
-	//			    handler: function(){
-	//				cardServer.GetItemPageData(0, 1, "", {
-	//				    success: function(data){
-	//					var win = Ext.create("Beet.apps.AdvanceSearch", {
-	//					    searchData: Ext.JSON.decode(data),
-	//					    b_callback: function(where){
-	//						me.b_filter = where;
-	//						me.itemList.store.setProxy({
-	//						    type: "b_proxy",
-	//						    b_method: cardServer.GetItemPageData,
-	//						    startParam: "start",
-	//						    limitParam: "limit",
-	//						    b_params: {
-	//							"awhere" : me.b_filter
-	//						    },
-	//						    b_scope: Beet.constants.cardServer,
-	//						    reader: {
-	//							type: "json",
-	//						    root: "Data",
-	//						    totalProperty: "TotalCount"
-	//						    }
-	//						});
-	//						me.itemList.store.loadPage(1);
-	//					    }
-	//					});
-	//					win.show();
-	//				    },
-	//				    failure: function(error){
-	//					Ext.Error.raise(error);
-	//				    }
-	//				});
-	//			    }
-	//			}
-	//		    ]
-	//		}
-	//	    }
-	//	})()
-	//    ],
             listeners: {
                 itemdblclick: function(grid, record, item, index, e){
                     me.onSelectItem(grid, record, item, index, e);    
