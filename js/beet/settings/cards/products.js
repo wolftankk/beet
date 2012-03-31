@@ -20,7 +20,7 @@ registerMenu("settings", "cardAdmin", "产品管理",
 
 Ext.define("Beet.apps.cards.AddProducts", {
   extend: "Ext.form.Panel",
-  height: Beet.constants.VIEWPORT_HEIGHT - 5,
+  height: "100%",
   width: "100%",
   layout: "fit",
   bodyStyle: "background-color: #dfe8f5",
@@ -38,16 +38,11 @@ Ext.define("Beet.apps.cards.AddProducts", {
   
     me.callParent();  
     me.mainPanel = Ext.create("Ext.panel.Panel", {
-      height: (me.b_type == "selection" ? "95%" : "100%"),
+      height: "100%",
       width: "100%",
       autoHeight: true,
       autoScroll: true,
-      border: false,
-      layout: {
-        type: "hbox",
-        columns: 2,
-        align: 'stretch',        
-      },
+      border: false
     })
     me.add(me.mainPanel);
     me.doLayout();
@@ -64,9 +59,11 @@ Ext.define("Beet.apps.cards.AddProducts", {
     var config = {
       autoHeight: true,
       autoScroll: true,
-      flex: 1,
+      width: "100%",
+      height: "100%",
       bodyStyle: "background-color: #dfe8f5",
       bodyPadding: 5,
+      layout: "fit",
       items: [
         {
           layout: {
@@ -76,7 +73,6 @@ Ext.define("Beet.apps.cards.AddProducts", {
               cellspacing: 10,              
               style: {
                 width: "100%",
-                
               }            
             }
           },
@@ -264,7 +260,6 @@ Ext.define("Beet.apps.cards.AddProducts", {
 
     var form = Ext.widget("form", config);
     me.form = form;
-    me.form.setHeight("100%");
     me.mainPanel.add(form);
     me.mainPanel.doLayout();
   },
@@ -934,8 +929,8 @@ Ext.define("Beet.apps.cards.ProductsList", {
   addProductItem: function(){
     var me = this;
     var win = Ext.create("Ext.window.Window", {
-      width: 1000,
-      height: 600,
+      width: 600,
+      height: 300,
       layout: "fit",
       autoHeight: true,
       autoScroll: true,
@@ -954,8 +949,8 @@ Ext.define("Beet.apps.cards.ProductsList", {
   editProductItem: function(parentMenu){
     var me = this, rawData = parentMenu.rawData || parentMenu.raw, pid = rawData["PID"], pname = rawData["PName"], cardServer = Beet.constants.cardServer;
     var win = Ext.create("Ext.window.Window", {
-      width: 1000,
-      height: 600,
+      width: 600,
+      height: 300,
       layout: "fit",
       autoHeight: true,
       autoScroll: true,
