@@ -711,19 +711,9 @@ Ext.define("Beet.apps.cards.AddItem", {
     },
     onUpdate: function(force){
         //COMMIT: 这部分目前已经不需要再自动计算
-        /*
-        var me = this, cardServer = Beet.constants.cardServer, form = me.form.getForm(),
-            values = form.getValues(),
-            _price = (""+values["price"]).replaceAll(",", ""),
-            _rate = values["rate"],
-            _realprice = ("" + values["realprice"]).replaceAll(",", "");
+        var me = this, cardServer = Beet.constants.cardServer, form = me.form.getForm();
         var selectedProducts = me.selectedProducts, selectedChargeType = me.selectedChargeType;
 
-        //force convert to number
-        _price = parseFloat(_price);
-        _rate = parseFloat(_rate);
-        _realprice = parseFloat(_realprice);
-        
         var __price = 0;//每次都会进行重新计算
 
         if (selectedProducts && Ext.Object.getKeys(selectedProducts).length > 0){
@@ -740,21 +730,13 @@ Ext.define("Beet.apps.cards.AddItem", {
         if (selectedChargeType && Ext.Object.getKeys(selectedChargeType).length> 0){
             for (var c in selectedChargeType){
                 var p = selectedChargeType[c];
-                __price += parseFloat((""+p[2]).replaceAll(",", ""), 2)
+                __price += parseFloat(p[2]);
             }
         }
 
-        if (force) {
-            _rate = _realprice / _price;
-        }else{
-            _realprice = _price * _rate;
-        }
         me.form.getForm().setValues({
-            price: Ext.Number.toFixed(__price, 2),     
-            rate: Ext.Number.toFixed(_rate, 2),
-            realprice: Ext.Number.toFixed(_realprice, 2)
+            price: Ext.Number.toFixed(__price, 2)
         });
-        */
     },
     processData: function(f){
         var me = this, cardServer = Beet.constants.cardServer,
@@ -792,7 +774,11 @@ Ext.define("Beet.apps.cards.AddItem", {
         if (charges && charges.length > 0){
             result["charges"] = charges;
         }
-
+	
+	if (parseFloat(result["price"]) <= 0 || isNaN(parseFloat(result["price"])) || result["price"] == ""){
+	    Ext.MessageBox.alert("失败", "请输入项目售价!");
+	    return;
+	}
 
         if (me._editType == "add"){
             cardServer.AddItem(Ext.JSON.encode(result), {
