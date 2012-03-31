@@ -977,7 +977,7 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
     },
     createMainPanel: function(){
 	var me = this, cardServer = Beet.constants.cardServer;
-	var grid;
+	var grid, currentAction
 	var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
 	    clicksToEdit: 1
 	});
@@ -995,6 +995,7 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
 		    text : "增加",
 		    tooltip: "增加一条会员价",
 		    handler: function(){
+			rowEditing.cancelEdit();
 			var r = Ext.create('Beet.apps.cards.itemPriceModel', {
 			    IID: me.itemid,
 			    IName: me.itemName,
@@ -1003,6 +1004,7 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
 			});
 			me.storeProxy.insert(0, r);	
 			rowEditing.startEdit(0, 0);
+			currentAction = "insert";
 		    }
 		},
 		{
@@ -1018,7 +1020,8 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
 		    text: "编辑",
 		    tooltip: "编辑一条会员价",
 		    handler: function(){
-
+			var record = grid.getSelection();
+			console.log(record)
 		    }
 		}
 	    ],
@@ -1028,6 +1031,38 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
                 displayMsg: '当前显示 {0} - {1} 到 {2}',
                 emptyMsg: "没有数据"
             }),
+	})
+
+	grid.on("edit", function(editor, e){
+	    var record = editor.record;
+	    var rowIndex = editor.rowIdx;
+
+	    var jsondata = {
+		id : record.get("IID"),
+		memberprice: record.get("MemberPrice"),
+		timelength : record.get("TimeLength")
+	    }
+
+	    console.log(editor)
+
+	    if (currentAction == "insert"){
+		cardServer.AddItemMemberPrice(Ext.JSON.encode(jsondata), {
+		    success: function(succ){
+			if (succ){
+			    Ext.Msg.alert("成功","添加成功");   
+			    currentAction = null;
+			}else{
+			    Ext.Msg.alert("失败","添加失败");   
+			    rowEditing.startEdit(0, 0);
+			    currentAction = "insert"
+			}
+		    },
+		    failure: function(error){
+			Ext.Error.raise(error);
+		    }
+		})
+	    }
+
 	})
 
 	me.add(grid);
