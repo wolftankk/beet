@@ -150,7 +150,7 @@ Ext.define("Beet.apps.cards.AddRebate", {
         form.setValues({
             name: rawData["Name"],
             value: rawData["Value"].replace(",", ""),
-            ismoney: (rawData["IsMoney"] == "True" ? 1 : 0),
+            ismoney: rawData["IsMoney"],
             startdate: rawData["StartDate"],
             enddate: rawData["EndDate"],
             validunit: parseInt(rawData["ValidUnit"]),
@@ -263,11 +263,21 @@ Ext.define("Beet.apps.cards.RebateList", {
             var d = metaData[c];
             fields.push(d["FieldName"]);
             if (!d["FieldHidden"]) {
-                me.columns.push({
+                var column = {
                     flex: 1,
                     header: d["FieldLabel"],
                     dataIndex: d["FieldName"]    
-                })
+                }
+
+		switch (d["FieldName"]){
+		    case "IsMoney":
+			column.xtype = "booleancolumn"
+			column.trueText = "是";
+			column.falseText = "否";
+			break;
+		}
+
+		me.columns.push(column)
             }
         };
         

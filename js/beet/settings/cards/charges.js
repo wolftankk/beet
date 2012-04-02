@@ -665,11 +665,22 @@ Ext.define("Beet.apps.cards.ChargeList", {
       var d = metaData[c];
       fields.push(d["FieldName"]);
       if (!d["FieldHidden"]) {
-        me.columns.push({
+        var column = {
           flex: 1,
           header: d["FieldLabel"],
           dataIndex: d["FieldName"]  
-        })
+        }
+
+	console.log(d["FieldName"])
+	switch (d["FieldName"]){
+	    case "CApplyRate":
+		column.xtype = "booleancolumn"
+		column.trueText = "是";
+		column.falseText = "否";
+		break;
+	}
+
+	me.columns.push(column)
       }
     };
     
