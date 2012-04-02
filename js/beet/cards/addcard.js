@@ -871,20 +871,27 @@ Ext.define("Beet.apps.cards.AddCard", {
     _restoreFromData: function(record, detailData){
         var me = this, cardServer = Beet.constants.cardServer;
         me.resetAll();
-        var cardId = record.get("ID");
+	
+	var rawData;
+	if (record.get == undefined && typeof(record.get) != "function"){
+	    rawData = record
+	}else{
+	    rawData = record.raw;
+	}
+        var cardId = rawData["ID"];
         me.selectedCardId = cardId;
         
-        var form = me.form.getForm();
+	var form = me.form.getForm();
         form.setValues({
-            name: record.get("Name"),
-            par: record.get("Par"),
-            level: record.get("Level"),
-            insure: record.get("Insure"),
-            validdate: record.get("ValidDate"),
-            validunit: parseInt(record.get("ValidUnit")),
-            descript: record.get("Descript"),
-            code: record.get("Code"),
-	    validdatemode: record.get("ValidDateMode")
+            name:	    rawData["Name"],
+            par:	    rawData["Par"],
+            level:	    rawData["Level"],
+            insure:	    rawData["Insure"],
+            validdate:	    rawData["ValidDate"],
+            validunit:	    parseInt(rawData["ValidUnit"]),
+            descript:	    rawData["Descript"],
+            code:	    rawData["Code"],
+	    validdatemode:  rawData["ValidDateMode"]
         });
 
         var charges = detailData["charges"],
@@ -962,7 +969,7 @@ Ext.define("Beet.apps.cards.AddCard", {
         });
         me.queue.Add("resetpar", "updatecharges,updaterebates", function(){
 	    form.setValues({
-		par: record.get("Par")
+		par: rawData["Par"]
 	    });
 	    me.queue.triggle("resetpar", "success");
         })
