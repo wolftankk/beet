@@ -968,13 +968,11 @@ Ext.define("Beet.apps.cards.AddCard", {
             }
         });
         me.queue.Add("resetpar", "updatecharges,updaterebates", function(){
-            setTimeout(function(){
-                form.setValues({
-                    par: record.get("Par"),
-                    price: record.get("Price"),
-                });
-                me.queue.triggle("resetpar", "success");
-            }, 500);
+	    form.setValues({
+		par: record.get("Par"),
+		price: record.get("Price"),
+	    });
+	    me.queue.triggle("resetpar", "success");
         })
     },
     processData: function(f){
