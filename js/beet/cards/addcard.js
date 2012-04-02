@@ -29,7 +29,7 @@ Ext.define("Beet.apps.cards.AddCard", {
     border: false,
     bodyBorder: false,
     plain: true,
-    action: "insert",
+    action: "insert",//default
     initComponent: function(){
         var me = this, cardServer = Beet.constants.cardServer;
         me.selectedInterests = {};//服务列表
@@ -320,9 +320,15 @@ Ext.define("Beet.apps.cards.AddCard", {
         me.doLayout();
 
         //update panel
-        me.initializeInterestsPanel();
-        me.initializeChargeTypePanel();
-        me.initializeRebatesPanel();
+	me.queue.Add("initInterspanel", function(){
+	    me.initializeInterestsPanel();
+	});
+	me.queue.Add("initChargepanel", function(){
+	    me.initializeChargeTypePanel();
+	});
+	me.queue.Add("initRebatespanel", function(){
+	    me.initializeRebatesPanel();
+	})
     },
     initializeInterestsPanel: function(){
         var me = this, cardServer = Beet.constants.cardServer;
@@ -388,6 +394,8 @@ Ext.define("Beet.apps.cards.AddCard", {
 
         me.interestsPanel.add(grid);
         me.interestsPanel.doLayout();
+
+	me.queue.triggle("initInterspanel", "success");
     },
     selectInterest: function(){
         var me = this, cardServer = Beet.constants.cardServer;
@@ -535,6 +543,8 @@ Ext.define("Beet.apps.cards.AddCard", {
 
         me.chargeTypesPanel.add(grid);
         me.chargeTypesPanel.doLayout();
+
+	me.queue.triggle("initChargepanel", "success");
     },
     selectChargeType: function(){
         var me = this, cardServer = Beet.constants.cardServer;
@@ -688,6 +698,8 @@ Ext.define("Beet.apps.cards.AddCard", {
 
         me.rebatesPanel.add(grid);
         me.rebatesPanel.doLayout();
+
+	me.queue.triggle("initRebatespanel", "success");
     },
     selectRebate: function(){
         var me = this, cardServer = Beet.constants.cardServer;
@@ -742,7 +754,6 @@ Ext.define("Beet.apps.cards.AddCard", {
             }else{
                 selectedRebates[cid] = [];
             }
-            //console.log(__fields, rawData)
             for (var c = 0; c < __fields.length; ++c){
                 var k = __fields[c];
                 selectedRebates[rid].push(rawData[k]);
@@ -845,7 +856,15 @@ Ext.define("Beet.apps.cards.AddCard", {
         me.updateChargeTypePanel();
         me.updateRebatesPanel();
     },
+    //@public
     restoreFromData: function(record, detailData){
+	var me = this;
+	me.queue.Add("restoreData", "initInterspanel,initRebatespanel,initChargepanel", function(){
+	    me._restoreFromData(record, detailData);
+	})
+    },
+    //@private
+    _restoreFromData: function(record, detailData){
         var me = this, cardServer = Beet.constants.cardServer;
         me.resetAll();
         var cardId = record.get("ID");

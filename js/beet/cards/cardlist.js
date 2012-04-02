@@ -368,14 +368,14 @@ Ext.define("Beet.apps.cards.CardList", {
 
             win.show();
 
-            //Ext.MessageBox.show({
-            //    msg: "正在载入卡项数据...",
-            //    progressText: "载入中...",
-            //    width: 300,
-            //    wait: true,
-            //    waitConfig: {interval: 1000, increment: 3 },
-            //    closable: false
-            //});
+            Ext.MessageBox.show({
+                msg: "正在载入卡项数据...",
+                progressText: "载入中...",
+                width: 300,
+                wait: true,
+                waitConfig: {interval: 1000, increment: 3 },
+                closable: false
+            });
 
 	    var cardPanel = Ext.create("Beet.apps.cards.AddCard", {
 		action: "update",
@@ -390,10 +390,10 @@ Ext.define("Beet.apps.cards.CardList", {
 		    var data = Ext.JSON.decode(data);
 		    cardPanel.restoreFromData(record, data);
 		    win.add(cardPanel);
-		    //Ext.MessageBox.hide();
+		    Ext.MessageBox.hide();
 		},
 		failure: function(error){
-		    //Ext.MessageBox.hide();
+		    Ext.MessageBox.hide();
 		    Ext.Error.raise(error);
 		}
 	    })
