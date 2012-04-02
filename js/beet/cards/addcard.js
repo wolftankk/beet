@@ -220,13 +220,6 @@ Ext.define("Beet.apps.cards.AddCard", {
                                             name: "price"
                                         },
                                         {
-                                            fieldLabel: "最大消费次数",
-                                            allowBlank: false,
-                                            name: "maxcount",
-					    xtype: "hidden",
-                                            emptyText: "(大于0为计次卡; -1时为计费卡)" 
-                                        },
-                                        {
                                             fieldLabel: "有效日期",
                                             allowBlank: false,
                                             name: "validdate",
@@ -674,11 +667,20 @@ Ext.define("Beet.apps.cards.AddCard", {
                     var meta = data[c];
                     fields.push(meta["FieldName"])
                     if (!meta["FieldHidden"]){
-                        columns.push({
+                        var column = {
                             dataIndex: meta["FieldName"],
                             header: meta["FieldLabel"],
                             flex: 1,
-                        })
+                        }
+
+			switch (meta["FieldName"]){
+			    case "IsMoney":
+				column.xtype = "booleancolumn"
+				column.trueText = "是";
+				column.falseText = "否";
+			}
+
+			columns.push(column);
                     }
                 }
                 me.initializeRebateGrid();
@@ -889,7 +891,6 @@ Ext.define("Beet.apps.cards.AddCard", {
             validunit: parseInt(record.get("ValidUnit")),
             descript: record.get("Descript"),
             code: record.get("Code"),
-            maxcount: record.get("MaxCount"),
 	    validdatemode: record.get("ValidDateMode")
         });
 

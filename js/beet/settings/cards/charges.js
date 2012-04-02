@@ -671,7 +671,6 @@ Ext.define("Beet.apps.cards.ChargeList", {
           dataIndex: d["FieldName"]  
         }
 
-	console.log(d["FieldName"])
 	switch (d["FieldName"]){
 	    case "CApplyRate":
 		column.xtype = "booleancolumn"

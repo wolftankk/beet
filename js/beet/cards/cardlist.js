@@ -319,6 +319,7 @@ Ext.define("Beet.apps.cards.CardList", {
 	    cardServer.GetCardDetailData(record.get("ID"), {
 		success: function(data){
 		    var data = Ext.JSON.decode(data);
+		    cardPanel.restoreFromData(record, data)
 		    win.add(cardPanel);
 		    Ext.MessageBox.hide();
 		},
@@ -362,6 +363,7 @@ Ext.define("Beet.apps.cards.CardList", {
 	    cardServer.GetCardDetailData(record.get("ID"), {
 		success: function(data){
 		    var data = Ext.JSON.decode(data);
+		    cardPanel.restoreFromData(record, data)
 		    win.add(cardPanel);
 		    Ext.MessageBox.hide();
 		},
