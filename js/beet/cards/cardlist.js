@@ -338,7 +338,7 @@ Ext.define("Beet.apps.cards.CardList", {
                 closable: false
             });
 
-            me.queue.Add("getcarddetail", "initInterspanel,initChargepanel,initRebatespanel,initPackagepanel", function(){
+            me.queue.Add("getcarddetail", "initInterspanel,initChargepanel,initRebatespanel", function(){
                 cardServer.GetCardDetailData(record.get("ID"), {
                     success: function(data){
                         var data = Ext.JSON.decode(data);
@@ -378,7 +378,7 @@ Ext.define("Beet.apps.cards.CardList", {
                 waitConfig: {interval: 1000, increment: 3 },
                 closable: false
             })
-            me.queue.Add("getcarddetail", "initInterspanel,initChargepanel,initRebatespanel,initPackagepanel,initItemspanel,initProductspanel", function(){
+            me.queue.Add("getcarddetail", "initInterspanel,initChargepanel,initRebatespanel", function(){
                 cardServer.GetCardDetailData(record.get("ID"), {
                     success: function(data){
                         var data = Ext.JSON.decode(data);
@@ -500,9 +500,9 @@ Ext.define("Beet.apps.cards.CardList", {
             me.interestsPanel,
             me.chargeTypesPanel,
             me.rebatesPanel,
-            me.packagesPanel,
-            me.itemsPanel,
-            me.productsPanel
+            //me.packagesPanel,
+            //me.itemsPanel,
+            //me.productsPanel
         ]
 
         var config = {
@@ -710,15 +710,15 @@ Ext.define("Beet.apps.cards.CardList", {
         me.queue.Add("initRebatespanel", function(){
             me.initializeRebatesPanel();
         });
-        me.queue.Add("initPackagepanel", function(){
-            me.initializePackagePanel();
-        });
-        me.queue.Add("initItemspanel", function(){
-            me.initializeItemsPanel();    
-        });
-        me.queue.Add("initProductspanel", function(){
-            me.initializeProductsPanel();
-        });
+        //me.queue.Add("initPackagepanel", function(){
+        //    me.initializePackagePanel();
+        //});
+        //me.queue.Add("initItemspanel", function(){
+        //    me.initializeItemsPanel();    
+        //});
+        //me.queue.Add("initProductspanel", function(){
+        //    me.initializeProductsPanel();
+        //});
     },
     initializeInterestsPanel: function(){
         var me = this, cardServer = Beet.constants.cardServer;
@@ -1956,9 +1956,9 @@ Ext.define("Beet.apps.cards.CardList", {
         me.updateInterestsPanel();
         me.updateChargeTypePanel();
         me.updateRebatesPanel();
-        me.updatePackagesPanel();
-        me.updateItemsPanel();
-        me.updateProductsPanel();
+        //me.updatePackagesPanel();
+        //me.updateItemsPanel();
+        //me.updateProductsPanel();
     },
     processData: function(f){
         var me = this, cardServer = Beet.constants.cardServer,
