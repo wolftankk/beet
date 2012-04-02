@@ -68,14 +68,10 @@ Ext.define("Beet.apps.cards.AddRebate", {
 				    var _name = me.form.down("textfield[name=value]");
                                     if (!newValue){
                                         raterCombox.enable();
-					if (_name.labelEl){
-					    _name.labelEl.dom.innerText = ("返利金额");
-					}
+					_name.disable();
                                     }else{
                                         raterCombox.disable();
-					if (_name.labelEl){
-					    _name.labelEl.dom.innerText = ("折扣基数");
-					}
+					_name.enable();
                                     }
                                 }
                             },
@@ -118,7 +114,7 @@ Ext.define("Beet.apps.cards.AddRebate", {
                             width: 200,
                             formBind: true,
                             disabled: true,
-                            hidden: me.b_viewMode,
+                            hidden: !me.b_viewMode,
                             handler: function(btn, widget){
                                 me.processData(this)    
                             }
