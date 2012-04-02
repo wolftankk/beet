@@ -8,7 +8,9 @@ registerMenu("cards", "cardAdmin", "卡项管理",
                 if (!item){
                     Beet.workspace.addPanel("cards.AddCard", "增加卡项", {
                         items: [
-                            Ext.create("Beet.apps.cards.AddCard")
+                            Ext.create("Beet.apps.cards.AddCard", {
+				action: "insert"	
+			    })
                         ]
                     })
                 }else{
@@ -29,7 +31,7 @@ Ext.define("Beet.apps.cards.AddCard", {
     border: false,
     bodyBorder: false,
     plain: true,
-    action: "insert",//default
+    action: undefined,//default
     initComponent: function(){
         var me = this, cardServer = Beet.constants.cardServer;
         me.selectedInterests = {};//服务列表
@@ -284,6 +286,7 @@ Ext.define("Beet.apps.cards.AddCard", {
                                             text: "保存",
                                             xtype: "button",
                                             scale: "large",
+					    hidden: (me.action == undefined),
                                             width: 200,
                                             border: 1,
                                             formBind: true,
