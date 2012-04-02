@@ -1073,11 +1073,11 @@ MyCardSvc.prototype.AddPackage = function(PackageJSON, __callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyCardSvc.prototype.AddPayType = function(APayTypeName, __callback) {
+MyCardSvc.prototype.AddPayType = function(APayTypeJSON, __callback) {
   var __message = {
     "method" : "MyCardSvc.AddPayType",
     "params" : {
-      "APayTypeName": APayTypeName
+      "APayTypeJSON": APayTypeJSON
       }
   }
   var __callbacks = null;
