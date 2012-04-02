@@ -19,6 +19,29 @@ registerMenu("customers", "customerAdmin", "会员管理",
     ]
 );
 
+(function(window){
+
+var paidTypeStore = Ext.create("Ext.data.Store", {
+    fields: ["PayID", "PayName"]
+});
+var getPayMethod = function(){
+    Beet.constants.cardServer.GetPayTypeData("", {
+	success: function(data){
+	    var data = Ext.JSON.decode(data);
+	    data = data["Data"];
+
+	    paidTypeStore.loadData(data);
+	},
+	failure: function(error){
+	    Ext.Error.raise(error);
+	}
+    })
+}
+
+Ext.define("Beet.apps.customers.payList", {
+    
+});
+
 Ext.define("Beet.apps.customers.AddCustomerCard", {
     extend: "Ext.form.Panel",
     height: Beet.constants.VIEWPORT_HEIGHT - 5,
@@ -37,9 +60,12 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
         me.initCustomerData = null;
         me.selectedCards = {};
 
+	getPayMethod();
+
         me.callParent();
         me.createMainPanel();
         me.queue = new Beet_Queue("customerCard");
+	me.initPaidWindow();
         me.buildCustomerStore();
     },
     buildCustomerStore: function(){
@@ -59,23 +85,21 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                             header: d["FieldLabel"],
                             dataIndex: d["FieldName"]    
                         }
-			//console.log(d["FieldName"])
-
 			columns.push(column);
                     }
                 };
 
-                if (!Beet.apps.Viewport.CustomerListModel){
-                    Ext.define("Beet.apps.Viewport.CustomerListModel", {
+                if (!Beet.apps.customers.CustomerListModel){
+                    Ext.define("Beet.apps.customers.CustomerListModel", {
                         extend: "Ext.data.Model",
                         fields: fields
                     });
                 }
 
-                if (!Ext.isDefined(Beet.apps.Viewport.CustomerListStore)){
-                    Ext.define("Beet.apps.Viewport.CustomerListStore", {
+                if (!Ext.isDefined(Beet.apps.customers.CustomerListStore)){
+                    Ext.define("Beet.apps.customers.CustomerListStore", {
                         extend: "Ext.data.Store",
-                        model: Beet.apps.Viewport.CustomerListModel,
+                        model: Beet.apps.customers.CustomerListModel,
                         autoLoad: true,
                         pageSize: Beet.constants.PageSize,
                         b_filter: "",
@@ -103,7 +127,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                     });
                 }
 
-                me.customerStore = Ext.create("Beet.apps.Viewport.CustomerListStore");
+                me.customerStore = Ext.create("Beet.apps.customers.CustomerListStore");
                 me.customerStore.setProxy(me.updateCustomerProxy(""));
             },
             failure: function(error){
@@ -226,7 +250,6 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                                 }
                                             },
                                             onTriggerClick: function(){
-                                                //这里需要一个高级查询
                                                 var win = Ext.create("Beet.plugins.selectCustomerWindow", {
                                                     b_selectionMode: "SINGLE",
                                                     _callback: function(r){
@@ -508,7 +531,6 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
         me.form = form;
         me.add(form);
         me.doLayout();
-
         me.initializeCardPanel();
     },
     openHistoryWindow: function(){
@@ -526,139 +548,101 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 	win.doLayout();
 	win.show();
     },
-    openPaidWindow: function(){
-        var me = this, form = me.form.getForm(), cardServer = Beet.constants.cardServer,
-            win, grid;
-
-        cost = 0;
-        //grid's columns/fields
+    initPaidWindow: function(){
+        var me = this, form = me.form.getForm(), cardServer = Beet.constants.cardServer;
         var _columns= [], _fields = [];
-	me.paidTypeStore = undefined;
-	me.paidStore = undefined;
-
-        if (!me.queue){
-            me.queue = new Beet_Queue("createPaidWindow");
-        }else{
-            me.queue.reset();
-        }
-
-        win = Ext.create("Ext.window.Window", {
-            title: "充值",
-            height: 600,
-            width: 600,
-            border: false,
-            autoHeight: true        
-        });
-
-	if (!me.paidTypeStore){
-	    me.paidTypeStore = Ext.create("Ext.data.Store", {
-		fields: ["PayID", "PayName"]
-	    });
+	var _actions = {
+	    xtype: 'actioncolumn',
+	    width: 50,
+	    header: "操作",
+	    items: [
+	    ]
 	}
+	_actions.items.push("-",{
+	    icon: "./resources/themes/images/fam/delete.gif",
+	    tooltip: "移除",
+	    handler: function(grid, rowIndex, colIndex){
+		var sm = grid.getSelectionModel();
+		rowEditing.cancelEdit();
+		me.paidStore.remove(sm.getSelection());
+		if (me.paidStore.getCount() > 0) {
+		    sm.select(0);
+		}
+	    }
+	}, "-");
+	_columns.push(_actions);
 
-	if (grid && grid.store){
-	    updatePayType();
-	}
+	cardServer.GetCustomerPayData(true, "", {
+	    success: function(data){
+		var data = Ext.JSON.decode(data);    
+		var metaData = data["MetaData"];    
 
-	/**
-	 * createpaidStore
-	 */
-	if (!me.paidStore){
-            var _actions = {
-                xtype: 'actioncolumn',
-                width: 50,
-                header: "操作",
-                items: [
-                ]
-            }
-            _actions.items.push("-",{
-                icon: "./resources/themes/images/fam/delete.gif",
-                tooltip: "移除",
-                handler: function(grid, rowIndex, colIndex){
-                    var sm = grid.getSelectionModel();
-                    rowEditing.cancelEdit();
-                    me.paidStore.remove(sm.getSelection());
-                    if (me.paidStore.getCount() > 0) {
-                        sm.select(0);
-                    }
-                    updatePayType();
-                }
-            }, "-");
-            _columns.push(_actions);
+		for (var c = 0; c < metaData.length; ++c){
+		    var d = metaData[c];
+		    _fields.push(d["FieldName"]);
+		    if (!d["FieldHidden"]) {
+			var column = ({
+			    flex: 1,
+			    header: d["FieldLabel"],
+			    dataIndex: d["FieldName"]    
+			})
+			
+			switch (d["FieldName"]){
+			    case "PayName": 
+				column.editor = {
+				    xtype: "combobox",
+				    selectOnTab: true,
+				    editable: false,
+				    store: paidTypeStore,
+				    queryMode: "local",
+				    displayField: "PayName",
+				    valueField: "PayName",
+				    listClass: 'x-combo-list-small',
+				    allowBlank: false
+				}
+				break;
+			    case "Money":
+				column.editor = {
+				    xtype: "numberfield",
+				    type: "int",
+				    allowBlank: false
+				}
+				break;
+			    case "Descript":
+				column.editor = {
+				    xtype: "textfield"
+				}
+				break
+			    case "PayDate":
+				column.xtype = "datecolumn";
+				column.format = "Y/m/d G:i";
+			}
 
-            me.queue.Add("getPaidModel", function(){
-                cardServer.GetCustomerPayData(true, "", {
-                    success: function(data){
-                        var data = Ext.JSON.decode(data);    
-                        var metaData = data["MetaData"];    
+			_columns.push(column);
+		    }
+		};
 
-                        for (var c = 0; c < metaData.length; ++c){
-                            var d = metaData[c];
-                            _fields.push(d["FieldName"]);
-                            if (!d["FieldHidden"]) {
-                                var column = ({
-                                    flex: 1,
-                                    header: d["FieldLabel"],
-                                    dataIndex: d["FieldName"]    
-                                })
-				
-				console.log(d["FieldName"])
-                                switch (d["FieldName"]){
-                                    case "PayName": 
-                                        column.editor = {
-                                            xtype: "combobox",
-                                            selectOnTab: true,
-                                            editable: false,
-                                            store: me.paidTypeStore,
-                                            queryMode: "local",
-                                            displayField: "PayName",
-                                            valueField: "PayName",
-                                            listClass: 'x-combo-list-small',
-                                            allowBlank: false
-                                        }
-                                        break;
-                                    case "Money":
-                                        column.editor = {
-                                            xtype: "numberfield",
-                                            type: "int",
-                                            allowBlank: false
-                                        }
-                                        break;
-                                    case "Descript":
-                                        column.editor = {
-                                            xtype: "textfield"
-                                        }
-                                        break
-				    case "PayDate":
-					column.xtype = "datecolumn";
-					column.format = "Y/m/d G:i";
-                                }
+		if (!Beet.apps.customers.PaidTypeModel){
+		    Ext.define("Beet.apps.customers.PaidTypeModel", {
+			extend: 'Ext.data.Model',
+			fields: _fields    
+		    });
+		}
 
-                                _columns.push(column);
-                            }
-                        };
-                        if (!Beet.cache.PaidTypeModel){
-                            Ext.define("Beet.cache.PaidTypeModel", {
-                                extend: 'Ext.data.Model',
-                                fields: _fields    
-                            })
-                        }
-                        me.paidStore = Ext.create("Ext.data.ArrayStore", {
-                            modal: Beet.cache.PaidTypeModel,
-                            autoDestroy: true
-                        })
-                        me.paidColumns = _columns;
+		me.paidStore = Ext.create("Ext.data.ArrayStore", {
+		    model: Beet.apps.customers.PaidTypeModel
+		})
+		me.paidColumns = _columns;
+	    },
+	    failure: function(error){
+		Ext.Error.raise(error)
+	    }
+	})    
+    },
+    openPaidWindow: function(){
+        var me = this, form = me.form.getForm(), cardServer = Beet.constants.cardServer, win, grid;
+        cost = 0;
 
-                        me.queue.triggle("getPaidModel", "success");
-                    },
-                    failure: function(error){
-                        Ext.Error.raise(error)
-                    }
-                })    
-            })
-	}
-
-	//get a row Editing
         var rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
             clicksToMoveEditor: 1,
             autoCancel: false,
@@ -670,9 +654,8 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                         var record = store.getAt(c);
                         var payName = record.get("PayName");
                         if (payName){
-                            //update payId
-                            for (var a = 0; a < me.paidTypeStore.getCount(); ++a){
-                                var r = me.paidTypeStore.getAt(a);
+                            for (var a = 0; a < paidTypeStore.getCount(); ++a){
+                                var r = paidTypeStore.getAt(a);
                                 if (r.get("PayName") == payName){
                                     record.set("PayID", r.get("PayID"));
                                     break;
@@ -686,229 +669,197 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                 }
             }
         });
+	
+	me.paidStore.clearData();
+	grid = Ext.create("Ext.grid.Panel", {
+	    width: "100%",
+	    height: "100%",
+	    autoScroll: true,    
+	    autoHeight: true,
+	    store : me.paidStore,
+	    columns: me.paidColumns,
+	    tbar: [
+		{
+		    text: "新增付款",
+		    handler: function(){
+			rowEditing.cancelEdit();
+			var r = Ext.create("Beet.apps.customers.PaidTypeModel", {
+			    "PayName" : "",
+			    "Money" : 0,
+			    "PayDate" : new Date(),
+			    "Descript" : "",
+			    "EName" : Beet.cache.currentEmployName,
+			    "employeeid" : Beet.cache.currentEmployGUID
+			});
+			me.paidStore.insert(0, r);
+			rowEditing.startEdit(0, 0);
+		    }
+		},
+		"->",
+		{
+		    text: "付款方式",
+		    handler: function(){
 
-        //付款方式列表
-        function updatePayType(){
-            cardServer.GetPayTypeData("", {
-                success: function(data){
-                    var data = Ext.JSON.decode(data);
-                    data = data["Data"];
-                    me.paidTypeStore.loadData(data);
-                    rowEditing.fireEvent("edit", {
-                        grid : grid,
-                        store: grid.getStore() 
-                    });
-                },
-                failure: function(error){
-                    Ext.Error.raise(error);
-                }
-            })
-        }
-        
-        var createGird = function(){
-	    console.log(me.paidStore)
-            me.paidStore.loadData([]);//clear
-	    console.log(me.paidStore)
+		    }
+		},
+		//{
+		//    text: "新增付款方式",
+		//    handler: function(){
+		//        var w;
+		//        var form = me.paidTypeForm = Ext.create("Ext.form.Panel", {
+		//            height: "100%",
+		//            width: "100%",
+		//            frame: true,
+		//            border: false,
+		//            plain: true,
+		//            shadow: true,
+		//            items: [
+		//                {
+		//                    fieldLabel: "名称",
+		//                    xtype: "textfield",
+		//                    name: "payname"    
+		//                },
+		//    	    {
+		//    		fieldLabel: "虚拟货币?",
+		//    		xtype: "checkbox",
+		//    		inputValue: true,
+		//    		name: "isvirtual"
+		//    	    },
+		//                {
+		//                    xtype: "button",
+		//                    text: "提交",
+		//                    handler: function(){
+		//                        var form = me.paidTypeForm.getForm(), results = form.getValues();
+		//                        cardServer.AddPayType(Ext.JSON.encode(results), {
+		//                            success: function(id){
+		//                                if (id > -1){
+		//                                    Ext.Msg.show({
+		//                                        title: "添加成功",
+		//                                        msg: "添加付款方式成功!",
+		//                                        buttons: Ext.MessageBox.YESNO,
+		//                                        fn: function(btn){
+		//                                            w.close();
+		//                                        }
+		//                                    })
+		//                                }else{
+		//                                    Ext.Error.raise("增加服务失败");
+		//                                }
+		//                            },
+		//                            failure: function(error){
+		//                                Ext.Error.raise(error);
+		//                            }
+		//                        });
+		//                    }
+		//                }
+		//            ],
+		//        });
+		//        w = Ext.create("Ext.window.Window", {
+		//            height: 150,
+		//            width: 300,
+		//            title: "增加付款方式",
+		//            plain: true    
+		//        });
+		//        w.add(form);
+		//        w.show();
+		//    },
+		//}
+	    ],
+	    bbar: [
+		{
+		    xtype: "label",
+		    text: "总计:"
+		},
+		{
+		    xtype: "label",
+		    name: "totalPrice",
+		    text: "0"
+		},
+		"->",
+		{
+		    text: "确定",
+		    handler: function(){
+			Ext.MessageBox.show({
+			    title: "充值确认",
+			    msg: "充值金额: <span style=\"color:red;font-weight:bolder;\">" + cost + "</span> 元 <br/><br/>确认充值吗?",
+			    buttons: Ext.MessageBox.YESNO,
+			    fn: function(btn){
+				if (btn == "yes"){
+				    var pays = [];
+				    var totalMoney = 0;
+				    for (var c = 0; c < me.paidStore.getCount(); ++c){    
+					var r = me.paidStore.getAt(c);
+					pays.push({
+					    payid: r.get("PayID"),
+					    money: r.get("Money"),
+					    descript: r.get("Descript")
+					});
+					totalMoney += r.get("Money");
+				    }
+				    var results = {
+					customerid: me.selectedCustomerId,
+					employeeid: Beet.cache.currentEmployGUID,
+					pays: pays
+				    }
 
-            updatePayType();
+				    if (totalMoney <= 0){
+					Ext.Msg.alert("错误", "请输入充值金额, 不能为0");
+					return;
+				    }
 
-            grid = Ext.create("Ext.grid.Panel", {
-                width: "100%",
-                height: "100%",
-                autoScroll: true,    
-                autoHeight: true,
-                store : me.paidStore,
-                columns: me.paidColumns,
-                tbar: [
-                    {
-                        text: "新增付款",
-                        handler: function(){
-                            rowEditing.cancelEdit();
-                            var r = Ext.create("Beet.cache.PaidTypeModel", {
-                                "PayName" : "",
-                                "Money" : 0,
-                                "PayDate" : new Date(),
-                                "Descript" : "",
-				"EName" : Beet.cache.currentEmployName,
-				"employeeid" : Beet.cache.currentEmployGUID
-                            });
-                            me.paidStore.insert(0, r);
-                            rowEditing.startEdit(0, 0);
-                        }
-                    },
-                    "->",
-                    {
-                        text: "新增付款方式",
-                        handler: function(){
-                            var w;
-                            var form = me.paidTypeForm = Ext.create("Ext.form.Panel", {
-                                height: "100%",
-                                width: "100%",
-                                frame: true,
-                                border: false,
-                                plain: true,
-                                shadow: true,
-                                items: [
-                                    {
-                                        fieldLabel: "名称",
-                                        xtype: "textfield",
-                                        name: "payname"    
-                                    },
-				    {
-					fieldLabel: "虚拟货币?",
-					xtype: "checkbox",
-					inputValue: true,
-					name: "isvirtual"
-				    },
-                                    {
-                                        xtype: "button",
-                                        text: "提交",
-                                        handler: function(){
-                                            var form = me.paidTypeForm.getForm(), results = form.getValues();
-                                            cardServer.AddPayType(Ext.JSON.encode(results), {
-                                                success: function(id){
-                                                    if (id > -1){
-                                                        Ext.Msg.show({
-                                                            title: "添加成功",
-                                                            msg: "添加付款方式成功!",
-                                                            buttons: Ext.MessageBox.YESNO,
-                                                            fn: function(btn){
-                                                                updatePayType();
-                                                                w.close();
-                                                            }
-                                                        })
-                                                    }else{
-                                                        Ext.Error.raise("增加服务失败");
-                                                    }
-                                                },
-                                                failure: function(error){
-                                                    Ext.Error.raise(error);
-                                                }
-                                            });
-                                        }
-                                    }
-                                ],
-                            });
-                            w = Ext.create("Ext.window.Window", {
-                                height: 150,
-                                width: 300,
-                                title: "增加付款方式",
-                                plain: true    
-                            });
-                            w.add(form);
-                            w.show();
-                        },
-                    }
-                ],
-                bbar: [
-                    {
-                        xtype: "label",
-                        text: "总计:"
-                    },
-                    {
-                        xtype: "label",
-                        name: "totalPrice",
-                        text: "0"
-                    },
-                    "->",
-                    {
-                        text: "确定",
-                        handler: function(){
-                            Ext.MessageBox.show({
-                                title: "充值确认",
-                                msg: "充值金额: <span style=\"color:red;font-weight:bolder;\">" + cost + "</span> 元 <br/><br/>确认充值吗?",
-                                buttons: Ext.MessageBox.YESNO,
-                                fn: function(btn){
-                                    if (btn == "yes"){
-                                        var pays = [];
-					var totalMoney = 0;
-                                        for (var c = 0; c < me.paidStore.getCount(); ++c){    
-                                            var r = me.paidStore.getAt(c);
-                                            pays.push({
-                                                payid: r.get("PayID"),
-                                                money: r.get("Money"),
-                                                descript: r.get("Descript")
-                                            });
-					    totalMoney += r.get("Money");
-                                        }
-                                        var results = {
-                                            customerid: me.selectedCustomerId,
-					    employeeid: Beet.cache.currentEmployGUID,
-                                            pays: pays
-                                        }
-
-					if (totalMoney <= 0){
-					    Ext.Msg.alert("错误", "请输入充值金额, 不能为0");
-					    return;
+				    //充值部分, 成功充值后, 将返回当前的余额
+				    cardServer.AddCustomerPay(Ext.JSON.encode(results), {
+					success: function(data){
+					    //console.log(data)
+					    data = JSON.parse(data);
+					    if (data["result"]){
+						var values = form.getValues();
+						if (cost > 0){
+						    me.down("button[name=bindingCard]").enable();
+						}
+						
+						form.setValues(
+						    {
+							_payvalue: cost,
+							"balance" : parseFloat(values["balance"]) + cost
+						    }
+						)
+						win.close();    
+					    }else{
+						Ext.Msg.alert("失败", "充值失败");
+					    }
+					},
+					failure: function(error){
+					    Ext.Error.raise(error)
 					}
+				    })
+				}
+			    }
+			})
+		    }
+		},
+		{
+		    text: "取消",
+		    handler: function(){ 
+			me.paidStore.clearData();
+			win.close();
+		    }
+		}
+	    ],
+	    plugins: [
+		rowEditing    
+	    ]
+	});
 
-                                        //充值部分, 成功充值后, 将返回当前的余额
-                                        cardServer.AddCustomerPay(Ext.JSON.encode(results), {
-                                            success: function(data){
-                                                //console.log(data)
-                                                data = JSON.parse(data);
-                                                if (data["result"]){
-                                                    var values = form.getValues();
-                                                    if (cost > 0){
-                                                        me.down("button[name=bindingCard]").enable();
-                                                    }
-                                                    
-                                                    /**
-                                                     * TODO:
-                                                     * 这里问题:
-                                                     * 1. 充值成功后, 需要更新成功充值的金额, 往余额上加
-                                                     */
-                                                    form.setValues(
-                                                        {
-                                                            _payvalue: cost,
-                                                            "balance" : parseFloat(values["balance"]) + cost
-                                                        }
-                                                    )
-                                                    win.close();    
-                                                }else{
-                                                    Ext.Msg.alert("失败", "充值失败");
-                                                }
-                                            },
-                                            failure: function(error){
-                                                Ext.Error.raise(error)
-                                            }
-                                        })
-                                    }
-                                }
-                            })
-                        }
-                    },
-                    {
-                        text: "取消",
-                        handler: function(){ 
-                            me.paidStore = null;
-                            win.close();
-                        }
-                    }
-                ],
-                plugins: [
-                    rowEditing    
-                ]    
-            });
+        win = Ext.create("Ext.window.Window", {
+            title: "充值",
+            height: 600,
+            width: 600,
+            border: false,
+            autoHeight: true
+        });
 
-            if (!!me.queue.getProcess("createGird")){
-                me.queue.trigger("createGird", "success")
-            }
-            return grid
-        }
-
-        if (me.queue.getCurrentNumProcesses == 0 || me.paidStore){
-            var g = createGird();
-            win.show();
-            win.add(g);
-            win.doLayout();
-        }else{
-            me.queue.Add("createGird", "getPaidModel", function(){
-                var g = createGird()
-                win.add(g);
-                win.show();
-            });
-        }
+	win.add(grid);
+	win.show();
     },
     onSelectEmployee: function(records){
         var me = this, form = me.form.getForm(), cardServer = Beet.constants.cardServer;
@@ -1145,7 +1096,6 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                             flex: 1,
                         }
 
-			console.log(meta["FieldName"])
                         switch (meta["FieldName"]){
 			    case "Par":
 			    case "Price":
@@ -1526,8 +1476,6 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                 success: function(succ){
                     if (succ){
                         Ext.MessageBox.alert("成功", "更新成功!");
-                        //console.log(me, me.storeProxy)
-                        //me.cardPanel.grid.store.loadPage(1)
                     }else{
                         Ext.MessageBox.alert("失败", "更新失败!");
                     }
@@ -1564,4 +1512,6 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
             });
         }
     }
-})
+});
+
+})()

@@ -1989,21 +1989,21 @@ Ext.define("Beet.apps.cards.CardList", {
             results["charges"] = charges;
         }
 
-        if (packages && packages.length > 0){
-            results["packages"] = packages;
-        }
+        //if (packages && packages.length > 0){
+        //    results["packages"] = packages;
+        //}
 
         if (rebates && rebates.length > 0){
             results["rebates"] = rebates;
         }
 
-        if (items && items.length > 0){
-            results["items"] = items;
-        }
+        //if (items && items.length > 0){
+        //    results["items"] = items;
+        //}
 
-        if (products && products.length > 0){
-            results["products"] = products;
-        }
+        //if (products && products.length > 0){
+        //    results["products"] = products;
+        //}
 
         if (results["validdatemode"] == 2){
             results["validdatetime"] = ((+new Date(results["validdatetime"])) / 1000)
