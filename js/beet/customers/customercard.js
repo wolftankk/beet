@@ -54,6 +54,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
         var me = this;
         me.selectedCustomerId = null;
         me.selectedCardId = null; 
+	me.selectedFriendID = null
 
 	getPayMethod();
 
@@ -295,6 +296,39 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 				    name: "descript"
 				},
 				{
+				    xtype: "checkbox",
+				    fieldLabel: "是否经人介绍",
+				    inputValue: true,
+				    listeners: {
+					change: function(f, newValue){
+					    var field = f.nextSibling()
+					    if (newValue){
+						field.show();
+					    }else{
+						field.hide();
+					    }
+					}
+				    }
+				},
+				{
+				    fieldLabel: "介绍人",
+				    allowBlank: true,
+				    xtype: "trigger",
+				    hidden: true,
+				    editable: false,
+				    onTriggerClick: function(){
+					var win = Ext.create("Beet.plugins.selectCustomerWindow", {
+					    b_selectionMode: "SINGLE",
+					    _callback: function(r){
+						var record = r.shift();
+						me.selectedFriendID = record.get("CTGUID");
+						win.hide();
+					    }
+					});
+					win.show();
+				    }
+				},
+				{
 				    fieldLabel: "充值金额",
 				    readOnly: true,
 				    hidden: true,
@@ -352,7 +386,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 							    if (data.length > 0){
 								me.addCard(data.shift(), false, true);
 							    }else{
-								Ext.Msg.alert("失败","查询不到改产品");
+								Ext.Msg.alert("失败","查询不到该产品");
 							    }
 							},
 							failure: function(error){
@@ -555,9 +589,10 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 			borderColor: "#ff5252"
 		    },
 		    handler: function(){
+			var values = me.form.getValues();
 			Ext.MessageBox.show({
 			    title: "警告",
-			    msg: "确定需要销毁当前用户的卡?",
+			    msg: ((values["balance"] > 0) ? "账户余额为<span style='color: #f00;font-weight:bolder;'>" + values["balance"] + "</span>, 销卡将清空当前用户包括金额在内的所有数据?<br/>确定需要销毁当前用户的卡?" : "确定需要销毁当前用户的卡?"),
 			    buttons: Ext.MessageBox.YESNO,
 			    fn: function(btn){
 				if (btn == "yes"){
@@ -569,11 +604,11 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 						//reset all
 						me.selectedCustomerId = null
 						me.selectedEmpolyeeId = null;
+						me.selectedFriendID = null
 						me.selectedCardId = null; 
 						form.reset();
 						me.down("button[name=updatebtn]").disable();
 						me.down("button[name=activebtn]").hide();
-						me.updateCardPanel();
 					    }
 					},
 					failure: function(error){
@@ -1053,6 +1088,9 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
         var me = this, cardServer = Beet.constants.cardServer, form = me.form.getForm();
         me.selectedCustomerId = data["CustomerID"];
         me.selectedEmpolyeeId = data["EID"];
+
+	//do
+	me.selectedFriendID = data["FriendID"];
         form.setValues({
             cardno: data["CardNo"],
             "level" : data["Level"],
@@ -1171,6 +1209,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                if (btn == "yes"){
                                    me.selectedCustomerId = null
                                    me.selectedEmpolyeeId = null;
+				   me.selectedFriendID = null
                                    me.selectedCardId = {};
                                    form.reset();
                                    me.updateCardPanel();
