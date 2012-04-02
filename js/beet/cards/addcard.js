@@ -285,14 +285,15 @@ Ext.define("Beet.apps.cards.AddCard", {
                                         {
                                             text: "保存",
                                             xtype: "button",
-                                            scale: "large",
 					    hidden: (me.action == undefined),
-                                            width: 200,
+                                            height: 30,
+					    width: 150,
                                             border: 1,
                                             formBind: true,
                                             disabled: true,
                                             style: {
-                                                borderColor: "#99BBE8"
+                                                borderColor: "#99BBE8",
+						margin: "20px 0 0 40px"
                                             },
                                             border: 0,
                                             bodyStyle: "background-color: #dfe8f5",

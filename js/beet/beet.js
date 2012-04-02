@@ -998,9 +998,17 @@ Ext.define("Beet.apps.Viewport", {
             var appMethod = app.shift();
 
             if (Beet.apps[appNamespace] && Beet.apps[appNamespace][appMethod]){
+		var args = {};
+		switch (appName){
+		    case "cards.AddCard":
+			args = {
+			    action : "insert"    
+			}
+			break;
+		}
                 me.addPanel(appName, title, {
                     items: [
-                        Ext.create("Beet.apps."+appName)
+                        Ext.create("Beet.apps."+appName, args)
                     ]    
                 })
             }
