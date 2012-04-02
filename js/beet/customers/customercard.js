@@ -336,7 +336,36 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 			    items:[
 				{
 				    fieldLabel: "编码",
-				    name: "__code"
+				    name: "__code",
+				    enableKeyEvents: true,
+				    listeners: {
+					keydown: function(f, e){
+					    if (e.getKey() == Ext.EventObject.ENTER){
+						var v = f.getValue();
+						var _sql = "";
+						if (v.length > 0){
+						    _sql = "Code = '" + v +"'";
+						    cardServer.GetCardPageData(0, 1, _sql, {
+							success: function(data){
+							    var data = Ext.JSON.decode(data);
+							    data = data["Data"];
+							    if (data.length > 0){
+								me.addCard(data.shift(), false, true);
+							    }else{
+								Ext.Msg.alert("失败","查询不到改产品");
+							    }
+							},
+							failure: function(error){
+							    Ext.Error.raise(error)
+							}
+						    })
+						}
+						e.stopEvent();
+						e.stopPropagation();
+						return false;
+					    }
+					}
+				    }
 				},
 				{
 				    fieldLabel: "名称",
