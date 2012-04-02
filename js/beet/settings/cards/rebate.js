@@ -62,6 +62,7 @@ Ext.define("Beet.apps.cards.AddRebate", {
                             name: "ismoney",
                             xtype: "checkbox",
                             inputValue: 1,
+			    value: -1,
                             listeners: {
                                 change: function(f, newValue){
                                     var raterCombox = me.form.down("textfield[name=rate]");
@@ -128,10 +129,18 @@ Ext.define("Beet.apps.cards.AddRebate", {
         me.add(me.form);
         me.doLayout();
         if (me.b_editMode && me.b_rawData){
-            me.restoreFromData()
+	    me.form.on({
+		"afterrender" : function(){
+		    me.restoreFromData()
+		}
+	    })
         }else{
             if (me.b_rawData){
-                me.restoreFromData();
+		me.form.on({
+		    "afterrender" : function(){
+			me.restoreFromData()
+		    }
+		})
             }
         }
     },
