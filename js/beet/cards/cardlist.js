@@ -588,14 +588,15 @@ Ext.define("Beet.apps.cards.CardList", {
                                             }
                                         },
                                         {
-                                            fieldLabel: "面值原始金额",
+                                            fieldLabel: "面值金额",
                                             allowBlank: false,
                                             editable: false,
                                             readOnly: true,
+					    xtype: "hidden",
                                             name: "par"
                                         },
                                         {
-                                            fieldLabel: "折扣金额",
+                                            fieldLabel: "面值金额",
                                             allowBlank: false,
                                             name: "price"
                                         },
@@ -1859,79 +1860,79 @@ Ext.define("Beet.apps.cards.CardList", {
             }
         });
 
-        me.queue.Add("updatepackages", function(){
-            if (packages && packages.length > 0){
-                var sql = [];
-                for (var c = 0; c < packages.length; ++c){
-                    sql.push("id=" + packages[c]);
-                }
-                var s = sql.join(" OR ");
-                if (s.length > 0){
-                    cardServer.GetPackagesPageDataToJSON(1, packages.length, s, {
-                        success: function(data){
-                            var data = Ext.JSON.decode(data)["Data"];
-                            me.addPackage(data, true);
-                            me.queue.triggle("updatepackages", "success");
-                        },
-                        failure: function(error){
-                            Ext.Error.raise(error);
-                        }
-                    })
-                }
-            }else{
-                me.queue.triggle("updatepackages", "success");
-            }
-        })
+        //me.queue.Add("updatepackages", function(){
+        //    if (packages && packages.length > 0){
+        //        var sql = [];
+        //        for (var c = 0; c < packages.length; ++c){
+        //            sql.push("id=" + packages[c]);
+        //        }
+        //        var s = sql.join(" OR ");
+        //        if (s.length > 0){
+        //            cardServer.GetPackagesPageDataToJSON(1, packages.length, s, {
+        //                success: function(data){
+        //                    var data = Ext.JSON.decode(data)["Data"];
+        //                    me.addPackage(data, true);
+        //                    me.queue.triggle("updatepackages", "success");
+        //                },
+        //                failure: function(error){
+        //                    Ext.Error.raise(error);
+        //                }
+        //            })
+        //        }
+        //    }else{
+        //        me.queue.triggle("updatepackages", "success");
+        //    }
+        //})
 
-        me.queue.Add("updateitems", function(){
-            if (items && items.length > 0){
-                var sql = [];
-                for (var c = 0; c < items.length; ++c){
-                    sql.push("iid=" + items[c]);
-                }
-                var s = sql.join(" OR ");
-                if (s.length > 0){
-                    cardServer.GetItemPageData(1, items.length, s, {
-                        success: function(data){
-                            var data = Ext.JSON.decode(data)["Data"];
-                            me.addItems(data, true);
-                            me.queue.triggle("updateitems", "success");
-                        },
-                        failure: function(error){
-                            Ext.Error.raise(error);
-                        }
-                    })
-                }
-            }else{
-                me.queue.triggle("updateitems", "success");
-            }
-        })
+        //me.queue.Add("updateitems", function(){
+        //    if (items && items.length > 0){
+        //        var sql = [];
+        //        for (var c = 0; c < items.length; ++c){
+        //            sql.push("iid=" + items[c]);
+        //        }
+        //        var s = sql.join(" OR ");
+        //        if (s.length > 0){
+        //            cardServer.GetItemPageData(1, items.length, s, {
+        //                success: function(data){
+        //                    var data = Ext.JSON.decode(data)["Data"];
+        //                    me.addItems(data, true);
+        //                    me.queue.triggle("updateitems", "success");
+        //                },
+        //                failure: function(error){
+        //                    Ext.Error.raise(error);
+        //                }
+        //            })
+        //        }
+        //    }else{
+        //        me.queue.triggle("updateitems", "success");
+        //    }
+        //})
 
-        me.queue.Add("updateproducts", function(){
-            if (products && products.length > 0){
-                var sql = [];
-                for (var c = 0; c < products.length; ++c){
-                    sql.push("pid=" + products[c]);
-                }
-                var s = sql.join(" OR ");
-                if (s.length > 0){
-                    cardServer.GetProductPageData(1, products.length, s, {
-                        success: function(data){
-                            var data = Ext.JSON.decode(data)["Data"];
-                            me.addProducts(data, true);
-                            me.queue.triggle("updateproducts", "success");
-                        },
-                        failure: function(error){
-                            Ext.Error.raise(error);
-                        }
-                    })
-                }
-            }else{
-                me.queue.triggle("updateproducts", "success");
-            }
-        });
+        //me.queue.Add("updateproducts", function(){
+        //    if (products && products.length > 0){
+        //        var sql = [];
+        //        for (var c = 0; c < products.length; ++c){
+        //            sql.push("pid=" + products[c]);
+        //        }
+        //        var s = sql.join(" OR ");
+        //        if (s.length > 0){
+        //            cardServer.GetProductPageData(1, products.length, s, {
+        //                success: function(data){
+        //                    var data = Ext.JSON.decode(data)["Data"];
+        //                    me.addProducts(data, true);
+        //                    me.queue.triggle("updateproducts", "success");
+        //                },
+        //                failure: function(error){
+        //                    Ext.Error.raise(error);
+        //                }
+        //            })
+        //        }
+        //    }else{
+        //        me.queue.triggle("updateproducts", "success");
+        //    }
+        //});
 
-        me.queue.Add("resetpar", "updatecharges,updateproducts,updaterebates,updateitems,updatepackages", function(){
+        me.queue.Add("resetpar", "updatecharges,updaterebates", function(){
             setTimeout(function(){
                 form.setValues({
                     par: record.get("Par"),
