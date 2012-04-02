@@ -31,28 +31,6 @@ Ext.define("Beet.apps.cards.CardList", {
     b_filter: "",
     initComponent: function(){
         var me = this, cardServer = Beet.constants.cardServer;
-        me.childrenList = [];
-
-        me.selectedInterests = {};
-        me.selectedChargeType = {};
-        me.selectedRebates = {};
-        me.selectedPackages = {};
-        me.selectedItems = {};
-        me.selectedProducts = {};
-
-        //面值
-        me._par = {};
-        //实耗
-        me._real = {};
-        /*
-        me.count = {
-            interestsCount : 0,
-            chargesCount : 0,
-            rebatesCount: 0,
-            packagesCount : 0,
-            itemsCount : 0,
-            productsCount : 0
-        }*/
         me.queue = new Beet_Queue("cardList");
 
         me.callParent();    
@@ -314,45 +292,41 @@ Ext.define("Beet.apps.cards.CardList", {
     editCardItem: function(record){
         var me = this, cardServer = Beet.constants.cardServer;
         if (me.b_type == "selection"){
-            //var win = Ext.create("Ext.window.Window", {
-            //    height: 670,
-            //    width: 1100,
-            //    maximized: true,
-            //    autoScroll: true,
-            //    autoHeight: true,
-            //    autoDestory: true,
-            //    plain: true,
-            //    title: "查看 " + record.get("Name"),
-            //    border: false
-            //});
+            var win = Ext.create("Ext.window.Window", {
+                height: 670,
+                width: 1100,
+                maximized: true,
+                autoScroll: true,
+                autoHeight: true,
+                autoDestory: true,
+                plain: true,
+                title: "查看 " + record.get("Name"),
+                border: false
+            });
 
-            //me.cardInfo = win;
-            //win.show();
-            //Ext.MessageBox.show({
-            //    msg: "正在载入卡项数据...",
-            //    progressText: "载入中...",
-            //    width: 300,
-            //    wait: true,
-            //    waitConfig: {interval: 800},
-            //    closable: false
-            //});
+            win.show();
+            Ext.MessageBox.show({
+                msg: "正在载入卡项数据...",
+                progressText: "载入中...",
+                width: 300,
+                wait: true,
+                waitConfig: {interval: 800},
+                closable: false
+            });
 
-            //me.queue.Add("getcarddetail", "initInterspanel,initChargepanel,initRebatespanel", function(){
-            //    cardServer.GetCardDetailData(record.get("ID"), {
-            //        success: function(data){
-            //            var data = Ext.JSON.decode(data);
-            //            me.onSelectItem(record, data);
-            //            me.queue.triggle("getcarddetail", "success");
-            //        },
-            //        failure: function(error){
-            //            Ext.MessageBox.hide();
-            //            Ext.Error.raise(error);
-            //        }
-            //    })
-            //});
-            //me.queue.Add("processBar", "getcarddetail", function(){
-            //    Ext.MessageBox.hide();
-            //})
+	    var cardPanel = Ext.create("Beet.apps.cards.AddCard")
+
+	    cardServer.GetCardDetailData(record.get("ID"), {
+		success: function(data){
+		    var data = Ext.JSON.decode(data);
+		    win.add(cardPanel);
+		    Ext.MessageBox.hide();
+		},
+		failure: function(error){
+		    Ext.MessageBox.hide();
+		    Ext.Error.raise(error);
+		}
+	    })
         }else{
             var win = Ext.create("Ext.window.Window", {
                 height: 670,
@@ -388,7 +362,6 @@ Ext.define("Beet.apps.cards.CardList", {
 	    cardServer.GetCardDetailData(record.get("ID"), {
 		success: function(data){
 		    var data = Ext.JSON.decode(data);
-		    cardPanel.restoreFromData(record, data);
 		    win.add(cardPanel);
 		    Ext.MessageBox.hide();
 		},

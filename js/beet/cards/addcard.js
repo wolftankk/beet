@@ -315,9 +315,14 @@ Ext.define("Beet.apps.cards.AddCard", {
                         }
                     ]
                 }
-            ],
+            ]
         };
         var form = Ext.widget("form", config);
+	form.on({
+	    "afterrender" : function(){
+		me.interestsPanel.expand();
+	    }
+	})
         me.form = form;
         me.add(form);
         me.doLayout();
@@ -883,7 +888,8 @@ Ext.define("Beet.apps.cards.AddCard", {
             validunit: parseInt(record.get("ValidUnit")),
             descript: record.get("Descript"),
             code: record.get("Code"),
-            maxcount: record.get("MaxCount")
+            maxcount: record.get("MaxCount"),
+	    validdatemode: record.get("ValidDateMode")
         });
 
         var charges = detailData["charges"],
