@@ -249,6 +249,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 				    fieldLabel: "本金",
 				    allowBlank: false,
 				    readOnly: true,
+				    name: "capital",
 				    type: "float"
 				},
 				{
@@ -368,7 +369,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 					    b_selectionMode: "SINGLE",
 					    b_selectionCallback: function(records){
 						if (records.length == 0){ win.close(); return;}
-						me.addCard(records.shift(), true);
+						me.addCard(records.shift(), true, true);
 						win.close();
 					    }
 					}));
@@ -456,7 +457,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 		    scale: "medium",
 		    text: "开卡",
 		    name: "activebtn",
-		    disabled: true,
+		    hidden: true,
 		    handler: function(){
 			me.processData(this);
 		    }
@@ -542,7 +543,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 						me.selectedCardId = null; 
 						form.reset();
 						me.down("button[name=updatebtn]").disable();
-						me.down("button[name=activebtn]").disable();
+						me.down("button[name=activebtn]").hide();
 						me.updateCardPanel();
 					    }
 					},
@@ -629,7 +630,24 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 				    displayField: "PayName",
 				    valueField: "PayName",
 				    listClass: 'x-combo-list-small',
-				    allowBlank: false
+				    allowBlank: false,
+				    listeners: {
+					"change" : function(f, payName){
+					    if (payName){
+						for (var a = 0; a < paidTypeStore.getCount(); ++a){
+						    var r = paidTypeStore.getAt(a);
+						    if (r.get("PayName") == payName){
+							var isVirtual = r.get("IsVirtual");
+							var form = f.ownerCt.form;
+							var fields = form.getFields();
+							var field = fields.last();
+							field.setValue(isVirtual == "false" ? "是" : "否");
+							break;
+						    }
+						}
+					    }
+					}
+				    }
 				}
 				break;
 			    case "Money":
@@ -789,14 +807,14 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 				    //充值部分, 成功充值后, 将返回当前的余额
 				    cardServer.AddCustomerPay(Ext.JSON.encode(results), {
 					success: function(data){
-					    //console.log(data)
 					    data = JSON.parse(data);
 					    if (data["result"]){
 						var values = form.getValues();
-						
+						var result = data["result"]
 						form.setValues(
 						    {
-							"balance" : parseFloat(values["balance"]) + cost
+							"balance" : parseFloat(data["balance"]),
+							"capital" : parseFloat(data["capital"])
 						    }
 						)
 						win.close();    
@@ -859,7 +877,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
         me.selectedCardId = null;
         form.reset();
         me.down("button[name=updatebtn]").disable();
-        me.down("button[name=activebtn]").disable();
+        me.down("button[name=activebtn]").hide();
         me.down("button[name=deleteCard]").disable();
         me.down("button[name=paidbtn]").disable();
 	me.down("button[name=historybtn]").disable();
@@ -920,8 +938,12 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                 })
                             }
                             
-			    me.down("button[name=updatebtn]").enable();
-                            me.down("button[name=deleteCard]").enable();
+			    if (customerData["CardNo"] == ""){
+				me.down("button[name=activebtn]").show();
+			    }else{
+				me.down("button[name=updatebtn]").enable();
+				me.down("button[name=deleteCard]").enable();
+			    }
 
                             me.queue.triggle("queryCustomer", "success");
                         }else{
@@ -946,7 +968,6 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                                     Ext.Error.raise(error)
                                 }
                             })
-                            me.down("button[name=activebtn]").enable();
                         }
                         if (me.selectedCustomerId){
                             me.down("button[name=paidbtn]").enable();
@@ -1008,15 +1029,17 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
             "level" : data["Level"],
             employeename: data["EName"],
             balance: data["Balance"],
+	    capital : data["Capital"],
             descript: data["Descript"]
         })
     },
-    addCard: function(record, isRecord){
+    addCard: function(record, isRecord, binding){
         var me = this;
 	if (record == undefined){
 	    Ext.Msg.alert("错误", "请选择卡项");
 	    return;
 	}
+
 
 	var form = me.form.getForm();
 	var rawData;
@@ -1025,30 +1048,45 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 	}else{
 	    rawData = record;
 	}
+	
+	//check balance must be bigger than the par of the card
+	if (binding){
+	    var values = form.getValues();
+	    var capital = parseFloat(values["capital"]);
+	    var cardPar = parseFloat(rawData["Par"]);
+	    if (capital < cardPar){
+		Ext.Msg.alert("错误", "本金小于该卡级别面值, 请充值或选择其他级别的卡!");
+		return;
+	    }
+	}
 
 	var cid = (rawData["ID"] == undefined ? rawData["CID"] : rawData["ID"]);
 
 	var starttime, endtime;
+	var endtimeField = me.form.down("datefield[name=endtime]")
 	
         if (rawData["StartTime"] == undefined){
             rawData["StartTime"] = new Date();
         }
-        if (rawData["EndTime"] == undefined){
-            // 0 year 1 month 2 day
-            var d = 0;
-            switch (rawData["ValidUnit"]){
-                case 0:
-                    d = rawData["ValidDate"] * 365 * 86400;
-                    break;
-                case 1:
-                    d = rawData["ValidDate"] * 30 * 86400;
-                    break;
-                case 2:
-                    d = rawData["ValidDate"] * 86400;
-                    break;
-            }
-            rawData["EndTime"] = new Date(+new Date() + d * 1000);
-        }
+
+	var d = 0;
+	switch (rawData["ValidUnit"]){
+	    case "0":
+		d = rawData["ValidDate"] * 365 * 86400;
+		break;
+	    case "1":
+		d = rawData["ValidDate"] * 30 * 86400;
+		break;
+	    case "2":
+		d = rawData["ValidDate"] * 86400;
+		break;
+	}
+	if (rawData["ValidDateMode"] == "0"){
+	    endtimeField.hide();
+	}else{
+	    endtimeField.show();
+	}
+	rawData["EndTime"] = new Date(+new Date() + d * 1000);
 
 	form.setValues({
 	    "__code" : rawData["Code"],
