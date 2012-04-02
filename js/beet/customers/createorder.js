@@ -1028,8 +1028,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                             balance: (data[c]["Balance"] + ""),
                             originBalance : (data[c]["Balance"] + ""),
                             stepprice: data[c]["StepPrice"],
-                            maxcount: (data[c]["MaxCount"] + "")
-                        }
+                            maxcount:  0
+			}
                     }
                     var customerCardList = Ext.create("Ext.data.Store", {
                         fields: ["attr", "name"],
@@ -1074,17 +1074,10 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                                                             item["Balance"] = list[cid]["balance"]
                                                             item["StepPrice"] = list[cid]["stepprice"]
                                                             item["originBalance"] = list[cid]["originBalance"]
-                                                            var maxcount = parseInt(list[cid]["maxcount"]);
                                                             var realPrice = parseFloat(item["IRealPrice"]);
 							    if (!realPrice){
 								realPrice = parseFloat(item["IPrice"]);
 							    }
-                                                            if (maxcount == -1){
-                                                                item["needPaid"] = realPrice;
-                                                            }else{
-                                                                maxcount = maxcount == 0 ? 1 : maxcount;
-                                                                item["needPaid"] = parseFloat(realPrice / maxcount)
-                                                            }
                                                             var _new = [];
                                                             //console.log(item, __fields)
                                                             for (var k in __fields){

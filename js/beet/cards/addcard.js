@@ -203,13 +203,6 @@ Ext.define("Beet.apps.cards.AddCard", {
                                             }
                                         },
                                         {
-					    //已取消
-                                            fieldLabel: "面值金额",
-                                            allowBlank: false,
-					    xtype: "hidden",
-                                            name: "par"
-                                        },
-                                        {
                                             fieldLabel: "保值金额",
                                             allowBlank: false,
                                             name: "insure"
@@ -217,7 +210,7 @@ Ext.define("Beet.apps.cards.AddCard", {
                                         {
                                             fieldLabel: "面值金额",
                                             allowBlank: false,
-                                            name: "price"
+                                            name: "par"
                                         },
                                         {
                                             fieldLabel: "有效日期",
@@ -969,8 +962,7 @@ Ext.define("Beet.apps.cards.AddCard", {
         });
         me.queue.Add("resetpar", "updatecharges,updaterebates", function(){
 	    form.setValues({
-		par: record.get("Par"),
-		price: record.get("Price"),
+		par: record.get("Par")
 	    });
 	    me.queue.triggle("resetpar", "success");
         })
