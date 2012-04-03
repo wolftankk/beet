@@ -316,12 +316,16 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 				    xtype: "trigger",
 				    hidden: true,
 				    editable: false,
+				    name: "_friedName",
 				    onTriggerClick: function(){
 					var win = Ext.create("Beet.plugins.selectCustomerWindow", {
 					    b_selectionMode: "SINGLE",
 					    _callback: function(r){
 						var record = r.shift();
 						me.selectedFriendID = record.get("CTGUID");
+						me.form.getForm().setValues({
+						    _friedName: record.get("CTName")
+						})
 						win.hide();
 					    }
 					});
