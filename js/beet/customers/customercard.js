@@ -62,93 +62,8 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
         me.createMainPanel();
         me.queue = new Beet_Queue("customerCard");
 	me.initPaidWindow();
-        me.buildCustomerStore();
-    },
-    buildCustomerStore: function(){
-        var me = this, customerServer = Beet.constants.customerServer;
-        customerServer.GetCustomerPageData(0, 1, "", {
-            success: function(data){
-                var data = Ext.JSON.decode(data);
-                metaData = data["MetaData"];
-                var fields = [], columns = [];
 
-                for (var c = 0; c < metaData.length; ++c){
-                    var d = metaData[c];
-                    fields.push(d["FieldName"]);
-                    if (!d["FieldHidden"]) {
-                        var column = {
-                            flex: 1,
-                            header: d["FieldLabel"],
-                            dataIndex: d["FieldName"]    
-                        }
-			columns.push(column);
-                    }
-                };
-
-                if (!Beet.apps.customers.CustomerListModel){
-                    Ext.define("Beet.apps.customers.CustomerListModel", {
-                        extend: "Ext.data.Model",
-                        fields: fields
-                    });
-                }
-
-                if (!Ext.isDefined(Beet.apps.customers.CustomerListStore)){
-                    Ext.define("Beet.apps.customers.CustomerListStore", {
-                        extend: "Ext.data.Store",
-                        model: Beet.apps.customers.CustomerListModel,
-                        autoLoad: true,
-                        pageSize: Beet.constants.PageSize,
-                        b_filter: "",
-                        load: function(options){
-                            var me = this;
-                            options = options || {};
-                            if (Ext.isFunction(options)) {
-                                options = {
-                                    callback: options
-                                };
-                            }
-
-                            Ext.applyIf(options, {
-                                groupers: me.groupers.items,
-                                page: me.currentPage,
-                                start: (me.currentPage - 1) * me.pageSize,
-                                limit: me.pageSize,
-                                addRecords: false
-                            });      
-                            me.proxy.b_params["start"] = options["start"] || 0;
-                            me.proxy.b_params["limit"] = options["limit"]
-
-                            return me.callParent([options]);
-                        }
-                    });
-                }
-
-                me.customerStore = Ext.create("Beet.apps.customers.CustomerListStore");
-                me.customerStore.setProxy(me.updateCustomerProxy(""));
-            },
-            failure: function(error){
-                Ext.Error.raise(error)
-            }
-        })
-    },
-    updateCustomerProxy: function(filter){
-        var me = this;
-        filter = filter == undefined ? "" : filter;
-        return {
-             type: "b_proxy",
-             b_method: Beet.constants.customerServer.GetCustomerPageData,
-             startParam: "start",
-             limitParam: "limit",
-             b_params: {
-                 "filter": filter
-             },
-             b_scope: Beet.constants.customerServer,
-             reader: {
-                 type: "json",
-                 root: "Data",
-                 totalProperty: "TotalCount"
-             }
-        }
+	me.customerDropdown = new Beet.plugins.customerDropDown();
     },
     createMainPanel: function(){
         var me = this, cardServer = Beet.constants.cardServer;
@@ -202,7 +117,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 				    checkChangeBuffer: 500,
 				    listeners: {
 					change: function(f, newValue, oldValue, opts){
-					    Ext.callback(Beet.plugins.customerDropDown, me, [f, newValue, oldValue, opts], 30);
+					    Ext.callback(me.customerDropdown.onDropdown, me, [f, newValue, oldValue, opts], 30);
 					}
 				    },
 				    onTriggerClick: function(){
@@ -949,6 +864,9 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
         me.down("button[name=deleteCard]").disable();
         me.down("button[name=paidbtn]").disable();
 	me.down("button[name=historybtn]").disable();
+
+	var customerTrigger = me.form.down("triggerfield[name=customername]");
+
         var currentBalance = 0;
 
         if (Ext.isArray(records) && records.length > 0){
@@ -983,9 +901,11 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                 }else{
                     var record = records[0];
                     var CTGUID = record.get("CTGUID"), name = record.get("CTName");
+		    customerTrigger.suspendEvents();
                     form.setValues({
                         customername: name
                     })
+		    customerTrigger.resumeEvents();
                     me.selectedCustomerId = CTGUID;
                     sql = "CustomerID='" + CTGUID + "'";
                 }
@@ -1001,9 +921,11 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 
                             if (type == "cardno"){
                                 me.selectedCustomerId = customerData["CustomerID"];
+				customerTrigger.suspendEvents();
                                 form.setValues({
                                     customername: customerData["CustomerName"]    
                                 })
+				customerTrigger.resumeEvents();
                             }
                             
 			    if (customerData["CardNo"] == ""){
