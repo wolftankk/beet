@@ -2158,8 +2158,6 @@ Ext.define("Beet.apps.AdvanceSearchForm", {
     },
 });
 
-
-
 Beet.plugins.customerDropDown = function(){
     var me = this;
     var updateCustomerProxy = function(filter){
@@ -2361,112 +2359,221 @@ Beet.plugins.customerDropDown = function(){
     }
 }
 
-Beet.plugins.employeeDropDown = function(f, newValue, oldValue, opts){
+Beet.plugins.employeeDropDown = function(){
     var me = this;
-    newValue = Ext.String.trim(newValue);
-    if (newValue.length == 0){
-	me.selectedEmployee = false;
-	return;
-    }
-    if (newValue == oldValue){
-	return;
-    }
-    if (me.selectedEmployee){
-        return;
-    }
-    if (!me.employeeStore) { return; }
-
-    var ownerCT = f.up("panel");
-    var onListRefresh;
-
-    //create picker
-    if (f.picker == undefined){
-    var createPicker= function(){
-	    var picker = Ext.create("Ext.view.BoundList", {
-	    pickerField: f,
-	    selModel: "SINGLE",
-	    floating: true,
-	    hidden: true,
-	    ownerCT: ownerCT,
-	    cls: "",
-	    displayField: "EM_NAME",
-	    store: me.employeeStore,
-	    focusOnFront: false,
-	    pageSize: 10,
-	    loadingText: 'Searching...',
-	    loadingHeight: 70,
-	    width: 400,
-	    //maxHeight: 300,
-	    shadow: "sides",
-	    emptyText: 'No matching posts found.',
-	    getInnerTpl: function(){
-		return '<span class="search-item"><h3>{EM_NAME}</h3>{EM_DEPNAME}<br/>分店: {EM_STORENAME}</span>';
-	    }
-        });
-        return picker
-    }
-    f.picker = createPicker();
-
-    f.picker.on({
-        itemClick: function(v, record, item, index, e, opts){
-	    //me.onSelectCustomer(record);
-	    //f.el.focus();
-	    me._addEmpolyee([record])
-	    me.selectedEmployee = true;
-
-	    f.picker.hide();
-	},
-	refresh: function(){
-	    setTimeout(function(){
-		onListRefresh();
-	    }, 200);
+    var updateEmployeeProxy = function(filter){
+        var employeeServer = Beet.constants.employeeServer;
+        return {
+            type: "b_proxy",
+            b_method: Beet.constants.employeeServer.GetEmployeeData,
+            startParma: "start",
+            limitParma: "limit",
+            b_params: {
+                "filter" : filter,
+                "b_onlySchema": false
+            },
+            b_scope: Beet.constants.employeeServer,
+            reader: {
+                type: "json",
+                root: "Data",
+                totalProperty: "TotalCount"
+            }
         }
-    })
+    }
+    var buildEmployeeStore = function(metaData){
+        Beet.constants.employeeServer.GetEmployeeData(0, 1, "", true, {
+            success: function(data){
+                var data = Ext.JSON.decode(data);
+                metaData = data["MetaData"];
+		var fields = [], columns = [];
+		
+		for (var c = 0; c < metaData.length; ++c){
+		    var d = metaData[c];
+		    if (d["FieldName"] == "EM_INDATE"){
+			fields.push({ 
+			    name: "EM_INDATE", 
+			    convert: function(value, record){
+				 var date = new Date(value * 1000);
+				 if (date){
+				     return Ext.Date.format(date, "Y/m/d");
+				 }
+			     }
+			});
+		    }else{
+			fields.push(d["FieldName"]);
+		    }
+		    if (!d["FieldHidden"]) {
+			columns.push({
+			    flex: 1,
+			    header: d["FieldLabel"],
+			    dataIndex: d["FieldName"]    
+			})
+		    }
+		};
+		if (!Beet.apps.employees.EmployeeListModel){
+		    Ext.define("Beet.apps.employees.EmployeeListModel", {
+			extend: "Ext.data.Model",
+			fields: fields
+		    });
+		}
+
+		if (!Ext.isDefined(Beet.apps.employees.EmployeeListStore)){
+		    Ext.define("Beet.apps.employees.EmployeeListStore", {
+			extend: "Ext.data.Store",
+			model: Beet.apps.employees.EmployeeListModel,
+			autoLoad: true,
+			pageSize: 20,
+			load: function(options){
+			    var me = this;
+			    options = options || {};
+			    if (Ext.isFunction(options)) {
+				options = {
+				    callback: options
+				};
+			    }
+
+			    Ext.applyIf(options, {
+				groupers: me.groupers.items,
+				page: me.currentPage,
+				start: (me.currentPage - 1) * me.pageSize,
+				limit: me.pageSize,
+				addRecords: false
+			    });      
+			    me.proxy.b_params["start"] = options["start"];
+			    me.proxy.b_params["limit"] = options["limit"]
+
+			    return me.callParent([options]);
+			},
+		    });
+		};
+		
+		me.employeeStore = Ext.create("Beet.apps.employees.EmployeeListStore");
+		me.employeeStore.setProxy(updateEmployeeProxy(""));
+            },
+            failure: function(error){
+                Ext.Error.raise(error)
+            }
+        })
     }
 
-    me.employeeStore.setProxy(me.updateEmployeeProxy("EM_NAME LIKE '%"+newValue+"%'"));
-    me.employeeStore.load();
+    this.init = function(){
+	buildEmployeeStore();
+    }
+    this.getEmployeeStore = function(){
+	return me.employeeStore;
+    }
+    this.onDropdown = function(f, newValue, oldValue, opts){
+	//this => scope
+	//me => employeeDropDown
+	var that = this;
+	newValue = Ext.String.trim(newValue);
+	if (newValue.length == 0){
+	    that.selectedEmployee = false;
+	    return;
+	}
+	if (newValue == oldValue){
+	    return;
+	}
+	if (that.selectedEmployee){
+	    return;
+	}
+	if (!me.employeeStore) { return; }
 
-    onListRefresh = function(){
-	var heightAbove = f.getPosition()[1] - Ext.getBody().getScroll().top,
-	    heightBelow = Ext.Element.getViewHeight() - heightAbove - f.getHeight(),
-	    space = Math.max(heightBelow, heightAbove) - 10;
+	var ownerCT = f.up("panel");
+	var onListRefresh;
 
-	f.picker.setHeight(space);
-	f.picker.setHeight(((me.employeeStore.getCount() == 0) ? 63 : (me.employeeStore.getCount() * 60)) + 26)
-	
-	if (f.picker.getHeight() > space){
+	//create picker
+	if (f.picker == undefined){
+	var createPicker= function(){
+		var picker = Ext.create("Ext.view.BoundList", {
+		pickerField: f,
+		selModel: "SINGLE",
+		floating: true,
+		hidden: true,
+		ownerCT: ownerCT,
+		cls: "",
+		displayField: "EM_NAME",
+		store: me.employeeStore,
+		focusOnFront: false,
+		pageSize: 10,
+		loadingText: 'Searching...',
+		loadingHeight: 70,
+		width: 400,
+		//maxHeight: 300,
+		shadow: "sides",
+		emptyText: 'No matching posts found.',
+		getInnerTpl: function(){
+		    return '<span class="search-item"><h3>{EM_NAME}</h3>{EM_DEPNAME}<br/>分店: {EM_STORENAME}</span>';
+		}
+	    });
+	    return picker
+	}
+	f.picker = createPicker();
+
+	f.picker.on({
+	    itemClick: function(v, record, item, index, e, opts){
+		//me.onSelectCustomer(record);
+		//f.el.focus();
+		that._addEmpolyee([record])
+		that.selectedEmployee = true;
+
+		f.picker.hide();
+	    },
+	    refresh: function(){
+		setTimeout(function(){
+		    onListRefresh();
+		}, 200);
+	    }
+	})
+	}
+
+	me.employeeStore.setProxy(updateEmployeeProxy("EM_NAME LIKE '%"+newValue+"%'"));
+	me.employeeStore.load();
+
+	onListRefresh = function(){
+	    var heightAbove = f.getPosition()[1] - Ext.getBody().getScroll().top,
+		heightBelow = Ext.Element.getViewHeight() - heightAbove - f.getHeight(),
+		space = Math.max(heightBelow, heightAbove) - 10;
+
 	    f.picker.setHeight(space);
-	    f.picker.alignTo(f.el, "bl-tl?", [105, 0]);
-	    var isAbove = f.picker.el.getY() < f.el.getY();
-	    f.picker[isAbove ? 'addCls' : 'removeCls'](f.picker.baseCls + "-above");
-	}
+	    f.picker.setHeight(((me.employeeStore.getCount() == 0) ? 63 : (me.employeeStore.getCount() * 60)) + 26)
+	    
+	    if (f.picker.getHeight() > space){
+		f.picker.setHeight(space);
+		f.picker.alignTo(f.el, "bl-tl?", [105, 0]);
+		var isAbove = f.picker.el.getY() < f.el.getY();
+		f.picker[isAbove ? 'addCls' : 'removeCls'](f.picker.baseCls + "-above");
+	    }
 
-	f.el.focus();
-    }
-    var collapseIf = function(e){
-    if (!e.within(f.bodyEl, false, true) && !e.within(f.picker.el, false, true)){
-	    f.picker.hide();
-
-	    var doc = Ext.getDoc();
-	    doc.un("mousewheel", collapseIf, f);
-	    doc.un("mousedown", collapseIf, f);
-	}
-    }
-
-    me.employeeStore.on({
-	load: function(){
-	    f.picker.show();
-	    f.picker.alignTo(f.el, "bl-tl?", [105, 0]);
-	    onListRefresh();
-	    f.mon(Ext.getDoc(), {
-		mousedown: collapseIf,
-		mousewheel: collapseIf    
-	    })
 	    f.el.focus();
-	    setTimeout(function(){
-		onListRefresh();
-	    }, 200);
 	}
-    })
+	var collapseIf = function(e){
+	if (!e.within(f.bodyEl, false, true) && !e.within(f.picker.el, false, true)){
+		f.picker.hide();
+
+		var doc = Ext.getDoc();
+		doc.un("mousewheel", collapseIf, f);
+		doc.un("mousedown", collapseIf, f);
+	    }
+	}
+
+	me.employeeStore.on({
+	    load: function(){
+		f.picker.show();
+		f.picker.alignTo(f.el, "bl-tl?", [105, 0]);
+		onListRefresh();
+		f.mon(Ext.getDoc(), {
+		    mousedown: collapseIf,
+		    mousewheel: collapseIf    
+		})
+		f.el.focus();
+		setTimeout(function(){
+		    onListRefresh();
+		}, 200);
+	    }
+	})
+    
+    }
+
+    this.init()
 }
