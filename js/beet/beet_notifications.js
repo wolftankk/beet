@@ -22,6 +22,8 @@ if (Ext.isGecko){
 	    }
 	},
 	addNotifier : function(title, content){
+	    //not support
+	    if (!notificationCenter){ return; }
 	    notifiers.push({
 		title: title,
 		content: content
