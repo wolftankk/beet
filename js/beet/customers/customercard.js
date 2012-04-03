@@ -213,6 +213,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 				{
 				    xtype: "checkbox",
 				    fieldLabel: "是否经人介绍",
+				    name: "_isfriend",
 				    inputValue: true,
 				    listeners: {
 					change: function(f, newValue){
@@ -231,7 +232,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 				    xtype: "trigger",
 				    hidden: true,
 				    editable: false,
-				    name: "_friedName",
+				    name: "_friendName",
 				    onTriggerClick: function(){
 					var win = Ext.create("Beet.plugins.selectCustomerWindow", {
 					    b_selectionMode: "SINGLE",
@@ -239,7 +240,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 						var record = r.shift();
 						me.selectedFriendID = record.get("CTGUID");
 						me.form.getForm().setValues({
-						    _friedName: record.get("CTName")
+						    _friendName: record.get("CTName")
 						})
 						win.hide();
 					    }
@@ -939,6 +940,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
                         }else{
                             customerData = null;
                             //获取充值余额
+			    me.down("button[name=activebtn]").show();
                             cardServer.GetCustomerPayData(false, sql, {
                                 success: function(data){
                                     var data = Ext.JSON.decode(data);
@@ -1106,6 +1108,10 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
             return;
         }
 
+	if (results["_isfriend"]){
+	    results["friendid"] = me.selectedFriendID;
+	}
+
         results["customerid"] = customerId;
         results["eid"] = me.selectedEmpolyeeId;
 	results["cid"] = me.selectedCardId;
@@ -1138,7 +1144,6 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 				   me.selectedFriendID = null
                                    me.selectedCardId = {};
                                    form.reset();
-                                   me.updateCardPanel();
                                }
                            }
                        })
@@ -1250,6 +1255,7 @@ Ext.define("Beet.apps.customers.payList", {
 				    fieldLabel: "虚拟货币?",
 				    xtype: "checkbox",
 				    inputValue: true,
+				    checked: true,
 				    name: "isvirtual"
 				},
 		                {
@@ -1257,6 +1263,10 @@ Ext.define("Beet.apps.customers.payList", {
 		                    text: "提交",
 		                    handler: function(){
 		                        var form = me.paidTypeForm.getForm(), results = form.getValues();
+					if (results["isvirtual"] == undefined){
+					    results["isvirtual"] = false
+					}
+
 		                        cardServer.AddPayType(Ext.JSON.encode(results), {
 		                            success: function(id){
 		                                if (id > -1){
