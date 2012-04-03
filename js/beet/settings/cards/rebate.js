@@ -1,3 +1,27 @@
+(function(){
+
+var rebateTypesStore;
+
+var getRebateTypes = function(){
+    var cardServer = Beet.constants.cardServer;
+    cardServer.GetRebateTypes({
+	success: function(data){	
+	    var data = Ext.JSON.decode(data);
+	    rebateTypesStore = Ext.create("Ext.data.Store", {
+		fields: ["RTID", "RTName"],
+		data: data["Data"]
+	    })
+	},
+	failure: function(error){
+	    Ext.Error.raise(error)
+	}
+    })
+}
+
+if (!rebateTypesStore){
+    getRebateTypes();
+}
+
 Ext.define("Beet.apps.cards.AddRebate", {
     extend: "Ext.form.Panel",
     height: "100%",
@@ -52,6 +76,16 @@ Ext.define("Beet.apps.cards.AddRebate", {
                             name: "name",
                             allowBlank: false
                         },
+			{
+			    fieldLabel: "类型",
+			    name: "rtype",
+			    xtype:"combobox",
+			    editable: false,
+			    store: rebateTypesStore,
+			    queryMode: "local",
+			    displayField: "RTName",
+			    valueField : "RTID"
+			},
                         {
                             fieldLabel: "返利金额",
                             name: "value",
@@ -61,6 +95,7 @@ Ext.define("Beet.apps.cards.AddRebate", {
                             fieldLabel: "是否金额",
                             name: "ismoney",
                             xtype: "checkbox",
+			    allowBlank: true,
                             inputValue: 1,
 			    value: -1,
                             listeners: {
@@ -115,7 +150,7 @@ Ext.define("Beet.apps.cards.AddRebate", {
                             width: 200,
                             formBind: true,
                             disabled: true,
-                            hidden: !me.b_viewMode,
+                            //hidden: !me.b_viewMode,
                             handler: function(btn, widget){
                                 me.processData(this)    
                             }
@@ -154,7 +189,8 @@ Ext.define("Beet.apps.cards.AddRebate", {
             startdate: rawData["StartDate"],
             enddate: rawData["EndDate"],
             validunit: parseInt(rawData["ValidUnit"]),
-            descript: rawData["Descript"]
+            descript: rawData["Descript"],
+	    rtype: rawData["RType"] 
         });
     },
     processData: function(){
@@ -164,8 +200,8 @@ Ext.define("Beet.apps.cards.AddRebate", {
         if (results["ismoney"]){
             //remove rater
             delete results["rate"];
-        }
-        
+	}
+
         if (me.b_editMode){
             var rid = me.b_rawData["RID"];
             results["id"] = rid;
@@ -235,9 +271,9 @@ Ext.define("Beet.apps.cards.RebateList", {
     initComponent: function(){
         var me = this, cardServer = Beet.constants.cardServer;
         if (me.b_type == "selection"){
-            me.editable = false;
+            //me.editable = false;
         }else{
-            me.editable = true;
+            //me.editable = true;
         }
 
         me.callParent();
@@ -409,7 +445,7 @@ Ext.define("Beet.apps.cards.RebateList", {
                     text: "增加返利",
                     handler: function(){
                         var win = Ext.create("Ext.window.Window", {
-                            height: 300,
+                            height: 330,
                             width: 300,
                             title: "增加返利",
                             autoHeight: true,
@@ -497,7 +533,7 @@ Ext.define("Beet.apps.cards.RebateList", {
                 fn : function(btn){
                     if (btn == "yes"){
                         var win = Ext.create("Ext.window.Window", {
-                            height: 300,
+                            height: 330,
                             width: 300,
                             title: "编辑返利",
                             autoHeight: true,
@@ -519,16 +555,16 @@ Ext.define("Beet.apps.cards.RebateList", {
             })    
         }else{
             var win = Ext.create("Ext.window.Window", {
-                height: 300,
+                height: 330,
                 width: 300,
-                title: "编辑返利",
+                title: "查看返利",
                 autoHeight: true,
                 autoScroll: true,
                 autoWidth: true
             });
             win.add(Ext.create("Beet.apps.cards.AddRebate", {
                 b_rawData: rawData,
-                b_editMode: false,
+                b_editMode: true,
                 b_viewMode: true,
                 b_callback: function(){
                     me.storeProxy.loadPage(me.storeProxy.currentPage);
@@ -575,3 +611,6 @@ Ext.define("Beet.apps.cards.RebateList", {
         }
     }
 });
+
+
+})();
