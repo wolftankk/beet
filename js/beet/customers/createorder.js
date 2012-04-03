@@ -41,93 +41,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         me.callParent();
         me.createMainPanel();
 
-        me.buildCustomerStore();
+	me.customerDropdown = new Beet.plugins.customerDropDown();
+
 	me.buildEmployeeStore();
-    },
-    buildCustomerStore: function(){
-        var me = this, customerServer = Beet.constants.customerServer;
-        customerServer.GetCustomerPageData(0, 1, "", {
-            success: function(data){
-                var data = Ext.JSON.decode(data);
-                metaData = data["MetaData"];
-                var fields = [], columns = [];
-
-                for (var c = 0; c < metaData.length; ++c){
-                    var d = metaData[c];
-                    fields.push(d["FieldName"]);
-                    if (!d["FieldHidden"]) {
-                        columns.push({
-                            flex: 1,
-                            header: d["FieldLabel"],
-                            dataIndex: d["FieldName"]    
-                        })
-                    }
-                };
-
-                if (!Beet.apps.Viewport.CustomerListModel){
-                    Ext.define("Beet.apps.Viewport.CustomerListModel", {
-                        extend: "Ext.data.Model",
-                        fields: fields
-                    });
-                }
-
-                if (!Ext.isDefined(Beet.apps.Viewport.CustomerListStore)){
-                    Ext.define("Beet.apps.Viewport.CustomerListStore", {
-                        extend: "Ext.data.Store",
-                        model: Beet.apps.Viewport.CustomerListModel,
-                        autoLoad: true,
-                        pageSize: Beet.constants.PageSize,
-                        b_filter: "",
-                        load: function(options){
-                            var me = this;
-                            options = options || {};
-                            if (Ext.isFunction(options)) {
-                                options = {
-                                    callback: options
-                                };
-                            }
-
-                            Ext.applyIf(options, {
-                                groupers: me.groupers.items,
-                                page: me.currentPage,
-                                start: (me.currentPage - 1) * me.pageSize,
-                                limit: me.pageSize,
-                                addRecords: false
-                            });      
-                            me.proxy.b_params["start"] = options["start"] || 0;
-                            me.proxy.b_params["limit"] = options["limit"]
-
-                            return me.callParent([options]);
-                        }
-                    });
-                }
-
-                me.customerStore = Ext.create("Beet.apps.Viewport.CustomerListStore");
-                me.customerStore.setProxy(me.updateCustomerProxy(""));
-            },
-            failure: function(error){
-                Ext.Error.raise(error)
-            }
-        })
-    },
-    updateCustomerProxy: function(filter){
-        var me = this;
-        filter = filter == undefined ? "" : filter;
-        return {
-             type: "b_proxy",
-             b_method: Beet.constants.customerServer.GetCustomerPageData,
-             startParam: "start",
-             limitParam: "limit",
-             b_params: {
-                 "filter": filter
-             },
-             b_scope: Beet.constants.customerServer,
-             reader: {
-                 type: "json",
-                 root: "Data",
-                 totalProperty: "TotalCount"
-             }
-        }
     },
     buildEmployeeStore: function(metaData){
         var me = this        //me.columns = columns;
@@ -306,7 +222,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                                             checkChangeBuffer: 500,
                                             listeners: {
                                                 change: function(f, newValue, oldValue, opts){
-						    Ext.callback(Beet.plugins.customerDropDown, me, [f, newValue, oldValue, opts], 30);
+						    Ext.callback(me.customerDropdown.onDropdown, me, [f, newValue, oldValue, opts], 30);
                                                 }
                                             },
                                             onTriggerClick: function(){
@@ -587,11 +503,14 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                         //Ext.MessageBox.alert("警告", "当前用户已经销卡, 请重新选择或为此用户重新开卡!");
                         return;
                     }
+		    var customTigger = me.down("triggerfield[name=customername]");
+		    customTigger.suspendEvents();
                     form.setValues({
                         customername: data.CustomerName,
                         mobile: rawData.CTMobile,
                         ccardno: data.CardNo
                     });
+		    customTigger.resumeEvents();
                     //开始查询他的卡项, 套餐, 费用
                     me.customerInfoBtn.enable();
                     me.bindingItemsBtn.enable();
