@@ -1,56 +1,57 @@
-//check 
-//If firefox, you install https://addons.mozilla.org/en-US/firefox/addon/html-notifications/
-//check current brower is firefox
 if (Ext.isGecko){
     if (!!window.webkitNotifications){
-	    //support
     }else{
 	Ext.Msg.alert("警告", "你当前浏览器不支持桌面提醒, 你需要安装https://addons.mozilla.org/en-US/firefox/addon/html-notifications/");
     }
 };
 
-//(function(window){
-//    var notifiers = [];
-//    var notificationCenter = window.notifications || window.webkitNotifications;
-//
-//    Beet_Notifications = {
-//	addNotifiers : function(){
-//	    notifiers.push({
-//		title: "test"	
-//	    })
-//	    Beet_Notifications.showNotifications();
-//	},
-//	checkPermission: function(){
-//	    if (notificationCenter.checkPermission() > 0){
-//		notificationCenter.requestPermission();
-//	    }else{
-//		Beet_Notifications.addNotifiers();
-//	    }
-//	},
-//	showNotifications: function(){
-//	    try{
-//		//if (!notificationCenter){return;}
-//		//    for(var i = 0; i < notifiers.length; ++i) {
-//		//	var notification = notificationCenter.createHTMLNotification(location.origin + location.pathname.replace("main.html", "") + "notifier.html");
-//		//	console.log(notification)
-//		//	//(function inClosure(tweet) {
-//		//	//    notification.onclose = function(e) {
-//		//	//      setTimeout(function() {
-//		//	//        _this.readTweet(tweet.id);
-//		//	//      }, 200);
-//		//	//    };
-//		//	//  })(tweetsToNotify[i]);
-//		//	notification.show();
-//		//    }
-//		//}
-//	    }catch (e){
-//		console.warn(e)
-//
-//	    }
-//	}
-//    };
-//
-//    Ext.onReady(function(){
-//	Beet_Notifications.checkPermission();	
-//    })
-//})(window)
+(function(window){
+    var notifiers = [];
+    var notificationCenter = window.notifications || window.webkitNotifications;
+
+    Beet_Notifications = {
+	init: function(){
+	    //init Beet_Notifications
+	    var me = this;
+	    //first check and request permission
+	    me.checkPermission();
+	},
+	checkPermission: function(){
+	    if (notificationCenter.checkPermission() > 0){
+		notificationCenter.requestPermission();
+	    }
+	},
+	addNotifier : function(){
+	    notifiers.push({
+		icon : "",
+		title: "test",
+		content: "adadadadasda"
+	    })
+	    Beet_Notifications.showNotifications();
+	},
+	getNotifiersLength: function(){
+	    return notifiers.length
+	},
+	getTemplatePath: function(){
+	    var path = location.origin + (location.pathname.replace("main.html", "")) + "notifier.html";
+	    return path
+	},
+        showNotifications: function(){
+            try{
+		for(var i = 0; i < notifiers.length; ++i) {
+		    var notifier = notifiers.shift();
+		    var json = Ext.JSON.encode(notifier);
+		    var notification = notificationCenter.createHTMLNotification(Beet_Notifications.getTemplatePath()+"#data=" + Ext.util.base64.encode(json));
+		    notification.show();
+        	}
+            }catch (e){
+        	console.warn(e)
+            }
+        }
+    };
+
+    Ext.onReady(function(){
+        Beet_Notifications.init();
+	Beet_Notifications.addNotifier();
+    })
+})(window)
