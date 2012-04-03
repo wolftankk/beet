@@ -44,7 +44,9 @@ if (Ext.isGecko){
 		    notification.show();
 		}
 
-		f();
+		setTimeout(function(){
+		    f();
+		}, 100);
             }catch (e){
         	console.warn(e)
             }
