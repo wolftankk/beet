@@ -21,11 +21,10 @@ if (Ext.isGecko){
 		notificationCenter.requestPermission();
 	    }
 	},
-	addNotifier : function(){
+	addNotifier : function(title, content){
 	    notifiers.push({
-		icon : "",
-		title: "test",
-		content: "adadadadasda"
+		title: title,
+		content: content
 	    })
 	    Beet_Notifications.showNotifications();
 	},
@@ -38,12 +37,14 @@ if (Ext.isGecko){
 	},
         showNotifications: function(){
             try{
-		for(var i = 0; i < notifiers.length; ++i) {
+		var f = function(){
 		    var notifier = notifiers.shift();
 		    var json = Ext.JSON.encode(notifier);
 		    var notification = notificationCenter.createHTMLNotification(Beet_Notifications.getTemplatePath()+"#data=" + Ext.util.base64.encode(json));
 		    notification.show();
-        	}
+		}
+
+		f();
             }catch (e){
         	console.warn(e)
             }
@@ -52,6 +53,5 @@ if (Ext.isGecko){
 
     Ext.onReady(function(){
         Beet_Notifications.init();
-	Beet_Notifications.addNotifier();
     })
 })(window)
