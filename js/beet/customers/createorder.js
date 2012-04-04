@@ -592,7 +592,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     }
                 };
 
-                me.itemsPanel.__fields = fields.concat([{name: "isgiff", type: "bool"},"__index", "itemDuration", "itemPrice"]);
+                me.itemsPanel.__fields = fields.concat([{name: "isgiff", type: "bool"},"__index", "itemDuration", "itemPrice", "isMember"]);
                 me.itemsPanel.__columns = columns.concat([
 		    {
 			dataIndex: "itemDuration",
@@ -613,9 +613,14 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				    var itemPrice = record.data["MemberPrice"];
 				    if (itemPrice){
 				        var _priceField = f.nextSibling()
+					var _isMemberField = _priceField.nextSibling();
 					f.itemPrice = itemPrice;
+					f.isMember = record.data["IsMember"];
 					if (_priceField){
 					    _priceField.setValue(itemPrice)
+					}
+					if (_isMemberField){
+					    _isMemberField.setValue(record.data["IsMember"]);
 					}
 				    }
 				}
@@ -627,6 +632,14 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                         header: "项目金额",
                         flex: 1,
                     },
+		    {
+			dataIndex: "isMember",
+			header: "会员价?",
+			xtype: "booleancolumn",
+			trueText: "是",
+			falseText: "否",
+			flex: 1	
+		    },
                     {
                         dataIndex: "__index",
                         hidden: true
@@ -683,10 +696,12 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				    var _priceField = field.nextSibling()
 				    _priceField.setValue(field.itemPrice)
 				    record.set("itemPrice", field.itemPrice);
+				    record.set("isMember", field.isMember);
 				    record.commit();
 				    var iid = "item-" + itemID;
-				    me.selectedItems[iid][__fields.length-2] = record.get("itemDuration");
-				    me.selectedItems[iid][__fields.length-1] = record.get("itemPrice");
+				    me.selectedItems[iid][__fields.length-3] = record.get("itemDuration");
+				    me.selectedItems[iid][__fields.length-2] = record.get("itemPrice");
+				    me.selectedItems[iid][__fields.length-1] = record.get("isMember");
 				    me.autoCalculate();
 				}
 			    }
