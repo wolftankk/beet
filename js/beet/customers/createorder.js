@@ -179,6 +179,12 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                                                 border: "0"
                                             },
                                             items: [
+						{
+						    fieldLabel: "订单价格",
+						    xtype: "displayfield",
+						    name: "orderprice",
+						    value: 0
+						},
                                                 "->",
                                                 {
                                                     xtype: "button",
@@ -242,30 +248,12 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                                         labelWidth: 30
                                     },
                                     items: [
-                                        /*
-                                        {
-                                            fieldLabel: "流水号",
-                                            xtype: "textfield",
-                                            readOnly: true,
-                                        },
-                                        */
                                         {
                                             fieldLabel: "订单号",
                                             xtype: "textfield",
                                             name: "serviceno",
                                             allowBlank: false
-                                        },
-                                        /*
-                                        {
-                                            fieldLabel: "面值",
-                                            xtype: "textfield",
-                                            readOnly: true
-                                        },
-                                        {
-                                            fieldLabel: "实耗",
-                                            xtype: "textfield",
-                                            readOnly: true
-                                        }*/
+                                        }
                                     ]
                                 }
                             ]
@@ -294,6 +282,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         me.customerHistoryBtn = me.mainPanel.down("button[name=customerhistory]");
         me.currentCardBalanceLable = me.mainPanel.down("displayfield[name=currentCardBalance]")
 	me.currentCardCapital = me.mainPanel.down("displayfield[name=currentCardCapital]")
+
+	me.orderprice = me.mainPanel.down("displayfield[name=orderprice]");
 
         //指定服务人员
         me.createListTabPanel();
@@ -612,6 +602,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			    allowBlank: false,
 			    listClass: 'x-combo-list-small',
 			    xtype: "combobox",
+			    editable: false,
 			    store: itemDurationStore,
 			    queryMode: "local",
 			    displayField: "TimeLength",
@@ -668,7 +659,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 columns: me.itemsPanel.__columns,
                 plugins: [
                     Ext.create('Ext.grid.plugin.RowEditing', {
-                        clicksToEdit: 1,
+                        clicksToEdit: 3,
                         listeners: {
 			    beforeedit: function(e){
 				var record = e.record, itemID = record.get("IID");
@@ -694,10 +685,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				    record.set("itemPrice", field.itemPrice);
 				    record.commit();
 				    var iid = "item-" + itemID;
-				    //"itemDuration", "itemPrice"
-				    //补足
 				    me.selectedItems[iid][__fields.length-2] = record.get("itemDuration");
 				    me.selectedItems[iid][__fields.length-1] = record.get("itemPrice");
+				    me.autoCalculate();
 				}
 			    }
                         }
@@ -804,32 +794,6 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             tmp.push(selectedItems[c]);
         }
         store.loadData(tmp);
-    },
-    autoComputeNeedPaid: function(){
-        //var me = this;
-        //var grid = me.itemsPanel.grid, store = grid.getStore();
-        //var needPaidCount = 0;
-        //var currentCustomerBalance = 0
-        //var tmp = {};
-        //for (var c = 0; c < store.getCount(); ++c){
-        //    var record = store.getAt(c);
-        //    if (!record.get("isgiff")){
-        //        needPaidCount += record.get("needPaid");
-        //    }
-        //    var cardno = record.get("CardNo");
-        //    if (!tmp[cardno]){
-        //        tmp[cardno] = true;
-        //        currentCustomerBalance += parseFloat(record.get("Balance")) || 0;
-        //    }
-        //}
-        //currentCustomerBalance += parseFloat(me.currentCustomerBalance) || 0;
-        ////console.log(currentCustomerBalance, needPaidCount)
-        //if (needPaidCount > currentCustomerBalance){
-        //    me.createOrderBtn.disable();
-        //    Ext.Msg.alert("警告", "卡内余额不足");
-        //}else{
-        //    me.createOrderBtn.enable();
-        //}
     },
     //}}}
     createListTabPanel: function(){
@@ -1053,7 +1017,6 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         }
         return false
     },
-
     initializeProductsPanel: function(){
         var me = this, cardServer = Beet.constants.cardServer;
         if (me.productsPanel.__columns && me.productsPanel.__columns.length > 0){
@@ -1074,11 +1037,26 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                             header: meta["FieldLabel"],
                             flex: 1
                         }
-                        if (meta["FieldName"] == "COUNT" || meta["FieldName"] == "PRICE"){
-                            c.editor = {
+                        if (meta["FieldName"] == "COUNT"){
+                            c.field = {
                                 xtype: "numberfield",
                                 allowBlank: false,
-                                type: "float"
+				minValue: 0.000001,
+				decimalPrecision: 6,
+				listeners: {
+				    change: function(f, newValue, oldValue){
+					newValue = parseFloat(newValue);
+					var _price = f.nextSibling();
+					if (newValue > 0){
+					    if (f.record){
+						var sprice = f.record.get("PPrice");//单价
+						var price = sprice * newValue;
+						_price.setValue(price);
+						f.record.set("PRICE", price)
+					    }
+					}
+				    }
+				}
                             }
                         }
                         columns.push(c)
@@ -1108,7 +1086,26 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 autoScroll: true,
                 columnLines: true,
                 columns: me.productsPanel.__columns,
-                selType: 'cellmodel'
+                plugins: [
+                    Ext.create('Ext.grid.plugin.RowEditing', {
+                        clicksToEdit: 2,
+                        listeners: {
+			    beforeedit: function(e){
+				var record = e.record;
+				var field = e.column.field
+				field.record = record;
+			    },
+			    edit: function(e){
+				var record = e.record, pid = record.get("PID");
+				if (me.selectedProducts[pid]){
+				    me.selectedProducts[pid][__fields.length - 2] = record.get("COUNT")
+				    me.selectedProducts[pid][__fields.length - 1] = record.get("PRICE")
+				}
+				me.autoCalculate();
+			    }
+                        }
+                    })
+                ],
             });
 
             me.productsPanel.add(grid);
@@ -1191,6 +1188,29 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         }
         store.loadData(tmp);
     },
+    autoCalculate: function(){
+	var me = this, selectedProducts = me.selectedProducts, selectedItems = me.selectedItems;
+	var cost = 0;
+	for (var itemId in selectedItems){
+	    var item = selectedItems[itemId];
+	    //9 duration  10 price
+	    item[10] = parseFloat(item[10])
+	    if (item[10] > 0){
+		cost += item[10];
+	    }
+	}
+
+	for (var pid in selectedProducts){
+	    var product = selectedProducts[pid]
+	    //5 count  6 price
+	    product[6] = parseFloat(product[6]);
+	    if (product[6] > 0 ){
+		cost += product[6];
+	    }
+	}
+
+	me.orderprice.setValue(cost);
+    },
     processData: function(){
         var me = this, cardServer = Beet.constants.cardServer,
             form = me.getForm(), values = form.getValues(), results = {};
@@ -1204,11 +1224,26 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             Ext.Msg.alert("警告", "请选择用户!");
             return;
         }
+	
         var list = me.tabCache, items = [], products = [];
 
 	var productsStore = me.productsPanel.grid.getStore();
 	for (var c = 0; c < productsStore.getCount(); ++c){
-	    console.log(productsStore.getAt(c));
+	    record = productsStore.getAt(c);
+	    var price = parseFloat(record.get("PRICE")),
+		count = parseFloat(record.get("COUNT")),
+		pid = record.get("PID"),
+		pname = record.get("PName");
+
+		if (count < 0){
+		    Ext.Msg.alert("警告", "产品 " + pname + " 需要设置消耗数量!");
+		    return;
+		}
+
+	    products.push({
+		pid: pid,
+		count: count	
+	    })
 	}
 
 	//customerid, serviceno, price: {item: , products}
