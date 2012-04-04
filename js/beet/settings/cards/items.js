@@ -140,24 +140,6 @@ Ext.define("Beet.apps.cards.AddItem", {
                                             allowBlank: false,
                                             name: "name"
                                         },
-                                        {
-                                            fieldLabel: "项目售价",
-                                            allowBlank: false,
-                                            name: "price",
-					    xtype: "trigger",
-					    triggerCls: "x-trigger-refresh",
-					    triggerWrapCls: "x-trigger-refresh-wrap",
-					    emptyText: "点击右边小按钮, 将会自动计算",
-                                            listeners: {
-                                                scope: me,
-                                                blur: function(){
-                                                    //me.onUpdate();
-                                                }
-                                            },
-					    onTriggerClick: function(){
-						me.onUpdate();
-					    }
-                                        },
 					{
 					    xtype: "combobox",
 					    fieldLabel: "项目所属分类",
@@ -210,6 +192,10 @@ Ext.define("Beet.apps.cards.AddItem", {
 						    }, 500);
 						}
 					    }
+					},
+					{
+					    xtype: "component",
+					    width: 5
 					},
                                         {
                                             fieldLabel: "注释",
@@ -324,9 +310,10 @@ Ext.define("Beet.apps.cards.AddItem", {
                             flex: 1
                         }
 
-                        if (meta["FieldName"] == "COUNT" || meta["FieldName"] == "PRICE"){
+                        if (meta["FieldName"] == "COUNT"){
                             c.editor = {
                                 xtype: "numberfield",
+				decimalPrecision: 6,
                                 allowBlank: false,
                                 type: "float"
                             }
@@ -369,19 +356,10 @@ Ext.define("Beet.apps.cards.AddItem", {
                                 // fire event when cell edit complete
                                 var currField = e.field, currColIdx = e.colIdx, currRowIdx = e.rowIndex;
                                 var currRecord = e.record;
-                                var currPrice = currRecord.get("PRICE");
                                 if (currField == "COUNT"){
                                     //check field "PRICE" that it exists val?
-                                    var price = currRecord.get("PPrice"), count = currRecord.get("COUNT");
-                                    if (price){ price = parseFloat(price); }
-                                    currRecord.set("PRICE", Ext.Number.toFixed(price * count, 2));
-                                    currRecord.set("COUNT", Ext.Number.toFixed(count, 6));
-
-                                    //me.onUpdate();    
-                                }else{
-                                    if (currField == "PRICE" && currPrice && currPrice > 0){
-                                        //me.onUpdate();    
-                                    }
+                                    var count = currRecord.get("COUNT");
+                                    currRecord.set("COUNT", count);
                                 }
                             }
                         }
@@ -474,8 +452,6 @@ Ext.define("Beet.apps.cards.AddItem", {
             tmp.push(selectedProducts[c]);
         }
         store.loadData(tmp);
-        //if (first){return;}
-        //me.onUpdate();
     },
     initializeChargeTypePanel: function(){
         var me = this, cardServer = Beet.constants.cardServer;
@@ -626,8 +602,6 @@ Ext.define("Beet.apps.cards.AddItem", {
             tmp.push(selectedChargeType[c]);
         }
         store.loadData(tmp);
-        //if (first){return;}
-        //me.onUpdate()
     },
     restoreFromData: function(rawData){
         var me = this, cardServer = Beet.constants.cardServer;
@@ -639,7 +613,6 @@ Ext.define("Beet.apps.cards.AddItem", {
             code: rawData["ICode"],
             name: rawData["IName"],
             descript: rawData["IDescript"],
-            price: rawData["IPrice"],
             rate: rawData["IRate"],
             realprice: rawData["IRealPrice"],
             category: rawData["ICategoryName"]
@@ -709,35 +682,6 @@ Ext.define("Beet.apps.cards.AddItem", {
         }
         me.itemList.store.loadPage(me.itemList.store.currentPage);
     },
-    onUpdate: function(force){
-        //COMMIT: 这部分目前已经不需要再自动计算
-        var me = this, cardServer = Beet.constants.cardServer, form = me.form.getForm();
-        var selectedProducts = me.selectedProducts, selectedChargeType = me.selectedChargeType;
-
-        var __price = 0;//每次都会进行重新计算
-
-        if (selectedProducts && Ext.Object.getKeys(selectedProducts).length > 0){
-            var productstore = me.productsPanel.grid.getStore();
-            for (var c = 0; c < productstore.getCount(); ++c){
-                var data = productstore.getAt(c);
-                var count = data.get("COUNT"), price = data.get("PRICE");
-                if (count != undefined && price != undefined){
-                    __price += parseFloat(price);
-                }
-            }
-        }
-
-        if (selectedChargeType && Ext.Object.getKeys(selectedChargeType).length> 0){
-            for (var c in selectedChargeType){
-                var p = selectedChargeType[c];
-                __price += parseFloat(p[2]);
-            }
-        }
-
-        me.form.getForm().setValues({
-            price: Ext.Number.toFixed(__price, 2)
-        });
-    },
     processData: function(f){
         var me = this, cardServer = Beet.constants.cardServer,
             form = f.up("form").getForm(), result = form.getValues();
@@ -755,13 +699,12 @@ Ext.define("Beet.apps.cards.AddItem", {
         var products = [];
         for (var c = 0; c < productstore.getCount(); ++c){
             var data = productstore.getAt(c);
-            var count = data.get("COUNT"), price = data.get("PRICE");
-            if (count != undefined && price != undefined){
+            var count = data.get("COUNT");
+            if (count != undefined){
                 var pid = data.get("PID");
                 products.push({
                     id: pid,
-                    count: count,
-                    price: price    
+                    count: count
                 })
             }else{
                 Ext.MessageBox.alert("失败", "请将\"消耗数量\"以及\"消耗总价\"填写完整!");
@@ -778,11 +721,6 @@ Ext.define("Beet.apps.cards.AddItem", {
             result["charges"] = charges;
         }
 	
-	if (parseInt(result["price"]) <= 0 || isNaN(parseFloat(result["price"])) || result["price"] == ""){
-	    Ext.MessageBox.alert("失败", "请输入项目售价!");
-	    return;
-	}
-
         if (me._editType == "add"){
             cardServer.AddItem(Ext.JSON.encode(result), {
                 success: function(itemId){

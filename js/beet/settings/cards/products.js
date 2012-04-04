@@ -273,7 +273,7 @@ Ext.define("Beet.apps.cards.AddProducts", {
       count: rawData["PCount"],
       price: (rawData["PPrice"] ? rawData["PPrice"] : 0),
       cost: (rawData["PCost"] ? rawData["PCost"] : 0),
-      MemberPrice: rawData["MemberPrice"],
+      memberprice: rawData["MemberPrice"],
       standards: rawData["PStandands"],
       serviceid: rawData["ServiceID"],
       descript: rawData["PDescript"],
