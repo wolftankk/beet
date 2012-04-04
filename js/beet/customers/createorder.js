@@ -687,13 +687,17 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				}
 			    },
 			    edit: function(e){
-				var record = e.record, field = e.column.field;
+				var record = e.record, itemID = record.get("IID"), field = e.column.field;
 				if (field && field.store){
 				    var _priceField = field.nextSibling()
-				    console.log(_priceField.value, field.itemPrice)
 				    _priceField.setValue(field.itemPrice)
 				    record.set("itemPrice", field.itemPrice);
 				    record.commit();
+				    var iid = "item-" + itemID;
+				    //"itemDuration", "itemPrice"
+				    //补足
+				    me.selectedItems[iid][__fields.length-2] = record.get("itemDuration");
+				    me.selectedItems[iid][__fields.length-1] = record.get("itemPrice");
 				}
 			    }
                         }
@@ -758,13 +762,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 rawData = record.raw || record.data;
             }
 
-            var id = "item-" + rawData["CardNo"] + "_" + rawData["IID"];
+            var id = "item-" + rawData["IID"];
             rawData["__index"] = id;
-
-            if (rawData["needPaid"] == undefined || rawData["needPaid"] == NaN){
-		//IRealPrice //取消?
-                //rawData["needPaid"] = parseFloat((rawData["IPrice"] + "").replaceAll(",", ""))
-            }
 
             if (selectedItems[id] == undefined){
                 selectedItems[id] = []
