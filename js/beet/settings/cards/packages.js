@@ -68,7 +68,6 @@ Ext.define("Beet.apps.cards.PackageProfile", {
             Ext.Msg.alert("错误", "项目ID非法!");
             return;
         }
-
         cardServer.GetPackagesPageDataToJSON(0, 1, "ID=" + pid, {
             success: function(data){
                 data = Ext.JSON.decode(data);
@@ -149,7 +148,6 @@ Ext.define("Beet.apps.cards.PackageProfile", {
         var me = this, cardServer = Beet.constants.cardServer;
         //Ext.bind(createPackageCategoryTree, me)();
         //me.createTreePanel();
-
         var options = {
             autoScroll: true,
             height: 300,
@@ -435,6 +433,21 @@ Ext.define("Beet.apps.cards.PackageProfile", {
         if (me.b_mode != "view"){
             columns.push(_actions);
         }
+        columns = columns.concat([
+            {
+                dataIndex: "isgiff",
+                xtype: "checkcolumn",
+                header: "赠送?",
+                width: 40,
+                editor: {
+                    xtype: "checkbox",
+                    cls: 'x-grid-checkheader-editor'
+                },
+            }
+        ])
+	var itemDurationStore = Ext.create("Ext.data.Store", {
+	    fields: ["MemberPrice", "TimeLength"]
+	})
         cardServer.GetItemPageData(0, 1, "", {
             success: function(data){
                 var data = Ext.JSON.decode(data)["MetaData"];
@@ -442,6 +455,11 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                 for (var c in data){
                     var meta = data[c];
                     fields.push(meta["FieldName"])
+
+		    //屏蔽显示
+		    if (meta["FieldName"] == "ICategoryName" || meta["FieldName"] == "IPrice"){
+			meta["FieldHidden"] = true;
+		    }
                     if (!meta["FieldHidden"]){
                         columns.push({
                             dataIndex: meta["FieldName"],
@@ -450,6 +468,47 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                         })
                     }
                 }
+
+                me.itemsPanel.__fields = fields.concat([{name: "isgiff", type: "bool"},"__index", "itemDuration", "itemPrice"]);
+                me.itemsPanel.__columns = columns.concat([
+		    {
+			dataIndex: "itemDuration",
+			header:  "项目时长",
+			flex: 1,
+			field:{
+			    allowBlank: false,
+			    listClass: 'x-combo-list-small',
+			    xtype: "combobox",
+			    editable: false,
+			    store: itemDurationStore,
+			    queryMode: "local",
+			    displayField: "TimeLength",
+			    valueField: "TimeLength",
+			    listeners: {
+				select: function(f, record){
+				    var record = record.shift();
+				    var itemPrice = record.data["MemberPrice"];
+				    if (itemPrice){
+				        var _priceField = f.nextSibling()
+					f.itemPrice = itemPrice;
+					if (_priceField){
+					    _priceField.setValue(itemPrice)
+					}
+				    }
+				}
+			    }
+			}
+		    },
+                    {
+                        dataIndex: "itemPrice",
+                        header: "项目金额",
+                        flex: 1,
+                    },
+                    {
+                        dataIndex: "__index",
+                        hidden: true
+		    }
+                ]);
                 me.initializeItemsGrid();
             },
             failure: function(error){
@@ -458,7 +517,7 @@ Ext.define("Beet.apps.cards.PackageProfile", {
         });
     },
     initializeItemsGrid: function(){
-        var me = this, selectedItems = me.selectedItems;
+        var me = this, selectedItems = me.selectedItems, cardServer = Beet.constants.cardServer;
         var __fields = me.itemsPanel.__fields;
 
         if (me.itemsPanel.grid == undefined){
@@ -472,7 +531,42 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                 cls: "iScroll",
                 autoScroll: true,
                 columnLines: true,
-                columns: me.itemsPanel.__columns    
+                columns: me.itemsPanel.__columns,
+                plugins: [
+                    Ext.create('Ext.grid.plugin.RowEditing', {
+                        clicksToEdit: 3,
+                        listeners: {
+			    beforeedit: function(e){
+				var record = e.record, itemID = record.get("IID");
+				var field = e.column.field
+				if (field && field.store){
+				    var store = field.store; 
+				    cardServer.GetItemMemberPricePageData(0, 999, "IID='"+itemID+"'", {
+					success: function(data){
+					    var data = Ext.JSON.decode(data);
+					    data = data["Data"];
+					    store.loadData(data)
+					},
+					failure: function(){
+					}
+				    })
+				}
+			    },
+			    edit: function(e){
+				var record = e.record, itemID = record.get("IID"), field = e.column.field;
+				if (field && field.store){
+				    var _priceField = field.nextSibling()
+				    _priceField.setValue(field.itemPrice)
+				    record.set("itemPrice", field.itemPrice);
+				    record.commit();
+				    var iid = "item-" + itemID;
+				    me.selectedItems[iid][__fields.length-2] = record.get("itemDuration");
+				    me.selectedItems[iid][__fields.length-1] = record.get("itemPrice");
+				}
+			    }
+                        }
+                    })
+                ]
             });
 
             me.itemsPanel.add(grid);
