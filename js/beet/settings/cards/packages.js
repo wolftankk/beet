@@ -325,6 +325,22 @@ Ext.define("Beet.apps.cards.PackageProfile", {
 				    }
 				},
 				{
+				    fieldLabel: "套餐所属服务",
+				    name: "serviceid",
+				    allowBlank: false,
+				    xtype: "combobox",
+				    editable: false,
+				    store: Beet.constants.ServiceList,
+				    queryMode:"local",
+				    displayField: "name",
+				    valueField: "attr",
+				},
+				{
+				    xtype: "component",
+				    height: 10,
+				    width: 5
+				},
+				{
 				    fieldLabel: "注释",
 				    colspan: 2,
 				    width: 600,

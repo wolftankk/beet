@@ -237,6 +237,8 @@ Ext.define("Beet.apps.cards.AddProducts", {
               xtype: "button",
               text: "提交",
               width: 200,
+	      formBind: true,
+	      disabled: true,
               handler: function(){
                 me.processData(this)  
               },

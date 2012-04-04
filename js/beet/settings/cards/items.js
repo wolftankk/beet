@@ -194,8 +194,15 @@ Ext.define("Beet.apps.cards.AddItem", {
 					    }
 					},
 					{
-					    xtype: "component",
-					    width: 5
+					    fieldLabel: "项目所属服务",
+					    name: "serviceid",
+					    allowBlank: false,
+					    xtype: "combobox",
+					    editable: false,
+					    store: Beet.constants.ServiceList,
+					    queryMode:"local",
+					    displayField: "name",
+					    valueField: "attr",
 					},
                                         {
                                             fieldLabel: "注释",
