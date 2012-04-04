@@ -541,7 +541,7 @@ Ext.define("Beet.apps.cards.PackageProfile", {
 				var field = e.column.field
 				if (field && field.store){
 				    var store = field.store; 
-				    cardServer.GetItemMemberPricePageData(0, 999, "IID='"+itemID+"'", {
+				    cardServer.GetItemPricePageData(0, 999, "IID='"+itemID+"'", {
 					success: function(data){
 					    var data = Ext.JSON.decode(data);
 					    data = data["Data"];

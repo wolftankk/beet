@@ -859,7 +859,7 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
 	//UpdateItemMemberPrice
 	me.callParent()
 
-	cardServer.GetItemMemberPricePageData(0, 1, "", {
+	cardServer.GetItemPricePageData(0, 1, "", {
 	    success: function(data){
 		var data = Ext.JSON.decode(data);
 		var metaData = data["MetaData"];
@@ -953,7 +953,7 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
         var me = this, cardServer = Beet.constants.cardServer;
         return {
             type: "b_proxy",
-            b_method: cardServer.GetItemMemberPricePageData,
+            b_method: cardServer.GetItemPricePageData,
             startParam: "start",
             limitParam: "limit",
             b_params: {
@@ -1020,7 +1020,7 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
 					id: record.get("IID"),
 					timelength: record.get("TimeLength")
 				    }
-				    cardServer.DeleteItemMemberPrice(Ext.JSON.encode(jsondata), {
+				    cardServer.DeleteItemPrice(Ext.JSON.encode(jsondata), {
 					success: function(succ){
 					    if (succ){
 						Ext.Msg.alert("成功", "删除成功");
@@ -1054,6 +1054,11 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
 		editor.oldata = Ext.clone(record.data);
 	    }
 	})
+	
+	grid.on("canceledit", function(grid){
+	    console.log(arguments)
+	    
+	})
 
 	grid.on("edit", function(editor, e){
 	    var record = editor.record;
@@ -1067,7 +1072,7 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
 
 	    if (editor.oldata){
 		jsondata["oldtimelength"] = editor.oldata["TimeLength"];
-		cardServer.UpdateItemMemberPrice(Ext.JSON.encode(jsondata), {
+		cardServer.UpdateItemPrice(Ext.JSON.encode(jsondata), {
 		    success: function(succ){
 			if (succ){
 			    Ext.Msg.alert("成功", "更新成功");
@@ -1080,7 +1085,7 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
 		    }
 		})
 	    }else{
-		cardServer.AddItemMemberPrice(Ext.JSON.encode(jsondata), {
+		cardServer.AddItemPrice(Ext.JSON.encode(jsondata), {
 		    success: function(succ){
 			if (succ){
 			    Ext.Msg.alert("成功","添加成功");   
@@ -1089,7 +1094,7 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
 				Ext.Msg.alert("失败","添加失败, 请关闭当前窗口重新尝试.");   
 			    }else{
 				jsondata["oldtimelength"] = editor.oldata.get("TimeLength");
-				cardServer.UpdateItemMemberPrice(Ext.JSON.encode(jsondata), {
+				cardServer.UpdateItemPrice(Ext.JSON.encode(jsondata), {
 				    success: function(succ){
 					if (succ){
 					    Ext.Msg.alert("成功", "更新成功");
@@ -1186,7 +1191,6 @@ Ext.define("Beet.apps.cards.ItemList", {
                 for (var c in data){
                     var meta = data[c];
                     fields.push(meta["FieldName"])
-		    //console.log(meta["FieldName"])
                     if (!meta["FieldHidden"]){
                         var column = {
                             dataIndex: meta["FieldName"],
