@@ -644,6 +644,7 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                         if (meta["FieldName"] == "COUNT" || meta["FieldName"] == "PRICE"){
                             c.editor = {
                                 xtype: "numberfield",
+				decimalPrecision: 6,
                                 allowBlank: false,
                                 type: "float"
                             }
@@ -674,37 +675,27 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                 autoScroll: true,
                 columnLines: true,
                 columns: me.productsPanel.__columns,
-                //plugins: [
-                //    (function(){
-                //        if (me.b_mode != "view"){
-                //            Ext.create('Ext.grid.plugin.CellEditing', {
-                //                clicksToEdit: 1,
-                //                // cell edit event
-                //                listeners: {
-                //                    "edit" : function(editor, e, opts){
-                //                        // fire event when cell edit complete
-                //                        var currField = e.field, currColIdx = e.colIdx, currRowIdx = e.rowIndex;
-                //                        var currRecord = e.record;
-                //                        var currPrice = currRecord.get("PRICE");
-                //                        if (currField == "COUNT"){
-                //                            //check field "PRICE" that it exists val?
-                //                            var price = currRecord.get("PPrice"), count = currRecord.get("COUNT");
-                //                            if (price){ price = parseFloat(price.replaceAll(",", "")); }
-                //                            currRecord.set("PRICE", Ext.Number.toFixed(price * count, 2));
-                //                            currRecord.set("COUNT", Ext.Number.toFixed(count, 6));
-
-                //                            me.onUpdateForm();    
-                //                        }else{
-                //                            if (currField == "PRICE" && currPrice && currPrice > 0){
-                //                                me.onUpdateForm();    
-                //                            }
-                //                        }
-                //                    }
-                //                }
-                //            })
-                //        }
-                //    })()
-                //],
+                plugins: [
+                    (function(){
+                        if (me.b_mode != "view"){
+                            return Ext.create('Ext.grid.plugin.CellEditing', {
+                                clicksToEdit: 1,
+                                // cell edit event
+                                listeners: {
+                                    "edit" : function(editor, e, opts){
+                                        // fire event when cell edit complete
+                                        //var currField = e.field, currColIdx = e.colIdx, currRowIdx = e.rowIndex;
+                                        //var currRecord = e.record;
+                                        //if (currField == "COUNT"){
+                                        //    var count = currRecord.get("COUNT");
+                                        //    currRecord.set("COUNT", count);
+                                        //}
+                                    }
+                                }
+                            })
+                        }
+                    })()
+                ],
                 selType: 'cellmodel'
             });
 
