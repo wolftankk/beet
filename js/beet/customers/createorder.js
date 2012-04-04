@@ -21,7 +21,7 @@ registerMenu("customers", "customerAdmin", "会员管理",
 
 Ext.define("Beet.apps.customers.CreateOrder", {
     extend: "Ext.form.Panel",
-    height: Beet.constants.VIEWPORT_HEIGHT - 5,
+    height: "100%",
     width: "100%",
     autoHeight: true,
     autoScroll:true,
@@ -561,11 +561,17 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     xtype: "checkbox",
                     cls: 'x-grid-checkheader-editor'
                 },
+		listeners: {
+		    //需要自动增强
+		    checkchange: function(f){
+			me.autoCalculate();
+		    }
+		}
             }
         ])
 
 	var itemDurationStore = Ext.create("Ext.data.Store", {
-	    fields: ["MemberPrice", "TimeLength"]
+	    fields: ["Price", "TimeLength"]
 	})
 
         cardServer.GetItemPageData(0, 1, "", {
@@ -610,7 +616,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			    listeners: {
 				select: function(f, record){
 				    var record = record.shift();
-				    var itemPrice = record.data["MemberPrice"];
+				    var itemPrice = record.data["Price"];
 				    if (itemPrice){
 				        var _priceField = f.nextSibling()
 					var _isMemberField = _priceField.nextSibling();
@@ -702,6 +708,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				    me.selectedItems[iid][__fields.length-3] = record.get("itemDuration");
 				    me.selectedItems[iid][__fields.length-2] = record.get("itemPrice");
 				    me.selectedItems[iid][__fields.length-1] = record.get("isMember");
+				    //force load
+				    me.updateItemsPanel();
 				    me.autoCalculate();
 				}
 			    }
@@ -1038,11 +1046,29 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             return;
         }
         var columns = me.productsPanel.__columns = [];
+	var fields = me.productsPanel.__fields = [];
 
+        var _actions = {
+            xtype: 'actioncolumn',
+            width: 40,
+            header: "操作",
+            items: [
+            ]
+        }
+        _actions.items.push("-",{
+            icon: "./resources/themes/images/fam/delete.gif",
+            tooltip: "删除产品",
+            id: "customer_grid_delete",
+            handler: function(grid, rowIndex, colIndex){
+                var d = grid.store.getAt(rowIndex)
+                me.deleteProducts(d);
+            }
+        }, "-");
+
+        columns.push(_actions);
         cardServer.GetPackageProductData(1,{
             success: function(data){
                 var data = Ext.JSON.decode(data)["MetaData"];
-                var fields = me.productsPanel.__fields = [];
                 for (var c in data){
                     var meta = data[c];
                     fields.push(meta["FieldName"])
@@ -1052,6 +1078,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                             header: meta["FieldLabel"],
                             flex: 1
                         }
+
                         if (meta["FieldName"] == "COUNT"){
                             c.field = {
                                 xtype: "numberfield",
@@ -1067,16 +1094,41 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 						var sprice = f.record.get("PPrice");//单价
 						var price = sprice * newValue;
 						_price.setValue(price);
-						f.record.set("PRICE", price)
+						f.record.set("_price", price)
 					    }
 					}
 				    }
 				}
                             }
                         }
-                        columns.push(c)
+			columns.push(c)
                     }
                 }
+
+		me.productsPanel.__fields = fields.concat(["_isMember", "_price"]);
+		me.productsPanel.__columns = columns.concat([
+		    {
+			dataIndex: "_isMember",
+			header: "会员价?",
+			width: 40,
+			xtype: "checkcolumn",
+			editor: {
+			    xtype: "checkbox",
+			    cls: 'x-grid-checkheader-editor'
+			},
+			listeners: {
+			    checkchange: function(){
+				me.autoCalculate();
+			    }
+			}
+		    },
+		    {
+			dataIndex: "_price",
+			header: "消耗价格",
+			flex: 1	
+		    }
+		]);
+		
                 me.initializeProductsGrid();
             },
             failure: function(error){
@@ -1113,9 +1165,11 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			    edit: function(e){
 				var record = e.record, pid = record.get("PID");
 				if (me.selectedProducts[pid]){
-				    me.selectedProducts[pid][__fields.length - 2] = record.get("COUNT")
-				    me.selectedProducts[pid][__fields.length - 1] = record.get("PRICE")
+				    me.selectedProducts[pid][__fields.length - 3] = record.get("COUNT")
+				    me.selectedProducts[pid][__fields.length - 2] = record.get("_isMember")
+				    me.selectedProducts[pid][__fields.length - 1] = record.get("_price")
 				}
+				me.updateProductsPanel();
 				me.autoCalculate();
 			    }
                         }
@@ -1159,7 +1213,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         }));
         win.doLayout();
     },
-    addProducts: function(records, isRaw){
+    addProducts: function(records, isRaw, refresh){
         var me = this, selectedProducts = me.selectedProducts;
         var __fields = me.productsPanel.__fields;
         for (var r = 0; r < records.length; ++r){
@@ -1183,7 +1237,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 selectedProducts[pid].push(rawData[k]);
             }
         }
-        me.updateProductsPanel();
+	if (!refresh){
+	    me.updateProductsPanel();
+	}
     },
     deleteProducts: function(record){
         var me = this, selectedProducts = me.selectedProducts;
@@ -1204,24 +1260,34 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         store.loadData(tmp);
     },
     autoCalculate: function(){
-	var me = this, selectedProducts = me.selectedProducts, selectedItems = me.selectedItems;
+	var me = this, itemsStore = me.itemsPanel.grid.getStore(),
+	    productsStore = me.productsPanel.grid.getStore();
 	var cost = 0;
-	for (var itemId in selectedItems){
-	    var item = selectedItems[itemId];
-	    //9 duration  10 price
-	    item[10] = parseFloat(item[10])
-	    if (item[10] > 0){
-		cost += item[10];
+
+	var selectedProducts = me.selectedProducts;
+	var selectedItems    = me.selectedItems;
+	for (var c = 0; c < itemsStore.getCount(); ++c){
+	    var item = itemsStore.getAt(c);
+	    var isgiff = item.get("isgiff"), price = item.get("itemPrice");
+	    if (price > 0 && !isgiff){
+		cost += parseFloat(price);
 	    }
 	}
 
-	for (var pid in selectedProducts){
-	    var product = selectedProducts[pid]
-	    //5 count  6 price
-	    product[6] = parseFloat(product[6]);
-	    if (product[6] > 0 ){
-		cost += product[6];
+	for (var c = 0; c < productsStore.getCount(); ++c){
+	    var product = productsStore.getAt(c);
+	    var pid = product.get("PID"), isMember = product.get("_isMember"),
+		memberprice = parseFloat(product.get("MemberPrice")),
+		PPrice = parseFloat(product.get("PPrice")),
+		count = parseFloat(product.get("COUNT"));
+	    
+	    if (count > 0){
+		cost += (isMember ? memberprice : PPrice) * count;
 	    }
+	    //if (selectedProducts[pid]){
+	    //    //delete selectedProducts[pid];
+	    //    //me.addProducts([product], false, true);
+	    //}
 	}
 
 	me.orderprice.setValue(cost);
