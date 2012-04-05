@@ -808,7 +808,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             rawData["__index"] = id;
 
 	    if (rawData["packageName"] == undefined){
-		rawData["packageName"] = "其他项目";
+		rawData["packageName"] = "消费项目";
 		rawData["packageId"]   = -1;
 	    }
 
@@ -1139,7 +1139,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     }
                 }
 
-		me.productsPanel.__fields = fields.concat(["_isMember", "_price"]);
+		me.productsPanel.__fields = fields.concat(["itemName", "itemId", "_isMember", "_price"]);
 		me.productsPanel.__columns = columns.concat([
 		    {
 			dataIndex: "_isMember",
@@ -1160,6 +1160,11 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			dataIndex: "_price",
 			header: "消耗价格",
 			flex: 1	
+		    },
+		    {
+			header: "所属项目",
+			dataIndex: "itemName",
+			flex: 1
 		    }
 		]);
 		
@@ -1176,8 +1181,13 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 
         if (me.productsPanel.grid == undefined){
             var store = Ext.create("Ext.data.ArrayStore", {
-                fields: __fields
+                fields: __fields,
+		groupField: "itemName"
             })
+
+	    var groupingFeature = Ext.create('Ext.grid.feature.Grouping',{
+		groupHeaderTpl: '{name} ({rows.length})'
+	    });
 
             var grid = me.productsPanel.grid = Ext.create("Ext.grid.Panel", {
                 store: store,
@@ -1186,6 +1196,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 cls: "iScroll",
                 autoScroll: true,
                 columnLines: true,
+		features: [groupingFeature],
                 columns: me.productsPanel.__columns,
                 plugins: [
                     Ext.create('Ext.grid.plugin.RowEditing', {
@@ -1358,7 +1369,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	    failure: function(error){
 		Ext.Error.raise(error);
 	    }
-	})
+	});
     },
     autoCalculate: function(){
 	var me = this, itemsStore = me.itemsPanel.grid.getStore(),

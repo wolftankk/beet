@@ -860,7 +860,6 @@ Ext.define("Beet.apps.cards.PackageProfile", {
             result["id"] = me.selectedPackageId;
         }
         
-        console.log(result)
         if (action == "add"){
             cardServer.AddPackage(Ext.JSON.encode(result), {
                 success: function(pid){
@@ -1371,7 +1370,7 @@ Ext.define("Beet.apps.cards.PackageList", {
             b_profileData: record,
             callback: function(){
                 win.close();
-                me.packageList.store.loadPage(me.itemList.store.currentPage)
+                me.packageList.store.loadPage(me.packageList.store.currentPage)
             }
         }))
 
