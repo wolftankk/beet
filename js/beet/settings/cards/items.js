@@ -620,6 +620,7 @@ Ext.define("Beet.apps.cards.AddItem", {
             code: rawData["ICode"],
             name: rawData["IName"],
             descript: rawData["IDescript"],
+	    serviceid: rawData["ServiceID"],
             rate: rawData["IRate"],
             realprice: rawData["IRealPrice"],
             category: rawData["ICategoryName"]
