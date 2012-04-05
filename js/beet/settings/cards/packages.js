@@ -924,7 +924,7 @@ Ext.define("Beet.apps.cards.PackageList", {
     autoScroll:true,
     border: false,
     frame: true,
-    height: Beet.constants.VIEWPORT_HEIGHT - 5,
+    height: "100%",
     width: "100%",
     bodyPadding: 0,
     bodyBorder: false,
@@ -1066,7 +1066,7 @@ Ext.define("Beet.apps.cards.PackageList", {
         store.setProxy(me.updateProxy());
         var grid;
         var sm = Ext.create("Ext.selection.CheckboxModel", {
-            mode: "MULTI",
+            mode: me.b_selectionMode ? me.b_selectionMode : "MULTI",
             listeners: {
                 selectionchange: function(){
                     //Ext.bind(me.updateButtonState, grid)(grid.getView());

@@ -35,6 +35,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         me.selectedItemIndex = 0;//init index
         me.selectedItems = {};
 	me.selectedProducts = {};
+	me.selectedPackages = {};
         me.canEditOrder = true;
         me.currentCustomerBalance = 0;
 
@@ -304,6 +305,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         
 	me.bindingItemsBtn.disable();
 	me.bindingProductsBtn.disable();
+	me.bindingPackageBtn.disable();
 
         me.createOrderBtn.disable();
         me.customerHistoryBtn.disable();
@@ -408,6 +410,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     me.customerInfoBtn.enable();
                     me.bindingItemsBtn.enable();
 		    me.bindingProductsBtn.enable();
+		    me.bindingPackageBtn.enable();
                     me.createOrderBtn.enable();
                     me.customerHistoryBtn.enable();
                     me.currentCardBalanceLable.setValue('<span style="color:black;font-weight:bolder">' + data["Balance"] + "</span>");
@@ -452,6 +455,15 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         me.itemsPanel= Ext.widget("panel", Ext.apply(options, {
             title: "消费项目列表",
             tbar: [
+		{
+		    xtype: "button",
+		    text: "绑定套餐",
+		    name: "bindingPackage",
+		    disabled: true,
+		    handler: function(){
+			me.selectPackage();
+		    }
+		},
                 {
                     xtype: "button",
                     text: "指定项目",
@@ -479,8 +491,14 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             ]
 	}));
 
+	me.bindingPackageBtn = me.itemsPanel.down("button[name=bindingPackage]");
         me.bindingItemsBtn = me.itemsPanel.down("button[name=bindingItems]");
 	me.bindingProductsBtn = me.productsPanel.down("button[name=bindingProducts]");
+	
+
+	/**
+	 * @debug
+	 */
 
         me.childrenList = [
             me.itemsPanel,
@@ -598,7 +616,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     }
                 };
 
-                me.itemsPanel.__fields = fields.concat([{name: "isgiff", type: "bool"},"__index", "itemDuration", "itemPrice", "isMember"]);
+                me.itemsPanel.__fields = fields.concat([{name: "isgiff", type: "bool"},"__index", "packageName", "packageId" , "itemDuration", "itemPrice", "isMember"]);
                 me.itemsPanel.__columns = columns.concat([
 		    {
 			dataIndex: "itemDuration",
@@ -646,6 +664,11 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			falseText: "否",
 			flex: 1	
 		    },
+		    {
+			dataIndex: "packageName",
+			header: "所属套餐",
+			flex: 1
+		    },
                     {
                         dataIndex: "__index",
                         hidden: true
@@ -665,8 +688,13 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 
         if (me.itemsPanel.grid == undefined){
             var store = Ext.create("Ext.data.ArrayStore", {
-                fields: __fields
+                fields: __fields,
+		groupField: "packageName"
             })
+
+	    var groupingFeature = Ext.create('Ext.grid.feature.Grouping',{
+		groupHeaderTpl: '{name} ({rows.length})'
+	    });
 
             var grid = me.itemsPanel.grid = Ext.create("Ext.grid.Panel", {
                 store: store,
@@ -675,6 +703,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 cls: "iScroll",
                 autoScroll: true,
                 columnLines: true,
+		features: [groupingFeature],
                 columns: me.itemsPanel.__columns,
                 plugins: [
                     Ext.create('Ext.grid.plugin.RowEditing', {
@@ -705,12 +734,12 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				    record.set("isMember", field.isMember);
 				    record.commit();
 				    var iid = "item-" + itemID;
-				    me.selectedItems[iid][__fields.length-3] = record.get("itemDuration");
-				    me.selectedItems[iid][__fields.length-2] = record.get("itemPrice");
-				    me.selectedItems[iid][__fields.length-1] = record.get("isMember");
-				    //force load
-				    me.updateItemsPanel();
-				    me.autoCalculate();
+				    //me.selectedItems[iid][__fields.length-3] = record.get("itemDuration");
+				    //me.selectedItems[iid][__fields.length-2] = record.get("itemPrice");
+				    //me.selectedItems[iid][__fields.length-1] = record.get("isMember");
+				    ////force load
+				    //me.updateItemsPanel();
+				    //me.autoCalculate();
 				}
 			    }
                         }
@@ -777,6 +806,11 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 
             var id = "item-" + rawData["IID"];
             rawData["__index"] = id;
+
+	    if (rawData["packageName"] == undefined){
+		rawData["packageName"] = "其他项目";
+		rawData["packageId"]   = -1;
+	    }
 
             if (selectedItems[id] == undefined){
                 selectedItems[id] = []
@@ -1259,6 +1293,73 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         }
         store.loadData(tmp);
     },
+    selectPackage: function(){
+	var me = this;
+	var win = Ext.create("Ext.window.Window", {
+	    width: 800,
+	    height: 600,
+	    title: "选择套餐"
+	});
+	
+	var panel = Ext.create("Beet.apps.cards.PackageList", {
+	    b_type: "selection",
+	    b_selectionMode: "SINGLE",
+	    b_selectionCallback: function(records){
+		me.loadPackages(records);
+		win.close();
+	    }
+	});
+
+	win.add(panel);
+	win.show();
+    },
+    loadPackages: function(records){
+	var me = this, cardServer = Beet.constants.cardServer;
+	if (records.length <= 0){
+	    return;
+	}
+	for (var c = 0; c < records.length; c++){
+	    var record = records[c], packageId = record.get("ID"), packageName = record.get("Name");
+	    me.selectPackage[packageId] = {
+		"package": record.data
+	    }
+
+	    //load items
+	    me.loadPackage(packageId, packageName)
+	}
+    },
+    loadPackage: function(packageId, packageName){
+	var me = this, cardServer = Beet.constants.cardServer;
+	cardServer.GetPackagesItems(packageId, {
+	    success: function(data){
+		data = Ext.JSON.decode(data)["items"];
+		var sql = []
+		for (var c = 0; c < data.length; ++c){
+		    sql.push("iid=" + data[c]);
+		}
+		var s = sql.join(" OR ");
+		if (s.length > 0){
+		    cardServer.GetItemPageData(1, 1000000, s, {
+			success: function(data){
+			    var data = Ext.JSON.decode(data)["Data"];
+			    for (var d = 0; d < data.length; d++){
+				data[d].packageName = packageName;
+				data[d].packageId = packageId;
+			    }
+			    me.selectPackage[packageId].items = data;
+			    me.addItems(data, true);
+			},
+			failure: function(error){
+			    Ext.Error.raise(error)
+			}
+		    });
+		}
+	    },
+	    failure: function(error){
+		Ext.Error.raise(error);
+	    }
+	})
+    },
     autoCalculate: function(){
 	var me = this, itemsStore = me.itemsPanel.grid.getStore(),
 	    productsStore = me.productsPanel.grid.getStore();
@@ -1326,10 +1427,12 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		count: count	
 	    })
 	}
-
-	//customerid, serviceno, price: {item: , products}
-	
-	//items[{isgiff, employeeid, itemid}], products[{pid, count}]
+		
+	//customerid, serviceno, employeeid
+	//price : {
+	//items: [ { {isgiff: boolean, employees: {}, itemid:  }}, ..]
+	//products: [{  pid, count, ismember  }]
+	//}
 	
         //var itemsStore = me.itemsPanel.grid.getStore();
         //for (var c = 0; c < itemsStore.getCount(); ++c){
