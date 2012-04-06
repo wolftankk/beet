@@ -1471,17 +1471,27 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	    var price = parseFloat(record.get("PRICE")),
 		count = parseFloat(record.get("COUNT")),
 		pid = record.get("PID"),
-		pname = record.get("PName");
+		pname = record.get("PName"),
+		packageId = record.get("packageId"),
+		itemId = record.get("itemId");
 
-		if (count < 0){
-		    Ext.Msg.alert("警告", "产品 " + pname + " 需要设置消耗数量!");
-		    return;
-		}
+	    if (count < 0){
+		Ext.Msg.alert("警告", "产品 " + pname + " 需要设置消耗数量!");
+		return;
+	    }
 
-	    products.push({
-		pid: pid,
+	    var p = {
+		id: pid,
 		count: count	
-	    })
+	    }
+
+	    if (!!itemId){
+		p["itemid"] = itemId;
+	    }else{
+		if (!!packageId){
+		    p["packageid"] = packageId;
+		}
+	    }
 	}
 
 	var itemStore = me.itemsPanel.grid.getStore();
@@ -1493,46 +1503,57 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		    itemId = record.get("IID"),
 		    itemDuration = parseInt(record.get("itemDuration")),
 		    itemPrice  = parseFloat(record.get("itemPrice")),
+		    packageId = record.get("packageId")
 		    tabId = "tab" + uuid, tab = me.tabCache[tabId],
 		    employees = [], employeeStore = tab.grid.getStore();
 		    for (var s = 0; s < employeeStore.getCount(); ++s){
 			var _s = employeeStore.getAt(s);
-			employees.push({eid: _s.data["employeeId"]});
+			employees.push( _s.data["employeeId"]);
 		    }
 		    if (employees.length == 0){
 			Ext.Msg.alert("警告", "请对每个项目指定服务员!");
 			return;
 		    }
-		    items.push({
+		    
+		    var c = {
 			itemid: itemId,
 			timelength: itemDuration,
 			isgiff: isgiff,
-			employees: employees	
-		    })
+			employees: employees
+		    }
+
+		    if (!!packageId){
+			c["packageid"] = packageId;
+		    }
+
+		    items.push(c)
 	    })
 	}
 		
         results = {
             customerid: me.selectedCustomerId,
             serviceno: serviceno,
-            items: items,
-	    products: products
+	    employeeid : Beet.cache.currentEmployGUID,
+	    price: {
+		items: items,
+		products: products
+	    }
         }
 
 	console.log(results)
         
-        //cardServer.AddConsumer(Ext.JSON.encode(results), {
-        //    success: function(succ){
-        //        if (succ){
-        //            Ext.MessageBox.alert("成功", "新增订单成功!");
-        //            me.cleanup();    
-        //        }else{
-        //            Ext.MessageBox.alert("警告", "新增订单失败!");
-        //        }
-        //    },
-        //    failure: function(err){
-        //        Ext.Error.raise(err)
-        //    }
-        //})
+        cardServer.AddConsumer(Ext.JSON.encode(results), {
+            success: function(succ){
+                if (succ){
+                    Ext.MessageBox.alert("成功", "新增订单成功!");
+                    me.cleanup();    
+                }else{
+                    Ext.MessageBox.alert("警告", "新增订单失败!");
+                }
+            },
+            failure: function(err){
+                Ext.Error.raise(err)
+            }
+        })
     }
 })
