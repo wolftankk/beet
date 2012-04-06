@@ -33,13 +33,12 @@ Ext.define("Beet.apps.customers.CreateOrder", {
     initComponent: function(){
         var me = this;
 
-	// init database;
-	//me.db = openDatabase("orders", "1.0", "This's a order database", 5 * 1024 * 1024);
-
         me.selectedItemIndex = 0;//init index
+
         me.selectedItems = {};
 	me.selectedProducts = {};
 	me.selectedPackages = {};
+
         me.canEditOrder = true;
         me.currentCustomerBalance = 0;
 
@@ -610,7 +609,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     }
                 };
 
-                me.itemsPanel.__fields = fields.concat([{name: "isgiff", type: "bool"},"__index", "packageName", "packageId" , "itemDuration", "itemPrice", "isMember"]);
+                me.itemsPanel.__fields = fields.concat([{name: "isgiff", type: "bool"}, "packageName", "packageId" , "itemDuration", "itemPrice", "_uuid"]);
                 me.itemsPanel.__columns = columns.concat([
 		    {
 			dataIndex: "itemDuration",
@@ -631,14 +630,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				    var itemPrice = record.data["Price"];
 				    if (itemPrice){
 				        var _priceField = f.nextSibling()
-					var _isMemberField = _priceField.nextSibling();
 					f.itemPrice = itemPrice;
-					f.isMember = record.data["IsMember"];
 					if (_priceField){
 					    _priceField.setValue(itemPrice)
-					}
-					if (_isMemberField){
-					    _isMemberField.setValue(record.data["IsMember"]);
 					}
 				    }
 				}
@@ -651,21 +645,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                         flex: 1,
                     },
 		    {
-			dataIndex: "isMember",
-			header: "会员价?",
-			xtype: "booleancolumn",
-			trueText: "是",
-			falseText: "否",
-			flex: 1	
-		    },
-		    {
 			dataIndex: "packageName",
 			header: "所属套餐",
 			flex: 1
-		    },
-                    {
-                        dataIndex: "__index",
-                        hidden: true
 		    }
                 ]);
                 me.initializeItemsGrid();
@@ -678,7 +660,6 @@ Ext.define("Beet.apps.customers.CreateOrder", {
     initializeItemsGrid: function(){
         var me = this, selectedItems = me.selectedItems, cardServer = Beet.constants.cardServer;
         var __fields = me.itemsPanel.__fields;
-
 
         if (me.itemsPanel.grid == undefined){
             var store = Ext.create("Ext.data.ArrayStore", {
@@ -727,13 +708,6 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				    record.set("itemPrice", field.itemPrice);
 				    record.set("isMember", field.isMember);
 				    record.commit();
-				    var iid = "item-" + itemID;
-				    //me.selectedItems[iid][__fields.length-3] = record.get("itemDuration");
-				    //me.selectedItems[iid][__fields.length-2] = record.get("itemPrice");
-				    //me.selectedItems[iid][__fields.length-1] = record.get("isMember");
-				    ////force load
-				    //me.updateItemsPanel();
-				    //me.autoCalculate();
 				}
 			    }
                         }
@@ -788,8 +762,6 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         var me = this, selectedItems = me.selectedItems;
         var __fields = me.itemsPanel.__fields, store = me.itemsPanel.grid.store;
 
-	//console.log(store)
-
         if (records == undefined){
             return;
         }
@@ -803,52 +775,96 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             }
 
 	    //这里index需要修改规则
-            var id = "item-" + rawData["IID"];
-            rawData["__index"] = id;
+            rawData["_uuid"] = Beet.uuid.get();
 
 	    if (rawData["packageName"] == undefined){
 		rawData["packageName"] = "消费项目";
 		rawData["packageId"]   = -1;
 	    }
 
-	    //这里需要分析是否包含有产品
-
 	    //create a new?
+	    // return an array
 	    var newRecord = store.add(rawData);
-	    selectedItems[id] = newRecord;
+	    newRecord = newRecord.shift();
+	    me.loadProductFromItem(newRecord);
+	    var uuid = newRecord.get("_uuid");
+	    selectedItems[uuid] = {
+		item: newRecord
+	    }
         }
+    },
+    loadProductFromItem: function(item){
+	var me = this, cardServer = Beet.constants.cardServer;
+	var itemId = item.get("IID"), itemName = item.get("IName");
+
+	cardServer.GetItemProductData(itemId, {
+	    success: function(data){
+		var data = Ext.JSON.decode(data);
+		data = data["Data"];
+		if (data.length > 0){
+		    for (var c = 0; c < data.length; c++){
+			var product = data[c];
+			product["itemName"] = itemName;
+			product["itemId"] = itemId;
+		    }
+		    var products = me.addProducts(data, true);
+		    me.selectedItems[item.get("_uuid")]["products"] = products;
+		}
+	    },
+	    failure: function(error){
+		Ext.Error.raise(error);
+	    }
+	})
     },
     deleteItem: function(record){
         var me = this, selectedItems = me.selectedItems;
 	var store = me.itemsPanel.grid.store;
-        var id = record.get("__index");
+	var productstore = me.productsPanel.grid.store;
+        var uuid = record.get("_uuid"), itemName = record.get("IName");
+	var products = selectedItems[uuid]["products"];
 
-	store.remove(record);
+	var removeItem = function(){
+	    store.remove(record);
+	    
+	    //cleanup
+	    delete selectedItems[uuid];
+	    var tabid = "tab" + uuid;
+	    if (me.tabCache[tabid]){
+		me.listTabPanel.remove(me.tabCache[tabid], true);
+		me.tabCache[tabid].close();
+		me.tabCache[tabid] = null;
+		me.listTabPanel.doLayout();
+	    }
+	}
 
-	//cleanup
-        delete selectedItems[id];
-        var tabid = "tab" + id;
-        if (me.tabCache[tabid]){
-            me.listTabPanel.remove(me.tabCache[tabid], true);
-            me.tabCache[tabid].close();
-            me.tabCache[tabid] = null;
-            me.listTabPanel.doLayout();
-        }
-    },
-    updateItemsPanel: function(){
-	//此函数可以移除
-        //var me = this, selectedItems = me.selectedItems;
-        //var grid = me.itemsPanel.grid, store = grid.getStore();
-        //var tmp = []
-        //for (var c in selectedItems){
-        //    if (selectedItems[c].length == 0){continue;}
-        //    var item = selectedItems[c];
-        //    tmp.push(selectedItems[c]);
-        //}
-        //store.loadData(tmp);
+	//这里同时也要做相关检测
+	if (products && products.length > 0){
+	    var _products = [];
+	    for (var c = 0; c < products.length; c++){
+		var product = products[c];
+		_products.push(product.get("PName"));
+	    }
+	    Ext.MessageBox.show({
+		title : ("你确定需要移除项目: " + itemName + "吗?"),    
+		msg: ("移除项目: " + itemName + " , 将同时移除以下产品: " + _products.join("、")),
+		buttons: Ext.MessageBox.YESNO,
+		fn: function(btn){
+		    if (btn == "yes"){
+			for (var c = 0; c < products.length; c++){
+			    var product = products[c];
+
+			    //直接移除
+			    productstore.remove(product);
+			}
+			removeItem();
+		    }
+		}
+	    })
+	}else{
+	    removeItem();
+	}
     },
     //}}}
-    
     createListTabPanel: function(){
         var me = this;
         var options = {
@@ -868,7 +884,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         me.leftPanel.doLayout();
     },
     tapTabPanel: function(grid, record, item, index, e, cardid, store){
-        var me = this, tabId, itemId = record.get("__index");
+        var me = this, tabId, itemId = record.get("_uuid");
         tabId = "tab"+itemId;
         if (me.tabCache == undefined){
             me.tabCache = {};
@@ -1060,7 +1076,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             var record = store.getAt(c);
             var v = record.get(key);
             if (v){
-                if (key == "__index"){
+                if (key == "_uuid"){
                     v = "tab" + v;
                 }
                 if (v == value){
@@ -1135,23 +1151,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     }
                 }
 
-		me.productsPanel.__fields = fields.concat(["itemName", "itemId", "_isMember", "_price"]);
+		me.productsPanel.__fields = fields.concat(["itemName", "itemId", "packageName", "packageId", "_price"]);
 		me.productsPanel.__columns = columns.concat([
-		    {
-			dataIndex: "_isMember",
-			header: "会员价?",
-			width: 40,
-			xtype: "checkcolumn",
-			editor: {
-			    xtype: "checkbox",
-			    cls: 'x-grid-checkheader-editor'
-			},
-			listeners: {
-			    checkchange: function(){
-				me.autoCalculate();
-			    }
-			}
-		    },
 		    {
 			dataIndex: "_price",
 			header: "消耗价格",
@@ -1204,14 +1205,14 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				field.record = record;
 			    },
 			    edit: function(e){
-				var record = e.record, pid = record.get("PID");
-				if (me.selectedProducts[pid]){
-				    me.selectedProducts[pid][__fields.length - 3] = record.get("COUNT")
-				    me.selectedProducts[pid][__fields.length - 2] = record.get("_isMember")
-				    me.selectedProducts[pid][__fields.length - 1] = record.get("_price")
-				}
-				me.updateProductsPanel();
-				me.autoCalculate();
+				//var record = e.record, pid = record.get("PID");
+				//if (me.selectedProducts[pid]){
+				//    me.selectedProducts[pid][__fields.length - 3] = record.get("COUNT")
+				//    me.selectedProducts[pid][__fields.length - 2] = record.get("_isMember")
+				//    me.selectedProducts[pid][__fields.length - 1] = record.get("_price")
+				//}
+				//me.updateProductsPanel();
+				//me.autoCalculate();
 			    }
                         }
                     })
@@ -1258,6 +1259,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         var me = this, selectedProducts = me.selectedProducts;
 	var store = me.productsPanel.grid.store;
         var __fields = me.productsPanel.__fields;
+
+	var list = [];
         for (var r = 0; r < records.length; ++r){
             var record = records[r];
             var pid, rawData;
@@ -1269,35 +1272,25 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 rawData = record.raw;
             }
 
-	    var newRecord = store.add(rawData);
-	    //selectedProducts[pid] = 
-            //if (selectedProducts[pid] == undefined){
-            //    selectedProducts[pid] = []
-            //}else{
-            //    selectedProducts[pid] = [];
-            //}
-
-            //for (var c = 0; c < __fields.length; ++c){
-            //    var k = __fields[c];
-            //    selectedProducts[pid].push(rawData[k]);
-            //}
+	    list.push(rawData);
         }
+	return store.add(list);
     },
     deleteProducts: function(record){
         var me = this, selectedProducts = me.selectedProducts;
 	var store = me.productsPanel.grid.store;
-        var pid = record.get("PID");
-	//需要做检测
-	store.remove(record);
-    },
-    updateProductsPanel: function(){
-        //var me = this, selectedProducts = me.selectedProducts;
-        //var grid = me.productsPanel.grid, store = grid.getStore();
-        //var tmp = []
-        //for (var c in selectedProducts){
-        //    tmp.push(selectedProducts[c]);
-        //}
-        //store.loadData(tmp);
+	//check has item?
+	itemName = record.get("itemName");
+	if (!!itemName){
+	    Ext.MessageBox.show({
+		title: "无法删除产品: " + record.get("PName"),
+		msg: "该产品隶属于项目 " + itemName + " , 你无法直接删除该产品, 必须删除它的所属项目",
+		buttons: Ext.MessageBox.OK
+	    });
+	    return;
+	}else{
+	    store.remove(record);
+	}
     },
     selectPackage: function(){
 	var me = this;
@@ -1405,29 +1398,29 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 
 	var selectedProducts = me.selectedProducts;
 	var selectedItems    = me.selectedItems;
-	for (var c = 0; c < itemsStore.getCount(); ++c){
-	    var item = itemsStore.getAt(c);
-	    var isgiff = item.get("isgiff"), price = item.get("itemPrice");
-	    if (price > 0 && !isgiff){
-		cost += parseFloat(price);
-	    }
-	}
+	//for (var c = 0; c < itemsStore.getCount(); ++c){
+	//    var item = itemsStore.getAt(c);
+	//    var isgiff = item.get("isgiff"), price = item.get("itemPrice");
+	//    if (price > 0 && !isgiff){
+	//	cost += parseFloat(price);
+	//    }
+	//}
 
-	for (var c = 0; c < productsStore.getCount(); ++c){
-	    var product = productsStore.getAt(c);
-	    var pid = product.get("PID"), isMember = product.get("_isMember"),
-		memberprice = parseFloat(product.get("MemberPrice")),
-		PPrice = parseFloat(product.get("PPrice")),
-		count = parseFloat(product.get("COUNT"));
-	    
-	    if (count > 0){
-		cost += (isMember ? memberprice : PPrice) * count;
-	    }
-	    //if (selectedProducts[pid]){
-	    //    //delete selectedProducts[pid];
-	    //    //me.addProducts([product], false, true);
-	    //}
-	}
+	//for (var c = 0; c < productsStore.getCount(); ++c){
+	//    var product = productsStore.getAt(c);
+	//    var pid = product.get("PID"), isMember = product.get("_isMember"),
+	//	memberprice = parseFloat(product.get("MemberPrice")),
+	//	PPrice = parseFloat(product.get("PPrice")),
+	//	count = parseFloat(product.get("COUNT"));
+	//    
+	//    if (count > 0){
+	//	cost += (isMember ? memberprice : PPrice) * count;
+	//    }
+	//    //if (selectedProducts[pid]){
+	//    //    //delete selectedProducts[pid];
+	//    //    //me.addProducts([product], false, true);
+	//    //}
+	//}
 
 	me.orderprice.setValue(cost);
     },
