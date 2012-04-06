@@ -852,7 +852,6 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		    if (btn == "yes"){
 			for (var c = 0; c < products.length; c++){
 			    var product = products[c];
-
 			    //直接移除
 			    productstore.remove(product);
 			}
@@ -1151,7 +1150,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     }
                 }
 
-		me.productsPanel.__fields = fields.concat(["itemName", "itemId", "packageName", "packageId", "_price"]);
+		me.productsPanel.__fields = fields.concat(["itemName", "itemId", "packageName", "packageId", "_groupName", "_price"]);
 		me.productsPanel.__columns = columns.concat([
 		    {
 			dataIndex: "_price",
@@ -1161,6 +1160,11 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		    {
 			header: "所属项目",
 			dataIndex: "itemName",
+			flex: 1
+		    },
+		    {
+			header: "所属分类",
+			dataIndex: "packageName",
 			flex: 1
 		    }
 		]);
@@ -1179,7 +1183,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         if (me.productsPanel.grid == undefined){
             var store = Ext.create("Ext.data.ArrayStore", {
                 fields: __fields,
-		groupField: "itemName"
+		groupField: "_groupName"
             })
 
 	    var groupingFeature = Ext.create('Ext.grid.feature.Grouping',{
@@ -1203,6 +1207,14 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				var record = e.record;
 				var field = e.column.field
 				field.record = record;
+				if (!!record.get("itemName")){
+				    Ext.MessageBox.show({
+					title: "错误",
+					msg : "你无法修改产品 " + record.get("PName") + "的数量或者价格.",
+					buttons: Ext.MessageBox.OK
+				    })
+				    return false;
+				}
 			    },
 			    edit: function(e){
 				//var record = e.record, pid = record.get("PID");
@@ -1271,6 +1283,16 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 pid = record.get("PID");
                 rawData = record.raw;
             }
+
+	    if (!!rawData["itemName"]){
+		rawData["_groupName"] = "所属项目: " + rawData["itemName"]
+	    }else{
+		if (!!rawData["packageName"]){
+		    rawData["_groupName"] = "所属套餐: " + rawData["packageName"]
+		}else{
+		    rawData["_groupName"] = "其余产品";
+		}
+	    }
 
 	    list.push(rawData);
         }
