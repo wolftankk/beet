@@ -754,6 +754,7 @@ Ext.define("Beet.apps.cards.PackageProfile", {
     },
     addProducts: function(records, isRaw){
         var me = this, selectedProducts = me.selectedProducts;
+	var store = me.productsPanel.grid.store;
         var __fields = me.productsPanel.__fields;
         for (var r = 0; r < records.length; ++r){
             var record = records[r];
@@ -765,41 +766,38 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                 pid = record.get("PID");
                 rawData = record.raw;
             }
-            if (selectedProducts[pid] == undefined){
-                selectedProducts[pid] = []
-            }else{
-                selectedProducts[pid] = [];
-            }
 
-            for (var c = 0; c < __fields.length; ++c){
-                var k = __fields[c];
-                selectedProducts[pid].push(rawData[k]);
-            }
+	    //filter
+	    if (store.find("PID", pid) == - 1){
+		store.add(rawData);
+	    }else{
+		Ext.MessageBox.alert("警告", "此产品已加入, 请不要重复加入");
+		return false;
+	    }
         }
-        me.updateProductsPanel();
     },
     deleteProducts: function(record){
         var me = this, selectedProducts = me.selectedProducts;
+	var store = me.productsPanel.grid.store;
         var pid = record.get("PID");
-        if (selectedProducts[pid]){
-            selectedProducts[pid] = null;
-            delete selectedProducts[pid];
-        }
-        me.updateProductsPanel();
+	store.remove(record);
     },
     updateProductsPanel: function(){
-        var me = this, selectedProducts = me.selectedProducts;
-        var grid = me.productsPanel.grid, store = grid.getStore();
-        var tmp = []
-        for (var c in selectedProducts){
-            tmp.push(selectedProducts[c]);
-        }
-        store.loadData(tmp);
+        //var me = this, selectedProducts = me.selectedProducts;
+        //var grid = me.productsPanel.grid, store = grid.getStore();
+        //var tmp = []
+        //for (var c in selectedProducts){
+        //    tmp.push(selectedProducts[c]);
+        //}
+        //store.loadData(tmp);
     },
     resetAll: function(){
         var me = this;
+	var store = me.productsPanel.grid.store;
         me.selectedItems = {};
         me.selectedProducts = {};
+	store.removeAll();
+
         me.selectedPackages = {};
 
         me.selectedPackageId= 0;
@@ -838,11 +836,23 @@ Ext.define("Beet.apps.cards.PackageProfile", {
             result["items"] = items;
         }
     
-        var selectedProducts = me.selectedProducts;
-        var products = Ext.Object.getKeys(selectedProducts);
-        if (products && products.length > 0){
-            result["products"] = products;
-        }
+        //var selectedProducts = me.selectedProducts;
+        //var products = Ext.Object.getKeys(selectedProducts);
+        //if (products && products.length > 0){
+        //    result["products"] = products;
+        //}
+	var productsStore = me.productsPanel.grid.store;
+	if (productsStore.getCount() > 0){
+	    var products = [];
+	    productsStore.each(function(record){
+		products.push({
+		    id: record.get("PID"),
+		    count: record.get("COUNT")   
+		})
+	    })
+
+	    result["products"] = products;
+	}
 
         if (me.selectedPackageCategoryId){
             result["categoryid"] = me.selectedPackageCategoryId;
