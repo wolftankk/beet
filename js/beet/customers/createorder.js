@@ -811,6 +811,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		rawData["packageId"]   = -1;
 	    }
 
+	    //这里需要分析是否包含有产品
+
 	    //create a new?
 	    var newRecord = store.add(rawData);
 	    selectedItems[id] = newRecord;
@@ -1252,8 +1254,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         }));
         win.doLayout();
     },
-    addProducts: function(records, isRaw, refresh){
+    addProducts: function(records, isRaw){
         var me = this, selectedProducts = me.selectedProducts;
+	var store = me.productsPanel.grid.store;
         var __fields = me.productsPanel.__fields;
         for (var r = 0; r < records.length; ++r){
             var record = records[r];
@@ -1265,38 +1268,36 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 pid = record.get("PID");
                 rawData = record.raw;
             }
-            if (selectedProducts[pid] == undefined){
-                selectedProducts[pid] = []
-            }else{
-                selectedProducts[pid] = [];
-            }
 
-            for (var c = 0; c < __fields.length; ++c){
-                var k = __fields[c];
-                selectedProducts[pid].push(rawData[k]);
-            }
+	    var newRecord = store.add(rawData);
+	    //selectedProducts[pid] = 
+            //if (selectedProducts[pid] == undefined){
+            //    selectedProducts[pid] = []
+            //}else{
+            //    selectedProducts[pid] = [];
+            //}
+
+            //for (var c = 0; c < __fields.length; ++c){
+            //    var k = __fields[c];
+            //    selectedProducts[pid].push(rawData[k]);
+            //}
         }
-	if (!refresh){
-	    me.updateProductsPanel();
-	}
     },
     deleteProducts: function(record){
         var me = this, selectedProducts = me.selectedProducts;
+	var store = me.productsPanel.grid.store;
         var pid = record.get("PID");
-        if (selectedProducts[pid]){
-            selectedProducts[pid] = null;
-            delete selectedProducts[pid];
-        }
-        me.updateProductsPanel();
+	//需要做检测
+	store.remove(record);
     },
     updateProductsPanel: function(){
-        var me = this, selectedProducts = me.selectedProducts;
-        var grid = me.productsPanel.grid, store = grid.getStore();
-        var tmp = []
-        for (var c in selectedProducts){
-            tmp.push(selectedProducts[c]);
-        }
-        store.loadData(tmp);
+        //var me = this, selectedProducts = me.selectedProducts;
+        //var grid = me.productsPanel.grid, store = grid.getStore();
+        //var tmp = []
+        //for (var c in selectedProducts){
+        //    tmp.push(selectedProducts[c]);
+        //}
+        //store.loadData(tmp);
     },
     selectPackage: function(){
 	var me = this;
@@ -1318,6 +1319,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	win.add(panel);
 	win.show();
     },
+
+    //load packages
     loadPackages: function(records){
 	var me = this, cardServer = Beet.constants.cardServer;
 	if (records.length <= 0){
