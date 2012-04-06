@@ -32,6 +32,10 @@ Ext.define("Beet.apps.customers.CreateOrder", {
     plain: true,
     initComponent: function(){
         var me = this;
+
+	// init database;
+	//me.db = openDatabase("orders", "1.0", "This's a order database", 5 * 1024 * 1024);
+
         me.selectedItemIndex = 0;//init index
         me.selectedItems = {};
 	me.selectedProducts = {};
@@ -187,6 +191,15 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 						    value: 0
 						},
                                                 "->",
+						{
+						    xtype: "button",
+						    text: "绑定套餐",
+						    name: "bindingPackage",
+						    disabled: true,
+						    handler: function(){
+							me.selectPackage();
+						    }
+						},
                                                 {
                                                     xtype: "button",
                                                     text: "消费历史",
@@ -283,6 +296,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         me.customerHistoryBtn = me.mainPanel.down("button[name=customerhistory]");
         me.currentCardBalanceLable = me.mainPanel.down("displayfield[name=currentCardBalance]")
 	me.currentCardCapital = me.mainPanel.down("displayfield[name=currentCardCapital]")
+	me.bindingPackageBtn = me.mainPanel.down("button[name=bindingPackage]");
 
 	me.orderprice = me.mainPanel.down("displayfield[name=orderprice]");
 
@@ -312,7 +326,6 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         me.currentCardBalanceLable.setValue(0);
 	me.currentCardCapital.setValue(0)
     },
-
     cleanup: function(){
         var me = this;
         me.resetAll();
@@ -350,7 +363,6 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 _sql = "CTMobile='" + value + "'";
             }
         }
-
         customerServer.GetCustomerPageData(0, 30, _sql, {
             success: function(data){
                 var data = Ext.JSON.decode(data), a = {};
@@ -451,19 +463,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 }
             }
         }
-
         me.itemsPanel= Ext.widget("panel", Ext.apply(options, {
             title: "消费项目列表",
             tbar: [
-		{
-		    xtype: "button",
-		    text: "绑定套餐",
-		    name: "bindingPackage",
-		    disabled: true,
-		    handler: function(){
-			me.selectPackage();
-		    }
-		},
                 {
                     xtype: "button",
                     text: "指定项目",
@@ -475,7 +477,6 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 }
             ]
         }));
-
 	me.productsPanel = Ext.widget("panel", Ext.apply(options, {
             title: "消费产品列表",
             tbar: [
@@ -490,16 +491,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 }
             ]
 	}));
-
-	me.bindingPackageBtn = me.itemsPanel.down("button[name=bindingPackage]");
         me.bindingItemsBtn = me.itemsPanel.down("button[name=bindingItems]");
 	me.bindingProductsBtn = me.productsPanel.down("button[name=bindingProducts]");
 	
-
-	/**
-	 * @debug
-	 */
-
         me.childrenList = [
             me.itemsPanel,
 	    me.productsPanel
@@ -790,8 +784,12 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         win.doLayout();
     },
     addItems: function(records, isRaw){
+	//将废弃原有的obj储存模式 使用extjs源生的store
         var me = this, selectedItems = me.selectedItems;
-        var __fields = me.itemsPanel.__fields;
+        var __fields = me.itemsPanel.__fields, store = me.itemsPanel.grid.store;
+
+	//console.log(store)
+
         if (records == undefined){
             return;
         }
@@ -813,49 +811,42 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		rawData["packageId"]   = -1;
 	    }
 
-	    //producs
-
-            if (selectedItems[id] == undefined){
-                selectedItems[id] = []
-            }else{
-                selectedItems[id] = [];
-            }
-
-            for (var c = 0; c < __fields.length; ++c){
-                var k = __fields[c];
-                selectedItems[id].push(rawData[k]);
-            }
+	    //create a new?
+	    var newRecord = store.add(rawData);
+	    selectedItems[id] = newRecord;
         }
-        me.updateItemsPanel();
     },
     deleteItem: function(record){
         var me = this, selectedItems = me.selectedItems;
+	var store = me.itemsPanel.grid.store;
         var id = record.get("__index");
-        if (selectedItems[id]){
-            selectedItems[id] = null;
-            delete selectedItems[id];
-            var tabid = "tab" + id;
-            if (me.tabCache[tabid]){
-                me.listTabPanel.remove(me.tabCache[tabid], true);
-                me.tabCache[tabid].close();
-                me.tabCache[tabid] = null;
-                me.listTabPanel.doLayout();
-            }
+
+	store.remove(record);
+
+	//cleanup
+        delete selectedItems[id];
+        var tabid = "tab" + id;
+        if (me.tabCache[tabid]){
+            me.listTabPanel.remove(me.tabCache[tabid], true);
+            me.tabCache[tabid].close();
+            me.tabCache[tabid] = null;
+            me.listTabPanel.doLayout();
         }
-        me.updateItemsPanel();
     },
     updateItemsPanel: function(){
-        var me = this, selectedItems = me.selectedItems;
-        var grid = me.itemsPanel.grid, store = grid.getStore();
-        var tmp = []
-        for (var c in selectedItems){
-            if (selectedItems[c].length == 0){continue;}
-            var item = selectedItems[c];
-            tmp.push(selectedItems[c]);
-        }
-        store.loadData(tmp);
+	//此函数可以移除
+        //var me = this, selectedItems = me.selectedItems;
+        //var grid = me.itemsPanel.grid, store = grid.getStore();
+        //var tmp = []
+        //for (var c in selectedItems){
+        //    if (selectedItems[c].length == 0){continue;}
+        //    var item = selectedItems[c];
+        //    tmp.push(selectedItems[c]);
+        //}
+        //store.loadData(tmp);
     },
     //}}}
+    
     createListTabPanel: function(){
         var me = this;
         var options = {
