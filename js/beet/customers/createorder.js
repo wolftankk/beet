@@ -332,6 +332,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         if (me.itemsPanel.grid && me.itemsPanel.grid.store){
             me.itemsPanel.grid.getStore().loadData([])
         }
+	if (me.productsPanel.grid && me.productsPanel.grid.store){
+	    me.productsPanel.grid.store.removeAll();
+	}
         for (var k in me.tabCache){
             me.listTabPanel.remove(me.tabCache[k], true);
             me.tabCache[k].close();
@@ -1480,67 +1483,43 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		count: count	
 	    })
 	}
+
+	var itemStore = me.itemsPanel.grid.getStore();
+	var items = [];
+	if (itemStore.getCount() > 0){
+	    itemStore.each(function(record){
+		var isgiff = record.get("isgiff"),
+		    uuid   = record.get("_uuid"),
+		    itemId = record.get("IID"),
+		    itemDuration = parseInt(record.get("itemDuration")),
+		    itemPrice  = parseFloat(record.get("itemPrice")),
+		    tabId = "tab" + uuid, tab = me.tabCache[tabId],
+		    employees = [], employeeStore = tab.grid.getStore();
+		    for (var s = 0; s < employeeStore.getCount(); ++s){
+			var _s = employeeStore.getAt(s);
+			employees.push({eid: _s.data["employeeId"]});
+		    }
+		    if (employees.length == 0){
+			Ext.Msg.alert("警告", "请对每个项目指定服务员!");
+			return;
+		    }
+		    items.push({
+			itemid: itemId,
+			timelength: itemDuration,
+			isgiff: isgiff,
+			employees: employees	
+		    })
+	    })
+	}
 		
-	//customerid, serviceno, employeeid
-	//price : {
-	//items: [ { {isgiff: boolean, employees: {}, itemid:  }}, ..]
-	//products: [{  pid, count, ismember  }]
-	//}
-	
-        //var itemsStore = me.itemsPanel.grid.getStore();
-        //for (var c = 0; c < itemsStore.getCount(); ++c){
-        //    var r = itemsStore.getAt(c);
-        //    var _index = "tab" + r.get("__index");
-        //    if (!list[_index]){
-        //        Ext.Msg.alert("错误", r.get("IName") + "需要指定服务员!");
-        //        return;
-        //    }
-        //}
-
-	/*
-        for (var k in list){
-            var tab = list[k];
-            var __index = tab._tabid, record = me.getItemRecord(tab._itemStore, "__index", __index);
-            if (!record){
-                Ext.Msg.alert("失败", "创建订单失败");
-                return;
-            }
-
-            var _itemId = record.get("IID"), isgiff = record.get("isgiff")
-                employeeStore = tab.grid.getStore();
-
-            var employees = [];
-	    //TODO: itemid, 赠送? 时长
-            var tmp = {
-                isgiff : isgiff
-            };
-            
-            for (var s = 0; s < employeeStore.getCount(); ++s){
-                var _s = employeeStore.getAt(s);
-                employees.push({eid: _s.data["employeeId"]});
-            }
-            if (employees.length == 0){
-                Ext.Msg.alert("警告", "请对每个项目指定服务员!");
-                return;
-            }
-            tmp["employees"] = employees;
-
-            if (!!_cardid){
-                tmp["itemid"] = _itemId;
-                cards.push(tmp);
-            }else{
-                tmp["id"] = _itemId;
-                items.push(tmp)
-            }
+        results = {
+            customerid: me.selectedCustomerId,
+            serviceno: serviceno,
+            items: items,
+	    products: products
         }
-	*/
 
-        //results = {
-        //    customerid: me.selectedCustomerId,
-        //    serviceno: serviceno,
-        //    items: items,
-	//    products: products
-        //}
+	console.log(results)
         
         //cardServer.AddConsumer(Ext.JSON.encode(results), {
         //    success: function(succ){
