@@ -595,6 +595,7 @@ Ext.define("Beet.apps.cards.AddItem", {
 
         me.queue.Add("restoreFormData", "initproduct,initcharge", function(){
             me.itemList.cache[itemId] = {};
+
             cardServer.GetItemProductData(itemId, {
                 success: function(data){
                     data = Ext.JSON.decode(data)["Data"]//["products"];
@@ -1579,7 +1580,7 @@ Ext.define("Beet.apps.cards.ItemList", {
                 rawData = record.raw;
             }
 
-	    store.add(store);
+	    store.add(rawData);
         }
     },
     deleteProducts: function(record){
