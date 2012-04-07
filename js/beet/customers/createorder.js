@@ -635,6 +635,14 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	me.productsPanel = Ext.widget("panel", Ext.apply(options, {
             title: "消费产品列表",
             tbar: [
+		{
+		    xtype: "button",
+		    text : "继续消费",
+		    name : "customerHData",
+		    handler: function(){
+			me.showNotFinishPanel();
+		    }
+		},
                 {
                     xtype: "button",
                     text: "指定产品",
