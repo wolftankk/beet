@@ -77,7 +77,8 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                         name:                data["Name"],
                         price:                data["PPrice"],
                         descript:        data["Descript"],
-                        _packageName: data["PCategoryName"]
+                        _packageName: data["PCategoryName"],
+			serviceid:    data["ServiceID"]
                     });
                     me.selectedPackageCategoryId = data["PCategoryID"];
         
