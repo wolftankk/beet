@@ -32,10 +32,10 @@ Ext.define("Beet.apps.cards.AddItem", {
     editable: true,
     initComponent: function(){
         var me = this, cardServer = Beet.constants.cardServer;
-        me.selectedProducts = {};
-        me.selectedChargeType = {};
+
         me.itemList = {};//save store fields columns and grid
         me.itemList.cache = {};//cache itemdata
+
         me.selectedItemId = 0;
         me.selectedItemIndex = 0;
 
@@ -47,9 +47,6 @@ Ext.define("Beet.apps.cards.AddItem", {
     },
     createMainPanel: function(){
         var me = this, cardServer = Beet.constants.cardServer;
-        //Ext.bind(createItemCategoryTree, me)();
-        //me.createTreeList();
-        //me.updateTreeListEvent(true)
 
         var options = {
             autoScroll: true,
@@ -289,6 +286,7 @@ Ext.define("Beet.apps.cards.AddItem", {
         var _actions = {
             xtype: 'actioncolumn',
             width: 30,
+	    header: "操作",
             items: [
             ]
         }
@@ -338,7 +336,7 @@ Ext.define("Beet.apps.cards.AddItem", {
         });
     },
     initializeProductsGrid: function(){
-        var me = this, selectedProducts = me.selectedProducts;
+        var me = this;
         var __fields = me.productsPanel.__fields;
 
         if (me.productsPanel.grid == undefined){
@@ -368,6 +366,7 @@ Ext.define("Beet.apps.cards.AddItem", {
                                     var count = currRecord.get("COUNT");
                                     currRecord.set("COUNT", count);
                                 }
+				currRecord.commit();
                             }
                         }
                     })
@@ -414,7 +413,8 @@ Ext.define("Beet.apps.cards.AddItem", {
         win.doLayout();
     },
     addProducts: function(records, isRaw){
-        var me = this, selectedProducts = me.selectedProducts;
+        var me = this;
+	var store = me.productsPanel.grid.store;
         var __fields = me.productsPanel.__fields;
         if (records == undefined){return;}
         for (var r = 0; r < records.length; ++r){
@@ -427,38 +427,20 @@ Ext.define("Beet.apps.cards.AddItem", {
                 pid = record.get("PID");
                 rawData = record.raw;
             }
-            if (selectedProducts[pid] == undefined){
-                selectedProducts[pid] = []
-            }else{
-                selectedProducts[pid] = [];
-            }
 
-            for (var c = 0; c < __fields.length; ++c){
-                var k = __fields[c];
-                selectedProducts[pid].push(rawData[k]);
-            }
+	    if (store.find("PID", pid) == -1){
+		store.add(rawData)
+	    }else{
+		Ext.MessageBox.alert("警告", "此产品已加入, 请不要重复加入");
+		return false;
+	    }
         }
-
-        me.updateProductsPanel(isRaw);
     },
     deleteProducts: function(record){
-        var me = this, selectedProducts = me.selectedProducts;
+        var me = this;
+	var store = me.productsPanel.grid.store;
         var pid = record.get("PID");
-        if (selectedProducts[pid]){
-            selectedProducts[pid] = null;
-            delete selectedProducts[pid];
-        }
-
-        me.updateProductsPanel();
-    },
-    updateProductsPanel: function(append){
-        var me = this, selectedProducts = me.selectedProducts;
-        var grid = me.productsPanel.grid, store = grid.getStore();
-        var tmp = []
-        for (var c in selectedProducts){
-            tmp.push(selectedProducts[c]);
-        }
-        store.loadData(tmp);
+	store.remove(record);
     },
     initializeChargeTypePanel: function(){
         var me = this, cardServer = Beet.constants.cardServer;
@@ -469,6 +451,7 @@ Ext.define("Beet.apps.cards.AddItem", {
         var _actions = {
             xtype: 'actioncolumn',
             width: 30,
+	    header: "操作",
             items: [
             ]
         }
@@ -506,7 +489,7 @@ Ext.define("Beet.apps.cards.AddItem", {
         });
     },
     initializeChargeGrid: function(){
-        var me = this, selectedChargeType = me.selectedChargeType;
+        var me = this;
         var __fields = me.chargeTypesPanel.__fields;
         var store = Ext.create("Ext.data.ArrayStore", {
             fields: __fields
@@ -560,13 +543,9 @@ Ext.define("Beet.apps.cards.AddItem", {
         win.doLayout();
     },
     addChargeType: function(records, isRaw){
-        var me = this, selectedChargeType = me.selectedChargeType;
-        var __fields = me.chargeTypesPanel.__fields;
-        if (records == undefined){
-            selectedChargeType = {};
-            me.updateChargeTypePanel();
-            return;
-        }
+        var me = this;
+	var store = me.chargeTypesPanel.grid.store;
+
         for (var r = 0; r < records.length; ++r){
             var record = records[r];
             var cid, rawData;
@@ -577,45 +556,26 @@ Ext.define("Beet.apps.cards.AddItem", {
                 cid = record.get("CID");
                 rawData = record.raw;
             }
-            if (selectedChargeType[cid] == undefined){
-                selectedChargeType[cid] = []
-            }else{
-                selectedChargeType[cid] = [];
-            }
-            for (var c = 0; c < __fields.length; ++c){
-                var k = __fields[c];
-                selectedChargeType[cid].push(rawData[k]);
-            }
-        }
 
-        me.updateChargeTypePanel(isRaw);
+	    if (store.find("CID", cid) == -1){
+		store.add(rawData)
+	    }else{
+		Ext.MessageBox.alert("警告", "此费用已加入, 请不要重复加入");
+		return false;
+	    }
+        }
     },
     deleteChargeType: function(record){
-        var me = this, selectedChargeType = me.selectedChargeType;
-        var cid = record.get("CID");
-        if (selectedChargeType[cid]){
-            selectedChargeType[cid] = null;
-            delete selectedChargeType[cid];
-        }
+        var me = this;
+        var cid = record.get("CID"), store = me.chargeTypesPanel.grid.store;
 
-        me.updateChargeTypePanel();
-    },
-    updateChargeTypePanel: function(append){
-        var me = this, selectedChargeType = me.selectedChargeType;
-        var grid = me.chargeTypesPanel.grid, store = grid.getStore();
-        var __fields = me.chargeTypesPanel.__fields;
-        var tmp = []
-        for (var c in selectedChargeType){
-            tmp.push(selectedChargeType[c]);
-        }
-        store.loadData(tmp);
+	store.remove(record);
     },
     restoreFromData: function(rawData){
         var me = this, cardServer = Beet.constants.cardServer;
-        me.selectedProducts = {};//reset
-        me.selectedChargeType = {};
         var itemId = rawData["IID"];
-        me.selectedItemId = itemId;
+	me.selectedItemId = itemId;
+
         me.form.getForm().setValues({
             code: rawData["ICode"],
             name: rawData["IName"],
@@ -638,7 +598,6 @@ Ext.define("Beet.apps.cards.AddItem", {
             cardServer.GetItemProductData(itemId, {
                 success: function(data){
                     data = Ext.JSON.decode(data)["Data"]//["products"];
-                    //me.itemList.cache[itemId].products = data;
                     me.addProducts(data, true)
                 },
                 failure: function(error){
@@ -657,7 +616,6 @@ Ext.define("Beet.apps.cards.AddItem", {
                         cardServer.GetChargeTypePageData(1, 1000000, s, {
                             success: function(data){
                                 var data = Ext.JSON.decode(data)["Data"];
-                                //me.itemList.cache[itemId].charges= data;
                                 me.addChargeType(data, true);
                             },
                             failure: function(error){
@@ -675,14 +633,13 @@ Ext.define("Beet.apps.cards.AddItem", {
         });
     },
     resetAll: function(){
-        var me = this, form = me.form.getForm();
+        var me = this, form = me.form.getForm(),
+	    productsStore = me.productsPanel.grid.store,
+	    chargesStore  = me.chargeTypesPanel.grid.store;
         form.reset();
-        //reset all
-        me.selectedChargeType = {};
-        me.selectedProducts = {};    
 
-        me.updateProductsPanel();
-        me.updateChargeTypePanel();
+	productsStore.removeAll();
+	chargesStore.removeAll();
 
         if (me.itemList.cache[me.selectedItemId]){
             me.itemList.cache[me.selectedItemId] = {};
@@ -693,7 +650,7 @@ Ext.define("Beet.apps.cards.AddItem", {
     processData: function(f){
         var me = this, cardServer = Beet.constants.cardServer,
             form = f.up("form").getForm(), result = form.getValues();
-        var selectedProducts = me.selectedProducts, selectedChargeType = me.selectedChargeType;
+
         if (me.selectProductCategoryId){
             result["categoryid"] = me.selectProductCategoryId;
             delete result["category"];
@@ -719,7 +676,14 @@ Ext.define("Beet.apps.cards.AddItem", {
                 return;
             }
         }
-        var charges = Ext.Object.getKeys(selectedChargeType);
+
+	var charges = [];
+	var chargesStore = me.chargeTypesPanel.grid.store;
+	chargesStore.each(function(record){
+	    if (record){
+		charges.push(record.get("CID"))	
+	    }
+	})
 
         if (products && products.length > 0){
             result["products"] = products;
