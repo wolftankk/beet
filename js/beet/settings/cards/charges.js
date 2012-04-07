@@ -592,8 +592,9 @@ Ext.define("Beet.apps.cards.AddCharge", {
 
 Ext.define("Beet.apps.cards.UpdateCharge", {
   extend: "Ext.panel.Panel",
-  height: Beet.constants.VIEWPORT_HEIGHT - 5,
+  height: "100%",
   width: "100%",
+  layout: "fit",
   border: false,
   plain: true,
   initComponent: function(){
@@ -608,7 +609,7 @@ Ext.define("Beet.apps.cards.ChargeList", {
   extend: "Ext.panel.Panel",
   autoHeight: true,
   autoScroll: true,
-  height: Beet.constants.VIEWPORT_HEIGHT - 5,
+  height: "100%",
   width: "100%",
   frame: true,
   border: false,
@@ -624,7 +625,7 @@ Ext.define("Beet.apps.cards.ChargeList", {
 
     me.callParent();
     me.mainPanel = Ext.create("Ext.panel.Panel", {
-      height: (me.b_type == "selection" ? "95%" : "100%"),
+      height: "100%",
       width: "100%",
       autoHeight: true,
       autoScroll: true,
@@ -868,15 +869,22 @@ Ext.define("Beet.apps.cards.ChargeList", {
     me.mainPanel.doLayout();
 
     if (me.b_type == "selection"){
-      me.add(Ext.widget("button", {
-        text: "确定",
-        handler: function(){
-          if (me.b_selectionCallback){
-            me.b_selectionCallback(me.selModel.getSelection());
-          }
-        }
-      }))
-      me.doLayout();
+	me.addDocked(Ext.widget("toolbar", {	  
+	    dock: "bottom",
+	    items: [
+		"->",
+		{
+		    xtype: "button",
+		    text: "确定",
+		    handler: function(){
+		      if (me.b_selectionCallback){
+			me.b_selectionCallback(me.selModel.getSelection());
+		      }
+		    }
+		}
+	    ]
+	}))
+	me.doLayout();
     }
   },
   filterProducts: function(){
