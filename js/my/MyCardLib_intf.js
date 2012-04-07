@@ -1929,12 +1929,13 @@ MyCardSvc.prototype.GetConsumerDetailData = function(OnlySchema, AWhere, __callb
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyCardSvc.prototype.GetConsumerNotFinishData = function(OnlySchema, AWhere, __callback) {
+MyCardSvc.prototype.GetConsumerNotFinishData = function(OnlySchema, AWhere, bIsItem, __callback) {
   var __message = {
     "method" : "MyCardSvc.GetConsumerNotFinishData",
     "params" : {
       "OnlySchema": OnlySchema,
-      "AWhere": AWhere
+      "AWhere": AWhere,
+      "bIsItem": bIsItem
       }
   }
   var __callbacks = null;

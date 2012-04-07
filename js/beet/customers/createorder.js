@@ -175,6 +175,12 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 					    fieldLabel: "卡内本金",
 					    value: 0
 					},
+					{
+					    fieldLabel: "订单价格",
+					    xtype: "displayfield",
+					    name: "orderprice",
+					    value: 0
+					},
                                         {
                                             xtype: "toolbar",
                                             ui: "",
@@ -183,13 +189,22 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                                                 border: "0"
                                             },
                                             items: [
-						{
-						    fieldLabel: "订单价格",
-						    xtype: "displayfield",
-						    name: "orderprice",
-						    value: 0
-						},
                                                 "->",
+						{
+						    xtype: "button",
+						    text : "剩余数据",
+						    name : "customerHData",
+						    handler: function(){
+							Beet.constants.cardServer.GetConsumerNotFinishData(true, "", true, {
+							    success: function(data){
+								console.log(data)
+							    },
+							    failure: function(error){
+								Ext.Error.raise(error)
+							    }
+							})
+						    }
+						},
 						{
 						    xtype: "button",
 						    text: "绑定套餐",
@@ -883,7 +898,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         var options = {
             autoScroll: true,
             autoHeight: true,
-            height: Beet.constants.VIEWPORT_HEIGHT - 270,
+            height: Beet.constants.VIEWPORT_HEIGHT - 290,
             width: Beet.constants.WORKSPACE_WIDTH * (1/3) - 10,
             cls: "iScroll",
             border: false,
