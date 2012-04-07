@@ -612,7 +612,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     }
                 };
 
-                me.itemsPanel.__fields = fields.concat([{name: "isgiff", type: "bool"}, "packageName", "packageId" , "itemDuration", "itemPrice", "_uuid"]);
+                me.itemsPanel.__fields = fields.concat([{name: "isgiff", type: "bool"}, "packageName", "packageId" , "itemDuration", "itemPrice", "maxCount", "_uuid"]);
                 me.itemsPanel.__columns = columns.concat([
 		    {
 			dataIndex: "itemDuration",
@@ -651,6 +651,17 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			dataIndex: "packageName",
 			header: "所属套餐",
 			flex: 1
+		    },
+		    {
+			dataIndex: "maxCount",
+			header: "最大消费次数",
+			flex: 1,
+			field: {
+			    xtype: "numberfield",
+			    minValue: 1,
+			    step: 1,
+			    allowDecimals: false
+			}
 		    }
                 ]);
                 me.initializeItemsGrid();
@@ -1503,7 +1514,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		    itemId = record.get("IID"),
 		    itemDuration = parseInt(record.get("itemDuration")),
 		    itemPrice  = parseFloat(record.get("itemPrice")),
-		    packageId = record.get("packageId")
+		    packageId = record.get("packageId"),
+		    maxCount  = record.get("maxCount"),
 		    tabId = "tab" + uuid, tab = me.tabCache[tabId],
 		    employees = [], employeeStore = tab.grid.getStore();
 		    for (var s = 0; s < employeeStore.getCount(); ++s){
@@ -1519,7 +1531,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			itemid: itemId,
 			timelength: itemDuration,
 			isgiff: isgiff,
-			employees: employees
+			employees: employees,
+			maxcount: maxCount
 		    }
 
 		    if (!!packageId){
@@ -1540,8 +1553,6 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	    }
         }
 
-	console.log(results)
-        
         cardServer.AddConsumer(Ext.JSON.encode(results), {
             success: function(succ){
                 if (succ){
