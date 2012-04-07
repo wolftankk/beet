@@ -1050,10 +1050,6 @@ Ext.define("Beet.apps.cards.ItemPriceList", {
 })
 
 
-
-
-
-
 Ext.define("Beet.apps.cards.ItemList", {
     extend: "Ext.panel.Panel",
     height: "100%",
@@ -1068,8 +1064,10 @@ Ext.define("Beet.apps.cards.ItemList", {
     _editType: "add",
     initComponent: function(){
         var me = this, cardServer = Beet.constants.cardServer;
+
         me.selectedProducts = {};
         me.selectedChargeType = {};
+
         me.itemList = {};//save store fields columns and grid
         me.itemList.cache = {};//cache itemdata
         me.selectedItemId = 0;
@@ -1084,6 +1082,7 @@ Ext.define("Beet.apps.cards.ItemList", {
         var _actions = {
             xtype: 'actioncolumn',
             width: 60,
+	    header: "操作",
             items: [
             ]
         }
@@ -1488,23 +1487,7 @@ Ext.define("Beet.apps.cards.ItemList", {
             return;
         }
         var columns = me.productsPanel.__columns = [];
-        var _actions = {
-            xtype: 'actioncolumn',
-            width: 30,
-            items: [
-            ]
-        }
-        //_actions.items.push("-",{
-        //    icon: "./resources/themes/images/fam/delete.gif",
-        //    tooltip: "删除消耗产品",
-        //    id: "customer_grid_delete",
-        //    handler: function(grid, rowIndex, colIndex){
-        //        var d = grid.store.getAt(rowIndex)
-        //        me.deleteProducts(d);
-        //    }
-        //}, "-");
 
-        //columns.push(_actions);
         cardServer.GetItemProductData(-1, {
             success: function(data){
                 var data = Ext.JSON.decode(data)["MetaData"];
@@ -1528,8 +1511,7 @@ Ext.define("Beet.apps.cards.ItemList", {
         });
     },
     initializeProductsGrid: function(){
-        var me = this, selectedProducts = me.selectedProducts;
-        var __fields = me.productsPanel.__fields;
+        var me = this, __fields = me.productsPanel.__fields;
 
         if (me.productsPanel.grid == undefined){
             var store = Ext.create("Ext.data.ArrayStore", {
@@ -1583,8 +1565,8 @@ Ext.define("Beet.apps.cards.ItemList", {
 
     },
     addProducts: function(records, isRaw){
-        var me = this, selectedProducts = me.selectedProducts;
-        var __fields = me.productsPanel.__fields;
+        var me = this, store = me.productsPanel.grid.store;
+
         if (records == undefined){return;}
         for (var r = 0; r < records.length; ++r){
             var record = records[r];
@@ -1596,38 +1578,14 @@ Ext.define("Beet.apps.cards.ItemList", {
                 pid = record.get("PID");
                 rawData = record.raw;
             }
-            if (selectedProducts[pid] == undefined){
-                selectedProducts[pid] = []
-            }else{
-                selectedProducts[pid] = [];
-            }
 
-            for (var c = 0; c < __fields.length; ++c){
-                var k = __fields[c];
-                selectedProducts[pid].push(rawData[k]);
-            }
+	    store.add(store);
         }
-
-        me.updateProductsPanel();
     },
     deleteProducts: function(record){
-        var me = this, selectedProducts = me.selectedProducts;
+        var me = this, store = me.productsPanel.grid.store;
         var pid = record.get("PID");
-        if (selectedProducts[pid]){
-            selectedProducts[pid] = null;
-            delete selectedProducts[pid];
-        }
-
-        me.updateProductsPanel();
-    },
-    updateProductsPanel: function(){
-        var me = this, selectedProducts = me.selectedProducts;
-        var grid = me.productsPanel.grid, store = grid.getStore();
-        var tmp = []
-        for (var c in selectedProducts){
-            tmp.push(selectedProducts[c]);
-        }
-        store.loadData(tmp);
+	store.remove(record);
     },
     initializeChargeTypePanel: function(){
         var me = this, cardServer = Beet.constants.cardServer;
@@ -1635,23 +1593,6 @@ Ext.define("Beet.apps.cards.ItemList", {
             return;
         }
         var columns = me.chargeTypesPanel.__columns = [];
-        var _actions = {
-            xtype: 'actioncolumn',
-            width: 30,
-            items: [
-            ]
-        }
-        //_actions.items.push("-",{
-        //    icon: "./resources/themes/images/fam/delete.gif",
-        //    tooltip: "删除费用",
-        //    id: "customer_grid_delete",
-        //    handler: function(grid, rowIndex, colIndex){
-        //        var d = grid.store.getAt(rowIndex)
-        //        me.deleteChargeType(d);
-        //    }
-        //}, "-");
-
-        columns.push(_actions);
         cardServer.GetChargeTypePageData(0, 1, "", {
             success: function(data){
                 var data = Ext.JSON.decode(data)["MetaData"];
@@ -1675,8 +1616,7 @@ Ext.define("Beet.apps.cards.ItemList", {
         });
     },
     initializeChargeGrid: function(){
-        var me = this, selectedChargeType = me.selectedChargeType;
-        var __fields = me.chargeTypesPanel.__fields;
+        var me = this, __fields = me.chargeTypesPanel.__fields;
         var store = Ext.create("Ext.data.ArrayStore", {
             fields: __fields
         })
@@ -1726,13 +1666,8 @@ Ext.define("Beet.apps.cards.ItemList", {
         win.doLayout();
     },
     addChargeType: function(records, isRaw){
-        var me = this, selectedChargeType = me.selectedChargeType;
-        var __fields = me.chargeTypesPanel.__fields;
-        if (records == undefined){
-            selectedChargeType = {};
-            me.updateChargeTypePanel();
-            return;
-        }
+        var me = this, store = me.chargeTypesPanel.grid.store;
+
         for (var r = 0; r < records.length; ++r){
             var record = records[r];
             var cid, rawData;
@@ -1743,38 +1678,15 @@ Ext.define("Beet.apps.cards.ItemList", {
                 cid = record.get("CID");
                 rawData = record.raw;
             }
-            if (selectedChargeType[cid] == undefined){
-                selectedChargeType[cid] = []
-            }else{
-                selectedChargeType[cid] = [];
-            }
-            for (var c = 0; c < __fields.length; ++c){
-                var k = __fields[c];
-                selectedChargeType[cid].push(rawData[k]);
-            }
-        }
 
-        me.updateChargeTypePanel();
+	    store.add(rawData);
+        }
     },
     deleteChargeType: function(record){
-        var me = this, selectedChargeType = me.selectedChargeType;
+        var me = this, store = me.chargeTypesPanel.grid.store;
         var cid = record.get("CID");
-        if (selectedChargeType[cid]){
-            selectedChargeType[cid] = null;
-            delete selectedChargeType[cid];
-        }
 
-        me.updateChargeTypePanel();
-    },
-    updateChargeTypePanel: function(){
-        var me = this, selectedChargeType = me.selectedChargeType;
-        var grid = me.chargeTypesPanel.grid, store = grid.getStore();
-        var __fields = me.chargeTypesPanel.__fields;
-        var tmp = []
-        for (var c in selectedChargeType){
-            tmp.push(selectedChargeType[c]);
-        }
-        store.loadData(tmp);
+	store.remove(record);
     },
     editItem: function(record){
         var me = this, cardServer = Beet.constants.cardServer;
@@ -1864,8 +1776,7 @@ Ext.define("Beet.apps.cards.ItemList", {
     },
     onSelectItem: function(grid, record, item, index, e){
         var me = this, cardServer = Beet.constants.cardServer;
-        me.selectedProducts = {};//reset
-        me.selectedChargeType = {};
+
         me.resetAll();
 
         var itemId = record.get("IID");
@@ -1924,12 +1835,12 @@ Ext.define("Beet.apps.cards.ItemList", {
         //me.chargeTypesPanel.expand();
     },
     resetAll: function(){
-        var me = this;
-        //reset all
-        me.selectedChargeType = {};
-        me.selectedProducts = {};    
-        me.updateProductsPanel();
-        me.updateChargeTypePanel();
+        var me = this,
+	    productsStore = me.productsPanel.grid.store,
+	    chargesStore  = me.chargeTypesPanel.grid.store;
+
+	productsStore.removeAll();
+	chargesStore.removeAll();
 
         if (me.itemList.cache[me.selectedItemId]){
             me.itemList.cache[me.selectedItemId] = {};
