@@ -36,7 +36,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         me.selectedItemIndex = 0;//init index
 
         me.selectedItems = {};
-	me.selectedProducts = {};
+
 	me.selectedPackages = {};
 
         me.canEditOrder = true;
@@ -190,21 +190,6 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                                             },
                                             items: [
                                                 "->",
-						{
-						    xtype: "button",
-						    text : "剩余数据",
-						    name : "customerHData",
-						    handler: function(){
-							Beet.constants.cardServer.GetConsumerNotFinishData(false, "", true, {
-							    success: function(data){
-								console.log(data)
-							    },
-							    failure: function(error){
-								Ext.Error.raise(error)
-							    }
-							})
-						    }
-						},
 						{
 						    xtype: "button",
 						    text: "绑定套餐",
@@ -396,6 +381,72 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             }
         })
     },
+    showNotFinishPanel: function(){
+	var me = this, cardServer = Beet.constants.cardServer;
+	var win = Ext.create("Ext.window.Window", {
+	    width: 800,
+	    height: 600,
+	    title: "继续消费",
+	    layout: {
+		type: "vbox"
+	    }
+	});
+
+	var itemColumns = Ext.clone(me.itemsPanel.__columns);
+	itemColumns.shift();
+	var itemGrid = Ext.create("Ext.grid.Panel", {
+	    store: me.itemsPanel.customerStore,
+	    flex: 1,
+	    width: "100%",
+	    cls: "iScroll",
+	    selModel: Ext.create("Ext.selection.CheckboxModel", { mode : "MULTI"}),
+	    autoScroll: true,
+	    columnLines: true,
+	    title: "剩余项目列表",
+	    columns: itemColumns 
+	});
+	win.add(itemGrid);
+
+	var productColumns = Ext.clone(me.productsPanel.__columns);
+	productColumns.shift();
+	var productGrid = Ext.create("Ext.grid.Panel", {
+	    store: me.productsPanel.customerStore,
+	    flex: 1,
+	    width: "100%",
+	    cls: "iScroll",
+	    selModel: Ext.create("Ext.selection.CheckboxModel", { mode : "MULTI"}),
+	    autoScroll: true,
+	    columnLines: true,
+	    title: "剩余产品列表",
+	    columns: productColumns
+	});
+	win.add(productGrid);
+
+	win.add({
+	    xtype: "toolbar",
+	    dock : "bottom",
+	    width: "100%",
+	    items: [
+		"->",
+		{
+		    xtype: "button",
+		    text : "确定",
+		    handler: function(){
+			var records = itemGrid.selModel.getSelection();
+			me.addItems(records);
+
+			var products= productGrid.selModel.getSelection();
+			me.addProducts(products);
+
+			win.hide();
+		    }
+		}
+	    ]   
+	})
+
+
+	win.show();
+    },
     onSelectCustomer: function(records){
         var record, me = this, cardServer = Beet.constants.cardServer;
         var form = me.getForm();
@@ -413,6 +464,34 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         //get
         var rawData = record.raw;
         var CTGUID = rawData.CTGUID;
+
+	cardServer.GetConsumerNotFinishData(false, "CustomerID='"+CTGUID+"'", false, {
+	    success: function(data){
+		var data = Ext.JSON.decode(data);
+		data = data["Data"];
+		for (var c = 0; c < data.length; c++){
+		    var product = data[c];
+		    me.loadNotFinishProduct(product);
+		}
+	    },
+	    failure: function(error){
+		Ext.Error.raise(error);
+	    }
+	});
+	//items
+	cardServer.GetConsumerNotFinishData(false, "CustomerID='"+CTGUID+"'", true, {
+	    success: function(data){
+		var data = Ext.JSON.decode(data);
+		data = data["Data"];
+		for (var c = 0; c < data.length; c++){
+		    var item = data[c];
+		    me.loadNotFinishItem(item);
+		}
+	    },
+	    failure: function(error){
+		Ext.Error.raise(error);
+	    }
+	})
 
         cardServer.GetCustomerAccountData(false, "CustomerID='"+CTGUID+"'", {
             success: function(data){
@@ -451,6 +530,57 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             }
         })
     },
+
+    loadNotFinishItem: function(item){
+	var me = this, cardServer = Beet.constants.cardServer;
+	var itemId = item["ItemID"];
+	cardServer.GetItemPageData(0, 1, "IID='" + itemId + "'", {
+	    success: function(data){
+		var data = Ext.JSON.decode(data);
+		data = data["Data"][0];
+		data["isgiff"] = item["IsGiff"];
+		data["itemDuration"] = item["TimeLength"];
+		data["itemPrice"] = item["Price"];
+		data["indexno"] = item["IndexNo"];
+		data["lastCount"] = item["LastCount"];
+		data["packageId"] = item["PackageID"];
+		data["packageName"] = item["PackageName"];
+		data["_groupName"] = "继续消费项目";
+
+
+		//console.log(item, data)
+		me.itemsPanel.customerStore.add(data);
+	    },
+	    failure: function(){
+	    }
+	})	
+    },
+
+    loadNotFinishProduct: function(product){
+	var me = this, cardServer = Beet.constants.cardServer;
+	var productId = product["ProductID"];
+	cardServer.GetProductPageData(0, 1, "PID='" + productId + "'", {
+	    success: function(data){
+		var data = Ext.JSON.decode(data);
+		data = data["Data"][0];
+
+		data["itemName"] = product["ItemName"];
+		data["itemId"]   = product["ItemID"];
+		data["packageName"] = product["PackageName"];
+		data["packageId"] = product["PackageID"];
+		data["lastCount"] = product["LastCount"];
+		//消耗价格
+		data["_price"] = product["Price"];
+		data["COUNT"] = product["Count"];
+		data["_groupName"] = "继续消费产品"
+
+		me.productsPanel.customerStore.add(data);
+	    },
+	    failure: function(){
+	    }
+	})
+    },
+
     createNewOrderPanel: function(){
         var me = this;
         var options = {
@@ -483,6 +613,14 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         me.itemsPanel= Ext.widget("panel", Ext.apply(options, {
             title: "消费项目列表",
             tbar: [
+		{
+		    xtype: "button",
+		    text : "继续消费",
+		    name : "customerHData",
+		    handler: function(){
+			me.showNotFinishPanel();
+		    }
+		},
                 {
                     xtype: "button",
                     text: "指定项目",
@@ -627,7 +765,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     }
                 };
 
-                me.itemsPanel.__fields = fields.concat([{name: "isgiff", type: "bool"}, "packageName", "packageId" , "itemDuration", "itemPrice", "maxCount", "_uuid"]);
+                me.itemsPanel.__fields = fields.concat([{name: "isgiff", type: "bool"}, "packageName", "packageId" , "itemDuration", "itemPrice", "maxCount", "lastCount", "indexno", "_uuid", "_groupName"]);
                 me.itemsPanel.__columns = columns.concat([
 		    {
 			dataIndex: "itemDuration",
@@ -677,6 +815,11 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			    step: 1,
 			    allowDecimals: false
 			}
+		    },
+		    {
+			dataIndex: "lastCount",
+			header: "剩余次数",
+			flex: 1
 		    }
                 ]);
                 me.initializeItemsGrid();
@@ -693,8 +836,12 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         if (me.itemsPanel.grid == undefined){
             var store = Ext.create("Ext.data.ArrayStore", {
                 fields: __fields,
-		groupField: "packageName"
-            })
+		groupField: "_groupName"
+            });
+
+	    me.itemsPanel.customerStore = Ext.create("Ext.data.ArrayStore", {
+	        fields: __fields	
+	    })
 
 	    var groupingFeature = Ext.create('Ext.grid.feature.Grouping',{
 		groupHeaderTpl: '{name} ({rows.length})'
@@ -716,6 +863,20 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			    beforeedit: function(e){
 				var record = e.record, itemID = record.get("IID");
 				var field = e.column.field
+
+				//get maxCount filed
+				if (field && field.ownerCt){
+				    var form = field.ownerCt;
+				    form.on("show", function(){
+					var maxCountField = form.down("numberfield[name=maxCount]");
+					if (!!record.get("indexno")){
+					    maxCountField.setEditable(false);
+					}else{
+					    maxCountField.setEditable(true);
+					}
+				    })
+				}
+
 				if (field && field.store){
 				    var store = field.store; 
 				    cardServer.GetItemPricePageData(0, 999, "IID='"+itemID+"' AND IsMember = 1 ", {
@@ -806,9 +967,16 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	    //这里index需要修改规则
             rawData["_uuid"] = Beet.uuid.get();
 
-	    if (rawData["packageName"] == undefined){
-		rawData["packageName"] = "消费项目";
-		rawData["packageId"]   = -1;
+	    if (!rawData["_groupName"]){
+		if (!!rawData["itemName"]){
+		    rawData["_groupName"] = "所属项目: " + rawData["itemName"]
+		}else{
+		    if (!!rawData["packageName"]){
+			rawData["_groupName"] = "所属套餐: " + rawData["packageName"]
+		    }else{
+			rawData["_groupName"] = "其余项目";
+		    }
+		}
 	    }
 
 	    //create a new?
@@ -1179,7 +1347,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     }
                 }
 
-		me.productsPanel.__fields = fields.concat(["itemName", "itemId", "packageName", "packageId", "maxCount", "_groupName", "_price"]);
+		me.productsPanel.__fields = fields.concat(["itemName", "itemId", "packageName", "packageId", "maxCount", "lastCount", "_groupName", "_price"]);
 		me.productsPanel.__columns = columns.concat([
 		    {
 			dataIndex: "_price",
@@ -1196,6 +1364,11 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			    step: 1,
 			    allowDecimals: false
 			}
+		    },
+		    {
+			dataIndex: "lastCount",
+			header: "剩余次数",
+			flex : 1
 		    },
 		    {
 			header: "所属项目",
@@ -1217,7 +1390,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         });
     },
     initializeProductsGrid: function(){
-        var me = this, selectedProducts = me.selectedProducts;
+        var me = this;
         var __fields = me.productsPanel.__fields;
 
         if (me.productsPanel.grid == undefined){
@@ -1225,6 +1398,10 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 fields: __fields,
 		groupField: "_groupName"
             })
+
+	    me.productsPanel.customerStore = Ext.create("Ext.data.ArrayStore", {
+	        fields: __fields	
+	    })
 
 	    var groupingFeature = Ext.create('Ext.grid.feature.Grouping',{
 		groupHeaderTpl: '{name} ({rows.length})'
@@ -1257,7 +1434,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				}
 			    },
 			    edit: function(e){
-				//var record = e.record, pid = record.get("PID");
+				var record = e.record, pid = record.get("PID");
 				//if (me.selectedProducts[pid]){
 				//    me.selectedProducts[pid][__fields.length - 3] = record.get("COUNT")
 				//    me.selectedProducts[pid][__fields.length - 2] = record.get("_isMember")
@@ -1265,6 +1442,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				//}
 				//me.updateProductsPanel();
 				//me.autoCalculate();
+				record.commit();
 			    }
                         }
                     })
@@ -1308,7 +1486,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         win.doLayout();
     },
     addProducts: function(records, isRaw){
-        var me = this, selectedProducts = me.selectedProducts;
+        var me = this;
 	var store = me.productsPanel.grid.store;
         var __fields = me.productsPanel.__fields;
 
@@ -1321,16 +1499,18 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 rawData = record;
             }else{
                 pid = record.get("PID");
-                rawData = record.raw;
+                rawData = record.raw || record.data;
             }
 
-	    if (!!rawData["itemName"]){
-		rawData["_groupName"] = "所属项目: " + rawData["itemName"]
-	    }else{
-		if (!!rawData["packageName"]){
-		    rawData["_groupName"] = "所属套餐: " + rawData["packageName"]
+	    if (!rawData["_groupName"]){
+		if (!!rawData["itemName"]){
+		    rawData["_groupName"] = "所属项目: " + rawData["itemName"]
 		}else{
-		    rawData["_groupName"] = "其余产品";
+		    if (!!rawData["packageName"]){
+			rawData["_groupName"] = "所属套餐: " + rawData["packageName"]
+		    }else{
+			rawData["_groupName"] = "其余产品";
+		    }
 		}
 	    }
 
@@ -1339,7 +1519,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	return store.add(list);
     },
     deleteProducts: function(record){
-        var me = this, selectedProducts = me.selectedProducts;
+        var me = this;
 	var store = me.productsPanel.grid.store;
 	//check has item?
 	itemName = record.get("itemName");
@@ -1458,8 +1638,6 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	    productsStore = me.productsPanel.grid.getStore();
 	var cost = 0;
 
-	var selectedProducts = me.selectedProducts;
-	var selectedItems    = me.selectedItems;
 	//for (var c = 0; c < itemsStore.getCount(); ++c){
 	//    var item = itemsStore.getAt(c);
 	//    var isgiff = item.get("isgiff"), price = item.get("itemPrice");
