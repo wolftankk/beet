@@ -215,12 +215,6 @@ Ext.define("Beet.apps.employees.EmployeeList", {
                 stripeRows: true    
             },
             columns: me.columns,
-            bbar: Ext.create("Ext.PagingToolbar", {
-                store: store,
-                displayInfo: true,
-                displayMsg: '当前显示 {0} - {1} 到 {2}',
-                emptyMsg: "没有数据"
-            }),
             tbar: [
                 "-",
                 {
@@ -246,43 +240,29 @@ Ext.define("Beet.apps.employees.EmployeeList", {
                     }
                 }
             ],
-	    bbar: [
-		"->",
-		{
-		    text: "确定",
-		    hidden: me.b_type != "selection",
-		    style: {
-			float: "right"
-		    },
-		    width: 100,
-		    handler: function(){
-			if (me.b_selectionCallback){
-			    me.b_selectionCallback(me.grid.selModel.getSelection());
-			}
-		    }
-		}
-	    ]
-	    //bbar: Ext.create('Ext.PagingToolbar', {
-	    //    store: store,
-	    //    displayInfo: true,
-	    //    displayMsg: '当前显示 {0} - {1}, 总共{2}条数据',
-	    //    emptyMsg: "没有数据",
-	    //    items: [
-	    //        {
-	    //    	text: "确定",
-	    //    	hidden: me.b_type != "selection",
-	    //    	style: {
-	    //    	    float: "right"
-	    //    	},
-	    //    	width: 100,
-	    //    	handler: function(){
-	    //    	    if (me.b_selectionCallback){
-	    //    		me.b_selectionCallback(me.grid.selModel.getSelection());
-	    //    	    }
-	    //    	}
-	    //        }
-	    //    ]
-	    //})
+	    bbar: Ext.create('Ext.PagingToolbar', {
+	        store: store,
+	        displayInfo: false,
+	        displayMsg: '当前显示 {0} - {1}, 总共{2}条数据',
+	        emptyMsg: "没有数据",
+	        items: [
+		    "->",
+		    {xtype: 'tbtext', itemId: 'displayItem'},
+	            {
+	        	text: "确定",
+	        	hidden: me.b_type != "selection",
+	        	style: {
+	        	    float: "right"
+	        	},
+	        	width: 100,
+	        	handler: function(){
+	        	    if (me.b_selectionCallback){
+	        		me.b_selectionCallback(me.grid.selModel.getSelection());
+	        	    }
+	        	}
+	            }
+	        ]
+	    })
         });
         me.add(me.grid);
         me.doLayout();

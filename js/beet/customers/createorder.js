@@ -195,7 +195,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 						    text : "剩余数据",
 						    name : "customerHData",
 						    handler: function(){
-							Beet.constants.cardServer.GetConsumerNotFinishData(true, "", true, {
+							Beet.constants.cardServer.GetConsumerNotFinishData(false, "", true, {
 							    success: function(data){
 								console.log(data)
 							    },
@@ -718,7 +718,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				var field = e.column.field
 				if (field && field.store){
 				    var store = field.store; 
-				    cardServer.GetItemPricePageData(0, 999, "IID='"+itemID+"'", {
+				    cardServer.GetItemPricePageData(0, 999, "IID='"+itemID+"' AND IsMember = 1 ", {
 					success: function(data){
 					    var data = Ext.JSON.decode(data);
 					    data = data["Data"];
