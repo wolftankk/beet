@@ -602,6 +602,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		data["packageName"] = product["PackageName"];
 		data["packageId"] = product["PackageID"];
 		data["lastCount"] = product["LastCount"];
+		data["indexno"]  = product["IndexNo"];
 		//消耗价格
 		data["_price"] = product["Price"];
 		data["COUNT"] = product["Count"];
@@ -906,16 +907,10 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				var field = e.column.field
 
 				//get maxCount filed
-				if (field && field.ownerCt){
-				    var form = field.ownerCt;
-				    form.on("show", function(){
-					var maxCountField = form.down("numberfield[name=maxCount]");
-					if (!!record.get("indexno")){
-					    maxCountField.setEditable(false);
-					}else{
-					    maxCountField.setEditable(true);
-					}
-				    })
+				var indexno = record.get("indexno");
+				if (!!indexno && indexno != Beet.constants.FAILURE){
+				    Ext.MessageBox.alert("错误", "该项目无法修改, 因为此项目是继续消费项目, 只能指定服务人员");
+				    return false;
 				}
 
 				if (field && field.store){
@@ -946,8 +941,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 ],
                 listeners: {
                     itemdblclick: function(grid,record,item,index, e){
-                        var cardNo = record.data["CardNo"];
-                        me.tapTabPanel(grid, record, item, index, e, cardNo, grid.getStore());
+                        //me.tapTabPanel(record, grid.getStore());
                     }
                 }
             });
@@ -1005,7 +999,6 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 rawData = record.raw || record.data;
             }
 
-	    //这里index需要修改规则
             rawData["_uuid"] = Beet.uuid.get();
 
 	    if (!rawData["_groupName"]){
@@ -1020,8 +1013,6 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		}
 	    }
 
-	    //create a new?
-	    // return an array
 	    var newRecord = store.add(rawData);
 	    newRecord = newRecord.shift();
 	    me.loadProductFromItem(newRecord);
@@ -1029,6 +1020,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	    selectedItems[uuid] = {
 		item: newRecord
 	    }
+
+	    me.tapTabPanel(newRecord, store);
+	    //同时创建tab
         }
     },
     loadProductFromItem: function(item){
@@ -1120,7 +1114,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         me.leftPanel.add(me.listTabPanel);
         me.leftPanel.doLayout();
     },
-    tapTabPanel: function(grid, record, item, index, e, cardid, store){
+    tapTabPanel: function(record, store){
         var me = this, tabId, itemId = record.get("_uuid");
         tabId = "tab"+itemId;
         if (me.tabCache == undefined){
@@ -1132,10 +1126,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             me.listTabPanel.setActiveTab(me.tabCache[tabId])
         }else{
             var tab = me.tabCache[tabId] = me.listTabPanel.add({
-                title: record.get("IName") + (!!cardid ? " - (卡)" : ""),
+                title: record.get("IName") + ( "(" + itemId + ")"),
                 inTab: true,
                 _tabid: tabId,
-                _cardid : cardid,
                 _itemStore: store,
                 items: [
                     {
@@ -1465,6 +1458,13 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				var record = e.record;
 				var field = e.column.field
 				field.record = record;
+
+				var indexno = record.get("indexno");
+				if (!!indexno && indexno != Beet.constants.FAILURE){
+				    Ext.MessageBox.alert("错误", "该产品无法修改, 此产品是继续消费的产品");
+				    return false;
+				}
+
 				if (!!record.get("itemName")){
 				    Ext.MessageBox.show({
 					title: "错误",
@@ -1730,6 +1730,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		pname = record.get("PName"),
 		packageId = record.get("packageId"),
 		maxCount = record.get("maxCount"),
+		indexno = record.get("indexno"),
+		lastCount = record.get("lastCount"),
 		itemId = record.get("itemId");
 
 	    if (count < 0){
@@ -1739,9 +1741,21 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 
 	    var p = {
 		pid: pid,
-		count: count,
-		maxcount: maxCount,
-		indexno: Beet.constants.FAILURE
+		count: count
+	    }
+
+	    if (indexno){
+		p["indexno"] = indexno;
+	    }else{
+		p["indexno"] = Beet.constants.FAILURE;
+	    }
+
+	    if (!!maxCount){
+		p["maxcount"] = maxCount;
+	    }
+
+	    if (!!lastCount){
+		p["maxcount"] = lastCount;
 	    }
 
 	    if (!!itemId){
@@ -1766,6 +1780,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		    itemPrice  = parseFloat(record.get("itemPrice")),
 		    packageId = record.get("packageId"),
 		    maxCount  = record.get("maxCount"),
+		    indexno = record.get("indexno"),
+		    lastCount = record.get("lastCount"),
 		    tabId = "tab" + uuid, tab = me.tabCache[tabId],
 		    employees = [], employeeStore = tab.grid.getStore();
 		    for (var s = 0; s < employeeStore.getCount(); ++s){
@@ -1781,9 +1797,21 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			itemid: itemId,
 			timelength: itemDuration,
 			isgiff: isgiff,
-			employees: employees,
-			maxcount: maxCount,
-			indexno: Beet.constants.FAILURE
+			employees: employees
+		    }
+
+		    if (indexno){
+			c["indexno"] = indexno;
+		    }else{
+			c["indexno"] = Beet.constants.FAILURE;
+		    }
+
+		    if (!!maxCount){
+			c["maxcount"] = maxCount;
+		    }
+
+		    if (!!lastCount){
+			c["maxcount"] = lastCount;
 		    }
 
 		    if (!!packageId){
