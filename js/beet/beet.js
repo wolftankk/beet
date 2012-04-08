@@ -62,6 +62,17 @@ if (!Beet.constants.now){
     Beet.constants.timezoneOffset = now.getTimezoneOffset() * 60;
 }
 
+(function(window){
+    var uuid = 1;
+    
+    function get(){
+	return uuid++;
+    }
+
+    Beet.uuid = {};
+    Beet.uuid.get = get;
+})(window)
+
 function registerMenu(type, name, title, data){
     if (!Beet.menus[type]){
         throw new Error("This `" + type + "` has not registed")

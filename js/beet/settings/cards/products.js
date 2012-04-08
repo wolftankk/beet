@@ -47,10 +47,6 @@ Ext.define("Beet.apps.cards.AddProducts", {
     me.add(me.mainPanel);
     me.doLayout();
     
-    //Ext.bind(createCategoryTree, me)();
-    //me.createTreeList();
-
-    //me.updateTreeListEvent(true)
     me.createMainPanel();
   },
   createMainPanel: function(){
@@ -358,6 +354,9 @@ Ext.define("Beet.apps.cards.UpdateProducts", {
   extend: "Ext.panel.Panel",
   border: false,
   plain: true,
+  width: "100%",
+  height: "100%",
+  layout: "fit",
   initComponent: function(){
     var me = this;
     me.callParent();
@@ -673,7 +672,7 @@ Ext.define("Beet.apps.cards.ProductsList", {
   extend: "Ext.panel.Panel",
   autoHeight: true,
   autoScroll: true,
-  height: Beet.constants.VIEWPORT_HEIGHT - 1,
+  height: "100%",
   width: "100%",
   frame: true,
   border: false,
@@ -689,7 +688,7 @@ Ext.define("Beet.apps.cards.ProductsList", {
     
     me.callParent();
     me.mainPanel = Ext.create("Ext.panel.Panel", {
-      height: (me.b_type == "selection" ? "95%" : "100%"),
+      height: "100%",
       width: "100%",
       autoHeight: true,
       autoScroll: true,
@@ -858,7 +857,6 @@ Ext.define("Beet.apps.cards.ProductsList", {
       flex: 1,
       cls: "iScroll",
       selModel: sm,
-      width: "100%",
       height: me.editable ? "100%" : "95%",
       columnLines: true,
       viewConfig:{
@@ -910,15 +908,23 @@ Ext.define("Beet.apps.cards.ProductsList", {
     me.mainPanel.doLayout();
 
     if (me.b_type == "selection"){
-      me.add(Ext.widget("button", {
-        text: "确定",
-        floating: false,
-        handler: function(){
-          if (me.b_selectionCallback){
-            me.b_selectionCallback(me.selModel.getSelection());
-          }
-        }
+      me.addDocked(Ext.widget("toolbar", {
+	dock: "bottom",
+	items: [
+	    "->",
+	    {
+		xtype: "button",
+		text: "确定",
+		floating: false,
+		handler: function(){
+		  if (me.b_selectionCallback){
+		    me.b_selectionCallback(me.selModel.getSelection());
+		  }
+		}
+	    }
+	]	  
       }))
+
       me.doLayout();
     }
   },

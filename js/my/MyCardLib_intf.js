@@ -1929,6 +1929,42 @@ MyCardSvc.prototype.GetConsumerDetailData = function(OnlySchema, AWhere, __callb
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
+MyCardSvc.prototype.GetConsumerNotFinishData = function(OnlySchema, AWhere, bIsItem, __callback) {
+  var __message = {
+    "method" : "MyCardSvc.GetConsumerNotFinishData",
+    "params" : {
+      "OnlySchema": OnlySchema,
+      "AWhere": AWhere,
+      "bIsItem": bIsItem
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
 MyCardSvc.prototype.GetConsumerPageData = function(Start, Limit, AWhere, __callback) {
   var __message = {
     "method" : "MyCardSvc.GetConsumerPageData",
@@ -2245,42 +2281,6 @@ MyCardSvc.prototype.GetItemCharges = function(AItemID, __callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyCardSvc.prototype.GetItemPricePageData = function(Start, Limit, AWhere, __callback) {
-  var __message = {
-    "method" : "MyCardSvc.GetItemPricePageData",
-    "params" : {
-      "Start": Start,
-      "Limit": Limit,
-      "AWhere": AWhere
-      }
-  }
-  var __callbacks = null;
-  if (__callback) {
-    __callbacks = {
-      callback : __callback,
-      success : function (o) {
-        var __result = JSON.parse(o.responseText);
-        if (__result.error)
-        {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.failure(__result.error);
-        } else {
-          if ((typeof this.callback == "object") && this.callback.failure)
-            this.callback.success(__result.result);
-          else
-            this.callback(__result.result);
-        }
-      },
-      failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure) 
-            this.callback.failure(o);
-      },
-      timeout : 30000
-    }
-  }
-  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
-}
-
 MyCardSvc.prototype.GetItemPageData = function(Start, Limit, AWhere, __callback) {
   var __message = {
     "method" : "MyCardSvc.GetItemPageData",
@@ -2317,11 +2317,13 @@ MyCardSvc.prototype.GetItemPageData = function(Start, Limit, AWhere, __callback)
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyCardSvc.prototype.GetItemProductData = function(AItemID, __callback) {
+MyCardSvc.prototype.GetItemPricePageData = function(Start, Limit, AWhere, __callback) {
   var __message = {
-    "method" : "MyCardSvc.GetItemProductData",
+    "method" : "MyCardSvc.GetItemPricePageData",
     "params" : {
-      "AItemID": AItemID
+      "Start": Start,
+      "Limit": Limit,
+      "AWhere": AWhere
       }
   }
   var __callbacks = null;
@@ -2351,9 +2353,9 @@ MyCardSvc.prototype.GetItemProductData = function(AItemID, __callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyCardSvc.prototype.GetItemProducts = function(AItemID, __callback) {
+MyCardSvc.prototype.GetItemProductData = function(AItemID, __callback) {
   var __message = {
-    "method" : "MyCardSvc.GetItemProducts",
+    "method" : "MyCardSvc.GetItemProductData",
     "params" : {
       "AItemID": AItemID
       }

@@ -33,8 +33,7 @@ Ext.define("Beet.apps.cards.PackageProfile", {
     initComponent: function(){
         var me = this, cardServer = Beet.constants.cardServer;
         me.selectedPackageId = 0;
-        me.selectedProducts = {};
-        me.selectedItems = {};
+
         me.packageList= {};//save store fields columns and grid
         me.packageList.cache = {};//cache itemdata
         me.queue = new Beet_Queue("package_profile-" + Math.random());
@@ -78,7 +77,8 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                         name:                data["Name"],
                         price:                data["PPrice"],
                         descript:        data["Descript"],
-                        _packageName: data["PCategoryName"]
+                        _packageName: data["PCategoryName"],
+			serviceid:    data["ServiceID"]
                     });
                     me.selectedPackageCategoryId = data["PCategoryID"];
         
@@ -481,7 +481,7 @@ Ext.define("Beet.apps.cards.PackageProfile", {
         });
     },
     initializeItemsGrid: function(){
-        var me = this, selectedItems = me.selectedItems, cardServer = Beet.constants.cardServer;
+        var me = this, cardServer = Beet.constants.cardServer;
         var __fields = me.itemsPanel.__fields;
 
         if (me.itemsPanel.grid == undefined){
@@ -495,43 +495,7 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                 cls: "iScroll",
                 autoScroll: true,
                 columnLines: true,
-                columns: me.itemsPanel.__columns,
-                //plugins: [
-                //    Ext.create('Ext.grid.plugin.RowEditing', {
-                //        clicksToEdit: 3,
-                //        listeners: {
-		//	    beforeedit: function(e){
-		//		var record = e.record, itemID = record.get("IID");
-		//		var field = e.column.field
-		//		if (field && field.store){
-		//		    var store = field.store; 
-		//		    cardServer.GetItemPricePageData(0, 999, "IID='"+itemID+"'", {
-		//			success: function(data){
-		//			    var data = Ext.JSON.decode(data);
-		//			    data = data["Data"];
-		//			    store.loadData(data)
-		//			},
-		//			failure: function(){
-		//			}
-		//		    })
-		//		}
-		//	    },
-		//	    edit: function(e){
-		//		var record = e.record, itemID = record.get("IID"), field = e.column.field;
-		//		if (field && field.store){
-		//		    var _priceField = field.nextSibling()
-		//		    _priceField.setValue(field.itemPrice)
-		//		    record.set("itemPrice", field.itemPrice);
-		//		    record.set("isMember", field.isMember);
-		//		    record.commit();
-		//		    var iid = "item-" + itemID;
-		//		    //me.selectedItems[iid][__fields.length-2] = record.get("itemDuration");
-		//		    //me.selectedItems[iid][__fields.length-1] = record.get("itemPrice");
-		//		}
-		//	    }
-                //        }
-                //    })
-                //]
+                columns: me.itemsPanel.__columns
             });
 
             me.itemsPanel.add(grid);
@@ -572,8 +536,7 @@ Ext.define("Beet.apps.cards.PackageProfile", {
         win.doLayout();
     },
     addItems: function(records, isRaw){
-        var me = this, selectedItems = me.selectedItems;
-        var __fields = me.itemsPanel.__fields;
+        var me = this, store = me.itemsPanel.grid.store;
         if (records == undefined){
             return;
         }
@@ -587,36 +550,15 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                 id = record.get("IID");
                 rawData = record.raw;
             }
-            if (selectedItems[id] == undefined){
-                selectedItems[id] = []
-            }else{
-                selectedItems[id] = [];
-            }
-            for (var c = 0; c < __fields.length; ++c){
-                var k = __fields[c];
-                selectedItems[id].push(rawData[k]);
-            }
+
+	    store.add(rawData)
         }
-        me.updateItemsPanel();
     },
     deleteItem: function(record){
-        var me = this, selectedItems = me.selectedItems;
+        var me = this, store = me.itemsPanel.grid.store;
         var id = record.get("IID");
-        if (selectedItems[id]){
-            selectedItems[id] = null;
-            delete selectedItems[id];
-        }
-
-        me.updateItemsPanel();
-    },
-    updateItemsPanel: function(){
-        var me = this, selectedItems = me.selectedItems;
-        var grid = me.itemsPanel.grid, store = grid.getStore();
-        var tmp = []
-        for (var c in selectedItems){
-            tmp.push(selectedItems[c]);
-        }
-        store.loadData(tmp);
+	
+	store.remove(record);
     },
     initializeProductsPanel: function(){
         var me = this, cardServer = Beet.constants.cardServer;
@@ -676,7 +618,7 @@ Ext.define("Beet.apps.cards.PackageProfile", {
         });
     },
     initializeProductsGrid: function(){
-        var me = this, selectedProducts = me.selectedProducts;
+        var me = this
         var __fields = me.productsPanel.__fields;
 
         if (me.productsPanel.grid == undefined){
@@ -700,12 +642,13 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                                 listeners: {
                                     "edit" : function(editor, e, opts){
                                         // fire event when cell edit complete
-                                        //var currField = e.field, currColIdx = e.colIdx, currRowIdx = e.rowIndex;
-                                        //var currRecord = e.record;
-                                        //if (currField == "COUNT"){
-                                        //    var count = currRecord.get("COUNT");
-                                        //    currRecord.set("COUNT", count);
-                                        //}
+                                        var currField = e.field, currColIdx = e.colIdx, currRowIdx = e.rowIndex;
+                                        var currRecord = e.record;
+                                        if (currField == "COUNT"){
+                                            var count = currRecord.get("COUNT");
+                                            currRecord.set("COUNT", count);
+                                        }
+					currRecord.commit();
                                     }
                                 }
                             })
@@ -753,7 +696,7 @@ Ext.define("Beet.apps.cards.PackageProfile", {
         win.doLayout();
     },
     addProducts: function(records, isRaw){
-        var me = this, selectedProducts = me.selectedProducts;
+        var me = this, store = me.productsPanel.grid.store;
         var __fields = me.productsPanel.__fields;
         for (var r = 0; r < records.length; ++r){
             var record = records[r];
@@ -765,43 +708,31 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                 pid = record.get("PID");
                 rawData = record.raw;
             }
-            if (selectedProducts[pid] == undefined){
-                selectedProducts[pid] = []
-            }else{
-                selectedProducts[pid] = [];
-            }
 
-            for (var c = 0; c < __fields.length; ++c){
-                var k = __fields[c];
-                selectedProducts[pid].push(rawData[k]);
-            }
+	    //filter
+	    if (store.find("PID", pid) == - 1){
+		store.add(rawData);
+	    }else{
+		Ext.MessageBox.alert("警告", "此产品已加入, 请不要重复加入");
+		return false;
+	    }
         }
-        me.updateProductsPanel();
     },
     deleteProducts: function(record){
         var me = this, selectedProducts = me.selectedProducts;
+	var store = me.productsPanel.grid.store;
         var pid = record.get("PID");
-        if (selectedProducts[pid]){
-            selectedProducts[pid] = null;
-            delete selectedProducts[pid];
-        }
-        me.updateProductsPanel();
-    },
-    updateProductsPanel: function(){
-        var me = this, selectedProducts = me.selectedProducts;
-        var grid = me.productsPanel.grid, store = grid.getStore();
-        var tmp = []
-        for (var c in selectedProducts){
-            tmp.push(selectedProducts[c]);
-        }
-        store.loadData(tmp);
+	store.remove(record);
     },
     resetAll: function(){
         var me = this;
-        me.selectedItems = {};
-        me.selectedProducts = {};
-        me.selectedPackages = {};
+	var productsStore = me.productsPanel.grid.store;
+	var itemsStore = me.itemsPanel.grid.store;
+	
+	productsStore.removeAll();
+	itemsStore.removeAll();
 
+        me.selectedPackages = {};
         me.selectedPackageId= 0;
         me.selectedPackageIndex = 0;
 
@@ -817,10 +748,6 @@ Ext.define("Beet.apps.cards.PackageProfile", {
         //if (addBtn){
         //    addBtn.disable();
         //}
-
-        me.updateItemsPanel();
-        me.updateProductsPanel();
-        
     },
     ///**
     // * @description 处理所提交的数据
@@ -831,18 +758,27 @@ Ext.define("Beet.apps.cards.PackageProfile", {
         var me = this, cardServer = Beet.constants.cardServer;
         var form = f.up("form").getForm(), result = form.getValues();
 
-        var selectedItems = me.selectedItems;
-        //name descript products charges
-        var items = Ext.Object.getKeys(selectedItems);
-        if (items && items.length > 0){
-            result["items"] = items;
-        }
+	var itemsStore = me.itemsPanel.grid.store;
+	if (itemsStore.getCount() > 0){
+	    var items = [];
+	    itemsStore.each(function(record){
+		items.push(record.get("IID"))	
+	    })
+	    result["items"] = items;
+	}
     
-        var selectedProducts = me.selectedProducts;
-        var products = Ext.Object.getKeys(selectedProducts);
-        if (products && products.length > 0){
-            result["products"] = products;
-        }
+	var productsStore = me.productsPanel.grid.store;
+	if (productsStore.getCount() > 0){
+	    var products = [];
+	    productsStore.each(function(record){
+		products.push({
+		    id: record.get("PID"),
+		    count: record.get("COUNT")   
+		})
+	    })
+
+	    result["products"] = products;
+	}
 
         if (me.selectedPackageCategoryId){
             result["categoryid"] = me.selectedPackageCategoryId;
@@ -932,8 +868,6 @@ Ext.define("Beet.apps.cards.PackageList", {
     initComponent: function(){
         var me = this, cardServer = Beet.constants.cardServer;
 
-        me.selectedItems = {};
-        me.selectedProducts = {};
         me.selectedPackages = [];
 
         me.packageList = {}
@@ -1407,8 +1341,7 @@ Ext.define("Beet.apps.cards.PackageList", {
         });
     },
     initializeItemsGrid: function(){
-        var me = this, selectedItems = me.selectedItems;
-        var __fields = me.itemsPanel.__fields;
+        var me = this, __fields = me.itemsPanel.__fields;
 
         if (me.itemsPanel.grid == undefined){
             var store = Ext.create("Ext.data.ArrayStore", {
@@ -1461,7 +1394,7 @@ Ext.define("Beet.apps.cards.PackageList", {
         win.doLayout();
     },
     addItems: function(records, isRaw){
-        var me = this, selectedItems = me.selectedItems;
+        var me = this, store = me.itemsPanel.grid.store;
         var __fields = me.itemsPanel.__fields;
         if (records == undefined){
             return;
@@ -1476,36 +1409,14 @@ Ext.define("Beet.apps.cards.PackageList", {
                 id = record.get("IID");
                 rawData = record.raw;
             }
-            if (selectedItems[id] == undefined){
-                selectedItems[id] = []
-            }else{
-                selectedItems[id] = [];
-            }
-            for (var c = 0; c < __fields.length; ++c){
-                var k = __fields[c];
-                selectedItems[id].push(rawData[k]);
-            }
+
+	    store.add(rawData)
         }
-        me.updateItemsPanel();
     },
     deleteItem: function(record){
-        var me = this, selectedItems = me.selectedItems;
+        var me = this, store = me.itemsPanel.grid.store;
         var id = record.get("IID");
-        if (selectedItems[id]){
-            selectedItems[id] = null;
-            delete selectedItems[id];
-        }
-
-        me.updateItemsPanel();
-    },
-    updateItemsPanel: function(){
-        var me = this, selectedItems = me.selectedItems;
-        var grid = me.itemsPanel.grid, store = grid.getStore();
-        var tmp = []
-        for (var c in selectedItems){
-            tmp.push(selectedItems[c]);
-        }
-        store.loadData(tmp);
+	store.remove(record);
     },
 
     initializeProductsPanel: function(){
@@ -1546,7 +1457,7 @@ Ext.define("Beet.apps.cards.PackageList", {
         });
     },
     initializeProductsGrid: function(){
-        var me = this, selectedProducts = me.selectedProducts;
+        var me = this;
         var __fields = me.productsPanel.__fields;
 
         if (me.productsPanel.grid == undefined){
@@ -1601,7 +1512,7 @@ Ext.define("Beet.apps.cards.PackageList", {
         win.doLayout();
     },
     addProducts: function(records, isRaw){
-        var me = this, selectedProducts = me.selectedProducts;
+        var me = this, store = me.productsPanel.grid.store;
         var __fields = me.productsPanel.__fields;
         for (var r = 0; r < records.length; ++r){
             var record = records[r];
@@ -1613,51 +1524,31 @@ Ext.define("Beet.apps.cards.PackageList", {
                 pid = record.get("PID");
                 rawData = record.raw;
             }
-            if (selectedProducts[pid] == undefined){
-                selectedProducts[pid] = []
-            }else{
-                selectedProducts[pid] = [];
-            }
 
-            for (var c = 0; c < __fields.length; ++c){
-                var k = __fields[c];
-                selectedProducts[pid].push(rawData[k]);
-            }
+	    store.add(rawData)
         }
-        me.updateProductsPanel();
     },
     deleteProducts: function(record){
-        var me = this, selectedProducts = me.selectedProducts;
+        var me = this, store = me.productsPanel.grid.store;
         var pid = record.get("PID");
-        if (selectedProducts[pid]){
-            selectedProducts[pid] = null;
-            delete selectedProducts[pid];
-        }
-        me.updateProductsPanel();
-    },
-    updateProductsPanel: function(){
-        var me = this, selectedProducts = me.selectedProducts;
-        var grid = me.productsPanel.grid, store = grid.getStore();
-        var tmp = []
-        for (var c in selectedProducts){
-            tmp.push(selectedProducts[c]);
-        }
-        store.loadData(tmp);
+
+	store.remove(record)
     },
     resetAll: function(){
         var me = this;
-        me.selectedItems = {};
-        me.selectedProducts = {};
+
+	var itemsStore = me.itemsPanel.grid.store,
+	    productsStore = me.productsPanel.grid.store;
+
+	itemsStore.removeAll();
+	productsStore.removeAll();
+
         me.selectedPackages = {};
 
         me.selectedPackageId= 0;
         me.selectedPackageIndex = 0;
-
         //me.form.getForm().reset();
 
-        me.updateItemsPanel();
-        me.updateProductsPanel();
-        
     },
     onSelectItem: function(pid, record){
         var me = this, cardServer = Beet.constants.cardServer;
