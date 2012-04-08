@@ -179,7 +179,6 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 					    fieldLabel: "订单价格",
 					    xtype: "displayfield",
 					    name: "orderprice",
-					    hidden: true,
 					    value: 0
 					},
                                         {
@@ -1025,6 +1024,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	    me.tapTabPanel(newRecord, store);
 	    //同时创建tab
         }
+
+	me.autoCalculate();
     },
     loadProductFromItem: function(item){
 	var me = this, cardServer = Beet.constants.cardServer;
@@ -1095,6 +1096,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	}else{
 	    removeItem();
 	}
+	me.autoCalculate();
     },
     //}}}
     createListTabPanel: function(){
@@ -1477,14 +1479,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			    },
 			    edit: function(e){
 				var record = e.record, pid = record.get("PID");
-				//if (me.selectedProducts[pid]){
-				//    me.selectedProducts[pid][__fields.length - 3] = record.get("COUNT")
-				//    me.selectedProducts[pid][__fields.length - 2] = record.get("_isMember")
-				//    me.selectedProducts[pid][__fields.length - 1] = record.get("_price")
-				//}
-				//me.updateProductsPanel();
-				//me.autoCalculate();
 				record.commit();
+				me.autoCalculate();
 			    }
                         }
                     })
@@ -1558,7 +1554,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 
 	    list.push(rawData);
         }
-	return store.add(list);
+	var newRecords = store.add(list);
+	me.autoCalculate();
+	return newRecords
     },
     deleteProducts: function(record){
         var me = this;
@@ -1575,6 +1573,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	}else{
 	    store.remove(record);
 	}
+	me.autoCalculate();
     },
     selectPackage: function(){
 	var me = this;
@@ -1680,29 +1679,24 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	    productsStore = me.productsPanel.grid.getStore();
 	var cost = 0;
 
-	//for (var c = 0; c < itemsStore.getCount(); ++c){
-	//    var item = itemsStore.getAt(c);
-	//    var isgiff = item.get("isgiff"), price = item.get("itemPrice");
-	//    if (price > 0 && !isgiff){
-	//	cost += parseFloat(price);
-	//    }
-	//}
+	for (var c = 0; c < itemsStore.getCount(); ++c){
+	    var item = itemsStore.getAt(c);
+	    var isgiff = item.get("isgiff"), price = item.get("itemPrice");
+	    if (price > 0 && !isgiff){
+		cost += parseFloat(price);
+	    }
+	}
 
-	//for (var c = 0; c < productsStore.getCount(); ++c){
-	//    var product = productsStore.getAt(c);
-	//    var pid = product.get("PID"), isMember = product.get("_isMember"),
-	//	memberprice = parseFloat(product.get("MemberPrice")),
-	//	PPrice = parseFloat(product.get("PPrice")),
-	//	count = parseFloat(product.get("COUNT"));
-	//    
-	//    if (count > 0){
-	//	cost += (isMember ? memberprice : PPrice) * count;
-	//    }
-	//    //if (selectedProducts[pid]){
-	//    //    //delete selectedProducts[pid];
-	//    //    //me.addProducts([product], false, true);
-	//    //}
-	//}
+	for (var c = 0; c < productsStore.getCount(); ++c){
+	    var product = productsStore.getAt(c);
+	    var pid = product.get("PID"), isMember = product.get("_isMember"),
+		memberprice = parseFloat(product.get("MemberPrice")),
+		count = parseFloat(product.get("COUNT"));
+	    
+	    if (count > 0){
+		cost += memberprice * count;
+	    }
+	}
 
 	me.orderprice.setValue(cost);
     },
