@@ -158,7 +158,8 @@ Ext.define("Beet.apps.employees.EmployeeList", {
         if (me.b_type == "list"){
             var _actions = {
                 xtype: "actioncolumn",
-                widget: 20,
+                width: 60,
+		header: "操作",
                 items: []
             }
 

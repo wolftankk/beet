@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="description" content="" >
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>美度Mydo</title>
+        <link rel="stylesheet" type="text/css" href="resources/css/ext-all.css" />
+        <link rel="stylesheet" type="text/css" href="resources/css/beet.css" />
+	<link rel="stylesheet" type="text/css" media="print" href="resources/css/beet_print.css" />
+
+        <!-- let the stupid ie suport html5 -->
+        <!--[if lt IE 9]>
+        <script src="js/html5.js"></script>
+        <![endif]-->
+        <script type="text/javascript" src="js/bootstrap.js"></script>
+        <script type="text/javascript" src="js/ext-lang-zh_CN.js"></script>
+        <script type="text/javascript" src="js/beet/beet_processcontroler.js"></script>
+        <script type="text/javascript" src="js/beet/ajax.js"></script>
+        <script type="text/javascript" src="js/my/utf.js"></script>
+        <script type="text/javascript" src="js/my/xxtea.js"></script>
+
+        <script type="text/javascript" src="js/my/MyCardLib_intf.js"></script>
+        <script type="text/javascript" src="js/my/MyCustomerLib_intf.js"></script>
+        <script type="text/javascript" src="js/my/MyEmLib_intf.js"></script>
+        <script type="text/javascript" src="js/my/MyPrivilegeLib_intf.js"></script>
+        <script type="text/javascript" src="js/my/MyStockLib_intf.js"></script>
+
+        <script type="text/javascript" src="js/beet/beet.js"></script>
+        <script type="text/javascript" src="js/beet/base64.js"></script>
+        <script type="text/javascript" src="js/beet/beet_config.js"></script>
+        <script type="text/javascript" src="js/beet/beet_plugins.js"></script>
+	<script type="text/javascript" src="js/beet/beet_keyboard.js"></script>
+	<script type="text/javascript" src="js/beet/beet_notifications.js"></script>
+        <script type="text/javascript" src="js/beet/plugins/beet_proxy.js"></script>
+
+        <script type="text/javascript" src="js/beet/beet_customer.js"></script>
+        <script type="text/javascript" src="js/beet/beet_employee.js"></script>
+        <script type="text/javascript" src="js/beet/beet_card.js"></script>
+        <script type="text/javascript" src="js/beet/beet_warehouse.js"></script>
+        <script type="text/javascript" src="js/beet/beet_setting.js"></script>
+    </head>
+    <body>
+	<div id="printContent">
+	    <h1 style="font-size:23px;text-align:center;" id="title"></h1>
+	</div>
+	<div id="toolbar"></div>
+	<script>
+	    var hash = location.hash.substring(1)
+	    hash = hash.split("&")
+	    var hashList = {};
+	    for (var c = 0; c < hash.length; c++){
+		var arg = hash[c].split("=");
+		hashList[arg.shift()] = arg.shift();
+	    }
+	    Ext.onReady(function(){
+		//parse hash
+		var options = {
+		    autoScroll: true,
+		    autoHeight: true,
+		    height: 200,
+		    width: 715,
+		    cls: "iScroll",
+		    border: false,
+		    plain: true,
+		    renderTo: "printContent",
+		    hidden: true,
+		    listeners: {
+			beforeexpand: function(p){
+			    for (var c = 0; c < me.childrenList.length; ++c){
+				var child = me.childrenList[c];
+				if (child !== p){
+				    child.collapse();
+				}
+			    }
+			},
+			expand: function(p){
+			    var height = me.getHeight() - 100;
+			    if (p && p.setHeight && me.childrenList[p]){
+				p.setHeight(height - 300);//reset && update
+			    }
+			}
+		    }
+		}
+
+		Ext.create("Ext.panel.Panel", {
+		    width: "100%",
+		    height: 70,
+		    renderTo: "printContent",
+		    border: false,   
+		    layout: {
+			type: "column",
+		    },
+		    items: [
+			{
+			    fieldLabel: "日期",
+			    xtype: "datefield",
+			    value: new Date(),
+			    columnWidth: .5,
+			    format: "Y.m.d H:i:s"
+			},
+			{
+			    fieldLabel: "操作员",
+			    xtype: "textfield",
+			    columnWidth: .5,
+			    value: hashList["employee"]
+			},
+			{
+			    fieldLabel: "分点名",
+			    xtype: "textfield",
+			    columnWidth: .5,
+			    value: hashList["storeName"]
+			},
+			{
+			    fieldLabel: "顾客",
+			    columnWidth: .5,
+			    xtype: "textfield",
+			    value: hashList["customer"]
+			}
+		    ] 
+		})
+
+		Ext.widget("toolbar", {   
+		    dock: "bottom",
+		    width: "100%",
+		    renderTo: "toolbar",
+		    items: [
+			"->",
+			{
+			    xtype: "button",
+			    text : "打印",
+			    handler: function(){
+				window.print();
+			    }
+			},
+			{
+			    xtype: "button",
+			    text: "关闭",
+			    handler: function(){
+				window.close();
+			    }
+			}
+		    ]
+		})	
+
+
+		this.orderItemPanel = Ext.create("Ext.panel.Panel", Ext.apply(options, {
+		    title: "项目列表",
+		}));
+
+		this.orderProductPanel = Ext.create("Ext.panel.Panel", Ext.apply(options, {
+		    title: "产品列表",
+		}));
+
+		this.stockDataPanel = Ext.create("Ext.panel.Panel", Ext.apply(options, {
+		    title: "物料列表"   
+		}))
+
+
+		initializeOrderItemsPanel = function(){
+		    var me  = this, cardServer = Beet.constants.cardServer;
+		    if (me.orderItemPanel.__columns && me.orderItemPanel.__columns.length > 0){
+			return;
+		    }
+		    var columns = me.orderItemPanel.__columns = [];
+
+		    cardServer.GetConsumerItemsData(true, "", {
+			success: function(data){
+			    var data = Ext.JSON.decode(data)["MetaData"];
+			    var fields = me.orderItemPanel.__fields = [];
+			    for (var c in data){
+				var meta = data[c];
+				fields.push(meta["FieldName"])
+				if (!meta["FieldHidden"]){
+				    var c = {
+					dataIndex: meta["FieldName"],
+					header: meta["FieldLabel"],
+					flex: 1
+				    }
+
+				    switch (meta["FieldName"]){
+					case "Price":
+					    c.xtype = "numbercolumn";
+					    break;
+					case "IsGiff":
+					    c.xtype = "booleancolumn";
+					    c.trueText = "是";
+					    c.falseText = "否";
+					    break;
+				    }
+
+				    columns.push(c);
+				}
+			    }
+
+			    me.initializeOrderItemsGrid();
+			},
+			failure: function(error){
+			    Ext.Error.raise(error);
+			}
+		    });
+		}
+		updateOrderItemsProxy = function(b_filter){
+		    var me = this, cardServer = Beet.constants.cardServer;
+		    return {
+			type: "b_proxy",
+			b_method: cardServer.GetConsumerItemsData,
+			b_params: {
+			    "b_onlySchema": false,
+			    "awhere" : b_filter
+			},
+			b_scope: Beet.constants.cardServer,
+			reader: {
+			    type: "json",
+			    root: "Data",
+			    totalProperty: "TotalCount"
+			}
+		    }
+		}
+		initializeOrderItemsGrid = function(){
+		    var me = this, cardServer = Beet.constants.cardServer;
+		    var __fields = me.orderItemPanel.__fields;
+
+		    if (!Beet.apps.cards.orderItemStore){
+			Ext.define("Beet.apps.cards.orderItemStore", {
+			    extend: "Ext.data.Store",
+			    autoLoad: true,
+			    pageSize: Beet.constants.PageSize,
+			    fields: __fields,
+			    load: function(options){
+				var that = this, options = options || {};
+				if (Ext.isFunction(options)){
+				    options = {
+					callback: options
+				    };
+				}
+				Ext.applyIf(options, {
+				    groupers: that.groupers.items,
+				    addRecords: false
+				});
+				return that.callParent([options]);
+			    },
+			    proxy: {
+				type: "b_proxy",
+				b_method: cardServer.GetConsumerItemsData,
+				b_params: {
+				    "b_onlySchema": true,
+				    "awhere" : ""
+				},
+				b_scope: Beet.constants.cardServer,
+				reader: {
+				    type: "json",
+				    root: "Data",
+				    totalProperty: "TotalCount"
+				}
+			    }
+			})
+		    }
+
+		    if (me.orderItemPanel.grid == undefined){
+			var store = Ext.create("Beet.apps.cards.orderItemStore");
+
+			var grid = me.orderItemPanel.grid = Ext.create("Ext.grid.Panel", {
+			    store: store,
+			    height: "100%",
+			    cls: "iScroll",
+			    autoScroll: true,
+			    columnLines: true,
+			    columns: me.orderItemPanel.__columns,
+			});
+			me.orderItemPanel.store = store;
+
+
+			me.orderItemPanel.add(grid);
+			me.orderItemPanel.doLayout();
+		    }
+		}
+
+		initializeOrderProductsPanel = function(){
+		    var me  = this, cardServer = Beet.constants.cardServer;
+		    if (me.orderProductPanel.__columns && me.orderProductPanel.__columns.length > 0){
+			return;
+		    }
+		    var columns = me.orderProductPanel.__columns = [];
+
+		    cardServer.GetConsumerProductsData(true, "", {
+			success: function(data){
+			    var data = Ext.JSON.decode(data)["MetaData"];
+			    var fields = me.orderProductPanel.__fields = [];
+
+			    for (var c in data){
+				var meta = data[c];
+				fields.push(meta["FieldName"])
+				if (!meta["FieldHidden"]){
+				    var c = {
+					dataIndex: meta["FieldName"],
+					header: meta["FieldLabel"],
+					flex: 1
+				    }
+
+				    switch (meta["FieldName"]){
+					case "Price":
+					    c.xtype = "numbercolumn";
+					    break;
+					case "IsGiff":
+					    c.xtype = "booleancolumn";
+					    c.trueText = "是";
+					    c.falseText = "否";
+					    break;
+				    }
+
+				    columns.push(c);
+				}
+			    }
+
+			    me.initializeOrderProductsGrid();
+			},
+			failure: function(error){
+			    Ext.Error.raise(error);
+			}
+		    });
+		}
+
+		updateOrderProductsProxy = function(b_filter){
+		    var me = this, cardServer = Beet.constants.cardServer;
+		    return {
+			type: "b_proxy",
+			b_method: cardServer.GetConsumerProductsData,
+			b_params: {
+			    "b_onlySchema": false,
+			    "awhere" : b_filter
+			},
+			b_scope: Beet.constants.cardServer,
+			reader: {
+			    type: "json",
+			    root: "Data",
+			    totalProperty: "TotalCount"
+			}
+		    }
+		}
+
+		initializeOrderProductsGrid = function(){
+		    var me = this, cardServer = Beet.constants.cardServer;
+		    var __fields = me.orderProductPanel.__fields;
+
+		    if (!Beet.apps.cards.orderProductStore){
+			Ext.define("Beet.apps.cards.orderProductStore", {
+			    extend: "Ext.data.Store",
+			    autoLoad: true,
+			    pageSize: Beet.constants.PageSize,
+			    fields: __fields,
+			    load: function(options){
+				var that = this, options = options || {};
+				if (Ext.isFunction(options)){
+				    options = {
+					callback: options
+				    };
+				}
+				Ext.applyIf(options, {
+				    groupers: that.groupers.items,
+				    addRecords: false
+				});
+				return that.callParent([options]);
+			    },
+			    proxy: {
+				type: "b_proxy",
+				b_method: cardServer.GetConsumerProductsData,
+				b_params: {
+				    "b_onlySchema": true,
+				    "awhere" : ""
+				},
+				b_scope: Beet.constants.cardServer,
+				reader: {
+				    type: "json",
+				    root: "Data",
+				    totalProperty: "TotalCount"
+				}
+			    }
+			})
+		    }
+
+		    if (me.orderProductPanel.grid == undefined){
+			var store = Ext.create("Beet.apps.cards.orderProductStore");
+
+			var grid = me.orderProductPanel.grid = Ext.create("Ext.grid.Panel", {
+			    store: store,
+			    height: "100%",
+			    cls: "iScroll",
+			    autoScroll: true,
+			    columnLines: true,
+			    columns: me.orderProductPanel.__columns,
+			});
+			me.orderProductPanel.store = store;
+
+
+			me.orderProductPanel.add(grid);
+			me.orderProductPanel.doLayout();
+		    }
+		}
+
+		initializeStockDataPanel = function(){
+		    var me  = this, cardServer = Beet.constants.cardServer;
+		    if (me.stockDataPanel.__columns && me.stockDataPanel.__columns.length > 0){
+			return;
+		    }
+		    var columns = me.stockDataPanel.__columns = [];
+
+		    cardServer.GetConsumerStockData(true, "", {
+			success: function(data){
+			    var data = Ext.JSON.decode(data)["MetaData"];
+			    var fields = me.stockDataPanel.__fields = [];
+			    for (var c in data){
+				var meta = data[c];
+				fields.push(meta["FieldName"])
+				if (!meta["FieldHidden"]){
+				    var c = {
+					dataIndex: meta["FieldName"],
+					header: meta["FieldLabel"],
+					flex: 1
+				    }
+
+				    switch (meta["FieldName"]){
+					case "CardPay":
+					case "Cost":
+					    c.xtype = "numbercolumn";
+					    break;
+				    }
+
+				    columns.push(c);
+				}
+			    }
+
+			    me.initializeStockDataGrid();
+			},
+			failure: function(error){
+			    Ext.Error.raise(error);
+			}
+		    });
+		}
+
+		initializeStockDataGrid = function(){
+		    var me = this, selectedProducts = me.selectedProducts, cardServer = Beet.constants.cardServer;
+		    var __fields = me.stockDataPanel.__fields;
+
+		    if (!Beet.apps.customers.StockDataStore){
+			Ext.define("Beet.apps.customers.StockDataStore", {
+			    extend: "Ext.data.Store",
+			    autoLoad: true,
+			    pageSize: Beet.constants.PageSize,
+			    fields: __fields,
+			    load: function(options){
+				var that = this, options = options || {};
+				if (Ext.isFunction(options)){
+				    options = {
+					callback: options
+				    };
+				}
+				Ext.applyIf(options, {
+				    groupers: that.groupers.items,
+				    addRecords: false
+				});
+				return that.callParent([options]);
+			    },
+			    proxy: {
+				type: "b_proxy",
+				b_method: cardServer.GetConsumerStockData,
+				b_params: {
+				    "b_onlySchema": false,
+				    "awhere" : ""
+				},
+				b_scope: Beet.constants.cardServer,
+				reader: {
+				    type: "json",
+				    root: "Data",
+				    totalProperty: "TotalCount"
+				}
+			    }
+			})
+		    }
+
+		    if (me.stockDataPanel.grid == undefined){
+			var store = Ext.create("Beet.apps.customers.StockDataStore");
+
+			var grid = me.stockDataPanel.grid = Ext.create("Ext.grid.Panel", {
+			    store: store,
+			    height: "100%",
+			    cls: "iScroll",
+			    autoScroll: true,
+			    columnLines: true,
+			    columns: me.stockDataPanel.__columns,
+			});
+			me.stockDataPanel.store = store;
+
+			me.stockDataPanel.add(grid);
+			me.stockDataPanel.doLayout();
+		    }
+		}
+
+		updateStockDataProxy = function(b_filter){
+		    var me = this, cardServer = Beet.constants.cardServer;
+		    return {
+			type: "b_proxy",
+			b_method: cardServer.GetConsumerStockData,
+			b_params: {
+			    "b_onlySchema": false,
+			    "awhere" : b_filter
+			},
+			b_scope: Beet.constants.cardServer,
+			reader: {
+			    type: "json",
+			    root: "Data",
+			    totalProperty: "TotalCount"
+			}
+		    }
+		}
+
+
+		initializeOrderItemsPanel();
+		initializeOrderProductsPanel();
+		initializeStockDataPanel();
+		if (hashList["type"] == "consumer"){
+		    orderItemPanel.show();
+		    orderProductPanel.show();
+
+		    Ext.get("title").dom.innerText = "消费单"
+		    setTimeout(function(){
+			orderItemPanel.store.setProxy(updateOrderItemsProxy("IndexNo = '" + hashList["indexno"] + "'"));
+			orderItemPanel.store.loadPage(1);
+
+			orderProductPanel.store.setProxy(updateOrderProductsProxy("IndexNo = '" + hashList["indexno"] + "'"));
+			orderProductPanel.store.loadPage(1);
+		    }, 1000)
+		}else{
+		    if (hashList["type"] == "stockinfo"){
+			Ext.get("title").dom.innerText = "物料单"
+			stockDataPanel.show();
+			stockDataPanel.store.setProxy(updateStockDataProxy("IndexNo = '" + hashList["indexno"] +"'"));
+			stockDataPanel.store.loadPage(1);
+		    }	
+		}
+
+
+	    })
+	</script>
+    </body>
+</html>
