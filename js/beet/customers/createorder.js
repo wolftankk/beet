@@ -381,7 +381,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             }
         })
     },
-    showNotFinishPanel: function(){
+    showNotFinishPanel: function(type){
 	var me = this, cardServer = Beet.constants.cardServer;
 	var win = Ext.create("Ext.window.Window", {
 	    width: 800,
@@ -391,36 +391,67 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		type: "vbox"
 	    }
 	});
-
-	var itemColumns = Ext.clone(me.itemsPanel.__columns);
-	itemColumns.shift();
-	var itemGrid = Ext.create("Ext.grid.Panel", {
-	    store: me.itemsPanel.customerStore,
-	    flex: 1,
-	    width: "100%",
-	    cls: "iScroll",
-	    selModel: Ext.create("Ext.selection.CheckboxModel", { mode : "MULTI"}),
-	    autoScroll: true,
-	    columnLines: true,
-	    title: "剩余项目列表",
-	    columns: itemColumns 
-	});
-	win.add(itemGrid);
-
-	var productColumns = Ext.clone(me.productsPanel.__columns);
-	productColumns.shift();
-	var productGrid = Ext.create("Ext.grid.Panel", {
-	    store: me.productsPanel.customerStore,
-	    flex: 1,
-	    width: "100%",
-	    cls: "iScroll",
-	    selModel: Ext.create("Ext.selection.CheckboxModel", { mode : "MULTI"}),
-	    autoScroll: true,
-	    columnLines: true,
-	    title: "剩余产品列表",
-	    columns: productColumns
-	});
-	win.add(productGrid);
+	
+	var itemGrid, productGrid;
+	if (type == "items"){
+	    var itemColumns = Ext.clone(me.itemsPanel.__columns);
+	    itemColumns.shift();
+	    itemGrid = Ext.create("Ext.grid.Panel", {
+		store: me.itemsPanel.customerStore,
+		flex: 1,
+		width: "100%",
+		cls: "iScroll",
+		selModel: Ext.create("Ext.selection.CheckboxModel", { mode : "MULTI"}),
+		autoScroll: true,
+		columnLines: true,
+		title: "剩余项目列表",
+		columns: itemColumns 
+	    });
+	    itemGrid.on({
+		"afterrender" : function(f){
+		    if (f.headerCt){
+			var headerColumns = f.headerCt.getGridColumns();
+			for (var c = 0; c < headerColumns.length; c++){
+			    var header = headerColumns[c];
+			    if (header.dataIndex == "maxCount"){
+				header.hide();
+				break;
+			    }
+			}
+		    }
+		}
+	    })
+	    win.add(itemGrid);
+	}else{
+	    var productColumns = Ext.clone(me.productsPanel.__columns);
+	    productColumns.shift();
+	    productGrid = Ext.create("Ext.grid.Panel", {
+		store: me.productsPanel.customerStore,
+		flex: 1,
+		width: "100%",
+		cls: "iScroll",
+		selModel: Ext.create("Ext.selection.CheckboxModel", { mode : "MULTI"}),
+		autoScroll: true,
+		columnLines: true,
+		title: "剩余产品列表",
+		columns: productColumns
+	    });
+	    productGrid.on({
+		"afterrender" : function(f){
+		    if (f.headerCt){
+			var headerColumns = f.headerCt.getGridColumns();
+			for (var c = 0; c < headerColumns.length; c++){
+			    var header = headerColumns[c];
+			    if (header.dataIndex == "maxCount"){
+				header.hide();
+				break;
+			    }
+			}
+		    }
+		}
+	    })
+	    win.add(productGrid);
+	}
 
 	win.add({
 	    xtype: "toolbar",
@@ -432,11 +463,13 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		    xtype: "button",
 		    text : "确定",
 		    handler: function(){
-			var records = itemGrid.selModel.getSelection();
-			me.addItems(records);
-
-			var products= productGrid.selModel.getSelection();
-			me.addProducts(products);
+			if (type == "items"){
+			    var records = itemGrid.selModel.getSelection();
+			    me.addItems(records);
+			}else{
+			    var products= productGrid.selModel.getSelection();
+			    me.addProducts(products);
+			}
 
 			win.hide();
 		    }
@@ -618,7 +651,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		    text : "继续消费",
 		    name : "customerHData",
 		    handler: function(){
-			me.showNotFinishPanel();
+			me.showNotFinishPanel("items");
 		    }
 		},
                 {
@@ -638,9 +671,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		{
 		    xtype: "button",
 		    text : "继续消费",
-		    name : "customerHData",
+		    name : "customerHData2",
 		    handler: function(){
-			me.showNotFinishPanel();
+			me.showNotFinishPanel("product");
 		    }
 		},
                 {
