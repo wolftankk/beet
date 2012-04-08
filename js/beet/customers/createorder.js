@@ -179,6 +179,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 					    fieldLabel: "订单价格",
 					    xtype: "displayfield",
 					    name: "orderprice",
+					    hidden: true,
 					    value: 0
 					},
                                         {
@@ -233,7 +234,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                         },
                         {
                             xtype: "fieldset",
-                            title: "订单金额",
+                            title: "订单",
                             collapsible: true,
                             layout: "anchor",
                             items: [
