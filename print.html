@@ -424,6 +424,9 @@
 					case "Cost":
 					    c.xtype = "numbercolumn";
 					    break;
+					case "IndexNo":
+					    c.hidden = true;
+					    break;
 				    }
 
 				    columns.push(c);
@@ -465,7 +468,7 @@
 				type: "b_proxy",
 				b_method: cardServer.GetConsumerStockData,
 				b_params: {
-				    "b_onlySchema": false,
+				    "b_onlySchema": true,
 				    "awhere" : ""
 				},
 				b_scope: Beet.constants.cardServer,
@@ -534,8 +537,10 @@
 		    if (hashList["type"] == "stockinfo"){
 			Ext.get("title").dom.innerText = "物料单"
 			stockDataPanel.show();
-			stockDataPanel.store.setProxy(updateStockDataProxy("IndexNo = '" + hashList["indexno"] +"'"));
-			stockDataPanel.store.loadPage(1);
+			setTimeout(function(){
+			    stockDataPanel.store.setProxy(updateStockDataProxy("IndexNo = '" + hashList["indexno"] +"'"));
+			    stockDataPanel.store.loadPage(1);
+			}, 1000) 
 		    }	
 		}
 
