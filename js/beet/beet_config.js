@@ -11,7 +11,7 @@ Ext.Loader.setConfig({
 });
 
 Beet.config = {
-    serverUrl: "192.168.11.2",
+    serverUrl: "mydogn.vicp.net",
     getPrivileUrl: function(){
 	return this.serverUrl + ":6660";
     },
