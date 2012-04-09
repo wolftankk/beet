@@ -810,31 +810,33 @@ Ext.define("Beet.apps.cards.StockInfo", {
 			if (results.length > 0){
 			    cardServer.EndConsumer(Ext.JSON.encode(results), {
 				success: function(r){
-				    //r = Ext.JSON.decode(r);
-				    //if (r.length == 0) { }
+				    r = Ext.JSON.decode(r);
+				    if (r.length == 0) { }
 
-				    //var str = [], pass = true;
-				    //for (var c = 0; c < r.length; ++c){
-				    //    var info = r[c];
-				    //    //true
-				    //    if (info["result"]){
-				    //        updateGridRowBackgroundColor(grid, "#e2e2ff", info["index"]);
-				    //    }else{
-				    //        var rowIdx = updateGridRowBackgroundColor(grid, "#ffe2e2", info["index"], info["message"]);
-				    //        str.push("第" + rowIdx + "行 :" + info["message"]);
-				    //    }
+				    var str = [], pass = true;
+				    for (var c = 0; c < r.length; ++c){
+				        var info = r[c];
+				        //true
+				        if (info["result"]){
+				            //updateGridRowBackgroundColor(grid, "#e2e2ff", info["index"]);
+				        }else{
+				            //var rowIdx = updateGridRowBackgroundColor(grid, "#ffe2e2", info["index"], info["message"]);
+				            //str.push("第" + rowIdx + "行 :" + info["message"]);
+					    str.push(info["message"]);
+				        }
 
-				    //    pass = pass && info["result"];
-				    //}
+				        pass = pass && info["result"];
+				    }
 
-				    //if (pass){
-				    //}else{
-				    //    Ext.MessageBox.show({
-				    //        title: "错误",
-				    //        msg: str.join("<br/>"),
-				    //        buttons: Ext.MessageBox.OK    
-				    //    })
-				    //}
+				    if (pass){
+					Ext.MessageBox.alert("成功", "结算成功");
+				    }else{
+				        Ext.MessageBox.show({
+				            title: "错误",
+				            msg: str.join("<br/>"),
+				            buttons: Ext.MessageBox.OK    
+				        })
+				    }
 				},
 				failure: function(error){
 				    Ext.Error.raise(error)
