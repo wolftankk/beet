@@ -412,13 +412,13 @@ Ext.define("Beet.apps.HeaderToolbar", {
         //remove tab from tabpanel dockeditems
         configurePanel.removeDocked(navigationTab, false);
         navigationTab.dock = "";
-        navigationTab.setWidth(600);
+        navigationTab.setWidth(680);
         navigationTab.setHeight(23);
         navigationTab.border=0;
 
         config = {
             cls: "beet-navtoolbar",
-            width: 600,
+            width: 650,
             autoWidth: true,
             items: [
                 "&#160;",

@@ -53,6 +53,10 @@ Beet.menus = {
 	title: "库存管理",
 	menus: {}
     },
+    summary : {
+	title : "统计",
+	menus : {}
+    },
     settings : {
 	title: "设置",
 	menus:{}
