@@ -188,19 +188,6 @@ Ext.define("Beet.apps.customers.EndConsumer", {
 				}
 			    ]
 			}
-                        //{
-                        //    xtype: "toolbar",
-                        //    ui: "",
-                        //    border: 0,
-                        //    style: {
-                        //        border: "0"
-                        //    },
-                        //    onBeforeAdd: function(component){
-                        //    },
-                        //    items: [
-                        //        "->",
-                        //    ]
-                        //}
                     ]
                 },
                 {
@@ -857,7 +844,6 @@ Ext.define("Beet.apps.cards.StockInfo", {
 				  }else{
 				      Ext.Msg.alert("失败", "订单号: " + indexno + ", 回退失败!");
 				  }
-				  //grid.store.loadPage(1);
 			      },
 			      failure: function(error){
 				  Ext.Error.raise(error);
@@ -866,14 +852,6 @@ Ext.define("Beet.apps.cards.StockInfo", {
 			}
 
 			cancelConsumer(me.indexno);
-			//for (var c = 0; c < list.length; ++c){
-			//    var order = list[c], state = order.get("State");
-			//    //if (state != 2){
-			//    //    Ext.Msg.alert("失败", "你选定的订单不能结算. 状态必须为已审核!");
-			//    //    return;
-			//    //}
-			//    cancelConsumer(order.get("IndexNo"), order.get("ServiceNo"));
-			//}
 		    }
 		}
 	    ]

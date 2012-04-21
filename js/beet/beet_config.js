@@ -11,7 +11,7 @@ Ext.Loader.setConfig({
 });
 
 Beet.config = {
-    serverUrl: "192.168.11.2",
+    serverUrl: "172.16.88.10",
     getPrivileUrl: function(){
 	return this.serverUrl + ":6660";
     },
@@ -54,7 +54,7 @@ Beet.menus = {
 	menus: {}
     },
     summary : {
-	title : "统计",
+	title : "统计查询",
 	menus : {}
     },
     settings : {
