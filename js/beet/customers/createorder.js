@@ -548,6 +548,10 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     });
 		    customTigger.resumeEvents();
                     //开始查询他的卡项, 套餐, 费用
+
+		    //update 本金
+
+		    me.currentCardCapital.setValue(data["Capital"])
                     me.customerInfoBtn.enable();
                     me.bindingItemsBtn.enable();
 		    me.bindingProductsBtn.enable();
@@ -913,8 +917,11 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				    return false;
 				}
 
-				if (field && field.store){
-				    var store = field.store; 
+				var parent = field.ownerCt;
+				//console.log(field, field.ownerCt)
+				var itemDurationField = parent.down("combobox[name=itemDuration]")
+				if (itemDurationField && itemDurationField.store){
+				    var store = itemDurationField.store; 
 				    cardServer.GetItemPricePageData(0, 999, "IID='"+itemID+"' AND IsMember = 1 ", {
 					success: function(data){
 					    var data = Ext.JSON.decode(data);
@@ -928,12 +935,26 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			    },
 			    edit: function(e){
 				var record = e.record, itemID = record.get("IID"), field = e.column.field;
-				if (field && field.store){
-				    var _priceField = field.nextSibling()
-				    _priceField.setValue(field.itemPrice)
-				    record.set("itemPrice", field.itemPrice);
-				    record.set("isMember", field.isMember);
+				var maxCount = record.get("maxCount");
+				var itemDuration = record.get("itemDuration");
+				var parent = field.ownerCt;
+				var itemDurationField = parent.down("combobox[name=itemDuration]")
+				var itemDurationStore = itemDurationField.store;
+
+				//直接选择时常
+				if (itemDurationField && itemDurationStore){
+				    var index = itemDurationStore.find("TimeLength", itemDuration);
+				    var itemDurationRecord = itemDurationStore.getAt(index)
+				    var itemPrice = parseFloat(itemDurationRecord.get("Price"));
+				    var price = 0;
+				    if (maxCount > 0){
+					price = itemPrice / maxCount;
+				    }else{
+					price = itemPrice;
+				    }
+				    record.set("itemPrice", price);
 				    record.commit();
+				    me.autoCalculate();
 				}
 			    }
                         }
