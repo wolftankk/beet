@@ -101,7 +101,6 @@ if (!String.prototype.replaceAll){
 Ext.define("Beet.apps.HeaderPanel", {
     extend: "Ext.panel.Panel",
     width: "100%",
-    autoHeight: true,
     autoScroll: true,
     layout: "fit",
     renderTo: "header",
@@ -153,38 +152,16 @@ Ext.define("Beet.apps.HeaderPanel", {
 				xtype: "buttongroup",
 				title: menus[menuName].title,
 				layout: "anchor",
-				width: 150,
 				defaults: {
 				    scale: "large",
 				    rowspan: 1
 				}
 			    }
-			)
-			menus[menuName].panel.on("add", function(frame){
-			    var btns = frame.items.items;
-			    if (btns.length == 0){return;}
-			    setTimeout(
-				function(){
-				    var totalWidth = 30;
-				    for (var b = 0; b < btns.length; b++){
-					var btn = btns[b];
-					if (btn.getWidth && btn.el){
-					   totalWidth += btn.getWidth();
-					}else{
-					    totalWidth += 60
-					}
-				    }
-				    if (totalWidth > 100){
-					frame.setWidth(totalWidth);
-				    }
-				}, 
-				10
-			    );
-			});
+			);
 		    }
 		    if (menus[menuName].data && menus[menuName].data.length > 0){
 		       for (var a = 0; a < menus[menuName].data.length; ++a){
-			   menus[menuName].panel.add(menus[menuName].data[a])
+			   menus[menuName].panel.add(menus[menuName].data[a]);
 		       }
 		    }
 		}
@@ -342,10 +319,10 @@ Ext.define("Beet.apps.HeaderToolbar", {
 
         that.items = [
             //about button / menu
-            {
-                xtype: "splitbutton",
-                text: "美度"
-            }, "-",
+            //{
+            //    xtype: "splitbutton",
+            //    text: "美度"
+            //}, "-",
             that.navigationToolbar,
             "->",//设定到右边区域
             '-',
