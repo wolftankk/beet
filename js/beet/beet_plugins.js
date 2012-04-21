@@ -1492,7 +1492,7 @@ Ext.define("Beet.plugins.ViewCustomerInfo", {
             ]
         };
         if (me.editable){
-            basicformConfig.buttons = [{
+            basicformConfig.bbar = ["->", {
                 text: "提交修改",
                 handler: function(direction, e){
                     var _b = this, form = _b.up("form").getForm(), result = form.getValues();
