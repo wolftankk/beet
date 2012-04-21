@@ -431,7 +431,7 @@ Ext.define("Beet.apps.cards.RebateList", {
             autoHeight: true,
             border: 0,
             selModel: sm,
-            height: !me.editable ? "95%" : "100%",
+            height: "100%",
             columnLines: true,
             viewConfig:{
                 trackOver: false,
@@ -502,26 +502,27 @@ Ext.define("Beet.apps.cards.RebateList", {
             ],
             bbar: Ext.create("Ext.PagingToolbar", {
                 store: store,
-                displayInfo: true,
+                displayInfo: false,
                 displayMsg: '当前显示 {0} - {1} 到 {2}',
-                emptyMsg: "没有数据"
+                emptyMsg: "没有数据",
+	        items: [
+		    "->",
+		    {xtype: 'tbtext', itemId: 'displayItem'},
+	            {
+	        	text: "确定",
+	        	width: 100,
+	        	handler: function(){
+	        	    if (me.b_selectionCallback){
+	        		me.b_selectionCallback(me.selModel.getSelection());
+	        	    }
+	        	}
+	            }
+	        ]
             })
         })
 
         me.add(me.grid);
         me.doLayout();
-
-        if (me.b_type == "selection"){
-            me.add(Ext.widget("button", {
-                text: "确定",
-                handler: function(){
-                    if (me.b_selectionCallback){
-                        me.b_selectionCallback(me.selModel.getSelection());
-                    }
-                }
-            }))
-            me.doLayout();
-        }
     },
     editRebate: function(parentMenu){
         var me = this, rawData = parentMenu.rawData || parentMenu.raw, rid = rawData["RID"], cname = rawData["Name"], cardServer = Beet.constants.cardServer;

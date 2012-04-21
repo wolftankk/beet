@@ -21,7 +21,7 @@ registerMenu("settings", "cardAdmin", "产品管理",
 
 Ext.define("Beet.apps.cards.AddItem", {
     extend: "Ext.form.Panel",
-    height: Beet.constants.VIEWPORT_HEIGHT - 5,
+    height: "100%",
     width: "100%",
     autoWidth: true,
     autoHeight: true,
@@ -71,7 +71,7 @@ Ext.define("Beet.apps.cards.AddItem", {
             autoHeight: true,
             autoScroll: true,
             cls: "iScroll",
-            height: me.editable ? "100%" : "95%",
+            height:"100%",
             width: "100%",
             anchor: "fit",    
             border: false,

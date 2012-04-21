@@ -324,7 +324,7 @@ function createChargeCategoryTree(){
 
 Ext.define("Beet.apps.cards.AddCharge", {
   extend: "Ext.form.Panel",
-  height: Beet.constants.VIEWPORT_HEIGHT - 5,
+  height: "100%",
   width: "100%",
   autoHeight: true,
   autoScroll:true,
@@ -340,7 +340,7 @@ Ext.define("Beet.apps.cards.AddCharge", {
     me.callParent()  
 
     me.mainPanel = Ext.create("Ext.panel.Panel", {
-      height: (me.b_type == "selection" ? "95%" : "100%"),
+      height: "100%",
       width: "100%",
       autoHeight: true,
       autoScroll: true,
@@ -373,6 +373,7 @@ Ext.define("Beet.apps.cards.AddCharge", {
       plain: true,
       flex: 1,
       bodyPadding: 5,
+      height: "100%",
       bodyStyle: "background-color: #dfe8f5",
       items: [
         {
@@ -447,21 +448,21 @@ Ext.define("Beet.apps.cards.AddCharge", {
               checked: true,
               inputValue: 1
             }
-          ],
-          bbar: [
-            "->",
-            {
-              xtype: "button",
-              text: "提交",
-              disabled: true,
-              formBind: true,
-              handler: function(btn, widget){
-                me.processData(this)  
-              },
-              hidden: me._editType == "view"
-            }
           ]
         }
+      ],
+      bbar: [
+	"->",
+	{
+	  xtype: "button",
+	  text: "提交",
+	  disabled: true,
+	  formBind: true,
+	  handler: function(btn, widget){
+	    me.processData(this)  
+	  },
+	  hidden: me._editType == "view"
+	}
       ]
     }
 

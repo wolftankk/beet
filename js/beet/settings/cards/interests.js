@@ -158,7 +158,8 @@ Ext.define("Beet.apps.cards.InterestsList", {
             autoHeight: true,
             border: 0,
             selModel: sm,
-            height: "95%",
+	    width: "100%",
+            height: "100%",
             columnLines: true,
             viewConfig:{
                 trackOver: false,
@@ -214,23 +215,28 @@ Ext.define("Beet.apps.cards.InterestsList", {
             ],
             bbar: Ext.create("Ext.PagingToolbar", {
                 store: store,
-                displayInfo: true,
+                displayInfo: false,
                 displayMsg: '当前显示 {0} - {1} 到 {2}',
-                emptyMsg: "没有数据"
+                emptyMsg: "没有数据",
+	        items: [
+		    "->",
+		    {xtype: 'tbtext', itemId: 'displayItem'},
+	            {
+	        	text: "确定",
+	        	width: 100,
+	        	handler: function(){
+	        	    if (me.b_selectionCallback){
+	        		me.b_selectionCallback(me.selModel.getSelection());
+	        	    }
+	        	}
+	            }
+	        ]
             })
         })
 
         me.add(me.grid);
         me.doLayout();
 
-        me.add(Ext.widget("button", {
-            text: "确定",
-            handler: function(){
-                if (me.b_selectionCallback){
-                    me.b_selectionCallback(me.selModel.getSelection());
-                }
-            }
-        }))
         me.doLayout();
     },
     addInterest: function(){
