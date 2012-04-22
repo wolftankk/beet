@@ -126,6 +126,12 @@ Ext.define("Beet.apps.HeaderPanel", {
 	    })
 	)
 	me.doLayout();
+
+	me.on("afterrender", function(){
+	    setTimeout(function(){
+		me.refreshMenu();	
+	    }, 200)    
+	})
     },
     _updateMenu: function(item){
 	var _key = item["_key"];
