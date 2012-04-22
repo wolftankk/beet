@@ -1,3 +1,8 @@
+Ext.util.Format.RMBMoney = function(v){
+    return Ext.util.Format.currency(v, '¥', 2);
+}
+
+
 Ext.define('Ext.ux.CheckColumn', {
     extend: 'Ext.grid.column.Column',
     alias: 'widget.checkcolumn',
