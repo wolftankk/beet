@@ -59,25 +59,6 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
                 var data = Ext.JSON.decode(data)["MetaData"];
                 var fields = [];
 
-		//var _actions = {
-		//    xtype: "actioncolumn",
-		//    width: 30,
-		//    header: "操作",
-		//    items: []
-		//}
-
-		//_actions.items.push(
-		//    {
-		//	icon: './resources/themes/images/fam/information.png',
-		//	tooltip: "查看",
-		//	handler: function(grid, rowIndex, colIndex){
-		//	    //var d = me.storeProxy.getAt(rowIndex)
-		//	    //me.editEmployeeFn(d);
-		//	}
-		//    }
-		//);
-
-		//columns.push(_actions);
                 for (var c in data){
                     var meta = data[c];
                     fields.push(meta["FieldName"])
@@ -201,7 +182,7 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
                 var fields = [], columns = [];
                 for (var c in data){
                     var meta = data[c];
-                    fields.push(meta["FieldName"])
+		    fields.push(meta["FieldName"])
                     if (!meta["FieldHidden"]){
                         var c = {
                             dataIndex: meta["FieldName"],
@@ -212,6 +193,21 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
 			switch (meta["FieldName"]){
 			    case "Price":
 				c.xtype = "numbercolumn";
+				c.summaryType = function(records){
+				    var i = 0,
+					length = records.length,
+					total = 0,
+					record;
+
+				    for (; i < length; i++){
+					record = records[i];
+					if (!record.get("IsGiff")){
+					    total += parseFloat(record.get("Price"))
+					}
+				    }
+
+				    return "合计:  " + Ext.util.Format.RMBMoney(total)
+				}
 				break;
 			    case "IsGiff":
 				c.xtype = "booleancolumn";
@@ -250,6 +246,21 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
 			switch (meta["FieldName"]){
 			    case "Price":
 				c.xtype = "numbercolumn";
+				c.summaryType = function(records){
+				    var i = 0,
+					length = records.length,
+					total = 0,
+					record;
+
+				    for (; i < length; i++){
+					record = records[i];
+					if (!record.get("IsGiff")){
+					    total += parseFloat(record.get("Price"))
+					}
+				    }
+
+				    return "合计:  " + Ext.util.Format.RMBMoney(total)
+				}
 				break;
 			    case "IsGiff":
 				c.xtype = "booleancolumn";
@@ -285,8 +296,23 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
 
         		switch (meta["FieldName"]){
         		    case "CardPay":
-        		    case "Cost":
         			c.xtype = "numbercolumn";
+				break;
+        		    case "Price":
+        			c.xtype = "numbercolumn";
+				c.summaryType = function(records){
+				    var i = 0,
+					length = records.length,
+					total = 0, 
+					record;
+
+				    for (; i < length; i++){
+				        record = records[i];
+				        total += parseFloat(record.get("Price")) * parseFloat(record.get("COUNT"))
+				    }
+
+				    return "合计:  " + Ext.util.Format.RMBMoney(total)
+				}
         			break;
         		}
 
@@ -349,6 +375,11 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
                 autoScroll: true,
                 columnLines: true,
                 columns: columns,
+		features: [
+		    {
+			ftype: "summary"
+		    }
+		],
 		title: "项目详情"
             });
 
@@ -421,6 +452,11 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
                 autoScroll: true,
                 columnLines: true,
                 columns: columns,
+		features: [
+		    {
+			ftype: "summary"
+		    }
+		],
 		title: "产品详情"
             });
 
@@ -453,6 +489,7 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
                 autoLoad: true,
                 pageSize: Beet.constants.PageSize,
                 fields: fields,
+		groupField: 'ServiceNo',
                 load: function(options){
                     var that = this, options = options || {};
                     if (Ext.isFunction(options)){
@@ -493,6 +530,14 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
                 autoScroll: true,
                 columnLines: true,
                 columns: columns,
+		features: [
+		    {
+			ftype: "groupingsummary",
+			groupHeaderTpl: '{name}',
+			hideGroupedHeader: true,
+			enableGroupingMenu: false
+		    }
+		],
 		title : "物料详情"
             });
 
