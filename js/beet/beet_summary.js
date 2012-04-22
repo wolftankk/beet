@@ -33,6 +33,7 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
     b_filter: "",
     initComponent: function(){
 	var me = this;
+	me.searchKeyData = {};
 
 	me.callParent();
 	me.createMainPanel();
@@ -56,6 +57,7 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
 
         cardServer.GetConsumerPageData(0, 1, "", {
             success: function(data){
+		me.searchKeyData["orderList"] = Ext.JSON.decode(data);
                 var data = Ext.JSON.decode(data)["MetaData"];
                 var fields = [];
 
@@ -126,6 +128,24 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
                 columns: columns,
 		width: "100%",
 		flex: 1,
+		tbar: [
+		    "-",
+		    {
+			xtype: "button",
+			text: "高级搜索",
+			handler: function(){
+			    var win = Ext.create("Beet.apps.AdvanceSearch", {
+			      searchData: me.searchKeyData["orderList"],
+			      b_callback: function(where){
+				  me.updateAll(Beet.constants.FAILURE);
+			          me.ordergrid.store.setProxy(me.updateOrderListProxy(where));
+				  me.ordergrid.store.loadPage(1);
+			      }
+			    });
+			    win.show();
+			}
+		    },
+		],
                 bbar: Ext.create("Ext.PagingToolbar", {
                     store: store,
                     displayInfo: true,
@@ -178,6 +198,7 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
 
         cardServer.GetConsumerItemsData(true, "", {
             success: function(data){
+		me.searchKeyData["consumerItems"] = Ext.JSON.decode(data);
                 var data = Ext.JSON.decode(data)["MetaData"];
                 var fields = [], columns = [];
                 for (var c in data){
@@ -230,6 +251,7 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
 
         cardServer.GetConsumerProductsData(true, "", {
             success: function(data){
+		me.searchKeyData["consumerProducts"] = Ext.JSON.decode(data);
                 var data = Ext.JSON.decode(data)["MetaData"];
                 var fields = [], columns = []
 
@@ -282,6 +304,7 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
 
         cardServer.GetConsumerStockData(true, "", {
             success: function(data){
+		me.searchKeyData["stockData"] = Ext.JSON.decode(data);
                 var data = Ext.JSON.decode(data)["MetaData"];
                 var fields = [], columns = [];
                 for (var c in data){
@@ -380,11 +403,46 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
 			ftype: "summary"
 		    }
 		],
+		tbar: [
+		    "-",
+		    {
+			xtype: "button",
+			text: "高级搜索",
+			handler: function(){
+			    var win = Ext.create("Beet.apps.AdvanceSearch", {
+			      searchData: me.searchKeyData["consumerItems"],
+			      b_callback: function(where){
+				  me.orderItemGrid.store.setProxy(me.updateOrderItemsProxy(where))
+				  me.orderItemGrid.store.loadPage(1);
+				  me.orderItemGrid.store.addListener("load", me.searchOrderListByItems, me)
+			      }
+			    });
+			    win.show();
+			}
+		    },
+		],
 		title: "项目详情"
             });
 
 	    me.orderTabpanel.add(grid);
         }
+    },
+    searchOrderListByItems: function(f, records){
+	var me = this,sql = [],
+	    i = 0,
+	    length = records.length,
+	    record;
+	for (; i < length; i++) {
+	    record = records[i];
+	    sql.push("IndexNo ='" + record.get("IndexNo") + "'");
+	}
+	me.orderItemGrid.store.removeListener("load", me.searchOrderListByItems, me)
+	me.updateAll(Beet.constants.FAILURE);
+	if (sql.length > 0){
+	    me.ordergrid.store.setProxy(me.updateOrderListProxy(sql.concat(" OR ")));
+	    me.ordergrid.store.loadPage(1);
+	    me.updateAll(records[0].get("IndexNo"))
+	}
     },
     updateOrderItemsProxy : function(filter){
         var me = this, cardServer = Beet.constants.cardServer;
@@ -452,6 +510,24 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
                 autoScroll: true,
                 columnLines: true,
                 columns: columns,
+		tbar: [
+		    "-",
+		    {
+			xtype: "button",
+			text: "高级搜索",
+			handler: function(){
+			    var win = Ext.create("Beet.apps.AdvanceSearch", {
+			      searchData: me.searchKeyData["consumerProducts"],
+			      b_callback: function(where){
+				  me.orderProductGrid.store.setProxy(me.updateOrderProductsProxy(where))
+				  me.orderProductGrid.store.loadPage(1);
+				  me.orderProductGrid.store.addListener("load", me.searchOrderListByProducts, me)
+			      }
+			    });
+			    win.show();
+			}
+		    },
+		],
 		features: [
 		    {
 			ftype: "summary"
@@ -462,6 +538,23 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
 
 	    me.orderTabpanel.add(grid);
         }
+    },
+    searchOrderListByProducts: function(f, records){
+	var me = this,sql = [],
+	    i = 0,
+	    length = records.length,
+	    record;
+	for (; i < length; i++) {
+	    record = records[i];
+	    sql.push("IndexNo ='" + record.get("IndexNo") + "'");
+	}
+	me.orderProductGrid.store.removeListener("load", me.searchOrderListByProducts, me)
+	me.updateAll(Beet.constants.FAILURE);
+	if (sql.length > 0){
+	    me.ordergrid.store.setProxy(me.updateOrderListProxy(sql.concat(" OR ")));
+	    me.ordergrid.store.loadPage(1);
+	    me.updateAll(records[0].get("IndexNo"))
+	}
     },
     updateOrderProductsProxy : function(b_filter){
         var me = this, cardServer = Beet.constants.cardServer;
@@ -530,6 +623,24 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
                 autoScroll: true,
                 columnLines: true,
                 columns: columns,
+		tbar: [
+		    "-",
+		    {
+			xtype: "button",
+			text: "高级搜索",
+			handler: function(){
+			    var win = Ext.create("Beet.apps.AdvanceSearch", {
+			      searchData: me.searchKeyData["stockData"],
+			      b_callback: function(where){
+				  me.stockDataGrid.store.setProxy(me.updateStockDataProxy(where))
+				  me.stockDataGrid.store.loadPage(1);
+				  me.stockDataGrid.store.addListener("load", me.searchOrderListByStock, me)
+			      }
+			    });
+			    win.show();
+			}
+		    },
+		],
 		features: [
 		    {
 			ftype: "groupingsummary",
@@ -543,6 +654,23 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
 
 	    me.orderTabpanel.add(grid);
         }
+    },
+    searchOrderListByStock: function(f, records){
+	var me = this,sql = [],
+	    i = 0,
+	    length = records.length,
+	    record;
+	for (; i < length; i++) {
+	    record = records[i];
+	    sql.push("IndexNo ='" + record.get("IndexNo") + "'");
+	}
+	me.stockDataGrid.store.removeListener("load", me.searchOrderListByStock, me)
+	me.updateAll(Beet.constants.FAILURE);
+	if (sql.length > 0){
+	    me.ordergrid.store.setProxy(me.updateOrderListProxy(sql.concat(" OR ")));
+	    me.ordergrid.store.loadPage(1);
+	    me.updateAll(records[0].get("IndexNo"))
+	}
     },
     updateStockDataProxy : function(b_filter){
         var me = this, cardServer = Beet.constants.cardServer;

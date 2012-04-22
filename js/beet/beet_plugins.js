@@ -2165,7 +2165,7 @@ Ext.define("Beet.apps.AdvanceSearchForm", {
                     id: "customerFilter" + me.currentIndex + "_dropdown",
                     xtype: "combobox",
                     allowBlank: false,
-                    editable: true,
+                    editable: false,
                     store: FiltersStore,
                     queryMode: "local",
                     displayField: "name",
