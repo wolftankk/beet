@@ -20,7 +20,7 @@ registerMenu("cards", "cardAdmin", "卡项管理",
 
 Ext.define("Beet.apps.cards.CardList", {
     extend: "Ext.form.Panel",
-    height: Beet.constants.VIEWPORT_HEIGHT - 5,
+    height: "100%",
     width: "100%",
     autoHeight: true,
     autoScroll:true,
@@ -182,7 +182,7 @@ Ext.define("Beet.apps.cards.CardList", {
             lookMask: true,
             frame: true,
             collapsible: false,
-            height: me.b_type == "selection" ? "95%" : "100%",
+            height: "100%",
             width : "100%",
             rorder: false,
             bodyBorder: false,
@@ -244,26 +244,22 @@ Ext.define("Beet.apps.cards.CardList", {
                         });
                     }
                 }
-            ]
+            ],
+	    bbar: [
+		"->",
+		{
+		    text: "确定",
+		    hidden: (me.b_type != "selection"),
+		    handler: function(){
+			if (me.b_selectionCallback){
+			    me.b_selectionCallback(me.selModel.getSelection());
+			}
+		    }
+		}
+	    ]
         })
         me.add(me.cardgrid);
         me.doLayout();
-
-        if (me.b_type == "selection"){
-            me.add(Ext.widget("button", {
-                text: "确定",
-                width: 200,
-                style: {
-                    float: "right"
-                },
-                handler: function(){
-                    if (me.b_selectionCallback){
-                        me.b_selectionCallback(me.selModel.getSelection());
-                    }
-                }
-            }))
-            me.doLayout();
-        }
     },
     deleteCardItem: function(record){
         var me = this, cardServer = Beet.constants.cardServer;
