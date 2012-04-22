@@ -289,25 +289,25 @@ Ext.define("Beet.apps.customers.EndConsumer", {
                 var data = Ext.JSON.decode(data)["MetaData"];
                 var fields = me.orderListPanel.__fields = [];
 
-		var _actions = {
-		    xtype: "actioncolumn",
-		    width: 30,
-		    header: "操作",
-		    items: []
-		}
+		//var _actions = {
+		//    xtype: "actioncolumn",
+		//    width: 30,
+		//    header: "操作",
+		//    items: []
+		//}
 
-		_actions.items.push(
-		    {
-			icon: './resources/themes/images/fam/information.png',
-			tooltip: "查看",
-			handler: function(grid, rowIndex, colIndex){
-			    //var d = me.storeProxy.getAt(rowIndex)
-			    //me.editEmployeeFn(d);
-			}
-		    }
-		);
+		//_actions.items.push(
+		//    {
+		//	icon: './resources/themes/images/fam/information.png',
+		//	tooltip: "查看",
+		//	handler: function(grid, rowIndex, colIndex){
+		//	    //var d = me.storeProxy.getAt(rowIndex)
+		//	    //me.editEmployeeFn(d);
+		//	}
+		//    }
+		//);
 
-		columns.push(_actions);
+		//columns.push(_actions);
 
                 for (var c in data){
                     var meta = data[c];
@@ -1169,7 +1169,7 @@ Ext.define("Beet.apps.cards.StockInfo", {
                     type: "b_proxy",
                     b_method: cardServer.GetConsumerStockData,
                     b_params: {
-                        "b_onlySchema": false,
+                        "b_onlySchema": true,
                         "awhere" : ""
                     },
                     b_scope: Beet.constants.cardServer,
