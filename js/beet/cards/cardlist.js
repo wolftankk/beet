@@ -190,7 +190,6 @@ Ext.define("Beet.apps.cards.CardList", {
             autoHeight: true,
             autoWidth: true,
             border: 0,
-            flex: 1,
             cls: "iScroll",
             selModel: sm,
             columnLines: true,
@@ -199,12 +198,6 @@ Ext.define("Beet.apps.cards.CardList", {
                 stripeRows: true
             },
             columns: me.columns,
-            bbar: Ext.create("Ext.PagingToolbar", {
-                store: store,
-                displayInfo: true,
-                displayMsg: '当前显示 {0} - {1} 到 {2}',
-                emptyMsg: "没有数据"
-            }),
             tbar: [
                 "-",
                 {
@@ -245,18 +238,25 @@ Ext.define("Beet.apps.cards.CardList", {
                     }
                 }
             ],
-	    bbar: [
-		"->",
-		{
-		    text: "确定",
-		    hidden: (me.b_type != "selection"),
-		    handler: function(){
-			if (me.b_selectionCallback){
-			    me.b_selectionCallback(me.selModel.getSelection());
+            bbar: Ext.create("Ext.PagingToolbar", {
+                store: store,
+                displayInfo: false,
+                displayMsg: '当前显示 {0} - {1} 到 {2}',
+                emptyMsg: "没有数据",
+		items: [
+		    "->",
+		    {xtype: 'tbtext', itemId: 'displayItem'},
+		    {
+			text: "确定",
+			hidden: (me.b_type != "selection"),
+			handler: function(){
+			    if (me.b_selectionCallback){
+				me.b_selectionCallback(me.selModel.getSelection());
+			    }
 			}
 		    }
-		}
-	    ]
+		]
+            })
         })
         me.add(me.cardgrid);
         me.doLayout();
