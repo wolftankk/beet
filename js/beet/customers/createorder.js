@@ -1731,7 +1731,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		memberprice = parseFloat(product.get("MemberPrice")),
 		count = parseFloat(product.get("COUNT"));
 	    
-	    if (count > 0){
+	    if (count > 0 && !!memberprice){
 		cost += memberprice * count;
 	    }
 	}
