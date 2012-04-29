@@ -571,6 +571,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
     loadNotFinishItem: function(item){
 	var me = this, cardServer = Beet.constants.cardServer;
 	var itemId = item["ItemID"];
+	me.itemsPanel.customerStore.removeAll();
 	cardServer.GetItemPageData(0, 1, "IID='" + itemId + "'", {
 	    success: function(data){
 		var data = Ext.JSON.decode(data);
@@ -596,6 +597,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
     loadNotFinishProduct: function(product){
 	var me = this, cardServer = Beet.constants.cardServer;
 	var productId = product["ProductID"];
+	me.productsPanel.customerStore.removeAll();
 	cardServer.GetProductPageData(0, 1, "PID='" + productId + "'", {
 	    success: function(data){
 		var data = Ext.JSON.decode(data);
@@ -1060,7 +1062,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
     },
     loadProductFromItem: function(item){
 	var me = this, cardServer = Beet.constants.cardServer;
-	var itemId = item.get("IID"), itemName = item.get("IName");
+	var itemId = item.get("IID"), itemName = item.get("IName"),
+	    indexno = item.get("indexno");
 
 	cardServer.GetItemProductData(itemId, {
 	    success: function(data){
@@ -1071,6 +1074,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			var product = data[c];
 			product["itemName"] = itemName;
 			product["itemId"] = itemId;
+			if (indexno && indexno != Beet.constants.FAILURE){
+			    product["indexno"] = indexno;
+			}
 		    }
 		    var products = me.addProducts(data, true);
 		    item._products = products;
@@ -1416,7 +1422,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     }
                 }
 
-		me.productsPanel.__fields = fields.concat(["itemName", "itemId", "packageName", "packageId", "maxCount", "lastCount", "_groupName", "_price"]);
+		me.productsPanel.__fields = fields.concat(["indexno", "itemName", "itemId", "packageName", "packageId", "maxCount", "lastCount", "_groupName", "_price"]);
 		me.productsPanel.__columns = columns.concat([
 		    {
 			dataIndex: "_price",
@@ -1838,7 +1844,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		    }
 
 		    if (!!lastCount){
-			c["maxcount"] = lastCount;
+			c["maxcount"] = -1;//lastCount;
 		    }
 
 		    if (!!packageId){
@@ -1858,6 +1864,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		products: products
 	    }
         }
+
+	console.log(results)
 
         cardServer.AddConsumer(Ext.JSON.encode(results), {
             success: function(succ){
