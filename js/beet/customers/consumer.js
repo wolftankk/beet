@@ -1226,8 +1226,6 @@ Ext.define("Beet.apps.cards.StockInfo", {
 
 	me.stockDataPanel.store.setProxy(me.updateStockDataProxy("IndexNo = '" + indexno +"'"));
 	me.stockDataPanel.store.loadPage(1);
-
-
 	//me.orderItemPanel.expand();
     }
 })

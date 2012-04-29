@@ -953,6 +953,14 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 					price = itemPrice;
 				    }
 				    record.set("itemPrice", price);
+
+				    if (record._products){
+					for (var c = 0; c < record._products.length; c++){
+					    var productRecode = record._products[c];
+					    productRecode.set("maxCount", maxCount);
+					    productRecode.commit();
+					}
+				    }
 				    record.commit();
 				    me.autoCalculate();
 				}
@@ -1036,7 +1044,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 
 	    var newRecord = store.add(rawData);
 	    newRecord = newRecord.shift();
+
 	    me.loadProductFromItem(newRecord);
+
 	    var uuid = newRecord.get("_uuid");
 	    selectedItems[uuid] = {
 		item: newRecord
@@ -1063,6 +1073,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			product["itemId"] = itemId;
 		    }
 		    var products = me.addProducts(data, true);
+		    item._products = products;
 		    me.selectedItems[item.get("_uuid")]["products"] = products;
 		}
 	    },
