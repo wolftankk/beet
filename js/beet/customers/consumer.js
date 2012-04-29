@@ -795,7 +795,7 @@ Ext.define("Beet.apps.cards.StockInfo", {
 			    indexno: me.indexno
 			});
 			if (results.length > 0){
-			    cardServer.EndConsumer(Ext.JSON.encode(results), {
+			    cardServer.EndCustomer(Ext.JSON.encode(results), {
 				success: function(r){
 				    r = Ext.JSON.decode(r);
 				    if (r.length == 0) { }
