@@ -950,7 +950,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				    var itemPrice = parseFloat(itemDurationRecord.get("Price"));
 				    var price = 0;
 				    if (maxCount > 0){
-					price = itemPrice / maxCount;
+					price = itemPrice * maxCount;
 				    }else{
 					price = itemPrice;
 				    }

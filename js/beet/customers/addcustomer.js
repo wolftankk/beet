@@ -26,8 +26,8 @@ registerMenu("customers", "customerAdmin", "会员管理",
 
 Ext.define("Beet.apps.customers.AddCustomer", {
     extend: "Ext.panel.Panel",
-    layout: "anchor",
-    height: Beet.constants.VIEWPORT_HEIGHT - 5,
+    layout: "fit",
+    height: "100%",
     width: "100%",
     autoScroll: true,
     autoHeight: true,
