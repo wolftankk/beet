@@ -145,7 +145,6 @@ Ext.define("Beet.apps.customers.consumerHistoryPanel", {
             success: function(data){
                 var data = Ext.JSON.decode(data);
                 me.buildStoreAndModel(data["MetaData"]);
-
             },
             failure: function(error){
                 Ext.Error.raise(error)
@@ -255,95 +254,95 @@ Ext.define("Beet.apps.customers.consumerHistoryPanel", {
 	me.grid.on({
 	    itemdblclick: function(f, record){
 		var indexNo = record.get("IndexNo");//单号
-		me.detailGrid.store.setProxy(me.detailGrid.updateProxy("IndexNo='"+indexNo+"'"));
-		me.detailGrid.store.loadPage(1);
+		//me.detailGrid.store.setProxy(me.detailGrid.updateProxy("IndexNo='"+indexNo+"'"));
+		//me.detailGrid.store.loadPage(1);
 	    }
 	})
 
-	Beet.constants.cardServer.GetConsumerDetailData(true, "", {
-	    success: function(data){
-		var data = Ext.JSON.decode(data);
-		//create
-		me.buildDetailGrid(data["MetaData"], "");
-	    },
-	    failure: function(error){
-		Ext.Error.raise(error);
-	    }
-	})
+	//Beet.constants.cardServer.GetConsumerDetailData(true, "", {
+	//    success: function(data){
+	//	//var data = Ext.JSON.decode(data);
+	//	//create
+		me.buildDetailGrid();
+	//    },
+	//    failure: function(error){
+	//	Ext.Error.raise(error);
+	//    }
+	//})
     },
     buildDetailGrid: function(metaData, indexNo){
         var me = this, cardServer = Beet.constants.cardServer
 
-	var columns = [], fields = [];
+	//var columns = [], fields = [];
 
-	for (var c = 0; c < metaData.length; ++c){
-	    var d = metaData[c];
-	    fields.push(d["FieldName"]);
-	    if (!d["FieldHidden"]) {
-		columns.push({
-		    flex: 1,
-		    header: d["FieldLabel"],
-		    dataIndex: d["FieldName"]    
-		})
-	    }
-	};
+	//for (var c = 0; c < metaData.length; ++c){
+	//    var d = metaData[c];
+	//    fields.push(d["FieldName"]);
+	//    if (!d["FieldHidden"]) {
+	//	columns.push({
+	//	    flex: 1,
+	//	    header: d["FieldLabel"],
+	//	    dataIndex: d["FieldName"]    
+	//	})
+	//    }
+	//};
 
-	if (!Beet.apps.customers.consumerDetailModel){
-	    Ext.define("Beet.apps.customers.consumerDetailModel", {
-		extend: "Ext.data.Model",
-		fields: fields
-	    });
-	}
+	//if (!Beet.apps.customers.consumerDetailModel){
+	//    Ext.define("Beet.apps.customers.consumerDetailModel", {
+	//	extend: "Ext.data.Model",
+	//	fields: fields
+	//    });
+	//}
 
-	if (!Ext.isDefined(Beet.apps.customers.consumerDetailStore)){
-	    Ext.define("Beet.apps.customers.consumerDetailStore", {
-		extend: "Ext.data.Store",
-		model: Beet.apps.customers.consumerDetailModel,
-		autoLoad: true,
-		pageSize: Beet.constants.PageSize,
-		b_filter: ""
-	    });
-	}
+	//if (!Ext.isDefined(Beet.apps.customers.consumerDetailStore)){
+	//    Ext.define("Beet.apps.customers.consumerDetailStore", {
+	//	extend: "Ext.data.Store",
+	//	model: Beet.apps.customers.consumerDetailModel,
+	//	autoLoad: true,
+	//	pageSize: Beet.constants.PageSize,
+	//	b_filter: ""
+	//    });
+	//}
 
-	var updateProxy = function(filter){
-	    return {
-		 type: "b_proxy",
-		 b_method: Beet.constants.cardServer.GetConsumerDetailData,
-		 b_params: {
-		    b_onlySchema: false,
-		    awhere : filter 
-		 },
-		 b_scope: Beet.constants.cardServer,
-		 reader: {
-		     type: "json",
-		     root: "Data",
-		     totalProperty: "TotalCount"
-		 }
-	    }
-	}
-	var storeProxy = Ext.create("Beet.apps.customers.consumerDetailStore");
-	storeProxy.setProxy(updateProxy("IndexNo='0000'"));
+	//var updateProxy = function(filter){
+	//    return {
+	//	 type: "b_proxy",
+	//	 b_method: Beet.constants.cardServer.GetConsumerDetailData,
+	//	 b_params: {
+	//	    b_onlySchema: false,
+	//	    awhere : filter 
+	//	 },
+	//	 b_scope: Beet.constants.cardServer,
+	//	 reader: {
+	//	     type: "json",
+	//	     root: "Data",
+	//	     totalProperty: "TotalCount"
+	//	 }
+	//    }
+	//}
+	//var storeProxy = Ext.create("Beet.apps.customers.consumerDetailStore");
+	//storeProxy.setProxy(updateProxy("IndexNo='0000'"));
 
-	me.detailGrid = Ext.create("Beet.plugins.LiveSearch", {
-	    store: storeProxy,
-	    lookMask: true,
-	    frame: true,
-	    collapsible: false,    
-	    rorder: false,
-	    bodyBorder: false,
-	    autoScroll: true,
-	    autoHeight: true,
-	    height: 200,
-	    width : "100%",
-	    border: 0,
-	    columnLines: true,
-	    viewConfig: {
-		trackOver: false,
-		stripeRows: true
-	    },
-	    columns: columns
-	});
-	me.detailGrid.updateProxy = updateProxy;
+	//me.detailGrid = Ext.create("Beet.plugins.LiveSearch", {
+	//    store: storeProxy,
+	//    lookMask: true,
+	//    frame: true,
+	//    collapsible: false,    
+	//    rorder: false,
+	//    bodyBorder: false,
+	//    autoScroll: true,
+	//    autoHeight: true,
+	//    height: 200,
+	//    width : "100%",
+	//    border: 0,
+	//    columnLines: true,
+	//    viewConfig: {
+	//	trackOver: false,
+	//	stripeRows: true
+	//    },
+	//    columns: columns
+	//});
+	//me.detailGrid.updateProxy = updateProxy;
 
 	me.add({
 	    xtype: "panel",
@@ -354,7 +353,7 @@ Ext.define("Beet.apps.customers.consumerHistoryPanel", {
 	    height: "100%",
 	    items:[
 	        me.grid,
-	        me.detailGrid
+	        //me.detailGrid
 	    ]
 	})
 	me.doLayout();

@@ -166,8 +166,10 @@
         },
 
         restoreResponeObject: function(responeObject){
-            var responseText = responeObject.responseText, jsondata = Ext.JSON.decode(responseText);
-            
+            var responseText = responeObject.responseText, jsondata
+	    
+	    jsondata = JSON.parse(responseText);
+
             try {
                 var resultData = JSON.parse(jsondata["result"]);
             }catch (e){
