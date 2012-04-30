@@ -43,8 +43,8 @@ registerMenu("customers", "customerActivity", "活动管理",
 
 Ext.define("Beet.apps.customers.VIPActivity", {
 	extend: "Ext.panel.Panel",
-	layout: "anchor",
-	height: Beet.constants.VIEWPORT_HEIGHT - 5,
+	layout: "fit",
+	height: "100%",
 	width: "100%",
 	autoHeight: true,
 	defaults:{
@@ -370,7 +370,8 @@ Ext.define("Beet.apps.customers.ActivityList.Store", {
 Ext.define("Beet.apps.customers.ActivityList", {
 	extend: "Ext.panel.Panel",
 	frame: true,
-	height: Beet.constants.VIEWPORT_HEIGHT - 5,
+	layout: "fit",
+	height: "100%",
 	width: "100%",
 	autoHeight: true,
 	autoScroll: true,

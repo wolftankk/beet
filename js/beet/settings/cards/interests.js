@@ -3,7 +3,7 @@ Ext.define("Beet.apps.cards.InterestsList", {
     autoHeight: true,
     autoScroll: true,
     autoDestory: true,
-    height: Beet.constants.VIEWPORT_HEIGHT - 5,
+    height: "100%",
     width: "100%",
     frame: true,
     border: false,

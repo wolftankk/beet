@@ -23,8 +23,8 @@ registerMenu("employees", "employeeAdmin", "员工管理",
 
 Ext.define("Beet.apps.employees.AddEmployee", {
     extend: "Ext.panel.Panel",
-    layout: "anchor",
-    height: Beet.constants.VIEWPORT_HEIGHT - 5,
+    layout: "fit",
+    height: "100%",
     width : "100%",
     defaults: {
         border: 0

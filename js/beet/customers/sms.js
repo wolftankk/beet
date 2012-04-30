@@ -40,8 +40,8 @@ registerMenu("customers", "customerServer", "客户联系",
 )
 Ext.define("Beet.apps.customers.SendMessages", {
 	extend: "Ext.panel.Panel",
-	layout: "anchor",
-	height: Beet.constants.VIEWPORT_HEIGHT - 5, 
+	layout: "fit",
+	height: "100%",
 	width: "100%",
 	defaults:{
 		border: 0

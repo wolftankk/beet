@@ -262,7 +262,7 @@ Ext.define("Beet.apps.cards.RebateList", {
     extend: "Ext.panel.Panel",    
     autoHeight: true,
     autoScroll: true,
-    height: Beet.constants.VIEWPORT_HEIGHT - 5,
+    height: "100%",
     width: "100%",
     frame: true,
     border: false,

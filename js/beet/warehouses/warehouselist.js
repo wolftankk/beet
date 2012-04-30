@@ -1054,7 +1054,7 @@ Ext.define("Beet.apps.warehouses.warehouseList", {
     extend: "Ext.panel.Panel",
     autoHeight: true,
     autoScroll: true,
-    height: Beet.constants.VIEWPORT_HEIGHT - 5,
+    height: "100%",
     frame: true,
     width: "100%",
     border: false,
