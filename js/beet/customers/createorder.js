@@ -324,6 +324,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         me.customerHistoryBtn.disable();
         me.currentCardBalanceLable.setValue(0);
 	me.currentCardCapital.setValue(0)
+	me.orderprice.setValue(0)
     },
     cleanup: function(){
         var me = this;
@@ -958,8 +959,13 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 
 				    if (record._products){
 					for (var c = 0; c < record._products.length; c++){
-					    var productRecode = record._products[c];
+					    var productRecode = record._products[c],
+						pmemberprice = productRecode.get("MemberPrice"),
+						count = productRecode.get("COUNT");
 					    productRecode.set("maxCount", maxCount);
+					    if (!!pmemberprice){
+					        productRecode.set("_price", maxCount * parseFloat(pmemberprice) * parseFloat(count))
+					    }
 					    productRecode.commit();
 					}
 				    }
@@ -1517,6 +1523,15 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			    },
 			    edit: function(e){
 				var record = e.record, pid = record.get("PID");
+				if (record){
+				    var pmemberprice = record.get("MemberPrice"),
+					count = record.get("COUNT"),
+					maxCount = record.get("maxCount");
+				        if (!!pmemberprice && !!maxCount) {
+				            record.set("_price", maxCount * parseFloat(pmemberprice) * parseFloat(count))
+				        }
+				        record.commit();
+				}
 				record.commit();
 				me.autoCalculate();
 			    }
@@ -1719,9 +1734,14 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 
 	for (var c = 0; c < itemsStore.getCount(); ++c){
 	    var item = itemsStore.getAt(c);
-	    var isgiff = item.get("isgiff"), price = item.get("itemPrice");
+	    var isgiff = item.get("isgiff"), price = item.get("itemPrice"),
+		indexno = item.get("indexno");
 	    if (price > 0 && !isgiff){
-		cost += parseFloat(price);
+		if (indexno && indexno != Beet.constants.FAILURE){
+		    cost += 0;
+		}else{
+		    cost += parseFloat(price);
+		}
 	    }
 	}
 
@@ -1729,10 +1749,16 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	    var product = productsStore.getAt(c);
 	    var pid = product.get("PID"), isMember = product.get("_isMember"),
 		memberprice = parseFloat(product.get("MemberPrice")),
-		count = parseFloat(product.get("COUNT"));
-	    
-	    if (count > 0 && !!memberprice){
-		cost += memberprice * count;
+		count = parseFloat(product.get("COUNT")),
+		maxCount = parseFloat(product.get("maxCount")),
+		indexno = product.get("indexno");
+
+	    if (count > 0 && maxCount > 0 && !!memberprice){
+		if (indexno && indexno != Beet.constants.FAILURE){
+		    cost += 0;
+		}else{
+		    cost += memberprice * count * maxCount;
+		}
 	    }
 	}
 
@@ -1753,6 +1779,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         }
 	
         var list = me.tabCache, items = [], products = [];
+	    isOk = true;
 
 	var productsStore = me.productsPanel.grid.getStore();
 	for (var c = 0; c < productsStore.getCount(); ++c){
@@ -1791,6 +1818,12 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		p["maxcount"] = lastCount;
 	    }
 
+	    if (!!p["maxcount"] == false){
+		Ext.Msg.alert("警告", "请对每个项目指定使用次数!");
+		isOk = false;
+		return;
+	    }
+
 	    if (!!itemId){
 		p["itemid"] = itemId;
 	    }else{
@@ -1823,6 +1856,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		    }
 		    if (employees.length == 0){
 			Ext.Msg.alert("警告", "请对每个项目指定服务员!");
+			isOk = false;
 			return;
 		    }
 		    
@@ -1847,6 +1881,12 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			c["maxcount"] = -1;//lastCount;
 		    }
 
+		    if (!!c["maxcount"] == false){
+			Ext.Msg.alert("警告", "请对每个产品指定使用次数!");
+			isOk = false;
+			return;
+		    }
+
 		    if (!!packageId){
 			c["packageid"] = packageId;
 		    }
@@ -1854,7 +1894,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		    items.push(c)
 	    })
 	}
-		
+
         results = {
             customerid: me.selectedCustomerId,
             serviceno: serviceno,
@@ -1865,20 +1905,24 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	    }
         }
 
-	console.log(results)
-
-        cardServer.AddConsumer(Ext.JSON.encode(results), {
-            success: function(succ){
-                if (succ){
-                    Ext.MessageBox.alert("成功", "新增订单成功!");
-                    me.cleanup();    
-                }else{
-                    Ext.MessageBox.alert("警告", "新增订单失败!");
-                }
-            },
-            failure: function(err){
-                Ext.Error.raise(err)
-            }
-        })
+	if (isOk){
+	    if (parseFloat(me.currentCardCapital.getValue()) < parseFloat(me.orderprice.getValue())){
+		Ext.MessageBox.alert("成功", "客户的本金不足!");
+		return;
+	    }
+	    cardServer.AddConsumer(Ext.JSON.encode(results), {
+		success: function(succ){
+		    if (succ){
+			Ext.MessageBox.alert("成功", "新增订单成功!");
+			me.cleanup();    
+		    }else{
+			Ext.MessageBox.alert("警告", "新增订单失败!");
+		    }
+		},
+		failure: function(err){
+		    Ext.Error.raise(err)
+		}
+	    })
+	}
     }
 })
