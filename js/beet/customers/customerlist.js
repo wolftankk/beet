@@ -211,7 +211,17 @@ Ext.define("Beet.apps.customers.CustomerList", {
                             }
                         });
                     }
-                }
+                },
+		{
+		    xtype: "button",
+		    text : "Export",
+		    handler: function(f){
+			var data = Ext.ux.exporter.Exporter.exportGrid(that.grid, "excel", {
+			    title: "会员列表"	
+			})
+			window.open("data:application/octet-stream," + encodeURIComponent(data), "neuesDokument")
+		    }
+		}
             ],
             bbar: Ext.create('Ext.PagingToolbar', {
                 store: this.storeProxy,

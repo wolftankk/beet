@@ -145,6 +145,16 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
 			    win.show();
 			}
 		    },
+		    {
+			xtype: "button",
+			text : "Export",
+			handler: function(f){
+			    var data = Ext.ux.exporter.Exporter.exportGrid(me.ordergrid, "excel", {
+				title: "会员消费查询"	
+			    })
+			    window.open("data:application/octet-stream," + encodeURIComponent(data), "neuesDokument")
+			}
+		    }
 		],
                 bbar: Ext.create("Ext.PagingToolbar", {
                     store: store,
