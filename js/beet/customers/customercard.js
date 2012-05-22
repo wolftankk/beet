@@ -263,6 +263,7 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 		    xtype: "fieldset",
 		    title: "指定卡项",
 		    width: "100%",
+		    padding: "10 10",
 		    items: [
 			{
 			    layout: {

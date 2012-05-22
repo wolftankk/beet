@@ -769,6 +769,22 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         columns.push(_actions);
         columns = columns.concat([
             {
+                dataIndex: "ismember",
+                xtype: "checkcolumn",
+                header: "会员?",
+                width: 40,
+                editor: {
+                    xtype: "checkbox",
+                    cls: 'x-grid-checkheader-editor'
+                },
+		listeners: {
+		    //需要自动增强
+		    checkchange: function(f){
+			me.autoCalculate();
+		    }
+		}
+            },
+            {
                 dataIndex: "isgiff",
                 xtype: "checkcolumn",
                 header: "赠送?",
@@ -814,7 +830,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     }
                 };
 
-                me.itemsPanel.__fields = fields.concat([{name: "isgiff", type: "bool"}, "packageName", "packageId" , "itemDuration", "itemPrice", "maxCount", "lastCount", "indexno", "_uuid", "_groupName"]);
+                me.itemsPanel.__fields = fields.concat([{name: "isgiff", type: "bool"}, {name: "ismember", type: "bool"}, "packageName", "packageId" , "itemDuration", "itemPrice", "maxCount", "lastCount", "indexno", "_uuid", "_groupName"]);
                 me.itemsPanel.__columns = columns.concat([
 		    {
 			dataIndex: "itemDuration",
@@ -1037,6 +1053,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             }
 
             rawData["_uuid"] = Beet.uuid.get();
+	    rawData["ismember"] = true;//default ismember: true
 
 	    if (!rawData["_groupName"]){
 		if (!!rawData["itemName"]){
@@ -1389,6 +1406,23 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         }, "-");
 
         columns.push(_actions);
+	columns.push(
+            {
+                dataIndex: "ismember",
+                xtype: "checkcolumn",
+                header: "会员?",
+                width: 40,
+                editor: {
+                    xtype: "checkbox",
+                    cls: 'x-grid-checkheader-editor'
+                },
+		listeners: {
+		    checkchange: function(f){
+			//me.autoCalculate();
+		    }
+		}
+            }
+	)
         cardServer.GetPackageProductData(1,{
             success: function(data){
                 var data = Ext.JSON.decode(data)["MetaData"];
@@ -1428,7 +1462,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     }
                 }
 
-		me.productsPanel.__fields = fields.concat(["indexno", "itemName", "itemId", "packageName", "packageId", "maxCount", "lastCount", "_groupName", "_price"]);
+		me.productsPanel.__fields = fields.concat(["indexno", "itemName", "itemId", {name:"ismember", type:"bool"}, "packageName", "packageId", "maxCount", "lastCount", "_groupName", "_price"]);
 		me.productsPanel.__columns = columns.concat([
 		    {
 			dataIndex: "_price",
@@ -1592,6 +1626,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 pid = record.get("PID");
                 rawData = record.raw || record.data;
             }
+
+	    rawData["ismember"] = true
 
 	    if (!rawData["_groupName"]){
 		if (!!rawData["itemName"]){
