@@ -676,7 +676,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
 		    success: function(succ){
 			if (succ) {
 			    Ext.Msg.alert("成功", "替换成功");
-			    me.orderItemPanel.store.loadPage(1);
+			    me.orderProductPanel.store.loadPage(1);
 			    win.close();
 			}else{
 			    Ext.Msg.alert("失败", "替换失败");
