@@ -781,6 +781,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		    //需要自动增强
 		    checkchange: function(f){
 			me.autoCalculate();
+			//TODO
+			//NEED PROCESS PRODUCTS
 		    }
 		}
             },
@@ -1770,7 +1772,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 
 	for (var c = 0; c < itemsStore.getCount(); ++c){
 	    var item = itemsStore.getAt(c);
-	    var isgiff = item.get("isgiff"), price = item.get("itemPrice"),
+	    var isgiff = item.get("isgiff"), ismember = item.get("ismember"), price = item.get("itemPrice"),
 		indexno = item.get("indexno");
 	    if (price > 0 && !isgiff){
 		if (indexno && indexno != Beet.constants.FAILURE){
@@ -1783,17 +1785,19 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 
 	for (var c = 0; c < productsStore.getCount(); ++c){
 	    var product = productsStore.getAt(c);
-	    var pid = product.get("PID"), isMember = product.get("_isMember"),
-		memberprice = parseFloat(product.get("MemberPrice")),
+	    var pid = product.get("PID"),
+		ismember = product.get("ismember"),
+		memberprice = parseFloat(product.get("MemberPrice")) | 0,
+		normalprice = parseFloat(product.get("Price")) | 0,
 		count = parseFloat(product.get("COUNT")),
 		maxCount = parseFloat(product.get("maxCount")),
 		indexno = product.get("indexno");
 
-	    if (count > 0 && maxCount > 0 && !!memberprice){
+	    if (count > 0 && maxCount > 0){
 		if (indexno && indexno != Beet.constants.FAILURE){
 		    cost += 0;
 		}else{
-		    cost += memberprice * count * maxCount;
+		    cost += ( ismember ? memberprice : price) * count * maxCount;
 		}
 	    }
 	}
@@ -1828,7 +1832,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		maxCount = record.get("maxCount"),
 		indexno = record.get("indexno"),
 		lastCount = record.get("lastCount"),
-		itemId = record.get("itemId");
+		itemId = record.get("itemId"),
+		ismember = record.get("ismember");
 
 	    if (count < 0){
 		Ext.Msg.alert("警告", "产品 " + pname + " 需要设置消耗数量!");
@@ -1837,7 +1842,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 
 	    var p = {
 		pid: pid,
-		count: count
+		count: count,
+		ismember : ismember
 	    }
 
 	    if (indexno){
@@ -1883,6 +1889,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		    packageId = record.get("packageId"),
 		    maxCount  = record.get("maxCount"),
 		    indexno = record.get("indexno"),
+		    ismember = record.get("ismember"),
 		    lastCount = record.get("lastCount"),
 		    tabId = "tab" + uuid, tab = me.tabCache[tabId],
 		    employees = [], employeeStore = tab.grid.getStore();
@@ -1900,6 +1907,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			itemid: itemId,
 			timelength: itemDuration,
 			isgiff: isgiff,
+			ismember : ismember,
 			employees: employees
 		    }
 
