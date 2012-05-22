@@ -214,12 +214,31 @@ Ext.define("Beet.apps.customers.CustomerList", {
                 },
 		{
 		    xtype: "button",
-		    text : "Export",
+		    text : "导出",
 		    handler: function(f){
+			//var data = Ext.ux.exporter.Exporter.exportStore(that.grid.store, "excel")
 			var data = Ext.ux.exporter.Exporter.exportGrid(that.grid, "excel", {
 			    title: "会员列表"	
 			})
-			window.open("data:application/octet-stream," + encodeURIComponent(data), "neuesDokument")
+			//window.open("data:application/octet-stream," + encodeURIComponent(data), "neuesDokument")
+
+			window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;						
+			window.requestFileSystem(window.TEMPORARY, 1024 * 1024 * 10, function(fs){
+			    fs.root.getFile("export.xls", {create: true}, function(fileEntry){
+				fileEntry.createWriter(function(fileWriter) {
+				    var builder = new WebKitBlobBuilder();
+				    builder.append(data);
+				    var blob = builder.getBlob();
+
+				    fileWriter.onwriteend = function() {
+					// navigate to file, will download
+					location.href = fileEntry.toURL();
+				    };
+				    fileWriter.write(blob);
+				}, function() {});
+			    }, function(){})   
+			}, function(){})
+
 		    }
 		}
             ],

@@ -34,9 +34,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         var me = this;
 
         me.selectedItemIndex = 0;//init index
-
         me.selectedItems = {};
-
 	me.selectedPackages = {};
 
         me.canEditOrder = true;
