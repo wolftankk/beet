@@ -559,6 +559,23 @@ Ext.define("Beet.apps.customers.EndConsumer", {
         }
         var columns = me.orderProductPanel.__columns = [];
 
+        var _actions = {
+            xtype: 'actioncolumn',
+            width: 40,
+            header: "操作",
+            items: [
+            ]
+        }
+        _actions.items.push("-",{
+            icon: "./resources/themes/images/fam/cog_edit.png",
+            tooltip: "替换产品",
+            handler: function(grid, rowIndex, colIndex){
+                var d = grid.store.getAt(rowIndex)
+                me.replaceProduct(d);
+            }
+        }, "-");
+
+        columns.push(_actions);
         cardServer.GetConsumerProductsData(true, "", {
             success: function(data){
                 var data = Ext.JSON.decode(data)["MetaData"];
@@ -612,6 +629,67 @@ Ext.define("Beet.apps.customers.EndConsumer", {
                 totalProperty: "TotalCount"
             }
         }
+    },
+    replaceProduct: function(record){
+	var me = this,
+	    cardServer = Beet.constants.cardServer,
+	    oldPID = record.get("ProductID"),
+	    indexno = record.get("IndexNo"),
+	    id = record.get("ID");
+        var config = {
+            extend: "Ext.window.Window",
+            title: "选择产品",
+            width: 900,
+            height: 640,
+            autoScroll: true,
+            autoHeight: true,
+            layout: "fit",
+            resizable: true,
+            border: false,
+            modal: true,
+            maximizable: true,
+            border: 0,
+            bodyBorder: false,
+            editable: false
+        }
+        
+        var win = Ext.create("Ext.window.Window", config);
+        win.show();
+        win.add(Ext.create("Beet.apps.cards.ProductsList", {
+            b_type: "selection",
+            b_selectionMode: "SINGLE",
+            b_selectionCallback: function(records){
+                if (records.length == 0){ win.close(); return;}
+		var newRecord = records[0],
+		    newPID = newRecord.get("PID");
+		if (newPID == oldPID) {
+		    Ext.Msg.alert("失败", "你所选择的替换产品与当前产品相同, 请重新选择!");
+		    return;
+		}
+		var result = {
+		    indexno: indexno,
+		    itemid : id,
+		    oldpid : oldPID,
+		    newpid : newPID
+		}
+		cardServer.ReplaceProduct(Ext.JSON.encode(result), {
+		    success: function(succ){
+			if (succ) {
+			    Ext.Msg.alert("成功", "替换成功");
+			    me.orderItemPanel.store.loadPage(1);
+			}else{
+			    Ext.Msg.alert("失败", "替换失败");
+			}
+		    },
+		    failure: function(error){
+			Ext.Error.raise(error)
+		    }
+		})
+                //me.addProducts(records);
+                //win.close();
+            }
+        }));
+        win.doLayout();
     },
     initializeOrderProductsGrid: function(){
         var me = this, cardServer = Beet.constants.cardServer;

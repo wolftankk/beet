@@ -2734,13 +2734,11 @@ MyCardSvc.prototype.GetRebateTypes = function(__callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
-MyCardSvc.prototype.ReplaceProduct = function(AIndexNo, OldID, NewID, __callback) {
+MyCardSvc.prototype.ReplaceProduct = function(ProductInfoJSON, __callback) {
   var __message = {
     "method" : "MyCardSvc.ReplaceProduct",
     "params" : {
-      "AIndexNo": AIndexNo,
-      "OldID": OldID,
-      "NewID": NewID
+      "ProductInfoJSON": ProductInfoJSON
       }
   }
   var __callbacks = null;

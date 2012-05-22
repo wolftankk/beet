@@ -1786,7 +1786,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	    var pid = product.get("PID"),
 		ismember = product.get("ismember"),
 		memberprice = parseFloat(product.get("MemberPrice")) | 0,
-		normalprice = parseFloat(product.get("Price")) | 0,
+		normalprice = parseFloat(product.get("PRICE")) | 0,
 		count = parseFloat(product.get("COUNT")),
 		maxCount = parseFloat(product.get("maxCount")),
 		indexno = product.get("indexno");
@@ -1822,8 +1822,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	var productsStore = me.productsPanel.grid.getStore();
 	for (var c = 0; c < productsStore.getCount(); ++c){
 	    record = productsStore.getAt(c);
-	    var price = parseFloat(record.get("PRICE")),
-		count = parseFloat(record.get("COUNT")),
+	    var count = parseFloat(record.get("COUNT")),
 		pid = record.get("PID"),
 		pname = record.get("PName"),
 		packageId = record.get("packageId"),
@@ -1831,6 +1830,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		indexno = record.get("indexno"),
 		lastCount = record.get("lastCount"),
 		itemId = record.get("itemId"),
+		memberprice = record.get("MemberPrice") | 0,
+		normalprice = record.get("PRICE") | 0,
 		ismember = record.get("ismember");
 
 	    if (count < 0){
@@ -1841,6 +1842,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	    var p = {
 		pid: pid,
 		count: count,
+		//price : ismember ? memberprice : normalprice,
 		ismember : ismember
 	    }
 

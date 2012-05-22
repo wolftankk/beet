@@ -232,7 +232,7 @@ Ext.define("Beet.apps.customers.CustomerList", {
 
 				    fileWriter.onwriteend = function() {
 					// navigate to file, will download
-					location.href = fileEntry.toURL();
+					location.href = fileEntry.toURL("application/octet-stream");
 				    };
 				    fileWriter.write(blob);
 				}, function() {});
