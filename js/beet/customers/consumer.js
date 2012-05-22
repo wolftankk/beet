@@ -677,6 +677,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
 			if (succ) {
 			    Ext.Msg.alert("成功", "替换成功");
 			    me.orderItemPanel.store.loadPage(1);
+			    win.close();
 			}else{
 			    Ext.Msg.alert("失败", "替换失败");
 			}
@@ -685,8 +686,6 @@ Ext.define("Beet.apps.customers.EndConsumer", {
 			Ext.Error.raise(error)
 		    }
 		})
-                //me.addProducts(records);
-                //win.close();
             }
         }));
         win.doLayout();
