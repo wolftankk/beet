@@ -1009,3 +1009,23 @@ Ext.define("Beet.apps.Viewport", {
         }
     }
 });
+
+
+function exportToFile(data){
+    window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;						
+    window.requestFileSystem(window.TEMPORARY, 1024 * 1024 * 10, function(fs){
+	fs.root.getFile("export.xls", {create: true}, function(fileEntry){
+	    fileEntry.createWriter(function(fileWriter) {
+		var builder = new WebKitBlobBuilder();
+		builder.append(data);
+		var blob = builder.getBlob();
+
+		fileWriter.onwriteend = function() {
+		    // navigate to file, will download
+		    location.href = fileEntry.toURL();
+		};
+		fileWriter.write(blob);
+	    }, function() {});
+	}, function(){})   
+    }, function(){})
+}

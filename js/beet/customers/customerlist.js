@@ -221,24 +221,7 @@ Ext.define("Beet.apps.customers.CustomerList", {
 			    title: "会员列表"	
 			})
 			//window.open("data:application/octet-stream," + encodeURIComponent(data), "neuesDokument")
-
-			window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;						
-			window.requestFileSystem(window.TEMPORARY, 1024 * 1024 * 10, function(fs){
-			    fs.root.getFile("export.xls", {create: true}, function(fileEntry){
-				fileEntry.createWriter(function(fileWriter) {
-				    var builder = new WebKitBlobBuilder();
-				    builder.append(data);
-				    var blob = builder.getBlob();
-
-				    fileWriter.onwriteend = function() {
-					// navigate to file, will download
-					location.href = fileEntry.toURL("application/octet-stream");
-				    };
-				    fileWriter.write(blob);
-				}, function() {});
-			    }, function(){})   
-			}, function(){})
-
+			exportToFile(data)
 		    }
 		}
             ],
