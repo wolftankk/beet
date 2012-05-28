@@ -264,11 +264,11 @@ Ext.define("Beet.apps.cards.PackageProfile", {
 				    allowBlank: false,
 				    name: "name"
 				},
-				//{
-				//    fieldLabel: "总价",
-				//    allowBlank: false,
-				//    name: "price"
-				//},
+				{
+				    fieldLabel: "价格",
+				    allowBlank: false,
+				    name: "price"
+				},
 				{
 				    xtype: "combobox",
 				    fieldLabel: "所属分类",
