@@ -2734,6 +2734,40 @@ MyCardSvc.prototype.GetRebateTypes = function(__callback) {
   Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
 }
 
+MyCardSvc.prototype.ReplaceProduct = function(ProductInfoJSON, __callback) {
+  var __message = {
+    "method" : "MyCardSvc.ReplaceProduct",
+    "params" : {
+      "ProductInfoJSON": ProductInfoJSON
+      }
+  }
+  var __callbacks = null;
+  if (__callback) {
+    __callbacks = {
+      callback : __callback,
+      success : function (o) {
+        var __result = JSON.parse(o.responseText);
+        if (__result.error)
+        {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.failure(__result.error);
+        } else {
+          if ((typeof this.callback == "object") && this.callback.failure)
+            this.callback.success(__result.result);
+          else
+            this.callback(__result.result);
+        }
+      },
+      failure : function (o) {
+        if ((typeof this.callback == "object") && this.callback.failure) 
+            this.callback.failure(o);
+      },
+      timeout : 30000
+    }
+  }
+  Beet_connection.asyncRequest("POST", this.url, __callbacks, Ext.JSON.encode(__message));
+}
+
 MyCardSvc.prototype.UpdateCard = function(CardJSON, __callback) {
   var __message = {
     "method" : "MyCardSvc.UpdateCard",
@@ -3213,7 +3247,7 @@ MyCardLoginSvc.prototype.Logout = function(__callback) {
         Ext.util.Cookies.clear("_sid");
       },
       failure : function (o) {
-        if ((typeof this.callback == "object") && this.callback.failure)
+        if ((typeof this.callback == "object") && this.callback.failure) 
             this.callback.failure(o);
         Ext.util.Cookies.clear("_sid");
       },

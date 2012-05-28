@@ -34,9 +34,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         var me = this;
 
         me.selectedItemIndex = 0;//init index
-
         me.selectedItems = {};
-
 	me.selectedPackages = {};
 
         me.canEditOrder = true;
@@ -769,6 +767,24 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         columns.push(_actions);
         columns = columns.concat([
             {
+                dataIndex: "ismember",
+                xtype: "checkcolumn",
+                header: "会员?",
+                width: 40,
+                editor: {
+                    xtype: "checkbox",
+                    cls: 'x-grid-checkheader-editor'
+                },
+		listeners: {
+		    //需要自动增强
+		    checkchange: function(f){
+			me.autoCalculate();
+			//TODO
+			//NEED PROCESS PRODUCTS
+		    }
+		}
+            },
+            {
                 dataIndex: "isgiff",
                 xtype: "checkcolumn",
                 header: "赠送?",
@@ -814,7 +830,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     }
                 };
 
-                me.itemsPanel.__fields = fields.concat([{name: "isgiff", type: "bool"}, "packageName", "packageId" , "itemDuration", "itemPrice", "maxCount", "lastCount", "indexno", "_uuid", "_groupName"]);
+                me.itemsPanel.__fields = fields.concat([{name: "isgiff", type: "bool"}, {name: "ismember", type: "bool"}, "packageName", "packageId" , "itemDuration", "itemPrice", "maxCount", "lastCount", "indexno", "_uuid", "_groupName"]);
                 me.itemsPanel.__columns = columns.concat([
 		    {
 			dataIndex: "itemDuration",
@@ -1037,6 +1053,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             }
 
             rawData["_uuid"] = Beet.uuid.get();
+	    rawData["ismember"] = true;//default ismember: true
 
 	    if (!rawData["_groupName"]){
 		if (!!rawData["itemName"]){
@@ -1389,6 +1406,23 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         }, "-");
 
         columns.push(_actions);
+	columns.push(
+            {
+                dataIndex: "ismember",
+                xtype: "checkcolumn",
+                header: "会员?",
+                width: 40,
+                editor: {
+                    xtype: "checkbox",
+                    cls: 'x-grid-checkheader-editor'
+                },
+		listeners: {
+		    checkchange: function(f){
+			//me.autoCalculate();
+		    }
+		}
+            }
+	)
         cardServer.GetPackageProductData(1,{
             success: function(data){
                 var data = Ext.JSON.decode(data)["MetaData"];
@@ -1428,7 +1462,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     }
                 }
 
-		me.productsPanel.__fields = fields.concat(["indexno", "itemName", "itemId", "packageName", "packageId", "maxCount", "lastCount", "_groupName", "_price"]);
+		me.productsPanel.__fields = fields.concat(["indexno", "itemName", "itemId", {name:"ismember", type:"bool"}, "packageName", "packageId", "maxCount", "lastCount", "_groupName", "_price"]);
 		me.productsPanel.__columns = columns.concat([
 		    {
 			dataIndex: "_price",
@@ -1593,6 +1627,8 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                 rawData = record.raw || record.data;
             }
 
+	    rawData["ismember"] = true
+
 	    if (!rawData["_groupName"]){
 		if (!!rawData["itemName"]){
 		    rawData["_groupName"] = "所属项目: " + rawData["itemName"]
@@ -1734,7 +1770,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 
 	for (var c = 0; c < itemsStore.getCount(); ++c){
 	    var item = itemsStore.getAt(c);
-	    var isgiff = item.get("isgiff"), price = item.get("itemPrice"),
+	    var isgiff = item.get("isgiff"), ismember = item.get("ismember"), price = item.get("itemPrice"),
 		indexno = item.get("indexno");
 	    if (price > 0 && !isgiff){
 		if (indexno && indexno != Beet.constants.FAILURE){
@@ -1747,17 +1783,19 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 
 	for (var c = 0; c < productsStore.getCount(); ++c){
 	    var product = productsStore.getAt(c);
-	    var pid = product.get("PID"), isMember = product.get("_isMember"),
-		memberprice = parseFloat(product.get("MemberPrice")),
+	    var pid = product.get("PID"),
+		ismember = product.get("ismember"),
+		memberprice = parseFloat(product.get("MemberPrice")) | 0,
+		normalprice = parseFloat(product.get("PRICE")) | 0,
 		count = parseFloat(product.get("COUNT")),
 		maxCount = parseFloat(product.get("maxCount")),
 		indexno = product.get("indexno");
 
-	    if (count > 0 && maxCount > 0 && !!memberprice){
+	    if (count > 0 && maxCount > 0){
 		if (indexno && indexno != Beet.constants.FAILURE){
 		    cost += 0;
 		}else{
-		    cost += memberprice * count * maxCount;
+		    cost += ( ismember ? memberprice : price) * count * maxCount;
 		}
 	    }
 	}
@@ -1784,15 +1822,17 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	var productsStore = me.productsPanel.grid.getStore();
 	for (var c = 0; c < productsStore.getCount(); ++c){
 	    record = productsStore.getAt(c);
-	    var price = parseFloat(record.get("PRICE")),
-		count = parseFloat(record.get("COUNT")),
+	    var count = parseFloat(record.get("COUNT")),
 		pid = record.get("PID"),
 		pname = record.get("PName"),
 		packageId = record.get("packageId"),
 		maxCount = record.get("maxCount"),
 		indexno = record.get("indexno"),
 		lastCount = record.get("lastCount"),
-		itemId = record.get("itemId");
+		itemId = record.get("itemId"),
+		memberprice = record.get("MemberPrice") | 0,
+		normalprice = record.get("PRICE") | 0,
+		ismember = record.get("ismember");
 
 	    if (count < 0){
 		Ext.Msg.alert("警告", "产品 " + pname + " 需要设置消耗数量!");
@@ -1801,7 +1841,9 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 
 	    var p = {
 		pid: pid,
-		count: count
+		count: count,
+		//price : ismember ? memberprice : normalprice,
+		ismember : ismember
 	    }
 
 	    if (indexno){
@@ -1847,6 +1889,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		    packageId = record.get("packageId"),
 		    maxCount  = record.get("maxCount"),
 		    indexno = record.get("indexno"),
+		    ismember = record.get("ismember"),
 		    lastCount = record.get("lastCount"),
 		    tabId = "tab" + uuid, tab = me.tabCache[tabId],
 		    employees = [], employeeStore = tab.grid.getStore();
@@ -1864,6 +1907,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			itemid: itemId,
 			timelength: itemDuration,
 			isgiff: isgiff,
+			ismember : ismember,
 			employees: employees
 		    }
 
