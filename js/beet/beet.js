@@ -1041,11 +1041,10 @@ function exportToFile(data, name, callback){
 		    save_link.href = object_url;
 		    save_link.download = name
 		    
-		    if (callback && type(callback) == "function"){
-			callback();
-		    }
-
 		    if (click(save_link)){
+			if (callback && typeof(callback) == "function"){
+			    callback();
+			}
 		        return;
 		    }
 		};
