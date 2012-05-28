@@ -1011,18 +1011,39 @@ Ext.define("Beet.apps.Viewport", {
 });
 
 
-function exportToFile(data){
+function exportToFile(data, name){
+    var save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a"),
+	can_use_save_link = "download" in save_link,
+	click = function(node){
+	    var event = document.createEvent("MouseEvents");
+	    event.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false,0, null)
+	    return node.dispatchEvent(event);
+	},
+	get_object_url = function(blob){
+	    var object_url = webkitURL.createObjectURL(blob);
+	    return object_url
+	};
+
+    if (!name){
+	name = "download"
+    }
+
     window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;						
     window.requestFileSystem(window.TEMPORARY, 1024 * 1024 * 10, function(fs){
-	fs.root.getFile("export.xls", {create: true}, function(fileEntry){
+	fs.root.getFile(name, {create: true}, function(fileEntry){
 	    fileEntry.createWriter(function(fileWriter) {
 		var builder = new WebKitBlobBuilder();
 		builder.append(data);
 		var blob = builder.getBlob();
 
 		fileWriter.onwriteend = function() {
-		    // navigate to file, will download
-		    location.href = fileEntry.toURL();
+		    //location.href = fileEntry.toURL();
+		    var object_url = get_object_url(blob)
+		    save_link.href = object_url;
+		    save_link.download = name
+		    if (click(save_link)){
+		        return;
+		    }
 		};
 		fileWriter.write(blob);
 	    }, function() {});
