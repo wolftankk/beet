@@ -1011,7 +1011,7 @@ Ext.define("Beet.apps.Viewport", {
 });
 
 
-function exportToFile(data, name){
+function exportToFile(data, name, callback){
     var save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a"),
 	can_use_save_link = "download" in save_link,
 	click = function(node){
@@ -1040,6 +1040,11 @@ function exportToFile(data, name){
 		    var object_url = get_object_url(blob)
 		    save_link.href = object_url;
 		    save_link.download = name
+		    
+		    if (callback && type(callback) == "function"){
+			callback();
+		    }
+
 		    if (click(save_link)){
 		        return;
 		    }

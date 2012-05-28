@@ -216,11 +216,24 @@ Ext.define("Beet.apps.customers.CustomerList", {
 		    xtype: "button",
 		    text : "导出",
 		    handler: function(f){
-			//var data = Ext.ux.exporter.Exporter.exportStore(that.grid.store, "excel")
-			var data = Ext.ux.exporter.Exporter.exportGrid(that.grid, "excel", {
-			    title: "会员列表"	
+			//get page size
+			var totalCount = that.storeProxy.getTotalCount();
+			Beet.constants.customerServer.GetCustomerPageData(0, totalCount, "", {
+			    success: function(data){
+				var data = Ext.JSON.decode(data);
+				data = data["Data"];
+				that.storeProxy.loadData(data);
+				var data = Ext.ux.exporter.Exporter.exportGrid(that.grid, "excel", {
+				    title: "会员列表"	
+				})
+				exportToFile(data, "customers.xls", function(){
+				    that.storeProxy.loadPage(that.storeProxy.currentPage);   
+				})
+			    },
+			    failure: function(error){
+				Ext.Error.raise(error)
+			    }
 			})
-			exportToFile(data, "customers.xls")
 		    }
 		}
             ],

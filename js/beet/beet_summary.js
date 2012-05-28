@@ -147,12 +147,12 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
 		    },
 		    {
 			xtype: "button",
-			text : "Export",
+			text : "导出",
 			handler: function(f){
 			    var data = Ext.ux.exporter.Exporter.exportGrid(me.ordergrid, "excel", {
 				title: "会员消费查询"	
 			    })
-			    window.open("data:application/octet-stream," + encodeURIComponent(data), "neuesDokument")
+			    exportToFile(data, "统计.xls")
 			}
 		    }
 		],
