@@ -220,8 +220,7 @@ Ext.define("Beet.apps.customers.CustomerList", {
 			var data = Ext.ux.exporter.Exporter.exportGrid(that.grid, "excel", {
 			    title: "会员列表"	
 			})
-			//window.open("data:application/octet-stream," + encodeURIComponent(data), "neuesDokument")
-			exportToFile(data)
+			exportToFile(data, "customers.xls")
 		    }
 		}
             ],

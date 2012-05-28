@@ -1037,7 +1037,6 @@ function exportToFile(data, name){
 		var blob = builder.getBlob();
 
 		fileWriter.onwriteend = function() {
-		    //location.href = fileEntry.toURL();
 		    var object_url = get_object_url(blob)
 		    save_link.href = object_url;
 		    save_link.download = name
