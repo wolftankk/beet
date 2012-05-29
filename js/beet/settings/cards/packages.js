@@ -74,9 +74,9 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                 if (data && data.length > 0){
                     data = data[0];
                     me.form.getForm().setValues({
-                        name:                data["Name"],
-                        price:                data["PPrice"],
-                        descript:        data["Descript"],
+                        name:         data["Name"],
+                        price:        data["PPrice"],
+                        descript:     data["Descript"],
                         _packageName: data["PCategoryName"],
 			serviceid:    data["ServiceID"]
                     });
@@ -335,11 +335,11 @@ Ext.define("Beet.apps.cards.PackageProfile", {
 				    displayField: "name",
 				    valueField: "attr",
 				},
-				{
-				    xtype: "component",
-				    height: 10,
-				    width: 5
-				},
+				//{
+				//    xtype: "component",
+				//    height: 10,
+				//    width: 5
+				//},
 				{
 				    fieldLabel: "注释",
 				    colspan: 2,
@@ -423,8 +423,8 @@ Ext.define("Beet.apps.cards.PackageProfile", {
             xtype: 'actioncolumn',
             width: 30,
             header: "操作",
-            items: [
-            ]
+	    items: [
+	    ]
         }
         _actions.items.push("-",{
             icon: "./resources/themes/images/fam/delete.gif",
@@ -451,6 +451,11 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                 },
             }
         ])
+
+	var itemDurationStore = Ext.create("Ext.data.Store", {
+	    fields: ["Price", "TimeLength"]   
+	})
+
         cardServer.GetItemPageData(0, 1, "", {
             success: function(data){
                 var data = Ext.JSON.decode(data)["MetaData"];
@@ -471,8 +476,24 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                         })
                     }
                 }
-
-                me.itemsPanel.__columns = columns;
+		me.itemsPanel.__fields = fields.concat([{name: "isgiff", type: "bool"}, "itemDuration"]);
+                me.itemsPanel.__columns = columns.concat([
+		    {
+			dataIndex: "itemDuration",
+			header:  "项目时长",
+			flex: 1,
+			field:{
+			    allowBlank: false,
+			    listClass: 'x-combo-list-small',
+			    xtype: "combobox",
+			    editable: false,
+			    store: itemDurationStore,
+			    queryMode: "local",
+			    displayField: "TimeLength",
+			    valueField: "TimeLength"
+			}
+		    }
+		])
                 me.initializeItemsGrid();
             },
             failure: function(error){
@@ -495,7 +516,49 @@ Ext.define("Beet.apps.cards.PackageProfile", {
                 cls: "iScroll",
                 autoScroll: true,
                 columnLines: true,
-                columns: me.itemsPanel.__columns
+                columns: me.itemsPanel.__columns,
+		plugins: [
+		    Ext.create("Ext.grid.plugin.RowEditing", {
+			clicksToEdit: 1,
+			listeners: {
+			    beforeedit: function(e){
+				var record = e.record, itemID = record.get("IID");
+				var field = e.column.field
+				var parent = field.ownerCt;
+				var itemDurationField = parent.down("combobox[name=itemDuration]")
+
+				console.log(itemDurationField)
+				if (itemDurationField && itemDurationField.store){
+				    var store = itemDurationField.store; 
+				    cardServer.GetItemPricePageData(0, 999, "IID='"+itemID+"' AND IsMember = 1 ", {
+					success: function(data){
+					     var data = Ext.JSON.decode(data);
+					     data = data["Data"];
+					     store.loadData(data)
+					},
+					failure: function(){
+					}
+				    })
+				}
+			    },
+			    edit: function(e){
+				var record = e.record, itemID = record.get("IID"), field = e.column.field;
+				var itemDuration = record.get("itemDuration");
+				var parent = field.ownerCt;
+				var itemDurationField = parent.down("combobox[name=itemDuration]")
+				var itemDurationStore = itemDurationField.store;
+
+				//直接选择时常
+				if (itemDurationField && itemDurationStore){
+				    var index = itemDurationStore.find("TimeLength", itemDuration);
+				    var itemDurationRecord = itemDurationStore.getAt(index)
+
+				    record.commit();
+				}
+			    }
+			}
+		    })
+		]
             });
 
             me.itemsPanel.add(grid);
@@ -749,24 +812,36 @@ Ext.define("Beet.apps.cards.PackageProfile", {
         //    addBtn.disable();
         //}
     },
-    ///**
-    // * @description 处理所提交的数据
-    // *
-    // * @param action String 需要处理的动作(add, edit)
-    // */
     processData: function(f, action){
         var me = this, cardServer = Beet.constants.cardServer;
         var form = f.up("form").getForm(), result = form.getValues();
+	
+	var price = parseInt(result["price"]);
+	if (isNaN(price) || price == 0){
+	    Ext.MessageBox.alert("失败", "请填写套餐价格.");
+	}
+
 
 	var itemsStore = me.itemsPanel.grid.store;
 	if (itemsStore.getCount() > 0){
 	    var items = [];
 	    itemsStore.each(function(record){
-		items.push(record.get("IID"))	
+	        var iid = record.get("IID"), timeLength = record.get("itemDuration"),
+		    isgiff = record.get("isgiff");
+		    timeLength = parseInt(timeLength);
+		    if (isNaN(timeLength) || timeLength == 0){
+			Ext.MessageBox.alert("失败", record.get("IName") + " 需要选择项目时长!");
+			return;
+		    }
+		items.push({
+		    id: iid,
+		    timelength: timeLength   
+		})
+		//items.push(record.get("IID"))	
 	    })
 	    result["items"] = items;
 	}
-    
+
 	var productsStore = me.productsPanel.grid.store;
 	if (productsStore.getCount() > 0){
 	    var products = [];
