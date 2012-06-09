@@ -1,12 +1,12 @@
-registerMenu("customers", "customerAdmin", "会员管理",
+Beet.registerMenu("customers", "customerAdmin", "会员管理",
     [
         {
             xtype: "button",
             text: "增加会员",
             tooltip: "点击打开新增会员界面",
-	    listeners: {
-		added: checkPermission
-	    },
+	    //listeners: {
+	    //    added: checkPermission
+	    //},
             handler: function(){
                 var item = Beet.cache.menus["customers.AddCustomer"];
                 if (!item){

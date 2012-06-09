@@ -1,4 +1,4 @@
-registerMenu("customers", "customerAdmin", "会员管理",
+Beet.registerMenu("customers", "customerAdmin", "会员管理",
     [
         {
             xtype: "button",
@@ -311,6 +311,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
             "serviceno" : ""
         })
         me.selectedItems = {};
+	me.selectedPackages = {};
         me.selectedCustomerId = null;
         me.customerInfoBtn.disable();
         
@@ -779,8 +780,6 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		    //需要自动增强
 		    checkchange: function(f){
 			me.autoCalculate();
-			//TODO
-			//NEED PROCESS PRODUCTS
 		    }
 		}
             },
@@ -1061,6 +1060,10 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 
             rawData["_uuid"] = Beet.uuid.get();
 	    rawData["ismember"] = true;//default ismember: true
+
+	    if (!rawData["maxCount"]) {
+		rawData["maxCount"] = 1;
+	    }
 
 	    if (!rawData["_groupName"]){
 		if (!!rawData["itemName"]){
@@ -1642,6 +1645,10 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 
 	    rawData["ismember"] = true
 
+	    if (!rawData["maxCount"]) {
+		rawData["maxCount"] = 1;
+	    }
+
 	    if (!rawData["_groupName"]){
 		if (!!rawData["itemName"]){
 		    rawData["_groupName"] = "所属项目: " + rawData["itemName"]
@@ -1706,7 +1713,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	}
 	for (var c = 0; c < records.length; c++){
 	    var record = records[c], packageId = record.get("ID"), packageName = record.get("Name"), packagePrice = record.get("Price");
-	    me.selectPackage[packageId] = {
+	    me.selectedPackages[packageId] = {
 		"package": record.data
 	    }
 
@@ -1737,7 +1744,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				data[i]["itemPrice"] = "套餐总价: " + packagePrice;
 				data[i]["packagePrice"] = packagePrice;
 			    }
-			    me.selectPackage[packageId]["items"] = data;
+			    me.selectedPackages[packageId]["items"] = data;
 			    me.addItems(data, true);
 			},
 			failure: function(error){
@@ -1760,7 +1767,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		    product["packageId"] = packageId;
 		    product["packageName"] = packageName;
 		}
-		//me.selectedPackages[packageId]["products"] = data;
+		me.selectedPackages[packageId]["products"] = data;
 		me.addProducts(data, true);
             },
             failure: function(error){
@@ -1804,6 +1811,10 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 		}
 	    }
 	}
+
+	Ext.Object.each(me.selectedPackages, function(id, data) {
+	    cost += parseFloat(data["package"]["Price"]);
+	}) 
 
 	me.orderprice.setValue(cost);
     },

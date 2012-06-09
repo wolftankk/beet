@@ -1,7 +1,7 @@
 /**
  * @module CustomertActicity
  */
-registerMenu("customers", "customerActivity", "活动管理",
+Beet.registerMenu("customers", "customerActivity", "活动管理",
 	[
 		{
 			xtype: "button",

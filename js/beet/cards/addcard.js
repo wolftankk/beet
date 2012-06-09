@@ -1,4 +1,4 @@
-registerMenu("cards", "cardAdmin", "卡项管理",
+Beet.registerMenu("cards", "cardAdmin", "卡项管理",
     [
 	{
             xtype: "button",

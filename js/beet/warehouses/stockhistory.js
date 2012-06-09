@@ -1,4 +1,4 @@
-registerMenu("warehouses", "whAdmin", "库存管理",
+Beet.registerMenu("warehouses", "whAdmin", "库存管理",
     [
 	{
 	    xtype: "button",

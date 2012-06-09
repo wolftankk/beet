@@ -1,4 +1,4 @@
-registerMenu("settings", "employeeAdmin", "员工管理",
+Beet.registerMenu("settings", "employeeAdmin", "员工管理",
     [
 	{
 	    text: "分店设定",

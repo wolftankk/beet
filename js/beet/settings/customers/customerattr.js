@@ -1,4 +1,4 @@
-registerMenu("settings", "customerAdmin", "会员管理",
+Beet.registerMenu("settings", "customerAdmin", "会员管理",
     [
 	{
 	    text: "会员属性",

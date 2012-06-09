@@ -1,4 +1,4 @@
-registerMenu("settings", "cardAdmin", "产品管理",
+Beet.registerMenu("settings", "cardAdmin", "产品管理",
     [
 	{
 	    text: "费用设置",

@@ -1,4 +1,4 @@
-registerMenu("customers", "customerAdmin", "会员管理",
+Beet.registerMenu("customers", "customerAdmin", "会员管理",
     [
         {
             xtype: "button",
@@ -226,7 +226,7 @@ Ext.define("Beet.apps.customers.CustomerList", {
 				var data = Ext.ux.exporter.Exporter.exportGrid(that.grid, "excel", {
 				    title: "会员列表"	
 				})
-				exportToFile(data, "customers.xls", function(){
+				Beet.exportToFile(data, "customers.xls", function(){
 				    that.storeProxy.loadPage(that.storeProxy.currentPage);   
 				})
 			    },

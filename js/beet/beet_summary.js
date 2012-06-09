@@ -1,6 +1,6 @@
 Ext.namespace("Beet.apps.summary")
 
-registerMenu("summary", "summaryCustomer", "消费统计",
+Beet.registerMenu("summary", "summaryCustomer", "消费统计",
     [
         {
             xtype: "button",
@@ -152,7 +152,7 @@ Ext.define("Beet.apps.summary.CustomerConsumer", {
 			    var data = Ext.ux.exporter.Exporter.exportGrid(me.ordergrid, "excel", {
 				title: "会员消费查询"	
 			    })
-			    exportToFile(data, "统计.xls")
+			    Beet.exportToFile(data, "统计.xls")
 			}
 		    }
 		],

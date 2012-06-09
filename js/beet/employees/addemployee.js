@@ -1,4 +1,4 @@
-registerMenu("employees", "employeeAdmin", "员工管理",
+Beet.registerMenu("employees", "employeeAdmin", "员工管理",
     [
         {
             xtype: "button",

@@ -1,4 +1,4 @@
-registerMenu("customers", "customerServer", "客户联系",
+Beet.registerMenu("customers", "customerServer", "客户联系",
 	[
 		{
 			xtype: "button",

@@ -1,8 +1,10 @@
+//(function(window, undefined) {
+//"use strict";
 /**
  * Beet core
  *
  */
-Beet = {
+var Beet = {
     apps : {},
     cache : {
         Users : {},
@@ -45,8 +47,9 @@ Beet = {
     }
 }
 
+
 if (!Beet.constants.now){
-    now = new Date();
+    var now = new Date();
     Beet.constants.now = +now;    
     Beet.constants.timezoneOffset = now.getTimezoneOffset() * 60;
 }
@@ -62,7 +65,7 @@ if (!Beet.constants.now){
     Beet.uuid.get = get;
 })(window)
 
-function registerMenu(type, name, title, data){
+Beet.registerMenu = function(type, name, title, data){
     if (!Beet.menus[type]){
         throw new Error("This `" + type + "` has not registed")
     }
@@ -860,7 +863,6 @@ Ext.define("Beet.apps.Viewport", {
                 bodyStyle: "background-color: #dfe8f5",
                 plain: true
             },
-            border: false,
             bodyStyle: "background-color: #dfe8f5",
             autoDestroy: true,
             listeners: {
@@ -1011,12 +1013,12 @@ Ext.define("Beet.apps.Viewport", {
 /**
  * 检查权限
  */
-function checkPermission(permission){
+Beet.checkPermission = function(permission){
     var me = this, privilegeServer = Beet.constants.privilegeServer;
     //get permission
 }
 
-function exportToFile(data, name, callback){
+Beet.exportToFile = function(data, name, callback){
     var save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a"),
 	can_use_save_link = "download" in save_link,
 	click = function(node){
@@ -1058,3 +1060,7 @@ function exportToFile(data, name, callback){
 	}, function(){})   
     }, function(){})
 }
+ 
+//window.Beet = Beet;
+
+//})(window, undefined)
