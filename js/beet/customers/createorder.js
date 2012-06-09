@@ -936,6 +936,13 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				    return false;
 				}
 
+				//package
+				var packageId = record.get("packageId");
+				if (!!packageId && packageId != "") {
+				    Ext.MessageBox.alert("错误", "该项目无法修改, 因为此项目是套餐项目, 只能指定服务人员");
+				    return false;
+				}
+
 				var parent = field.ownerCt;
 				//console.log(field, field.ownerCt)
 				var itemDurationField = parent.down("combobox[name=itemDuration]")
@@ -1546,6 +1553,12 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 				    return false;
 				}
 
+				var packageId = record.get("packageId");
+				if (!!packageId && packageId!= ""){
+				    Ext.MessageBox.alert("错误", "该产品无法修改, 此产品是套餐中的产品");
+				    return false;
+				}
+
 				if (!!record.get("itemName")){
 				    Ext.MessageBox.show({
 					title: "错误",
@@ -1692,34 +1705,39 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	    return;
 	}
 	for (var c = 0; c < records.length; c++){
-	    var record = records[c], packageId = record.get("ID"), packageName = record.get("Name");
+	    var record = records[c], packageId = record.get("ID"), packageName = record.get("Name"), packagePrice = record.get("Price");
 	    me.selectPackage[packageId] = {
 		"package": record.data
 	    }
 
 	    //load items
-	    me.loadPackage(packageId, packageName)
+	    me.loadPackage(packageId, packageName, packagePrice)
 	}
     },
-    loadPackage: function(packageId, packageName){
+    loadPackage: function(packageId, packageName, packagePrice){
 	var me = this, cardServer = Beet.constants.cardServer;
-	cardServer.GetPackagesItems(packageId, {
+	cardServer.GetPackageItemData(packageId, {
 	    success: function(data){
-		data = Ext.JSON.decode(data)["items"];
-		var sql = []
-		for (var c = 0; c < data.length; ++c){
-		    sql.push("iid=" + data[c]);
+		var items = Ext.JSON.decode(data)["Data"];
+		var sql = [], _items = {};
+		for (var c = 0; c < items.length; ++c){
+		    sql.push("iid=" + items[c]["ItemID"]);
+		    _items[items[c]["ItemID"]] = items[c]["TimeLength"]
 		}
 		var s = sql.join(" OR ");
 		if (s.length > 0){
 		    cardServer.GetItemPageData(1, 1000000, s, {
 			success: function(data){
 			    var data = Ext.JSON.decode(data)["Data"];
-			    for (var d = 0; d < data.length; d++){
-				data[d].packageName = packageName;
-				data[d].packageId = packageId;
+			    for (var i = 0; i < data.length; ++i) {
+				data[i]["itemDuration"] = _items[data[i]["IID"]];
+				data[i]["packageName"] = packageName;
+				data[i]["packageId"] = packageId;
+				data[i]["maxCount"] = 1;
+				data[i]["itemPrice"] = "套餐总价: " + packagePrice;
+				data[i]["packagePrice"] = packagePrice;
 			    }
-			    me.selectPackage[packageId].items = data;
+			    me.selectPackage[packageId]["items"] = data;
 			    me.addItems(data, true);
 			},
 			failure: function(error){
@@ -1734,29 +1752,16 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	});
 
 	//load product
-        cardServer.GetPackageProducts(packageId, {
+        cardServer.GetPackageProductData(packageId, {
             success: function(data){
-                data = Ext.JSON.decode(data)["products"];
-                var sql = [];
-                for (var c = 0; c < data.length; ++c){
-                    sql.push("pid=" + data[c]);
-                }
-                var s = sql.join(" OR ");
-                if (s.length > 0){
-                    cardServer.GetProductPageData(1, data.length, s, {
-                        success: function(data){
-                            var data = Ext.JSON.decode(data)["Data"];
-			    for (var d = 0; d < data.length; d++){
-				data[d].packageName = packageName;
-				data[d].packageId = packageId;
-			    }
-                            me.addProducts(data, true);
-                        },
-                        failure: function(error){
-                            Ext.Error.raise(error)
-                        }
-                    });
-                }
+		var data = Ext.JSON.decode(data)["Data"]
+		for (var c = 0; c < data.length; c++) {
+		    var product = data[c];
+		    product["packageId"] = packageId;
+		    product["packageName"] = packageName;
+		}
+		//me.selectedPackages[packageId]["products"] = data;
+		me.addProducts(data, true);
             },
             failure: function(error){
                 Ext.Error.raise(error)
