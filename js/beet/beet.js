@@ -39,17 +39,6 @@ Beet = {
         ACT_DELETE_IID: '{593DD697-70AC-44AE-892E-5588041054A1}',
         ACT_SELECT_IID: '{D61570E6-EB82-4B22-A218-8881C71D692A}',
 
-	/*
-        privileges: {
-            customer_addBtn : [
-                '{91677AFA-78C0-4A61-A4C0-C73C9F415819}'
-            ],
-            customer_editBtn : [
-                '{D61570E6-EB82-4B22-A218-8881C71D692A}' 
-            ]
-        },
-	*/
-
         WORKSPACE_WIDTH: Ext.core.Element.getViewWidth(),
         WORKSPACE_HEIGHT: Ext.core.Element.getViewHeight(),
         VIEWPORT_HEIGHT: Ext.core.Element.getViewHeight() - 137
@@ -90,6 +79,10 @@ function registerMenu(type, name, title, data){
         }
     }
     Beet.menus[type].menus[name].data.push(data);
+
+    if (Beet.navigationbar) {
+	//Beet.navigationbar.refreshMenu();
+    }
 }
 
 if (!String.prototype.replaceAll){
@@ -167,7 +160,10 @@ Ext.define("Beet.apps.HeaderPanel", {
 		    }
 		    if (menus[menuName].data && menus[menuName].data.length > 0){
 		       for (var a = 0; a < menus[menuName].data.length; ++a){
-			   menus[menuName].panel.add(menus[menuName].data[a]);
+			   var list = menus[menuName].data[a]
+			   for (var i = 0; i < list.length; ++i){
+			       menus[menuName].panel.add(list[i])
+			   }
 		       }
 		    }
 		}
@@ -1010,6 +1006,13 @@ Ext.define("Beet.apps.Viewport", {
     }
 });
 
+/**
+ * 检查权限
+ */
+function checkPermission(permission){
+    var me = this, privilegeServer = Beet.constants.privilegeServer;
+    //get permission
+}
 
 function exportToFile(data, name, callback){
     var save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a"),

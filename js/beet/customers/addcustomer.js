@@ -3,8 +3,10 @@ registerMenu("customers", "customerAdmin", "会员管理",
         {
             xtype: "button",
             text: "增加会员",
-            id: "customer_addBtn",
             tooltip: "点击打开新增会员界面",
+	    listeners: {
+		added: checkPermission
+	    },
             handler: function(){
                 var item = Beet.cache.menus["customers.AddCustomer"];
                 if (!item){
