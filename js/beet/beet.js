@@ -330,10 +330,10 @@ Ext.define("Beet.apps.HeaderToolbar", {
             '-',
             //help
             "当前用户: ", that.username, '-', ' ', 
-            that.logoutButton, ' ',
+            that.logoutButton, '-',
             that.toggleButton, ' ',
-            that.helpButton,
-            //add clock
+            //that.helpButton,
+	    "-",
             {
                 xtype: "trayclock"
             }
@@ -426,6 +426,9 @@ Ext.define("Beet.apps.HeaderToolbar", {
                                 window.location = "index.html";    
                             },
                             failure: function(){
+                                Ext.util.Cookies.clear("userName");
+                                Ext.util.Cookies.clear("userId");
+                                Ext.util.Cookies.clear("sessionId");
                                 window.location = "index.html";        
                             }
                         });    
@@ -435,7 +438,6 @@ Ext.define("Beet.apps.HeaderToolbar", {
         };
         return config;
     },
-    //右边区域
     getHelpButtonConfig: function(){
         var that = this, config;
         config = {
