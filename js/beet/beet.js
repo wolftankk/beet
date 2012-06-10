@@ -899,11 +899,11 @@ Ext.define("Beet.apps.Viewport", {
                                 //force reset width & height
                                 realPanel.addListener({
                                     resize: function(f, adjWidth, adjHeight, opts){
-                                        f.setAutoScroll(false);
-                                        f.setWidth(adjWidth);
-                                        f.setHeight(adjHeight);
-                                        f.doLayout();
-                                        f.setAutoScroll(true)
+                                        //f.setAutoScroll(false);
+                                        //f.setHeight(adjHeight);
+                                        //f.setWidth(adjWidth);
+                                        //f.doLayout();
+                                        //f.setAutoScroll(true)
                                     }
                                 })
                             }
