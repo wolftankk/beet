@@ -1142,6 +1142,12 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	    }
 	}
 
+	var packageId = record.get("packageId");
+	if (!!packageId && packageId != "") {
+	    Ext.MessageBox.alert("错误", "该项目无法删除, 因为此项目是套餐项目");
+	    return false;
+	}
+
 	//这里同时也要做相关检测
 	if (products && products.length > 0){
 	    var _products = [];
@@ -1501,7 +1507,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 			flex: 1
 		    },
 		    {
-			header: "所属分类",
+			header: "所属套餐",
 			dataIndex: "packageName",
 			flex: 1
 		    }
@@ -1671,7 +1677,7 @@ Ext.define("Beet.apps.customers.CreateOrder", {
         var me = this;
 	var store = me.productsPanel.grid.store;
 	//check has item?
-	itemName = record.get("itemName");
+	var itemName = record.get("itemName");
 	if (!!itemName){
 	    Ext.MessageBox.show({
 		title: "无法删除产品: " + record.get("PName"),
@@ -1680,7 +1686,13 @@ Ext.define("Beet.apps.customers.CreateOrder", {
 	    });
 	    return;
 	}else{
-	    store.remove(record);
+	    var packageId = record.get("packageId");
+	    if (!!packageId && packageId!= ""){
+		Ext.MessageBox.alert("错误", "该产品无法删除, 此产品是套餐中的产品");
+		return false;
+	    }else{
+		store.remove(record);
+	    }
 	}
 	me.autoCalculate();
     },

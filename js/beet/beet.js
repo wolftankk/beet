@@ -1,4 +1,3 @@
-//(function(window, undefined) {
 //"use strict";
 /**
  * Beet core
@@ -56,11 +55,9 @@ if (!Beet.constants.now){
 
 (function(window){
     var uuid = 1;
-    
     function get(){
 	return uuid++;
     }
-
     Beet.uuid = {};
     Beet.uuid.get = get;
 })(window)
@@ -1060,7 +1057,3 @@ Beet.exportToFile = function(data, name, callback){
 	}, function(){})   
     }, function(){})
 }
- 
-//window.Beet = Beet;
-
-//})(window, undefined)

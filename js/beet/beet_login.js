@@ -1,4 +1,3 @@
-//register Login
 Ext.namespace("Beet.apps.Login");
 Ext.define("Beet.apps.Login.LoginDialog", {
     extend : "Ext.Window", //继承

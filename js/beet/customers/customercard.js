@@ -361,16 +361,16 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 					win.show();
 				    }
 				},
-				{
-				    fieldLabel: "面值",
-				    name: "__par",
-				    xtype: "displayfield"
-				},
-				{
-				    fieldLabel: "保值",
-				    name: "__insure",
-				    xtype: "displayfield"
-				},
+				//{
+				//    fieldLabel: "面值",
+				//    name: "__par",
+				//    xtype: "displayfield"
+				//},
+				//{
+				//    fieldLabel: "保值",
+				//    name: "__insure",
+				//    xtype: "displayfield"
+				//},
 				{
 				    fieldLabel: "级别",
 				    name: "__level",
@@ -1087,8 +1087,8 @@ Ext.define("Beet.apps.customers.AddCustomerCard", {
 	form.setValues({
 	    "__code" : rawData["Code"],
 	    "__cardname" : rawData["Name"],
-	    "__par"  :  rawData["Par"],
-	    "__insure" : rawData["Insure"],
+	    //"__par"  :  rawData["Par"],
+	    //"__insure" : rawData["Insure"],
 	    "__level" : rawData["Level"],
 	    "endtime" : rawData["EndTime"]
 	});
