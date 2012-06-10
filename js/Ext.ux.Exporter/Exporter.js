@@ -5,8 +5,6 @@
  */
 Ext.define("Ext.ux.exporter.Exporter", {
     uses: [
-        "Ext.ux.exporter.Base64",
-        "Ext.ux.exporter.Button",
         "Ext.ux.exporter.csvFormatter.CsvFormatter",
         "Ext.ux.exporter.excelFormatter.ExcelFormatter"
     ],
