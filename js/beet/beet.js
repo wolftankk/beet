@@ -1041,9 +1041,9 @@ Beet.exportToFile = function(data, name, callback){
 		var blob = builder.getBlob();
 
 		fileWriter.onwriteend = function() {
-		    var object_url = get_object_url(blob)
+		    var object_url = get_object_url(blob);
 		    save_link.href = object_url;
-		    save_link.download = name
+		    save_link.download = name;
 		    
 		    if (click(save_link)){
 			if (callback && typeof(callback) == "function"){
