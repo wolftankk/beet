@@ -1,6 +1,6 @@
 Ext.namespace("Beet.apps.employees");
 
-Ext.onReady(function(){
+(function(window){
     Ext.syncRequire([
         "employees.addemployee",
         "employees.employeelist"
@@ -70,4 +70,4 @@ Ext.onReady(function(){
     if (Beet.cache.employee.branchesList == undefined){
 	getSubbrachesList();
     }
-});
+})(window);

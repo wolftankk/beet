@@ -2,6 +2,7 @@ Ext.Loader.setConfig({
     enabled: true,
     //disableCaching: false,//develop: true
     paths: {
+	"base"      : "js/beet",
 	"customers" : "js/beet/customers",
 	"employees" : "js/beet/employees",
 	"cards"	    : "js/beet/cards",

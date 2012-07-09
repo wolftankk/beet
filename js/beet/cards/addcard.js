@@ -3,6 +3,7 @@ Beet.registerMenu("cards", "cardAdmin", "卡项管理",
 	{
             xtype: "button",
             text: "增加卡项",
+	    permission: 1231,
             handler: function(){
                 var item = Beet.cache.menus["cards.AddCard"]
                 if (!item){

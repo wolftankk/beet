@@ -827,16 +827,7 @@ function createItemCategoryTree(){
     }
 }
 
-Ext.onReady(function(){
-    Ext.syncRequire([
-        "cards.addcard",
-        "cards.cardlist"
-        //"card.products",
-        //"card.cards", 
-        //"card.interests", 
-        //"card.packages", 
-        //"card.items", 
-        //"card.charges", 
-        //"card.rebate"
-    ]);
-});
+Ext.syncRequire([
+    "cards.addcard",
+    "cards.cardlist"
+]);

@@ -20,12 +20,7 @@ Beet.constants.checkStauts = Ext.create("Ext.data.Store", {
     ]    
 });
 
-Ext.onReady(
-    function(){
-	Ext.syncRequire([
-	    "warehouses.warehouselist",
-	    "warehouses.stockhistory"
-	])
-    }
-);
-
+Ext.syncRequire([
+    "warehouses.warehouselist",
+    "warehouses.stockhistory"
+])

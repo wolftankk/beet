@@ -1,10 +1,6 @@
 Ext.namespace("Beet.apps.customers")
 
-function time(){
-    return +(new Date());
-}
-
-
+Beet.apps.customers.getCTTypeData = Beet.getCTTypeData;
 Beet.apps.customers.getCustomerTypes = function(__callback){
     if (Beet.cache.customerTypes == undefined){
         Beet.cache.customerTypes = [];
@@ -33,16 +29,14 @@ Beet.apps.customers.getCustomerTypes = function(__callback){
     }
 }
 
-Ext.onReady(function(){
-    Ext.syncRequire([
-        "customers.plugins",
-        "customers.addcustomer",
-        "customers.customerlist",
-        "customers.advancesearch",
-        "customers.customercard",
-        "customers.createorder",
-        "customers.consumer",
-        "customers.sms",
-        "customers.activity"
-    ])
-})
+Ext.syncRequire([
+    "customers.plugins",
+    "customers.addcustomer",
+    "customers.customerlist",
+    "customers.advancesearch",
+    "customers.customercard",
+    "customers.createorder",
+    "customers.consumer",
+    "customers.sms",
+    "customers.activity"
+])

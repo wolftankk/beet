@@ -34,14 +34,6 @@
 	<script type="text/javascript" src="js/beet/beet_notifications.js"></script>
         <script type="text/javascript" src="js/beet/plugins/beet_proxy.js"></script>
 
-        <script type="text/javascript" src="js/beet/beet_customer.js"></script>
-        <script type="text/javascript" src="js/beet/beet_employee.js"></script>
-        <script type="text/javascript" src="js/beet/beet_card.js"></script>
-        <script type="text/javascript" src="js/beet/beet_warehouse.js"></script>
-        <script type="text/javascript" src="js/beet/beet_summary.js"></script>
-	<script type="text/javascript" src="js/beet/beet_setting.js"></script>
-
-
 	<script type="text/javascript" src="js/Ext.ux.Exporter/Exporter.js"></script>
 	<script type="text/javascript" src="js/Ext.ux.Exporter/Formatter.js"></script>
 	<script type="text/javascript" src="js/Ext.ux.Exporter/excelFormatter/ExcelFormatter.js"></script>
@@ -68,7 +60,16 @@
                     sessionId = Ext.util.Cookies.get("_sid");
                     if (!userId || !sessionId){
                         window.location = "index.html";
-                    }
+		    }
+
+		    Ext.syncRequire([
+			"base.beet_customer",
+			"base.beet_employee",
+			"base.beet_card",
+			"base.beet_warehouse",
+			"base.beet_summary",
+			"base.beet_setting"
+		    ])
                 });
     
             </script>

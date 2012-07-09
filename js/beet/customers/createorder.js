@@ -533,33 +533,45 @@ Ext.define("Beet.apps.customers.CreateOrder", {
                     Ext.MessageBox.alert("警告", "当前用户没有开卡, 请重新选择或为此用户开卡!");
                     return;
                 }else{
-                    me.selectedCustomerId = CTGUID;
-                    data = data[0];
-                    if (data.State == 1){
-                        //Ext.MessageBox.alert("警告", "当前用户已经销卡, 请重新选择或为此用户重新开卡!");
-                        return;
-                    }
-		    var customTigger = me.down("triggerfield[name=customername]");
-		    customTigger.suspendEvents();
-                    form.setValues({
-                        customername: data.CustomerName,
-                        mobile: rawData.CTMobile,
-                        ccardno: data.CardNo
-                    });
-		    customTigger.resumeEvents();
-                    //开始查询他的卡项, 套餐, 费用
+		    cardServer.CheckCustomerCard(CTGUID, {
+			success: function(isNotOutData) {
+			    if (isNotOutData) {
+				me.selectedCustomerId = CTGUID;
+				data = data[0];
+				if (data.State == 1){
+				    //Ext.MessageBox.alert("警告", "当前用户已经销卡, 请重新选择或为此用户重新开卡!");
+				    return;
+				}
+				var customTigger = me.down("triggerfield[name=customername]");
+				customTigger.suspendEvents();
+				form.setValues({
+				    customername: data.CustomerName,
+				    mobile: rawData.CTMobile,
+				    ccardno: data.CardNo
+				});
+				customTigger.resumeEvents();
+				//开始查询他的卡项, 套餐, 费用
 
-		    //update 本金
+				//update 本金
 
-		    me.currentCardCapital.setValue(data["Capital"])
-                    me.customerInfoBtn.enable();
-                    me.bindingItemsBtn.enable();
-		    me.bindingProductsBtn.enable();
-		    me.bindingPackageBtn.enable();
-                    me.createOrderBtn.enable();
-                    me.customerHistoryBtn.enable();
-                    me.currentCardBalanceLable.setValue('<span style="color:black;font-weight:bolder">' + data["Balance"] + "</span>");
-                    me.currentCustomerBalance = data["Balance"];
+				me.currentCardCapital.setValue(data["Capital"])
+				me.customerInfoBtn.enable();
+				me.bindingItemsBtn.enable();
+				me.bindingProductsBtn.enable();
+				me.bindingPackageBtn.enable();
+				me.createOrderBtn.enable();
+				me.customerHistoryBtn.enable();
+				me.currentCardBalanceLable.setValue('<span style="color:black;font-weight:bolder">' + data["Balance"] + "</span>");
+				me.currentCustomerBalance = data["Balance"];
+			    }else {
+				Ext.MessageBox.alert("警告", "当前用户会员卡已过期!");
+				return;
+			    } 
+			},
+			failure: function(error) {
+			    Ext.Error.raise(error)
+			}
+		    })
                 }
             },
             failure: function(error){

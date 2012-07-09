@@ -69,19 +69,17 @@ Beet.registerMenu = function(type, name, title, data){
     if (!data){
         throw new Error("This `data` must be defined");
     }
-    //if (Beet.menus[type].menus[title]){
-    //    throw new Error(title+" has registed");
-    //}
+
     if (Beet.menus[type].menus[name] == undefined){
         Beet.menus[type].menus[name] = {
             title: title,
             data : []
         }
     }
+    
     Beet.menus[type].menus[name].data.push(data);
-
     if (Beet.navigationbar) {
-	//Beet.navigationbar.refreshMenu();
+        Beet.navigationbar.refreshMenu();
     }
 }
 
@@ -119,51 +117,52 @@ Ext.define("Beet.apps.HeaderPanel", {
 	    })
 	)
 	me.doLayout();
-
-	me.on("afterrender", function(){
-	    setTimeout(function(){
-		me.refreshMenu();	
-	    }, 200)    
-	})
     },
     _updateMenu: function(item){
 	var _key = item["_key"];
 	if (Beet.menus[_key]){
 	    item.b_loaded = true;
-	    var panel = item.add(
-		{
+	    if (!Beet.menus[_key].panel) {
+		Beet.menus[_key].panel = item.add({
 		    xtype: "container",
 		    layout: "hbox",
 		    flex: 1,
 		    defaultType: "buttongroup",
 		    defaults: {
-			height: 100
+			height: 100	
 		    }
-		}
-	    );
-	    Beet.menus[_key].panel = panel;
+		})
+	    }
+	    var panel = Beet.menus[_key].panel;
+
 	    if (Beet.menus[_key] && Beet.menus[_key].menus){
 		var menus = Beet.menus[_key].menus;
 		for (var menuName in menus){
 		    if (!menus[menuName].panel){
-			menus[menuName].panel = panel.add(
-			    {
-				xtype: "buttongroup",
-				title: menus[menuName].title,
-				layout: "anchor",
-				defaults: {
-				    scale: "large",
-				    rowspan: 1
-				}
-			    }
-			);
+		        menus[menuName].panel = panel.add(
+		            {
+		        	xtype: "buttongroup",
+		        	title: menus[menuName].title,
+		        	layout: "anchor",
+		        	defaults: {
+		        	    scale: "large",
+		        	    rowspan: 1
+		        	}
+		            }
+		        );
+			menus[menuName]._data = {}
 		    }
 		    if (menus[menuName].data && menus[menuName].data.length > 0){
 		       for (var a = 0; a < menus[menuName].data.length; ++a){
-			   var list = menus[menuName].data[a]
-			   for (var i = 0; i < list.length; ++i){
-			       menus[menuName].panel.add(list[i])
-			   }
+		           var list = menus[menuName].data[a]
+		           for (var i = 0; i < list.length; ++i){
+				var b = list[i];
+				if (!menus[menuName]._data[b.text]) {
+				    //这里做权限控制
+				    menus[menuName].panel.add(b);
+				    menus[menuName]._data[b.text] = true;
+				}
+		           }
 		       }
 		    }
 		}
@@ -682,7 +681,6 @@ Ext.define("Beet.apps.Viewport", {
 	that.getCTTypeData()
 
 	Beet.getCTTypeData = that.getCTTypeData;
-	Beet.apps.customers.getCTTypeData = Beet.getCTTypeData;
     },
     getCTTypeData : function(__callback, force){
 	var customerServer = Beet.constants.customerServer;
