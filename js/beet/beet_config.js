@@ -12,7 +12,7 @@ Ext.Loader.setConfig({
 });
 
 Beet.config = {
-    serverUrl: "192.168.11.4",
+    serverUrl: "223.167.155.69",
     getPrivileUrl: function(){
 	return this.serverUrl + ":6660";
     },

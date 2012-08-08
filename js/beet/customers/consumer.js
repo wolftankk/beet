@@ -168,7 +168,7 @@ Ext.define("Beet.apps.customers.EndConsumer", {
 				    text: "查看物料详情",
 				    scale: "large",
 				    width: 100,
-				    disabled: true,
+				    //disabled: true,
 				    name: "viewStockInfo",
 				    handler: function(){
                                         var grid = me.orderListPanel.grid,
@@ -288,26 +288,6 @@ Ext.define("Beet.apps.customers.EndConsumer", {
             success: function(data){
                 var data = Ext.JSON.decode(data)["MetaData"];
                 var fields = me.orderListPanel.__fields = [];
-
-		//var _actions = {
-		//    xtype: "actioncolumn",
-		//    width: 30,
-		//    header: "操作",
-		//    items: []
-		//}
-
-		//_actions.items.push(
-		//    {
-		//	icon: './resources/themes/images/fam/information.png',
-		//	tooltip: "查看",
-		//	handler: function(grid, rowIndex, colIndex){
-		//	    //var d = me.storeProxy.getAt(rowIndex)
-		//	    //me.editEmployeeFn(d);
-		//	}
-		//    }
-		//);
-
-		//columns.push(_actions);
 
                 for (var c in data){
                     var meta = data[c];
@@ -848,7 +828,6 @@ Ext.define("Beet.apps.cards.StockInfo", {
 	    width: "100%",
 	    dock: "bottom",
 	    items: [
-		"->",
 		{
 		    text: "打印消费单",
 		    handler: function(){
@@ -861,15 +840,25 @@ Ext.define("Beet.apps.cards.StockInfo", {
 			var pop = window.open("print.html#indexno="+me.indexno+"&type=stockinfo&employee="+Beet.cache.currentEmployName+"&customer="+me.customername+"&storename="+Beet.cache.currentEmployStoreName, "打印物料单", "menubar=no,location=no,resizable=no,scrollbars=no,status=no,width=715,height=592")
 		    }
 		},
+		"->","-",
+		{
+		    boxLabel: "扣除本金?",
+		    xtype: "checkbox",
+		    name: "isusingmoney",
+		    checked: true,
+		    inputValue: true
+		},
 		{
 		    text: "结算",
 		    width: 100,
 		    name: "clearingFee",
-		    handler: function(){
+		    handler: function(f){
+			var capital = f.previousSibling();
 			var results = [];
 			results.push({
 			    index: 0,
-			    indexno: me.indexno
+			    indexno: me.indexno,
+			    iscapital: capital.value
 			});
 			if (results.length > 0){
 			    cardServer.EndCustomer(Ext.JSON.encode(results), {
@@ -909,7 +898,7 @@ Ext.define("Beet.apps.cards.StockInfo", {
 			}
 		    }
 		},
-		"-","-",
+		"-",
 		{
 		    text: "下单回退",
 		    width: 100,
@@ -977,6 +966,18 @@ Ext.define("Beet.apps.cards.StockInfo", {
                         columns.push(c);
                     }
                 }
+		
+		//ADD
+		//columns.push({
+		//    flex: 1,
+		//    header: "扣除本金?",
+		//    dataIndex: "isusingmoney",
+		//    xtype : "checkcolumn",
+		//    editor: {
+		//	xtype: "checkbox",
+		//	cls: 'x-grid-checkheader-editor'
+		//    }
+		//})
 
                 me.initializeOrderItemsGrid();
             },
@@ -1055,6 +1056,18 @@ Ext.define("Beet.apps.cards.StockInfo", {
             });
             me.orderItemPanel.store = store;
 
+	    //store.addListener("load", function(s, records, isSuccessful){
+	    //    if (records.length > 0) {
+	    //        for (var c = 0; c < records.length; ++c){
+	    //    	var record = records[c];
+	    //    	var isGiff = record.get("IsGiff");
+	    //    	if (isGiff) {
+	    //    	    //Disable isusingmoney 使用本金
+	    //    	}
+	    //        }
+	    //        console.log(grid)
+	    //    }
+	    //})
 
             me.orderItemPanel.add(grid);
             me.orderItemPanel.doLayout();
@@ -1207,7 +1220,6 @@ Ext.define("Beet.apps.cards.StockInfo", {
         			c.xtype = "numbercolumn";
         			break;
         		}
-
                         columns.push(c);
                     }
                 }
