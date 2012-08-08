@@ -238,7 +238,7 @@ Ext.define("Beet.apps.customers.CustomerList", {
 		}
             ],
             bbar: Ext.create('Ext.PagingToolbar', {
-                store: this.storeProxy,
+                store: that.storeProxy,
                 displayInfo: true,
                 displayMsg: '当前显示 {0} - {1}, 总共{2}条数据',
                 emptyMsg: "没有数据"

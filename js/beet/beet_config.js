@@ -7,6 +7,7 @@ Ext.Loader.setConfig({
 	"employees" : "js/beet/employees",
 	"cards"	    : "js/beet/cards",
 	"warehouses": "js/beet/warehouses",
+	"summary"   : "js/beet/summary",
 	"settings"  : "js/beet/settings"
     }
 });
